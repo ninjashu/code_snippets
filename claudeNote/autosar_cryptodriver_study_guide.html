@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR Crypto Driver — Complete Study Guide R24-11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f0f0f5;line-height:1.6}
+.header{background:#0d0d2b;color:#fff;padding:20px 32px}
+.header h1{font-size:22px;font-weight:500}
+.header p{font-size:13px;color:#8888cc;margin-top:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:12px 32px 0;background:#fff;border-bottom:1px solid #e0ddd5}
+.tab{padding:8px 14px;font-size:12px;border:1px solid #ddd;border-radius:6px 6px 0 0;cursor:pointer;background:#f5f4f0;color:#666;transition:all .15s;border-bottom:none}
+.tab.active{background:#fff;color:#1a1a1a;font-weight:600;border-bottom:1px solid #fff;margin-bottom:-1px}
+.content{padding:24px 32px;max-width:1100px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+h2{font-size:17px;font-weight:600;margin:20px 0 8px;color:#0d0d2b}
+h3{font-size:13px;font-weight:700;margin:12px 0 6px;color:#333;text-transform:uppercase;letter-spacing:.4px}
+p{margin-bottom:8px;font-size:13px;line-height:1.65}
+.card{background:#fff;border:1px solid #e0ddd5;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}
+th{text-align:left;padding:7px 10px;background:#f5f4f0;border-bottom:1px solid #e0ddd5;font-weight:700;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.4px}
+td{padding:7px 10px;border-bottom:1px solid #f0ede5;vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:'Courier New',monospace;font-size:11px;background:#f0ede5;padding:1px 5px;border-radius:4px;color:#c7254e}
+.tip{background:#e6f0ff;border-left:3px solid #2255bb;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.warn{background:#fff8e6;border-left:3px solid #cc8800;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.danger{background:#ffeeee;border-left:3px solid #cc3333;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.good{background:#edfaee;border-left:3px solid #2a8c3e;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.mini{background:#f5f4f0;border-radius:8px;padding:12px;font-size:12px;line-height:1.7}
+.mini strong{display:block;font-size:10px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.fnode{padding:5px 12px;border:1px solid #ccc;border-radius:6px;font-size:11px;background:#fff;text-align:center}
+.farrow{color:#888;font-size:14px;flex-shrink:0}
+details{margin:8px 0;border:1px solid #e0ddd5;border-radius:8px;overflow:hidden}
+summary{cursor:pointer;font-size:13px;font-weight:700;color:#0d0d2b;padding:10px 14px;background:#f8f7f3;list-style:none;display:flex;align-items:center;gap:8px}
+summary::before{content:"▶";font-size:10px;color:#888;transition:transform .2s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+.inner{padding:14px;background:#fff}
+.step{padding:8px 14px;border-left:2px solid #e0ddd5;margin:4px 0 4px 12px;font-size:12px;line-height:1.6}
+.step.hi{border-left-color:#2255bb;background:#e6f0ff;border-radius:0 6px 6px 0}
+.sws{font-size:10px;color:#999;font-family:'Courier New',monospace}
+/* state pills */
+.sp{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:2px}
+.sp-idle{background:#e6f0ff;color:#0c2a7c;border:1px solid #aac0f0}
+.sp-active{background:#fff8e6;color:#7a5a00;border:1px solid #fac775}
+.sp-error{background:#ffeeee;color:#7a0000;border:1px solid #f09595}
+/* service type badges */
+.svc{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:2px}
+.svc-hash{background:#e6f0ff;color:#0c2a7c}
+.svc-sym{background:#e6f3e8;color:#1a6b2a}
+.svc-asym{background:#fff8e6;color:#7a5a00}
+.svc-key{background:#ffeeee;color:#7a0000}
+.svc-rng{background:#f0e6ff;color:#4a0070}
+/* access level */
+.ra{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700}
+.ra-allow{background:#e6f3e8;color:#1a6b2a}
+.ra-enc{background:#fff8e6;color:#7a5a00}
+.ra-copy{background:#e6f0ff;color:#0c2a7c}
+.ra-deny{background:#ffeeee;color:#7a0000}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>AUTOSAR Crypto Driver (CRYPTO) — Complete Study Guide</h1>
+  <p>Based on AUTOSAR CP R24-11 | Document ID 807 | All SWS IDs | Industry + Exam Grade</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="T('overview')">Overview</div>
+  <div class="tab" onclick="T('states')">State Machine</div>
+  <div class="tab" onclick="T('keys')">Key Management</div>
+  <div class="tab" onclick="T('api')">API Reference</div>
+  <div class="tab" onclick="T('sequences')">Sequences</div>
+  <div class="tab" onclick="T('nvm')">NVM Key Storage</div>
+  <div class="tab" onclick="T('errors')">Errors &amp; Debug</div>
+  <div class="tab" onclick="T('davinci')">DaVinci Config</div>
+  <div class="tab" onclick="T('testing')">Integration Testing</div>
+</div>
+
+<div class="content">
+
+<!-- ===== OVERVIEW ===== -->
+<div class="section active" id="s-overview">
+<h2>What is the Crypto Driver? — "The security engine of the ECU"</h2>
+<p>The Crypto Driver is the lowest software layer in the AUTOSAR crypto stack, sitting directly above the hardware (HSM, AES accelerator, SW library). It abstracts crypto hardware capabilities into a uniform job-based interface consumed by the Crypto Interface (CRYIF) above it.</p>
+
+<div class="tip"><strong>Mental model:</strong> The Crypto Driver is like a factory floor with specialized machines (Crypto Driver Objects). Each machine (e.g., AES accelerator, RSA engine, SW implementation) can do specific operations. The factory foreman (CRYIF) assigns jobs to machines based on capability. Jobs arrive with all data needed — key, plaintext, output buffer — and the machine does the work.</div>
+
+<h2>Stack Position</h2>
+<div class="flow">
+  <div class="fnode" style="background:#e6f3e8">Application / SWC</div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#e6f3e8"><strong>CSM</strong><br><small>Crypto Service Manager</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#e6f0ff"><strong>CRYIF</strong><br><small>Crypto Interface</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#fff8e6;border:2px solid #cc8800"><strong>Crypto Driver</strong><br><small>this module</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#f0e6ff">HSM / HW Accelerator / SW Lib</div>
+</div>
+
+<h2>Key Architectural Concepts</h2>
+<div class="grid3">
+  <div class="mini"><strong>Crypto Driver Object (CDO)</strong>An independent crypto "device" (HW or SW). E.g., AES-HSM accelerator, RSA-SW library. Each CDO has its own job queue and workspace. One CDO processes one job at a time. [SWS_Crypto_00014]</div>
+  <div class="mini"><strong>Job</strong>A configured CSM job referencing: a crypto primitive (service+algorithm), a key, input/output buffers, and an operation mode (START/UPDATE/FINISH). Jobs are routed through channels: CSM → CRYIF → CDO.</div>
+  <div class="mini"><strong>Primitive</strong>A specific algorithm implementation: Service (e.g. ENCRYPT) + Family (e.g. AES) + Mode (e.g. CBC) + SecondaryFamily. One CDO references multiple primitives to declare its capabilities.</div>
+  <div class="mini"><strong>Key</strong>Container with one or more key elements. Each key has a state (valid/invalid). Key material always in element ID=1. Key types define which elements exist (template).</div>
+  <div class="mini"><strong>Job Queue</strong>Optional per CDO. Priority-ordered. CryptoQueueSize=0 disables. Higher priority number = higher priority. Queue holds only START-mode jobs. [SWS_Crypto_00029, 00030]</div>
+  <div class="mini"><strong>Channel</strong>Path from CSM queue through CRYIF to a specific CDO. Jobs are routed on channels. Channel width determines how many parallel operations are possible.</div>
+</div>
+
+<h2>Services Supported</h2>
+<div class="card">
+<table>
+  <tr><th>Category</th><th>Services</th><th>Key required?</th></tr>
+  <tr><td><span class="svc svc-hash">Hash / Integrity</span></td><td>CRYPTO_HASH, CRYPTO_MACGENERATE, CRYPTO_MACVERIFY</td><td>No (HASH), Yes (MAC)</td></tr>
+  <tr><td><span class="svc svc-sym">Symmetric Crypto</span></td><td>CRYPTO_ENCRYPT, CRYPTO_DECRYPT, CRYPTO_AEADENCRYPT, CRYPTO_AEADDECRYPT</td><td>Yes</td></tr>
+  <tr><td><span class="svc svc-asym">Asymmetric Crypto</span></td><td>CRYPTO_SIGNATUREGENERATE, CRYPTO_SIGNATUREVERIFY</td><td>Yes</td></tr>
+  <tr><td><span class="svc svc-rng">RNG</span></td><td>CRYPTO_RANDOMGENERATE, CRYPTO_RANDOMSEED</td><td>Yes (seed state)</td></tr>
+  <tr><td><span class="svc svc-key">Key Management</span></td><td>CRYPTO_KEYGENERATE, CRYPTO_KEYDERIVE, CRYPTO_KEYEXCHANGECALCPUBVAL, CRYPTO_KEYEXCHANGECALCSECRET, CRYPTO_KEYSETVALID, CRYPTO_KEYSETINVALID, CRYPTO_KEYWRAP, CRYPTO_KEYUNWRAP</td><td>Yes</td></tr>
+  <tr><td><span class="svc" style="background:#f0e6ff;color:#4a0070">Custom</span></td><td>CUSTOM_SERVICE (via Crypto_ProcessJob), Crypto_CustomSync</td><td>Profile-defined</td></tr>
+</table>
+</div>
+
+<h2>Operation Modes — The streaming model</h2>
+<div class="card">
+<p>Every crypto service uses START/UPDATE/FINISH operation modes, which can be combined in a single call:</p>
+<table>
+  <tr><th>Mode</th><th>Bit value</th><th>Meaning</th></tr>
+  <tr><td><code>CRYPTO_OPERATIONMODE_START</code></td><td>0x01</td><td>New request. Cancels any previous request for this job. Switches to Active state.</td></tr>
+  <tr><td><code>CRYPTO_OPERATIONMODE_UPDATE</code></td><td>0x02</td><td>Feed input data to the primitive. Can be called multiple times (streaming).</td></tr>
+  <tr><td><code>CRYPTO_OPERATIONMODE_FINISH</code></td><td>0x04</td><td>All data fed. Finalize and produce output. Returns to Idle state.</td></tr>
+  <tr><td><code>CRYPTO_OPERATIONMODE_SINGLECALL</code></td><td>0x07 (OR of all)</td><td>START+UPDATE+FINISH in one call. Most efficient for small data.</td></tr>
+  <tr><td><code>CRYPTO_OPERATIONMODE_SAVE_CONTEXT</code></td><td>-</td><td>Save intermediate workspace state (snapshot). Security risk — use only if needed.</td></tr>
+  <tr><td><code>CRYPTO_OPERATIONMODE_RESTORE_CONTEXT</code></td><td>-</td><td>Restore a previously saved workspace state.</td></tr>
+</table>
+<div class="tip">Only one interface: Crypto_ProcessJob(). The operation mode embedded in the job struct tells the driver what to do. START always resets any previous state for that job. [SWS_Crypto_00017, 00020]</div>
+</div>
+
+<h2>Key Constraints (Exam must-know)</h2>
+<div class="card">
+<p>1. <strong>One CDO = one job at a time</strong> [SWS_Crypto_00014]. n CDOs = n parallel jobs [SWS_Crypto_00117].</p>
+<p>2. <strong>configPtr always NULL</strong> — Crypto_Init(NULL). [SWS_Crypto_00215]</p>
+<p>3. <strong>No sequence diagrams</strong> — Section 9 explicitly says "n/a".</p>
+<p>4. <strong>CDO 0 = default RNG</strong> — If any CDO needs random numbers but has no own RNG, uses CDO 0. [SWS_Crypto_00224, 00225]</p>
+<p>5. <strong>Key material = element ID 1</strong> — Always. Consistency across key types.</p>
+<p>6. <strong>NVM write only on KeySetValid</strong> — Not on KeyElementSet. [SWS_Crypto_00242]</p>
+<p>7. <strong>Post-build NOT supported</strong> — VARIANT-PRE-COMPILE only. [ECUC_Crypto_00001]</p>
+<p>8. <strong>Multiple driver instances</strong> — Use naming convention Crypto_&lt;vi&gt;_&lt;ai&gt; to avoid collisions. [SWS_Crypto_00012]</p>
+<p>9. <strong>HASH and RANDOMGENERATE</strong> — Only services that don't require a key. [SWS_Crypto_00072]</p>
+<p>10. <strong>Custom service dispatchId formula</strong>: (ServiceInfoType&lt;&lt;24) | (AlgoFamilyCustomId&lt;&lt;16) | (AlgoMode&lt;&lt;8) | (ServiceId). [SWS_Crypto_00259]</p>
+</div>
+
+<h2>R24-11 Changes</h2>
+<div class="tip"><strong>R24-11:</strong> Added CRYPTO_KEYWRAP and CRYPTO_KEYUNWRAP to CryptoPrimitiveService enum. Updated Custom service/function profile 1 (KeyM/certificate management). Added multicore/partition support for CryptoDriverObject (CryptoDriverObjectEcucPartitionRef). Defined KeyM return types (CRYPTO_KEYM_E_* values).</div>
+</div>
+
+<!-- ===== STATE MACHINE ===== -->
+<div class="section" id="s-states">
+<h2>Job State Machine [SWS_Crypto_00018]</h2>
+<p>Each job (per CDO) has its own state. The state machine drives what operations are valid at each point.</p>
+
+<div class="card">
+<div class="flow">
+  <div class="fnode"><span class="sp sp-idle">Idle</span><br><small>initial/default</small></div>
+  <div class="farrow">→ ProcessJob(START) →</div>
+  <div class="fnode"><span class="sp sp-active">Active</span><br><small>processing</small></div>
+  <div class="farrow">→ FINISH completes →</div>
+  <div class="fnode"><span class="sp sp-idle">Idle</span></div>
+</div>
+<div class="flow">
+  <div class="fnode"><span class="sp sp-active">Active</span></div>
+  <div class="farrow">→ ProcessJob(START) (reset) →</div>
+  <div class="fnode"><span class="sp sp-active">Active</span><br><small>restarted</small></div>
+</div>
+<div class="flow">
+  <div class="fnode"><span class="sp sp-active">Active</span></div>
+  <div class="farrow">→ Internal error →</div>
+  <div class="fnode"><span class="sp sp-idle">Idle</span><br><small>data discarded</small></div>
+</div>
+</div>
+
+<h2>State Transition Rules</h2>
+<div class="card">
+<table>
+  <tr><th>Current State</th><th>Operation Mode</th><th>Result</th><th>SWS</th></tr>
+  <tr><td><span class="sp sp-idle">Idle</span></td><td>START</td><td>→ <span class="sp sp-active">Active</span>. Process START.</td><td class="sws">SWS_Crypto_00020</td></tr>
+  <tr><td><span class="sp sp-idle">Idle</span></td><td>UPDATE or FINISH (no START)</td><td>→ Return E_NOT_OK. Cannot update/finish without starting.</td><td class="sws">SWS_Crypto_00118</td></tr>
+  <tr><td><span class="sp sp-active">Active</span></td><td>START</td><td>→ Cancel previous, <span class="sp sp-active">Active</span> with new request. All previous data discarded.</td><td class="sws">SWS_Crypto_00020, 00017</td></tr>
+  <tr><td><span class="sp sp-active">Active</span></td><td>UPDATE</td><td>→ Stay <span class="sp sp-active">Active</span>. Feed data. May produce intermediate output (e.g., AES-CBC).</td><td class="sws">SWS_Crypto_00018</td></tr>
+  <tr><td><span class="sp sp-active">Active</span></td><td>FINISH</td><td>→ Finalize. Return result. → <span class="sp sp-idle">Idle</span>.</td><td class="sws">SWS_Crypto_00023</td></tr>
+  <tr><td><span class="sp sp-active">Active</span></td><td>Internal error</td><td>→ <span class="sp sp-idle">Idle</span>. All data discarded. Async: callback called with error. [SWS_Crypto_00119]</td><td class="sws">SWS_Crypto_00025, 00119</td></tr>
+</table>
+<div class="warn"><strong>START resets always:</strong> Calling ProcessJob with START while in Active state is valid — it cancels the previous operation and starts fresh. This is NOT an error, it is the designed reset mechanism. But it CANNOT be done while the job is ACTIVELY being processed (i.e., running on HW).</div>
+</div>
+
+<h2>Job Queue Behavior</h2>
+<div class="card">
+<table>
+  <tr><th>Scenario</th><th>Behavior</th><th>SWS</th></tr>
+  <tr><td>Queue empty, CDO idle, ProcessJob called</td><td>Job → Active immediately, start executing.</td><td class="sws">SWS_Crypto_00031</td></tr>
+  <tr><td>Queue full, ProcessJob called</td><td>Return CRYPTO_E_BUSY.</td><td class="sws">SWS_Crypto_00032</td></tr>
+  <tr><td>CDO busy, async job, queue not full, mode=START</td><td>Job queued. Return E_OK.</td><td class="sws">SWS_Crypto_00033</td></tr>
+  <tr><td>CDO busy, sync job, queue not full</td><td>NOT queued. Return CRYPTO_E_BUSY.</td><td class="sws">SWS_Crypto_00034</td></tr>
+  <tr><td>Job in Active, ProcessJob called for SAME job with UPDATE/FINISH</td><td>Bypass queue. Deliver to active job.</td><td class="sws">SWS_Crypto_00121</td></tr>
+  <tr><td>CryptoQueueSize = 0</td><td>Queue disabled. All async jobs: return CRYPTO_E_BUSY if CDO busy.</td><td class="sws">SWS_Crypto_00179</td></tr>
+</table>
+<div class="tip"><strong>Priority rule:</strong> Higher priority VALUE = higher importance. Jobs sorted by priority in queue. Sync jobs never go in queue — they either run immediately or get CRYPTO_E_BUSY.</div>
+</div>
+
+<h2>Synchronous vs Asynchronous Processing</h2>
+<div class="card">
+<div class="grid2">
+  <div class="mini"><strong>Synchronous [SWS_Crypto_00026]</strong>Result computed within the function call context. Function returns result directly. Configured in Crypto_JobType. NOT queued (returns CRYPTO_E_BUSY if CDO busy). Appropriate for SW crypto libs and fast operations.</div>
+  <div class="mini"><strong>Asynchronous [SWS_Crypto_00027, 00028]</strong>Function hands off job and returns immediately (E_OK = accepted). Actual computation done in Crypto_MainFunction(). On completion: CryIf_CallbackNotification() called with job + result. Queue used for async jobs.</div>
+</div>
+<div class="info" style="margin-top:8px">Synchronous priority interrupt: If sync job priority &gt; highest queue priority, Crypto Driver disables queue processing until the sync job completes and the next MainFunction cycle runs. [SWS_Crypto_00199]</div>
+</div>
+</div>
+
+<!-- ===== KEY MANAGEMENT ===== -->
+<div class="section" id="s-keys">
+<h2>Key Management — Deep Dive</h2>
+
+<h2>Key Hierarchy</h2>
+<div class="flow">
+  <div class="fnode" style="background:#e6f0ff">CryptoKey<br><small>ID + state</small></div>
+  <div class="farrow">→ references →</div>
+  <div class="fnode" style="background:#fff8e6">CryptoKeyType<br><small>template</small></div>
+  <div class="farrow">→ references →</div>
+  <div class="fnode" style="background:#e6f3e8">CryptoKeyElement[1..n]<br><small>actual data slots</small></div>
+</div>
+
+<div class="card">
+<h3>CryptoKey</h3>
+<p>Runtime key instance. Has a unique CryptoKeyId. Has state: VALID or INVALID. References one CryptoKeyType (template). May reference an NvBlock for persistence.</p>
+<p><strong>Key state rules [SWS_Crypto_00038, 00039]:</strong></p>
+<div class="step">Key INVALID → all crypto services using it return CRYPTO_E_KEY_NOT_VALID</div>
+<div class="step">Crypto_KeyElementSet() called → key state set to INVALID immediately (unknown state during write) [SWS_Crypto_00038 Note]</div>
+<div class="step">Crypto_KeySetValid() called → key state set to VALID (triggers NVM write if persist configured)</div>
+<div class="step">Crypto_KeySetInvalid() called → key state set to INVALID explicitly</div>
+<div class="step hi">After init: if all required key elements have a value → key state = VALID [SWS_Crypto_00251]</div>
+</div>
+
+<div class="card">
+<h3>CryptoKeyElement — The data slot</h3>
+<p>Actual storage container. Identified by CryptoKeyElementId. Elements across different keys have separate memory areas (RAM + NV).</p>
+<table>
+  <tr><th>Parameter</th><th>Values</th><th>Meaning</th></tr>
+  <tr><td>CryptoKeyElementId</td><td>0..n (ID=1 always = key material)</td><td>ID=1 is always the primary key material. ID=11 often ALGORITHM selector.</td></tr>
+  <tr><td>CryptoKeyElementSize</td><td>1..4294967295</td><td>Max bytes. Actual written size stored separately.</td></tr>
+  <tr><td>CryptoKeyElementReadAccess</td><td>CRYPTO_RA_ALLOWED (0x00), CRYPTO_RA_ENCRYPTED (0x01), CRYPTO_RA_INTERNAL_COPY (0x02), CRYPTO_RA_DENIED (0x03)</td><td>Lower value = higher access right. RA_ALLOWED can also be ENCRYPTED and INTERNAL_COPY by hierarchy.</td></tr>
+  <tr><td>CryptoKeyElementWriteAccess</td><td>CRYPTO_WA_ALLOWED (0x00), CRYPTO_WA_ENCRYPTED (0x01), CRYPTO_WA_INTERNAL_COPY (0x02), CRYPTO_WA_DENIED (0x03)</td><td>Same hierarchy as read access.</td></tr>
+  <tr><td>CryptoKeyElementPersist</td><td>TRUE/FALSE</td><td>TRUE = stored in NVM on KeySetValid</td></tr>
+  <tr><td>CryptoKeyElementAllowPartialAccess</td><td>TRUE/FALSE</td><td>TRUE = can read/write less than full element size</td></tr>
+  <tr><td>CryptoKeyElementInitValue</td><td>String (default=0)</td><td>Value loaded at startup if element has no NVM data</td></tr>
+  <tr><td>CryptoKeyElementFormat</td><td>BIN_OCTET, BIN_SHEKEYS, BIN_RSA_PRIVATEKEY, BIN_RSA_PUBLICKEY, BIN_IDENT_PUBLICKEY, BIN_IDENT_PRIVATEKEY_PKCS8</td><td>Data format for this element</td></tr>
+</table>
+</div>
+
+<h2>Access Control Hierarchy (Critical exam topic)</h2>
+<div class="card">
+<p>Access levels are ranked by value — lower value = higher privilege:</p>
+<div class="grid2">
+  <div>
+    <strong>Read Access:</strong><br>
+    <span class="ra ra-allow">CRYPTO_RA_ALLOWED = 0x00</span> → can be read as plaintext<br>
+    <span class="ra ra-enc">CRYPTO_RA_ENCRYPTED = 0x01</span> → can be read encrypted only<br>
+    <span class="ra ra-copy">CRYPTO_RA_INTERNAL_COPY = 0x02</span> → can only be copied within same driver<br>
+    <span class="ra ra-deny">CRYPTO_RA_DENIED = 0x03</span> → cannot be read at all
+  </div>
+  <div>
+    <strong>Write Access:</strong><br>
+    <span class="ra ra-allow">CRYPTO_WA_ALLOWED = 0x00</span> → can be written as plaintext<br>
+    <span class="ra ra-enc">CRYPTO_WA_ENCRYPTED = 0x01</span> → can be written encrypted only<br>
+    <span class="ra ra-copy">CRYPTO_WA_INTERNAL_COPY = 0x02</span> → can only be filled from internal copy<br>
+    <span class="ra ra-deny">CRYPTO_WA_DENIED = 0x03</span> → cannot be written at all
+  </div>
+</div>
+<p style="font-size:12px;margin-top:8px"><strong>Hierarchy rule:</strong> If element has RA_INTERNAL_COPY (0x02), it ALSO inherits permissions of RA_ENCRYPTED (0x01) and RA_ALLOWED (0x00) — i.e., element can also be read encrypted or as plaintext. This is by integer comparison. [SWS_Crypto_00219]</p>
+<div class="warn"><strong>Key copy rule [SWS_Crypto_00220]:</strong> Source key element must have ≥ rights (≤ value) than destination. Source must have at least CRYPTO_RA_INTERNAL_COPY or lower (≤ 0x02) to be copied.</div>
+</div>
+
+<h2>Key Formats</h2>
+<div class="card">
+<table>
+  <tr><th>Format</th><th>Value</th><th>Used for</th><th>Standard</th></tr>
+  <tr><td><code>CRYPTO_KE_FORMAT_BIN_OCTET</code></td><td>0x01</td><td>ECC keys (raw binary X|Y for public, X|Y|Scalar for private)</td><td>Driver-specific</td></tr>
+  <tr><td><code>CRYPTO_KE_FORMAT_BIN_SHEKEYS</code></td><td>0x02</td><td>SHE hardware keys (M1M2M3 format)</td><td>SHE standard</td></tr>
+  <tr><td><code>CRYPTO_KE_FORMAT_BIN_IDENT_PRIVATEKEY_PKCS8</code></td><td>0x03</td><td>Private key with OID identifier (ASN.1)</td><td>RFC 5958</td></tr>
+  <tr><td><code>CRYPTO_KE_FORMAT_BIN_IDENT_PUBLICKEY</code></td><td>0x04</td><td>Public key with OID identifier (ASN.1 SubjectPublicKeyInfo)</td><td>RFC 5280</td></tr>
+  <tr><td><code>CRYPTO_KE_FORMAT_BIN_RSA_PRIVATEKEY</code></td><td>0x05</td><td>RSA private key (n, e, d, p, q, ...)</td><td>RFC 8017</td></tr>
+  <tr><td><code>CRYPTO_KE_FORMAT_BIN_RSA_PUBLICKEY</code></td><td>0x06</td><td>RSA public key (n, e)</td><td>RFC 8017</td></tr>
+</table>
+</div>
+
+<h2>ECC Key Formats (Exam detail)</h2>
+<div class="card">
+<table>
+  <tr><th>Key type</th><th>Format</th><th>Example (P256)</th></tr>
+  <tr><td>NIST/Brainpool Public Key</td><td>X | Y (little-endian)</td><td>X(32 bytes) | Y(32 bytes) = 64 bytes</td></tr>
+  <tr><td>NIST/Brainpool Private Key</td><td>X | Y | Scalar (little-endian)</td><td>X(32) | Y(32) | Scalar(32) = 96 bytes</td></tr>
+  <tr><td>ED25519 Public Key</td><td>Point X (little-endian)</td><td>X(32 bytes)</td></tr>
+  <tr><td>ED25519 Private Key</td><td>Seed K | Point X (little-endian)</td><td>K(32) | X(32) = 64 bytes</td></tr>
+</table>
+</div>
+
+<h2>SHE Key Handling</h2>
+<div class="card">
+<p>For SHE (Security Hardware Extension) hardware keys: [SWS_Crypto_00255]</p>
+<div class="step">Set CryptoKeyElementFormat = CRYPTO_KE_FORMAT_BIN_SHEKEYS</div>
+<div class="step">Call Crypto_KeyElementSet() with SHE key in M1M2M3 format, keyElementId=1</div>
+<div class="step">Call Crypto_KeySetValid() → triggers actual load into SHE hardware</div>
+<div class="step hi">SHE returns M4M5 proof. Read with Crypto_KeyElementGet(keyElementId=2) = CRYPTO_KE_MAC_PROOF or CRYPTO_KE_CIPHER_PROOF</div>
+<div class="step">Proof only valid within same ignition cycle — do NOT persist it to NVM</div>
+</div>
+</div>
+
+<!-- ===== API REFERENCE ===== -->
+<div class="section" id="s-api">
+<h2>Complete API Reference</h2>
+
+<h3>General APIs</h3>
+<div class="card">
+<table>
+  <tr><th>Function</th><th>ID</th><th>S/A</th><th>Rntrt</th><th>Key behavior</th></tr>
+  <tr><td><code>Crypto_Init(configPtr)</code></td><td>0x00</td><td>Sync</td><td>No</td><td>configPtr always NULL. DET CRYPTO_E_INIT_FAILED if init fails. Keys with unloadable NVM data → INVALID. [SWS_Crypto_91000, 00215, 00198, 00045]</td></tr>
+  <tr><td><code>Crypto_GetVersionInfo(versioninfo)</code></td><td>0x01</td><td>Sync</td><td>Yes</td><td>NULL → DET CRYPTO_E_PARAM_POINTER. [SWS_Crypto_91001, 00047]</td></tr>
+  <tr><td><code>Crypto_MainFunction()</code></td><td>0x0c</td><td>Sched</td><td>No</td><td>Processes queued async jobs. Optional if sync-only. [SWS_Crypto_91012]</td></tr>
+</table>
+</div>
+
+<h3>Job Processing</h3>
+<div class="card">
+<table>
+  <tr><th>Function</th><th>ID</th><th>S/A</th><th>Rntrt</th><th>Return values</th></tr>
+  <tr><td><code>Crypto_ProcessJob(objectId, job*)</code></td><td>0x03</td><td>Config-dep</td><td>Yes</td><td>E_OK, E_NOT_OK, CRYPTO_E_BUSY (CDO busy/queue full), CRYPTO_E_KEY_NOT_VALID, CRYPTO_E_KEY_SIZE_MISMATCH, CRYPTO_E_KEY_READ_FAIL, CRYPTO_E_KEY_WRITE_FAIL, CRYPTO_E_KEY_NOT_AVAILABLE, CRYPTO_E_ENTROPY_EXHAUSTED, CRYPTO_E_JOB_CANCELED, CRYPTO_E_KEY_EMPTY, CRYPTO_E_CUSTOM_ERROR. [SWS_Crypto_91003]</td></tr>
+</table>
+
+<h3>ProcessJob DET checks</h3>
+<table>
+  <tr><th>Check</th><th>DET error</th><th>SWS</th></tr>
+  <tr><td>Module not initialized</td><td>CRYPTO_E_UNINIT</td><td class="sws">SWS_Crypto_00057</td></tr>
+  <tr><td>objectId out of range</td><td>CRYPTO_E_PARAM_HANDLE</td><td class="sws">SWS_Crypto_00058</td></tr>
+  <tr><td>job pointer is NULL</td><td>CRYPTO_E_PARAM_POINTER</td><td class="sws">SWS_Crypto_00059</td></tr>
+  <tr><td>Service not supported by CDO</td><td>CRYPTO_E_PARAM_HANDLE</td><td class="sws">SWS_Crypto_00064</td></tr>
+  <tr><td>Algorithm not supported by CDO</td><td>CRYPTO_E_PARAM_HANDLE</td><td class="sws">SWS_Crypto_00067</td></tr>
+  <tr><td>Required buffer pointer is NULL</td><td>CRYPTO_E_PARAM_POINTER</td><td class="sws">SWS_Crypto_00070</td></tr>
+  <tr><td>Required length is zero</td><td>CRYPTO_E_PARAM_VALUE</td><td class="sws">SWS_Crypto_00142</td></tr>
+  <tr><td>Buffer too small</td><td>CRYPTO_E_SMALL_BUFFER</td><td class="sws">SWS_Crypto_00195</td></tr>
+  <tr><td>KEYDERIVE: targetCryptoKeyId out of range</td><td>CRYPTO_E_PARAM_HANDLE</td><td class="sws">SWS_Crypto_00202</td></tr>
+</table>
+</div>
+
+<h3>Job Cancellation</h3>
+<div class="card">
+<table>
+  <tr><th>Function</th><th>ID</th><th>Return values</th><th>Key rules</th></tr>
+  <tr><td><code>Crypto_CancelJob(objectId, job*)</code></td><td>0x0e</td><td>E_OK (removed), E_NOT_OK (can't remove), CRYPTO_E_JOB_CANCELED (can't cancel but will suppress results)</td><td>If job not being processed → E_OK, no action. If cancellable immediately → remove from queue + cancel HW → E_OK. If HW can't cancel → CRYPTO_E_JOB_CANCELED (job finishes but results suppressed). [SWS_Crypto_00214, 00143, 00183]</td></tr>
+</table>
+</div>
+
+<h3>Key Management APIs</h3>
+<div class="card">
+<table>
+  <tr><th>Function</th><th>ID</th><th>S/A</th><th>Description &amp; Key Return Values</th></tr>
+  <tr><td><code>Crypto_KeyElementSet(keyId, elemId, ptr, len)</code></td><td>0x04</td><td>Sync</td><td>Writes data to key element. Key state → INVALID during write. Returns: E_OK, CRYPTO_E_BUSY, CRYPTO_E_KEY_WRITE_FAIL, CRYPTO_E_KEY_NOT_AVAILABLE, CRYPTO_E_KEY_SIZE_MISMATCH. Partial write: only if CryptoKeyElementAllowPartialAccess=TRUE. [SWS_Crypto_91004]</td></tr>
+  <tr><td><code>Crypto_KeySetValid(keyId)</code></td><td>0x05</td><td>Sync</td><td>Sets key state → VALID. Triggers NVM write if CryptoKeyElementPersist=TRUE. [SWS_Crypto_91014]</td></tr>
+  <tr><td><code>Crypto_KeySetInvalid(keyId)</code></td><td>0x15</td><td>Sync</td><td>Sets key state → INVALID explicitly. [SWS_Crypto_91020]</td></tr>
+  <tr><td><code>Crypto_KeyGetStatus(keyId, statusPtr)</code></td><td>0x14</td><td>Sync</td><td>Returns CRYPTO_KEYSTATUS_VALID or CRYPTO_KEYSTATUS_INVALID. Also CRYPTO_KEYSTATUS_UPDATE_IN_PROGRESS if NVM write pending. [SWS_Crypto_91019]</td></tr>
+  <tr><td><code>Crypto_KeyElementGet(keyId, elemId, ptr, lenPtr)</code></td><td>0x06</td><td>Sync</td><td>Read key element. Returns: CRYPTO_E_KEY_READ_FAIL, CRYPTO_E_KEY_NOT_AVAILABLE, CRYPTO_E_KEY_EMPTY. ResultLengthPtr: call with buffer size, returns actual bytes written. [SWS_Crypto_91006]</td></tr>
+  <tr><td><code>Crypto_KeyElementCopy(srcKeyId, srcElemId, dstKeyId, dstElemId)</code></td><td>0x0f</td><td>Sync</td><td>Copy one element to another (same driver). Access rights checked. [SWS_Crypto_00148]</td></tr>
+  <tr><td><code>Crypto_KeyElementCopyPartial(srcKeyId, srcElemId, srcOfs, dstOfs, len, dstKeyId, dstElemId)</code></td><td>0x13</td><td>Sync</td><td>Copy portion of key element. [SWS_Crypto_91015]</td></tr>
+  <tr><td><code>Crypto_KeyCopy(srcKeyId, dstKeyId)</code></td><td>0x10</td><td>Sync</td><td>Copy ALL elements of one key to another. [SWS_Crypto_00155]</td></tr>
+  <tr><td><code>Crypto_KeyElementIdsGet(keyId, idsPtr, lenPtr)</code></td><td>0x11</td><td>Sync</td><td>Get all element IDs in a key. Used by CRYIF for cross-driver key copy. [SWS_Crypto_00160]</td></tr>
+  <tr><td><code>Crypto_RandomSeed(keyId, seedPtr, seedLen)</code></td><td>0x0d</td><td>Sync</td><td>Feed entropy to RNG. Internal seed stored in CRYPTO_KE_RANDOM_SEED element. [SWS_Crypto_91013]</td></tr>
+  <tr><td><code>Crypto_KeyGenerate(keyId)</code></td><td>0x07</td><td>Sync</td><td>Generate key material. Stores in key element ID=1. [SWS_Crypto_91007]</td></tr>
+  <tr><td><code>Crypto_KeyDerive(keyId, targetKeyId)</code></td><td>0x08</td><td>Sync</td><td>Derive key from password+salt+iterations (PBKDF2 etc). Result in targetKey element 1. [SWS_Crypto_91008]</td></tr>
+  <tr><td><code>Crypto_KeyExchangeCalcPubVal(keyId, pubValPtr, lenPtr)</code></td><td>0x09</td><td>Sync</td><td>Calc own public value (DH/ECDH). Stored in publicValuePtr. May use CDO 0 for random. [SWS_Crypto_91009]</td></tr>
+  <tr><td><code>Crypto_KeyExchangeCalcSecret(keyId, partnerPubPtr, len)</code></td><td>0x0a</td><td>Sync</td><td>Calc shared secret from partner's public value. Stored in key element of keyId. [SWS_Crypto_91010]</td></tr>
+  <tr><td><code>Crypto_CustomSync(dispatchId, keyId, ...)</code></td><td>0x1a</td><td>Sync</td><td>Vendor-specific sync function. DispatchId identifies the request type. [SWS_Crypto_91027]</td></tr>
+</table>
+</div>
+
+<h3>Extended Return Codes (Std_ReturnType extensions)</h3>
+<div class="card">
+<table>
+  <tr><th>Code</th><th>Value</th><th>Meaning</th></tr>
+  <tr><td><code>CRYPTO_E_BUSY</code></td><td>0x02</td><td>CDO busy or queue full</td></tr>
+  <tr><td><code>CRYPTO_E_ENTROPY_EXHAUSTED</code></td><td>0x04</td><td>RNG entropy depleted</td></tr>
+  <tr><td><code>CRYPTO_E_KEY_READ_FAIL</code></td><td>0x06</td><td>Read access denied</td></tr>
+  <tr><td><code>CRYPTO_E_KEY_WRITE_FAIL</code></td><td>0x07</td><td>Write access denied or failed</td></tr>
+  <tr><td><code>CRYPTO_E_KEY_NOT_AVAILABLE</code></td><td>0x08</td><td>Required key element not accessible (e.g., disabled by debugger connection)</td></tr>
+  <tr><td><code>CRYPTO_E_KEY_NOT_VALID</code></td><td>0x09</td><td>Key is in INVALID state</td></tr>
+  <tr><td><code>CRYPTO_E_KEY_SIZE_MISMATCH</code></td><td>0x0A</td><td>Key element size wrong for operation</td></tr>
+  <tr><td><code>CRYPTO_E_JOB_CANCELED</code></td><td>0x0C</td><td>Sync job was canceled</td></tr>
+  <tr><td><code>CRYPTO_E_KEY_EMPTY</code></td><td>0x0D</td><td>Key element has never been written (SHE: ERC_KEY_EMPTY equivalent)</td></tr>
+  <tr><td><code>CRYPTO_E_CUSTOM_ERROR</code></td><td>0x0E</td><td>Custom service error — check secondaryOutputPtr for actual error code</td></tr>
+</table>
+<div class="warn"><strong>KEY_NOT_AVAILABLE vs KEY_EMPTY:</strong> KEY_NOT_AVAILABLE = key was programmed but can't be accessed now (temporarily disabled). KEY_EMPTY = key has NEVER been written (slot is blank). Critical distinction.</div>
+</div>
+
+<h3>NVM Callbacks</h3>
+<div class="card">
+<table>
+  <tr><th>Callback</th><th>ID</th><th>Called by</th><th>What it does</th></tr>
+  <tr><td><code>Crypto_&lt;vi&gt;_&lt;ai&gt;_NvBlock_Init_&lt;NvBlock&gt;(initReq)</code></td><td>0x16</td><td>NvM</td><td>Initialize the NV RAM block content. [SWS_Crypto_91023]</td></tr>
+  <tr><td><code>Crypto_&lt;vi&gt;_&lt;ai&gt;_NvBlock_ReadFrom_&lt;NvBlock&gt;(NvmBuffer)</code></td><td>0x17</td><td>NvM</td><td>NvM reads data: crypto driver copies key data FROM NvmBuffer to internal RAM. Called at init. [SWS_Crypto_91024]</td></tr>
+  <tr><td><code>Crypto_&lt;vi&gt;_&lt;ai&gt;_NvBlock_WriteTo_&lt;NvBlock&gt;(NvmBuffer)</code></td><td>0x18</td><td>NvM</td><td>NvM writes data: crypto driver copies key data TO NvmBuffer (mirror). Called before NVM write. [SWS_Crypto_91025]</td></tr>
+  <tr><td><code>Crypto_&lt;vi&gt;_&lt;ai&gt;_NvBlock_Callback_&lt;NvBlock&gt;(req, result)</code></td><td>0x19</td><td>NvM</td><td>NvM single block operation complete (read/write). Crypto driver checks result. FAILED → DET CRYPTO_E_RE_NVM_ACCESS_FAILED + retry on next MainFunction. [SWS_Crypto_91026, 00244]</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div class="section" id="s-sequences">
+<h2>Sequence Diagrams (constructed from functional spec)</h2>
+<p class="warn"><strong>Note:</strong> The spec explicitly says "Sequence diagrams: n/a". All sequences below are derived from the functional and API specification text. This is industry-expected knowledge even though the spec has no diagrams.</p>
+
+<details open>
+<summary>Sequence 1: Single-Call MAC Generation (AES-CMAC)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>Precondition:</strong> Key is VALID state. CDO has MACGENERATE/AES/CMAC primitive configured.</div>
+  <div><strong>CSM → CRYIF → Crypto_ProcessJob(objectId, job)</strong></div>
+  <div style="padding-left:20px">job.jobPrimitiveInputOutput.mode = CRYPTO_OPERATIONMODE_SINGLECALL</div>
+  <div style="padding-left:20px">job.jobPrimitiveInfo.primitiveInfo.service = CRYPTO_MACGENERATE</div>
+  <div style="padding-left:20px">job.cryptoKeyId = [key with AES material]</div>
+  <div style="padding-left:20px">job.inputPtr = plaintext, job.inputLength = len</div>
+  <div style="padding-left:20px">job.outputPtr = MAC buffer, job.outputLengthPtr = &buf_size</div>
+  <div><strong>Crypto Driver checks:</strong></div>
+  <div style="padding-left:20px">Module initialized? objectId valid? job != NULL? Service supported? Algorithm supported? Key valid?</div>
+  <div style="padding-left:20px">Buffer (outputPtr) != NULL? outputLengthPtr != zero?</div>
+  <div><strong>Sync processing:</strong></div>
+  <div style="padding-left:20px">State: Idle → Active (START). Feed input (UPDATE). Finalize MAC (FINISH). State: Active → Idle.</div>
+  <div style="padding-left:20px">*outputLengthPtr = actual MAC length written.</div>
+  <div><strong>Return E_OK.</strong> CSM calls application callback.</div>
+  <div style="color:#cc3333"><strong>If outputLengthPtr &lt; full MAC size:</strong> Truncated output (MSB placed in buffer). Still E_OK. [SWS_Crypto_00065]</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 2: Streaming AES-CBC Encryption (multi-call)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>Call 1: Crypto_ProcessJob(..., mode=START)</strong></div>
+  <div style="padding-left:20px">Job: Idle → Active. Initialize AES-CBC workspace, load key, load IV from key element.</div>
+  <div style="padding-left:20px">Return E_OK (sync) or callback started (async).</div>
+  <div><strong>Call 2..N: Crypto_ProcessJob(..., mode=UPDATE)</strong></div>
+  <div style="padding-left:20px">Feed plaintext chunks. Each UPDATE may produce partial ciphertext output.</div>
+  <div style="padding-left:20px">Job stays Active. Driver accumulates state.</div>
+  <div><strong>Call N+1: Crypto_ProcessJob(..., mode=FINISH)</strong></div>
+  <div style="padding-left:20px">Feed final data (may be empty). Complete final block. Produce remaining ciphertext.</div>
+  <div style="padding-left:20px">Job: Active → Idle. outputLengthPtr = total output.</div>
+  <div style="color:#cc3333"><strong>If UPDATE called from Idle (no START first):</strong> Return E_NOT_OK. [SWS_Crypto_00118]</div>
+  <div style="color:#cc3333"><strong>If new START during Active:</strong> Previous state reset, new job starts. [SWS_Crypto_00020]</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 3: Async Job Processing</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>CSM → Crypto_ProcessJob(objectId, asyncJob)</strong></div>
+  <div style="padding-left:20px">Job processing = CRYPTO_PROCESSING_ASYNC (in job struct)</div>
+  <div style="padding-left:20px">CDO busy OR queue has space → job queued. Return E_OK immediately.</div>
+  <div style="padding-left:20px">CDO idle → job starts immediately. Return E_OK.</div>
+  <div><strong>SchM calls Crypto_MainFunction() cyclically:</strong></div>
+  <div style="padding-left:20px">MainFunction processes next step of async job.</div>
+  <div style="padding-left:20px">On completion (or error): Crypto_MainFunction calls CryIf_CallbackNotification(job, result).</div>
+  <div style="padding-left:20px">CRYIF → CSM → application callback.</div>
+  <div><strong>On error in async job [SWS_Crypto_00119]:</strong></div>
+  <div style="padding-left:20px">Job state → Idle. Data discarded. CryIf_CallbackNotification called with error code.</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 4: Key Provisioning (full workflow)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>Step 1: Write key material</strong></div>
+  <div style="padding-left:20px">App/KeyM → Crypto_KeyElementSet(keyId, 1, aesKeyData, 16)</div>
+  <div style="padding-left:20px">Crypto Driver: key state → INVALID. Element ID=1 updated in RAM. Return E_OK.</div>
+  <div><strong>Step 2: (Optional) Write IV or other elements</strong></div>
+  <div style="padding-left:20px">Crypto_KeyElementSet(keyId, CRYPTO_KE_CIPHER_IV, ivData, 16)</div>
+  <div><strong>Step 3: Validate key</strong></div>
+  <div style="padding-left:20px">Crypto_KeySetValid(keyId)</div>
+  <div style="padding-left:20px">Crypto Driver: check all element consistency. key state → VALID.</div>
+  <div style="padding-left:20px">If CryptoKeyElementPersist=TRUE: call NvM_SetRamBlockStatus(). If IMMEDIATE: also NvM_WriteBlock().</div>
+  <div style="padding-left:20px">NvM writes to non-volatile storage asynchronously.</div>
+  <div><strong>Step 4: Check key status during NVM write</strong></div>
+  <div style="padding-left:20px">Crypto_KeyGetStatus(keyId, &status) → CRYPTO_KEYSTATUS_UPDATE_IN_PROGRESS</div>
+  <div><strong>Step 5: NvM callback fires when write complete</strong></div>
+  <div style="padding-left:20px">Crypto_NvBlock_Callback_&lt;NvBlock&gt;(NVM_WRITE_BLOCK, NVM_REQ_OK) → status updated.</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 5: Key Exchange (ECDH)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>Step 1: Own private key already in key element ID=private of keyId.</strong></div>
+  <div><strong>Step 2: Calculate own public value</strong></div>
+  <div style="padding-left:20px">Crypto_KeyExchangeCalcPubVal(keyId, pubValBuf, &pubValLen)</div>
+  <div style="padding-left:20px">Crypto Driver: uses private key from keyId. May use CDO 0 for random (ECDH needs random for ephemeral key).</div>
+  <div style="padding-left:20px">Result: own public value in pubValBuf. Also stored internally in key element.</div>
+  <div><strong>Step 3: Exchange public values with peer (out of band)</strong></div>
+  <div style="padding-left:20px">Send own pubVal to partner. Receive partner's pubVal.</div>
+  <div><strong>Step 4: Calculate shared secret</strong></div>
+  <div style="padding-left:20px">Crypto_KeyExchangeCalcSecret(keyId, partnerPubValPtr, partnerPubValLen)</div>
+  <div style="padding-left:20px">Crypto Driver: computes shared secret (ECDH). Stores in key element of keyId.</div>
+  <div style="padding-left:20px">Application can now use shared secret for encryption key derivation.</div>
+</div>
+</div>
+</details>
+</div>
+
+<!-- ===== NVM KEY STORAGE ===== -->
+<div class="section" id="s-nvm">
+<h2>Key Storage in NVM — Complete Guide</h2>
+
+<h2>When keys are written to NVM</h2>
+<div class="card">
+<p>Keys are ONLY written to NVM when Crypto_KeySetValid() is called (or CRYPTO_KEYSETVALID primitive via ProcessJob). NOT on Crypto_KeyElementSet(). [SWS_Crypto_00242]</p>
+<div class="tip"><strong>Rationale:</strong> Key elements may have interdependencies. Writing element by element could create an inconsistent key in NVM. Single-point write (KeySetValid) ensures all elements are consistent before NVM write.</div>
+</div>
+
+<h2>NVM Write Modes</h2>
+<div class="card">
+<div class="grid2">
+  <div class="mini"><strong>DEFERRED (CRYPTO_NV_BLOCK_DEFERRED)</strong>On KeySetValid: call NvM_SetRamBlockStatus() only. NvM will write to non-volatile memory later (on NvM_WriteAll or next scheduled write). Recommended for most cases.</div>
+  <div class="mini"><strong>IMMEDIATE (CRYPTO_NV_BLOCK_IMMEDIATE)</strong>On KeySetValid: call NvM_SetRamBlockStatus() AND NvM_WriteBlock(). Forces immediate write to non-volatile. Use for critical keys that cannot wait.</div>
+</div>
+</div>
+
+<h2>Key Reading at Startup</h2>
+<div class="card">
+<table>
+  <tr><th>NvBlock state at startup</th><th>Action</th><th>SWS</th></tr>
+  <tr><td>Block available + consistency check OK</td><td>Load all key elements from NvBlock. Key set to VALID if all elements have values. [SWS_Crypto_00248, 00251]</td><td class="sws">SWS_Crypto_00248, 00251</td></tr>
+  <tr><td>Block available but CORRUPTED (CRC/consistency fail)</td><td>All related keys → INVALID. Persisted element lengths → 0. Init values NOT applied (security: prevent rollback to init state). [SWS_Crypto_00249]</td><td class="sws">SWS_Crypto_00249</td></tr>
+  <tr><td>Block EMPTY (never written)</td><td>Apply CryptoKeyElementInitValue for elements that have one. Key may become VALID if all required elements have init values. [SWS_Crypto_00250]</td><td class="sws">SWS_Crypto_00250</td></tr>
+  <tr><td>NvBlock read fails (key load error)</td><td>Key state → INVALID. Application should check key states at startup and handle. [SWS_Crypto_00198]</td><td class="sws">SWS_Crypto_00198</td></tr>
+</table>
+<div class="danger"><strong>Security rule [SWS_Crypto_00249 Rationale]:</strong> Corrupted NvBlock → init values NOT loaded (even if InitValue is configured). This prevents an attacker from corrupting NvBlock to force rollback to a known initial state (e.g., default test key).</div>
+</div>
+
+<h2>NVM Retry on Failure</h2>
+<div class="card">
+<p>If NvM_SetRamBlockStatus() or NvM_WriteBlock() returns E_NOT_OK, OR Callback reports write failure: [SWS_Crypto_00244]</p>
+<div class="step">Report CRYPTO_E_RE_NVM_ACCESS_FAILED to DET (runtime error)</div>
+<div class="step">Retry on next Crypto_MainFunction() call</div>
+<div class="step">Maximum retries configured in CryptoNvBlockFailedRetries (1..65535)</div>
+</div>
+
+<h2>Key Status During NVM Update</h2>
+<div class="card">
+<p>While key has been validated but NVM write is not yet confirmed: Crypto_KeyGetStatus() returns CRYPTO_KEYSTATUS_UPDATE_IN_PROGRESS. [SWS_Crypto_00245] This allows application to know the key is valid in RAM but not yet persisted.</p>
+</div>
+</div>
+
+<!-- ===== ERRORS & DEBUG ===== -->
+<div class="section" id="s-errors">
+<h2>Error Classification &amp; Debugging</h2>
+
+<div class="grid2">
+<div class="card">
+<h3>Development Errors [SWS_Crypto_00040]</h3>
+<table>
+  <tr><th>Code</th><th>Value</th><th>Condition</th></tr>
+  <tr><td><code>CRYPTO_E_UNINIT</code></td><td>0x00</td><td>API before Crypto_Init()</td></tr>
+  <tr><td><code>CRYPTO_E_INIT_FAILED</code></td><td>0x01</td><td>Init failed</td></tr>
+  <tr><td><code>CRYPTO_E_PARAM_POINTER</code></td><td>0x02</td><td>NULL pointer (no redirection)</td></tr>
+  <tr><td><code>CRYPTO_E_PARAM_HANDLE</code></td><td>0x04</td><td>Out-of-range ID (objectId, keyId, elemId)</td></tr>
+  <tr><td><code>CRYPTO_E_PARAM_VALUE</code></td><td>0x05</td><td>Invalid value (zero length, etc.)</td></tr>
+  <tr><td><code>CRYPTO_E_SMALL_BUFFER</code></td><td>0x06</td><td>Output buffer too small</td></tr>
+</table>
+</div>
+<div class="card">
+<h3>Runtime Errors [SWS_Crypto_00194]</h3>
+<table>
+  <tr><th>Code</th><th>Value</th><th>Condition</th></tr>
+  <tr><td><code>CRYPTO_E_RE_ENTROPY_EXHAUSTED</code></td><td>0x03</td><td>RNG entropy too low</td></tr>
+  <tr><td><code>CRYPTO_E_RE_NVM_ACCESS_FAILED</code></td><td>0x04</td><td>NvM operation failed</td></tr>
+</table>
+<p style="font-size:11px;margin-top:8px">No production errors and no extended production errors in Crypto Driver.</p>
+</div>
+</div>
+
+<h2>Debugging Checklist</h2>
+
+<details open>
+<summary>Problem: Crypto_ProcessJob returns CRYPTO_E_BUSY</summary>
+<div class="inner">
+<div class="step hi">CDO is processing another job (Active state) OR queue is full.</div>
+<div class="step">1. Check CryptoQueueSize — if 0, queue disabled. Sync jobs never queue. Async needs space.</div>
+<div class="step">2. Check if Crypto_MainFunction() is being called — if not, async jobs never complete, queue fills.</div>
+<div class="step">3. Check job priority — lower priority async jobs may be waiting. High-priority sync job skips queue.</div>
+<div class="step">4. Check if SINGLECALL used for async jobs — recommended for throughput [spec note after SWS_Crypto_00032].</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: Key operations return CRYPTO_E_KEY_NOT_VALID</summary>
+<div class="inner">
+<div class="step hi">Key is in INVALID state. Crypto services check this before processing. [SWS_Crypto_00039]</div>
+<div class="step">1. Was Crypto_KeySetValid() called after Crypto_KeyElementSet()? KeyElementSet makes key INVALID.</div>
+<div class="step">2. Check if NVM load failed at startup → Crypto_KeyGetStatus() to inspect.</div>
+<div class="step">3. Check if Crypto_KeySetInvalid() was called explicitly.</div>
+<div class="step">4. Check if key elements are all present — init checks for valid elements post-startup [SWS_Crypto_00251].</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: CRYPTO_E_KEY_EMPTY returned</summary>
+<div class="inner">
+<div class="step hi">Key element has never been written (no data, no init value). Different from INVALID state.</div>
+<div class="step">1. Key was provisioned? Check if Crypto_KeyElementSet() was ever called for element ID=1.</div>
+<div class="step">2. Check CryptoKeyElementInitValue — if absent AND element never written → EMPTY.</div>
+<div class="step">3. For SHE: ERC_KEY_EMPTY equivalent. SHE hardware key slot was never loaded.</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: NVM key loss after ECU reset</summary>
+<div class="inner">
+<div class="step hi">Key set valid but NVM write failed or was DEFERRED and not completed.</div>
+<div class="step">1. Check Crypto_NvBlock_Callback — was it called with NVM_REQ_OK?</div>
+<div class="step">2. Check DET for CRYPTO_E_RE_NVM_ACCESS_FAILED — indicates write failure.</div>
+<div class="step">3. If DEFERRED mode: was NvM_WriteAll() called before ECU shutdown? Or was NvM configured for write-on-exit?</div>
+<div class="step">4. Check NvMSelectBlockForWriteAll=TRUE for key NV blocks (recommended).</div>
+<div class="step">5. Consider IMMEDIATE mode for critical keys.</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: Signature verification fails unexpectedly</summary>
+<div class="inner">
+<div class="step">1. Check key element format — public key must match expected format (e.g., BIN_OCTET for ECC, BIN_RSA_PUBLICKEY for RSA).</div>
+<div class="step">2. Check key element size — RSA key size must match configured algorithm key length.</div>
+<div class="step">3. Verify ECC coordinate byte order — must be little-endian per spec [SWS_Crypto_00190].</div>
+<div class="step">4. Check if hash algorithm in CSM primitive matches signature algorithm (family + secondary family combination).</div>
+<div class="step">5. Check input redirection — if signature data comes from key element, access rights must be CRYPTO_RA_INTERNAL_COPY or lower. [SWS_Crypto_00221]</div>
+</div>
+</details>
+
+<h2>Key Internal Variables to Watch</h2>
+<div class="card">
+<table>
+  <tr><th>Variable</th><th>What to check</th></tr>
+  <tr><td>Key state per keyId</td><td>VALID/INVALID. Check after init. Watch for unexpected INVALID.</td></tr>
+  <tr><td>Key element length per element</td><td>Actual written bytes vs configured max size. Zero length = EMPTY.</td></tr>
+  <tr><td>CDO state (Idle/Active)</td><td>Stuck Active = HW not completing or MainFunction not called.</td></tr>
+  <tr><td>Queue depth per CDO</td><td>If near CryptoQueueSize, jobs will be rejected with CRYPTO_E_BUSY.</td></tr>
+  <tr><td>NVM write pending flag</td><td>Key status UPDATE_IN_PROGRESS = write pending. Critical on shutdown.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== DAVINCI CONFIG ===== -->
+<div class="section" id="s-davinci">
+<h2>Configuring Crypto Driver in Vector DaVinci Developer / Configurator Pro</h2>
+
+<div class="tip"><strong>Config hierarchy:</strong> Crypto → {CryptoGeneral + CryptoDriverObjects → CryptoDriverObject (1..*) + CryptoKeys → CryptoKey (1..*) + CryptoKeyElements → CryptoKeyElement (1..*) + CryptoKeyTypes → CryptoKeyType (1..*) + CryptoPrimitives → CryptoPrimitive (0..*) + CryptoNvStorage → CryptoNvBlock (1..*)} </div>
+
+<h3>Step 1: CryptoGeneral</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoGeneral</code></p>
+<table>
+  <tr><th>Parameter</th><th>ECUC ID</th><th>Set to</th><th>Notes</th></tr>
+  <tr><td><code>CryptoDevErrorDetect</code></td><td>00006</td><td>TRUE (dev) / FALSE (prod)</td><td>Enables DET for E_UNINIT, PARAM_HANDLE, etc.</td></tr>
+  <tr><td><code>CryptoVersionInfoApi</code></td><td>00007</td><td>FALSE usually</td><td>TRUE enables Crypto_GetVersionInfo()</td></tr>
+  <tr><td><code>CryptoMainFunctionPeriod</code></td><td>00038</td><td>e.g. 0.005 (5ms)</td><td>Required only for async processing. Must match SchM task period.</td></tr>
+  <tr><td><code>CryptoInstanceId</code></td><td>00040</td><td>0..255, unique per driver</td><td>Distinguishes multiple crypto driver instances in same ECU.</td></tr>
+  <tr><td><code>CryptoEcucPartitionRef</code></td><td>00042</td><td>Reference to EcucPartition</td><td>R24-11: multicore partition support. Maps driver to OS partitions.</td></tr>
+</table>
+</div>
+
+<h3>Step 2: CryptoDriverObjects → CryptoDriverObject</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoDriverObjects → CryptoDriverObject</code> (add one per HW/SW engine)</p>
+<table>
+  <tr><th>Parameter</th><th>ECUC ID</th><th>Set to</th><th>Notes</th></tr>
+  <tr><td><code>CryptoDriverObjectId</code></td><td>00009</td><td>0..n (unique, consecutive from 0)</td><td>ID 0 = default RNG CDO. Must be consecutive and gapless per spec note.</td></tr>
+  <tr><td><code>CryptoQueueSize</code></td><td>00019</td><td>0 (no queue) or 1..n</td><td>0 = disable queue. Set to 0 for sync-only drivers. Set ≥1 for async with queue.</td></tr>
+  <tr><td><code>CryptoPrimitiveRef</code></td><td>00018</td><td>1..* references to CryptoPrimitive</td><td><strong>Critical:</strong> Defines this CDO's capabilities. Each referenced primitive declares a supported service+family+mode combination.</td></tr>
+  <tr><td><code>CryptoDefaultRandomPrimitiveRef</code></td><td>00044</td><td>Reference to RNG CryptoPrimitive</td><td>Default RNG for this CDO. If absent, uses CDO 0's RNG when needed internally.</td></tr>
+  <tr><td><code>CryptoDefaultRandomKeyRef</code></td><td>00045</td><td>Reference to CryptoKey for RNG seed</td><td>Only needed if DefaultRandomPrimitive requires a seed key.</td></tr>
+  <tr><td><code>CryptoDriverObjectEcucPartitionRef</code></td><td>00043</td><td>Reference to EcucPartition</td><td>R24-11: Maps CDO to specific OS partition for multicore. Must be subset of CryptoEcucPartitionRef.</td></tr>
+</table>
+</div>
+
+<h3>Step 3: CryptoPrimitives → CryptoPrimitive</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoPrimitives → CryptoPrimitive</code> (one per algorithm capability)</p>
+<table>
+  <tr><th>Parameter</th><th>ECUC ID</th><th>Set to</th><th>Notes</th></tr>
+  <tr><td><code>CryptoPrimitiveService</code></td><td>00034</td><td>e.g. CRYPTO_MACGENERATE</td><td>The service type this primitive declares capability for.</td></tr>
+  <tr><td><code>CryptoPrimitiveAlgorithmFamily</code></td><td>00035</td><td>1..* e.g. CRYPTO_ALGOFAM_AES</td><td>Multiple values = this primitive supports all combinations. E.g., AES AND 3DES with ECB AND CBC.</td></tr>
+  <tr><td><code>CryptoPrimitiveAlgorithmMode</code></td><td>00036</td><td>1..* e.g. CRYPTO_ALGOMODE_CMAC</td><td>Multiple = all mode combinations supported. Don't combine incompatible families+modes (e.g., RSA+CBC).</td></tr>
+  <tr><td><code>CryptoPrimitiveAlgorithmSecondaryFamily</code></td><td>00037</td><td>1..* e.g. CRYPTO_ALGOFAM_NOT_SET</td><td>For HMAC: primary=HMAC, secondary=SHA2_256. For pure AES: NOT_SET.</td></tr>
+  <tr><td><code>CryptoPrimitiveSupportContext</code></td><td>00053</td><td>FALSE (default)</td><td>TRUE enables SAVE_CONTEXT/RESTORE_CONTEXT. Security risk — only enable if needed.</td></tr>
+  <tr><td><code>CryptoPrimitiveAlgorithmFamilyCustomRef</code></td><td>00050</td><td>Reference to custom family</td><td>Only if custom algorithm families needed (ID 128..254).</td></tr>
+  <tr><td><code>CryptoPrimitiveAlgorithmModeCustomRef</code></td><td>00051</td><td>Reference to custom mode</td><td>Only if custom modes needed.</td></tr>
+</table>
+<div class="warn"><strong>Invalid combination rule:</strong> If primitive declares Family=[AES, RSA] and Mode=[CBC], this implies RSA-CBC is supported — which is invalid. Create separate primitives for AES-CBC and RSA (with appropriate modes). [SWS_Crypto_00241]</div>
+</div>
+
+<h3>Step 4: CryptoKeyElements → CryptoKeyElement</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoKeyElements → CryptoKeyElement</code> (one per element type)</p>
+<table>
+  <tr><th>Parameter</th><th>Set to</th><th>Critical notes</th></tr>
+  <tr><td><code>CryptoKeyElementId</code></td><td>Standard IDs from CSM spec (1=key material, 2=IV, 11=algorithm, etc.)</td><td>ID=1 MUST be key material. IDs across compatible key types must match for inter-key operations.</td></tr>
+  <tr><td><code>CryptoKeyElementSize</code></td><td>e.g. 16 (AES-128), 32 (AES-256), 64 (ECDH P256 public)</td><td>Max size. Actual written size stored separately by driver.</td></tr>
+  <tr><td><code>CryptoKeyElementReadAccess</code></td><td>CRYPTO_RA_DENIED for secret keys, CRYPTO_RA_ALLOWED for IV</td><td>Secret key material: DENIED or ENCRYPTED. Public keys: ALLOWED.</td></tr>
+  <tr><td><code>CryptoKeyElementWriteAccess</code></td><td>CRYPTO_WA_ALLOWED for provisioning, CRYPTO_WA_ENCRYPTED for SHE</td><td>SHE keys: must be ENCRYPTED (M1M2M3 format).</td></tr>
+  <tr><td><code>CryptoKeyElementPersist</code></td><td>TRUE for keys that must survive reset (provisioned keys, generated certs)</td><td>FALSE for ephemeral session keys, derived keys.</td></tr>
+  <tr><td><code>CryptoKeyElementAllowPartialAccess</code></td><td>TRUE for RSA/ECC (variable-size), FALSE for AES (fixed-size)</td><td>Asymmetric key material often has variable length — needs partial access.</td></tr>
+  <tr><td><code>CryptoKeyElementFormat</code></td><td>BIN_OCTET (ECC), BIN_RSA_PRIVATEKEY, BIN_SHEKEYS, etc.</td><td>Must match what the calling application provides.</td></tr>
+  <tr><td><code>CryptoKeyElementInitValue</code></td><td>e.g. "0x00" for algorithm selector (EdDSA=0x01)</td><td>Used at startup if element not in NVM. Critical for algorithm-selector elements.</td></tr>
+</table>
+</div>
+
+<h3>Step 5: CryptoKeyTypes → CryptoKeyType</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoKeyTypes → CryptoKeyType</code> (one per key type template)</p>
+<p>Each CryptoKeyType references 1..* CryptoKeyElement(s) via CryptoKeyElementRef. Example AES-CBC key type:</p>
+<div style="font-size:12px;font-family:monospace;background:#f5f4f0;padding:10px;border-radius:6px;margin:8px 0">
+  CryptoKeyType_AES128_CBC:<br>
+  &nbsp;&nbsp;CryptoKeyElementRef → CryptoKeyElement_AES_KeyMaterial (ID=1, size=16, WA=ALLOWED, RA=DENIED)<br>
+  &nbsp;&nbsp;CryptoKeyElementRef → CryptoKeyElement_AES_IV (ID=2, size=16, WA=ALLOWED, RA=ALLOWED)
+</div>
+</div>
+
+<h3>Step 6: CryptoKeys → CryptoKey</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoKeys → CryptoKey</code> (one per runtime key instance)</p>
+<table>
+  <tr><th>Parameter</th><th>Set to</th><th>Notes</th></tr>
+  <tr><td><code>CryptoKeyId</code></td><td>Unique ID (used in all API calls)</td><td>Must match NvM CryptoKeyId references. CSM job references this key via CryIf.</td></tr>
+  <tr><td><code>CryptoKeyTypeRef</code></td><td>Reference to CryptoKeyType</td><td>Determines which elements this key has.</td></tr>
+  <tr><td><code>CryptoKeyNvBlockRef</code></td><td>Reference to CryptoNvBlock (if persistent)</td><td>Link to NvM block for this key's persistence.</td></tr>
+</table>
+</div>
+
+<h3>Step 7: CryptoNvStorage → CryptoNvBlock (if NVM persistence needed)</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>Crypto → CryptoNvStorage → CryptoNvBlock</code></p>
+<table>
+  <tr><th>Parameter</th><th>Set to</th><th>Notes</th></tr>
+  <tr><td><code>CryptoNvBlockDescriptorRef</code></td><td>Reference to NvMBlockDescriptor in NvM module</td><td><strong>Critical linking step.</strong> NvM block must be configured with the Crypto callback functions as NvmInitBlockCallback, NvMReadRamBlockFromNvCallback, NvMWriteRamBlockToNvCallback, NvmSingleBlockCallbackFnc.</td></tr>
+  <tr><td><code>CryptoNvBlockProcessing</code></td><td>CRYPTO_NV_BLOCK_DEFERRED or CRYPTO_NV_BLOCK_IMMEDIATE</td><td>DEFERRED for most. IMMEDIATE for critical boot-time keys.</td></tr>
+  <tr><td><code>CryptoNvBlockFailedRetries</code></td><td>1..65535, e.g. 3</td><td>How many times to retry a failed NvM operation in MainFunction.</td></tr>
+</table>
+</div>
+
+<h3>DaVinci Consistency Verification</h3>
+<div class="card">
+<div class="step">☐ CryptoDriverObjectId: consecutive from 0, no gaps. ID 0 configured for default RNG.</div>
+<div class="step">☐ CryptoPrimitiveRef in each CDO resolves to valid CryptoPrimitive</div>
+<div class="step">☐ CryptoPrimitive: no invalid Family+Mode combinations (e.g., RSA+CBC)</div>
+<div class="step">☐ CryptoKeyTypeRef in each CryptoKey resolves to valid CryptoKeyType</div>
+<div class="step">☐ Each persistent CryptoKey has CryptoKeyNvBlockRef pointing to a configured CryptoNvBlock</div>
+<div class="step">☐ Each CryptoNvBlock has NvM block descriptor configured with all 4 Crypto callback functions</div>
+<div class="step">☐ NvMBlockUseSetRamBlockStatus=TRUE, NvMSelectBlockForReadAll=TRUE for all Crypto NvM blocks</div>
+<div class="step">☐ NvMSelectBlockForWriteAll=TRUE if CryptoNvBlockProcessing=DEFERRED</div>
+<div class="step">☐ CryptoMainFunctionPeriod matches SchM task period (async jobs only)</div>
+<div class="step">☐ CryptoEcucPartitionRef (if multicore): CryptoDriverObjectEcucPartitionRef must be subset</div>
+<div class="step hi">☐ Custom algorithm IDs in range 128..254 [SWS_Crypto_00240]</div>
+</div>
+
+<h3>Typical Configuration Example (AES-128 CMAC key + persistent storage)</h3>
+<div class="card">
+<div style="font-family:monospace;font-size:11px;background:#f5f4f0;padding:12px;border-radius:6px;line-height:1.8">
+<strong>CryptoGeneral:</strong><br>
+&nbsp;&nbsp;CryptoDevErrorDetect = TRUE<br>
+&nbsp;&nbsp;CryptoMainFunctionPeriod = 0.005<br>
+&nbsp;&nbsp;CryptoInstanceId = 0<br><br>
+<strong>CryptoDriverObject[0]:</strong><br>
+&nbsp;&nbsp;CryptoDriverObjectId = 0<br>
+&nbsp;&nbsp;CryptoQueueSize = 5<br>
+&nbsp;&nbsp;CryptoPrimitiveRef → [MacGenerate_AES_CMAC, MacVerify_AES_CMAC, RandomGenerate_DRBG]<br><br>
+<strong>CryptoPrimitive[MacGenerate_AES_CMAC]:</strong><br>
+&nbsp;&nbsp;CryptoPrimitiveService = CRYPTO_MACGENERATE<br>
+&nbsp;&nbsp;CryptoPrimitiveAlgorithmFamily = CRYPTO_ALGOFAM_AES<br>
+&nbsp;&nbsp;CryptoPrimitiveAlgorithmMode = CRYPTO_ALGOMODE_CMAC<br>
+&nbsp;&nbsp;CryptoPrimitiveAlgorithmSecondaryFamily = CRYPTO_ALGOFAM_NOT_SET<br><br>
+<strong>CryptoKeyElement[KeyMaterial_AES128]:</strong><br>
+&nbsp;&nbsp;CryptoKeyElementId = 1<br>
+&nbsp;&nbsp;CryptoKeyElementSize = 16<br>
+&nbsp;&nbsp;CryptoKeyElementReadAccess = CRYPTO_RA_DENIED<br>
+&nbsp;&nbsp;CryptoKeyElementWriteAccess = CRYPTO_WA_ALLOWED<br>
+&nbsp;&nbsp;CryptoKeyElementPersist = TRUE<br>
+&nbsp;&nbsp;CryptoKeyElementFormat = CRYPTO_KE_FORMAT_BIN_OCTET<br><br>
+<strong>CryptoKeyType[KeyType_AES128_MAC]:</strong><br>
+&nbsp;&nbsp;CryptoKeyElementRef → [KeyMaterial_AES128]<br><br>
+<strong>CryptoKey[0]:</strong><br>
+&nbsp;&nbsp;CryptoKeyId = 0<br>
+&nbsp;&nbsp;CryptoKeyTypeRef → KeyType_AES128_MAC<br>
+&nbsp;&nbsp;CryptoKeyNvBlockRef → CryptoNvBlock_Keys<br><br>
+<strong>CryptoNvBlock[CryptoNvBlock_Keys]:</strong><br>
+&nbsp;&nbsp;CryptoNvBlockDescriptorRef → NvMBlockDescriptor_CryptoKeys<br>
+&nbsp;&nbsp;CryptoNvBlockProcessing = CRYPTO_NV_BLOCK_DEFERRED<br>
+&nbsp;&nbsp;CryptoNvBlockFailedRetries = 3
+</div>
+</div>
+</div>
+
+<!-- ===== TESTING ===== -->
+<div class="section" id="s-testing">
+<h2>Integration Testing &amp; Automotive Verification</h2>
+
+<h3>Test Group 1: Initialization</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th><th>SWS</th></tr>
+  <tr><td>TC_INIT_001</td><td>Crypto_Init(NULL) at startup</td><td>Module initialized. All CDOs in Idle. All keys loaded from NVM or init values applied.</td><td>SWS_Crypto_91000, 00215</td></tr>
+  <tr><td>TC_INIT_002</td><td>Any API before Crypto_Init()</td><td>DET CRYPTO_E_UNINIT. Return E_NOT_OK.</td><td>SWS_Crypto_00057</td></tr>
+  <tr><td>TC_INIT_003</td><td>Crypto_Init() with NVM block corrupted</td><td>Related keys → INVALID. Init values NOT applied. DET: none from Crypto (NvM error). Application must check key status.</td><td>SWS_Crypto_00249</td></tr>
+  <tr><td>TC_INIT_004</td><td>Crypto_Init() with NVM block empty (first flash)</td><td>Elements with InitValue → InitValue loaded. Keys with all required elements → VALID.</td><td>SWS_Crypto_00250, 00251</td></tr>
+</table>
+</div>
+
+<h3>Test Group 2: Job Processing</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th></tr>
+  <tr><td>TC_JOB_001</td><td>SINGLECALL MAC with valid key, correct algorithm</td><td>E_OK. Output in outputPtr. outputLengthPtr = MAC size.</td></tr>
+  <tr><td>TC_JOB_002</td><td>SINGLECALL MAC with INVALID key</td><td>CRYPTO_E_KEY_NOT_VALID.</td></tr>
+  <tr><td>TC_JOB_003</td><td>UPDATE without prior START</td><td>E_NOT_OK. DET optional (not explicit for this case).</td></tr>
+  <tr><td>TC_JOB_004</td><td>Hash with output buffer smaller than full hash</td><td>E_OK. Truncated output (MSB bytes in buffer). [SWS_Crypto_00065]</td></tr>
+  <tr><td>TC_JOB_005</td><td>ProcessJob with NULL job pointer</td><td>DET CRYPTO_E_PARAM_POINTER. E_NOT_OK.</td></tr>
+  <tr><td>TC_JOB_006</td><td>ProcessJob with objectId out of range</td><td>DET CRYPTO_E_PARAM_HANDLE. E_NOT_OK.</td></tr>
+  <tr><td>TC_JOB_007</td><td>ProcessJob requesting unsupported service</td><td>DET CRYPTO_E_PARAM_HANDLE. E_NOT_OK.</td></tr>
+  <tr><td>TC_JOB_008</td><td>Two jobs sent to same CDO (sync), no queue</td><td>Second job: CRYPTO_E_BUSY (sync never queues). [SWS_Crypto_00034]</td></tr>
+  <tr><td>TC_JOB_009</td><td>Two async jobs sent to same CDO, queue=5</td><td>First job: Active. Second job: E_OK (queued). Crypto_MainFunction processes queue.</td></tr>
+</table>
+</div>
+
+<h3>Test Group 3: Key Management</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th></tr>
+  <tr><td>TC_KEY_001</td><td>KeyElementSet then ProcessJob (MAC) without KeySetValid</td><td>MAC fails with CRYPTO_E_KEY_NOT_VALID. KeyElementSet makes key INVALID.</td></tr>
+  <tr><td>TC_KEY_002</td><td>KeyElementSet then KeySetValid then ProcessJob</td><td>MAC succeeds. Key VALID after KeySetValid.</td></tr>
+  <tr><td>TC_KEY_003</td><td>KeyElementGet on element with RA_DENIED</td><td>CRYPTO_E_KEY_READ_FAIL.</td></tr>
+  <tr><td>TC_KEY_004</td><td>KeyCopy: source RA_DENIED</td><td>CRYPTO_E_KEY_READ_FAIL. [SWS_Crypto_00220]</td></tr>
+  <tr><td>TC_KEY_005</td><td>KeyCopy: source RA_INTERNAL_COPY, dst same driver</td><td>E_OK. Internal copy allowed. [SWS_Crypto_00220]</td></tr>
+  <tr><td>TC_KEY_006</td><td>KeySetValid with CryptoKeyElementPersist=TRUE, DEFERRED mode</td><td>NvM_SetRamBlockStatus called. Key status → UPDATE_IN_PROGRESS until NvM write complete.</td></tr>
+  <tr><td>TC_KEY_007</td><td>KeyGetStatus during NVM write</td><td>Returns CRYPTO_KEYSTATUS_UPDATE_IN_PROGRESS.</td></tr>
+  <tr><td>TC_KEY_008</td><td>ECU reset during NVM write (DEFERRED, WriteAll not called)</td><td>After reset: key has NVM data from last successful write (previous key). New key lost.</td></tr>
+</table>
+</div>
+
+<h3>Test Group 4: Cancel</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Expected</th></tr>
+  <tr><td>CancelJob() for job not in queue/active</td><td>E_OK. No action. [SWS_Crypto_00214]</td></tr>
+  <tr><td>CancelJob() for queued async job</td><td>E_OK. Job removed from queue. No callback fired.</td></tr>
+  <tr><td>CancelJob() for HW job in progress (HW can cancel)</td><td>E_OK. Results suppressed. No callback.</td></tr>
+  <tr><td>CancelJob() for HW job (HW cannot cancel)</td><td>CRYPTO_E_JOB_CANCELED. Job completes but results suppressed. No callback to app. [SWS_Crypto_00183]</td></tr>
+</table>
+</div>
+
+<h3>Common Integration Mistakes</h3>
+<div class="danger"><strong>1. Not calling KeySetValid after KeyElementSet</strong> — Key stays INVALID. All crypto ops fail with KEY_NOT_VALID. Most common provisioning bug.</div>
+<div class="danger"><strong>2. CryptoPrimitive has invalid Family+Mode combination</strong> — e.g., declaring RSA+CBC together. Both CDO capability and CSM job must use valid combinations. DET at runtime or no matching primitive found.</div>
+<div class="danger"><strong>3. Crypto_MainFunction() not scheduled</strong> — Async jobs accepted (E_OK) but never processed. Queue fills up. CRYPTO_E_BUSY for all subsequent requests.</div>
+<div class="warn"><strong>4. NvM not configured with Crypto callbacks</strong> — NvM reads/writes but Crypto never notified. Keys lost after reset. NvMInitBlockCallback, NvMReadRamBlockFromNvCallback, NvMWriteRamBlockToNvCallback, NvmSingleBlockCallbackFnc must all be set.</div>
+<div class="warn"><strong>5. CDO IDs not starting from 0 or not consecutive</strong> — Spec requires consecutive gapless IDs starting from 0. CDO 0 must be configured as default RNG provider.</div>
+<div class="warn"><strong>6. Custom algorithm IDs outside 128..254 range</strong> — Custom IDs must be in this reserved range [SWS_Crypto_00240]. Values 0..127 are standard enums.</div>
+</div>
+
+</div><!-- content -->
+
+<script>
+function T(id){
+  var ids=['overview','states','keys','api','sequences','nvm','errors','davinci','testing'];
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',ids[i]===id);});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.toggle('active',s.id==='s-'+id);});
+}
+</script>
+</body>
+</html>

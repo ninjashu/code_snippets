@@ -1,0 +1,680 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.tb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tb-btn{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .15s}
+.tb-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.tb-btn:hover:not(.active){background:var(--color-background-secondary)}
+.pn{display:none}.pn.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.ct{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 8px}
+.cb{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.sh{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin:1.2rem 0 .5rem}
+.fn{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info)}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:500;white-space:nowrap}
+.bs{background:var(--color-background-success);color:var(--color-text-success)}
+.ba{background:var(--color-background-warning);color:var(--color-text-warning)}
+.bi{background:var(--color-background-info);color:var(--color-text-info)}
+.ec{font-family:var(--font-mono);font-size:11px;background:var(--color-background-danger);color:var(--color-text-danger);border-radius:4px;padding:1px 4px}
+.api-t{width:100%;border-collapse:collapse;font-size:12px}
+.api-t th{text-align:left;padding:6px 8px;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em}
+.api-t td{padding:8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5}
+.api-t tr:last-child td{border-bottom:none}
+.api-t tr:hover td{background:var(--color-background-secondary)}
+.cfg-r{display:grid;grid-template-columns:190px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.cfg-r:last-child{border-bottom:none}
+.ck{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);word-break:break-all}
+.cv{color:var(--color-text-secondary);line-height:1.5}
+.sb{font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.sb.sel{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.er{display:grid;grid-template-columns:50px 200px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.en{font-family:var(--font-mono);font-weight:500;color:var(--color-text-primary)}
+input.si{width:100%;box-sizing:border-box;font-family:var(--font-sans);font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:12px}
+input.si:focus{outline:none;border-color:var(--color-border-info)}
+.pill{border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;display:inline-block;margin:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+</style>
+
+<h2 class="sr-only">AUTOSAR CAN Transceiver Driver (CanTrcv) complete study guide — R24-11</h2>
+
+<div class="tb" id="tab-bar">
+  <button class="tb-btn active" onclick="showTab('overview',this)">Overview & Architecture</button>
+  <button class="tb-btn" onclick="showTab('state',this)">State Machine</button>
+  <button class="tb-btn" onclick="showTab('functional',this)">Functional Spec</button>
+  <button class="tb-btn" onclick="showTab('api',this)">API Reference</button>
+  <button class="tb-btn" onclick="showTab('seq',this)">Sequence Flows</button>
+  <button class="tb-btn" onclick="showTab('errors',this)">Errors & Debug</button>
+  <button class="tb-btn" onclick="showTab('config',this)">DaVinci Config</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="pn-overview" class="pn active">
+  <div class="card">
+    <p class="ct">What is CanTrcv?</p>
+    <p class="cb">The CAN Transceiver Driver (CanTrcv) is the AUTOSAR MCAL module that directly controls the <strong>physical CAN transceiver hardware chip</strong> on the ECU board. It adapts the digital signal levels from the microcontroller to the differential CAN bus (CANH/CANL) and back. It is the lowest layer in the CAN software stack — immediately above the DIO/SPI hardware abstraction. One CanTrcv module instance serves all transceivers of the <em>same hardware type</em>.</p>
+  </div>
+
+  <p class="sh">Position in AUTOSAR stack — click for detail</p>
+  <div id="ov-detail" style="display:none;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;font-size:13px;line-height:1.65;"></div>
+
+  <div onclick="showOvD('canif')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:var(--color-background-info);color:var(--color-text-info);">
+    <div><span>CanIf — CAN Interface (Only permitted caller of CanTrcv APIs)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">CanIf_SetTrcvMode() → CanTrcv_SetOpMode() · CanIf_CheckTrcvWakeFlag() → CanTrcv_CheckWakeFlag()</div></div>
+  </div>
+  <div onclick="showOvD('cantrcv')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#EAF3DE;color:#27500A;border:2px solid #3B6D11;">
+    <div><span>⭐ CanTrcv — CAN Transceiver Driver (this module)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">CanTrcv_Init · CanTrcv_SetOpMode · CanTrcv_CheckWakeup · CanTrcv_ClearTrcvWufFlag…</div></div>
+  </div>
+  <div onclick="showOvD('dio')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#EEEDFE;color:#3C3489;">
+    <div><span>DIO — Digital I/O Driver (for GPIO-controlled transceivers)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Dio_WriteChannel() sets STB/EN/INH pins to control TJA1050 / TJA1042 etc.</div></div>
+  </div>
+  <div onclick="showOvD('spi')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#FAEEDA;color:#633806;">
+    <div><span>SPI — Serial Peripheral Interface Driver (for SPI-controlled SBCs)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Spi_SyncTransmit() / Spi_AsyncTransmit() to configure TJA1145, UJA116x etc.</div></div>
+  </div>
+  <div style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;background:#F1EFE8;color:#444441;opacity:.6;cursor:default;">
+    <div><span>Physical CAN bus hardware (TJA1050, TJA1042, TJA1145, UJA116x, NCT3350…)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">ISO 11898-2 high-speed CAN · ISO 11898-3 low-speed CAN · CANH/CANL differential pair</div></div>
+  </div>
+
+  <p class="sh">Key responsibilities</p>
+  <div class="g3">
+    <div class="card"><p class="ct">Mode control</p><p class="cb">Switch transceiver between NORMAL (full comms), STANDBY (wakeup capable, no comms), and SLEEP (low-power, wakeup capable) via DIO/SPI.</p></div>
+    <div class="card"><p class="ct">Wakeup detection</p><p class="cb">Detect wakeup events (bus, pin, POR, SYSERR) in MainFunction polling loop or during Init. Report to EcuM via EcuM_SetWakeupEvent().</p></div>
+    <div class="card"><p class="ct">Selective wakeup (PN)</p><p class="cb">When CanTrcvHwPnSupport=TRUE: configure WUF filter (CanId + mask + data mask). Clear WUF flag, read timeout/silence flags for PN shutdown sequence.</p></div>
+  </div>
+
+  <p class="sh">Two hardware access modes (exam critical)</p>
+  <div class="g2">
+    <div class="card"><p class="ct">DIO-controlled transceivers (e.g. TJA1050, TJA1042)</p><p class="cb">Simple transceivers with STB (standby), EN/INH pins. CanTrcv calls Dio_WriteChannel() to set pin levels for mode switching. NORMAL = STB low + EN high. STANDBY = STB high. SLEEP = depends on hardware. DIO is synchronous — instant feedback.</p></div>
+    <div class="card"><p class="ct">SPI-controlled transceivers / SBCs (e.g. TJA1145, UJA116x)</p><p class="cb">Advanced transceivers with register interface over SPI. CanTrcv calls Spi_SyncTransmit() (blocking) or Spi_AsyncTransmit() (callback-based). SPI has higher latency and may fail — CANTRCV_E_NO_TRCV_CONTROL if communication fails. Supports detailed diagnostics (BUSERR, WUF, timeout, silence flags).</p></div>
+  </div>
+
+  <p class="sh">Instance concept — important for multi-transceiver ECUs</p>
+  <div class="card">
+    <p class="cb">One CanTrcv module instance serves ALL transceivers of the <strong>same hardware type</strong>. Each transceiver is a <strong>channel</strong> identified by CanTrcvChannelId (uint8). For different hardware types (e.g. TJA1050 + TJA1145 on same ECU), two separate CanTrcv module instances are used. Each has its own CanTrcvIndex. All APIs take a <span class="fn">Transceiver</span> (uint8) parameter to address the correct channel.</p>
+  </div>
+
+  <p class="sh">Physical wakeup scenarios (know all 3 — exam favourite)</p>
+  <div class="g3">
+    <div class="card"><p class="ct">Scenario 1 — Cold Start (NOT wakeup)</p><p class="cb">MCU off, transceiver in SLEEP, bus activity powers up MCU. AUTOSAR calls this a <strong>cold start</strong>, not a wakeup. No CanTrcv involvement until Init.</p></div>
+    <div class="card"><p class="ct">Scenario 2 — MCU wakeup from low power</p><p class="cb">MCU in low-power, transceiver in STANDBY. Bus activity causes hardware interrupt → MCU wakes up → EcuM chain → CanTrcv_CheckWakeup → EcuM_SetWakeupEvent.</p></div>
+    <div class="card"><p class="ct">Scenario 3 — CAN channel wakeup (MCU running)</p><p class="cb">MCU running, transceiver in STANDBY. Bus activity detected → polled in CanTrcv_MainFunction or interrupt → EcuM_SetWakeupEvent. MCU stays on.</p></div>
+  </div>
+</div>
+
+<!-- ===== STATE MACHINE ===== -->
+<div id="pn-state" class="pn">
+  <div class="card">
+    <p class="ct">CanTrcv state machine — per transceiver channel</p>
+    <p class="cb">Each configured transceiver channel runs its own independent state machine. Click any state for full details.</p>
+  </div>
+  <div id="sm-detail" style="display:none;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;font-size:13px;line-height:1.65;"></div>
+
+  <svg width="100%" viewBox="0 0 680 480" role="img">
+    <title>CanTrcv state machine diagram per transceiver channel</title>
+    <desc>States: POWER_ON leading to NOT_ACTIVE, then ACTIVE with sub-states NORMAL, STANDBY, and SLEEP. Transitions shown via numbered arrows.</desc>
+    <defs><marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+    <!-- Power on -->
+    <rect x="20" y="10" width="100" height="36" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text x="70" y="32" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">POWER_ON</text>
+
+    <!-- NOT_ACTIVE -->
+    <rect x="160" y="10" width="130" height="36" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="225" y="32" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">NOT_ACTIVE</text>
+    <text x="225" y="50" text-anchor="middle" font-size="9" fill="#888780">HW state depends on SPAL config</text>
+
+    <!-- ACTIVE container -->
+    <rect x="20" y="85" width="640" height="370" rx="14" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5" fill-opacity="0.15"/>
+    <text x="40" y="108" font-size="11" font-weight="500" fill="#3B6D11">ACTIVE (CanTrcv_Init() called)</text>
+
+    <!-- NORMAL -->
+    <rect x="80" y="125" width="180" height="60" rx="10" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/>
+    <text x="170" y="150" text-anchor="middle" font-size="13" font-weight="500" fill="#27500A">NORMAL ⭐</text>
+    <text x="170" y="168" text-anchor="middle" font-size="10" fill="#3B6D11">Full comms · Tx + Rx enabled</text>
+
+    <!-- STANDBY -->
+    <rect x="80" y="255" width="180" height="60" rx="10" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+    <text x="170" y="280" text-anchor="middle" font-size="13" font-weight="500" fill="#633806">STANDBY</text>
+    <text x="170" y="298" text-anchor="middle" font-size="10" fill="#854F0B">No comms · Wakeup capable</text>
+
+    <!-- SLEEP -->
+    <rect x="80" y="385" width="180" height="50" rx="10" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+    <text x="170" y="408" text-anchor="middle" font-size="13" font-weight="500" fill="#791F1F">SLEEP</text>
+    <text x="170" y="424" text-anchor="middle" font-size="10" fill="#A32D2D">Low power · Wakeup capable</text>
+
+    <!-- Transition labels box -->
+    <rect x="320" y="118" width="320" height="320" rx="10" fill="transparent" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+    <text x="480" y="140" text-anchor="middle" font-size="11" font-weight="500" fill="var(--color-text-primary)">Transition rules (examinable)</text>
+
+    <text x="334" y="162" font-size="10" fill="#534AB7">① CFG1: Init → STANDBY  |  CFG2: Init → SLEEP</text>
+    <text x="334" y="180" font-size="10" fill="#3B6D11">② STANDBY → NORMAL: SetOpMode(NORMAL) — always valid</text>
+    <text x="334" y="198" font-size="10" fill="#BA7517">③ NORMAL → STANDBY: SetOpMode(STANDBY) — always valid</text>
+    <text x="334" y="216" font-size="10" fill="#888780">④ STANDBY → SLEEP: SetOpMode(SLEEP) — from STANDBY only!</text>
+    <text x="334" y="234" font-size="10" fill="#534AB7">⑤ SLEEP → STANDBY: SetOpMode(STANDBY) — valid</text>
+    <text x="334" y="252" font-size="10" fill="#3B6D11">⑥ SLEEP/STANDBY → NORMAL: SetOpMode(NORMAL) — valid</text>
+    <text x="334" y="274" font-size="10" fill="#A32D2D" font-weight="500">⚠ NORMAL → SLEEP: INVALID! Must go via STANDBY first.</text>
+    <text x="334" y="292" font-size="10" fill="#A32D2D" font-weight="500">⚠ SLEEP → SLEEP (re-enter): NOT directly supported.</text>
+
+    <text x="334" y="316" font-size="10" fill="#444441" font-weight="500">Mode switch rules for SetOpMode:</text>
+    <text x="334" y="332" font-size="10" fill="#444441">• Current=NORMAL: can request NORMAL or STANDBY</text>
+    <text x="334" y="348" font-size="10" fill="#444441">• Current=STANDBY: can request SLEEP, STANDBY, or NORMAL</text>
+    <text x="334" y="364" font-size="10" fill="#444441">• Current=SLEEP: can request STANDBY or NORMAL (impl-specific)</text>
+    <text x="334" y="380" font-size="10" fill="#3B6D11">• Same mode request: always ALLOWED (no error, no action)</text>
+
+    <text x="334" y="402" font-size="10" fill="#534AB7" font-weight="500">After each SetOpMode → CanIf_TrcvModeIndication() called</text>
+    <text x="334" y="418" font-size="10" fill="#534AB7">(even for same-mode requests — always call callback)</text>
+    <text x="334" y="434" font-size="10" fill="#BA7517">ICU: Enable on STANDBY transition, Disable on NORMAL transition</text>
+
+    <!-- Arrows POWER_ON → NOT_ACTIVE -->
+    <line x1="120" y1="28" x2="158" y2="28" stroke="#888780" stroke-width="1" marker-end="url(#am)"/>
+    <text x="139" y="22" text-anchor="middle" font-size="9" fill="#888780">Power on</text>
+
+    <!-- NOT_ACTIVE → ACTIVE (Init) -->
+    <line x1="225" y1="58" x2="170" y2="124" stroke="#3B6D11" stroke-width="1.2" marker-end="url(#am)"/>
+    <text x="210" y="92" text-anchor="middle" font-size="9" fill="#3B6D11">CanTrcv_Init() [CFG1]</text>
+
+    <!-- Init → SLEEP (CFG2) -->
+    <path d="M260 58 L260 410 L262 410" fill="none" stroke="#A32D2D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#am)"/>
+    <text x="278" y="390" font-size="9" fill="#A32D2D">Init [CFG2]</text>
+
+    <!-- NORMAL ↔ STANDBY -->
+    <line x1="155" y1="185" x2="155" y2="253" stroke="#BA7517" stroke-width="1" marker-end="url(#am)"/>
+    <text x="130" y="224" text-anchor="middle" font-size="9" fill="#BA7517">②→③</text>
+    <line x1="185" y1="253" x2="185" y2="185" stroke="#3B6D11" stroke-width="1" marker-end="url(#am)"/>
+
+    <!-- STANDBY → SLEEP -->
+    <line x1="155" y1="315" x2="155" y2="383" stroke="#A32D2D" stroke-width="1" marker-end="url(#am)"/>
+    <text x="116" y="354" text-anchor="middle" font-size="9" fill="#A32D2D">④ SLEEP req</text>
+    <!-- SLEEP → STANDBY -->
+    <line x1="185" y1="383" x2="185" y2="315" stroke="#534AB7" stroke-width="1" marker-end="url(#am)"/>
+    <text x="215" y="354" text-anchor="middle" font-size="9" fill="#534AB7">⑤ STBY req</text>
+
+    <!-- DeInit arrows back -->
+    <path d="M260 155 L300 155 L300 28 L292 28" fill="none" stroke="#888780" stroke-width="0.7" stroke-dasharray="3 2" marker-end="url(#am)"/>
+    <text x="303" y="92" font-size="9" fill="#888780">DeInit</text>
+
+    <!-- ACTIVE label -->
+    <text x="640" y="452" text-anchor="end" font-size="9" fill="#3B6D11">ACTIVE state contains all three operation modes</text>
+  </svg>
+
+  <p class="sh">State descriptions (know these cold)</p>
+  <div class="g2">
+    <div class="card" onclick="showSM('normal')" style="cursor:pointer;">
+      <p class="ct">NORMAL ⭐ — Full communication</p>
+      <p class="cb">CAN controller can transmit and receive. Transceiver drives CANH/CANL differentially. If transceiver controls ECU power: ECU fully powered. CanTrcv does NOT detect additional wakeup info in this state — WUF flag cleared/disabled. ICU notification disabled in NORMAL.</p>
+    </div>
+    <div class="card" onclick="showSM('standby')" style="cursor:pointer;">
+      <p class="ct">STANDBY — No comms, wakeup capable</p>
+      <p class="cb">No CAN communication possible. ECU still powered if transceiver controls power. Bus activity (WUP pattern) can trigger wakeup. ICU notification enabled. This is the <strong>gateway to SLEEP</strong> — you MUST pass through STANDBY to reach SLEEP.</p>
+    </div>
+    <div class="card" onclick="showSM('sleep')" style="cursor:pointer;">
+      <p class="ct">SLEEP — Low power, wakeup capable</p>
+      <p class="cb">ECU may be unpowered depending on hardware. Bus activity can trigger wakeup. Selective wakeup (PN) only works if transceiver supports it. Only reachable FROM STANDBY. To exit: go to STANDBY first.</p>
+    </div>
+    <div class="card" onclick="showSM('notactive')" style="cursor:pointer;">
+      <p class="ct">NOT_ACTIVE — Pre-init state</p>
+      <p class="cb">All channels in NOT_ACTIVE between power-on and CanTrcv_Init(). Hardware state depends on SPAL (DIO/Port) driver configuration. After DeInit() → all channels return to NOT_ACTIVE. CanTrcv_DeInit requires all transceivers to be in STANDBY or SLEEP.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FUNCTIONAL SPEC ===== -->
+<div id="pn-functional" class="pn">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="func-btns"></div>
+  <div id="func-display" class="card"></div>
+</div>
+
+<!-- ===== API REFERENCE ===== -->
+<div id="pn-api" class="pn">
+  <input type="text" class="si" id="api-search" placeholder="Filter APIs... (e.g. Wakeup, OpMode, PN)" oninput="filterApi(this.value)">
+
+  <p class="sh">Service Functions</p>
+  <table class="api-t">
+    <thead><tr><th>Function</th><th>SID</th><th>Mode</th><th>Key behaviour</th></tr></thead>
+    <tbody id="api-body"></tbody>
+  </table>
+
+  <p class="sh" style="margin-top:1.5rem;">Scheduled Functions (called by OS scheduler)</p>
+  <table class="api-t">
+    <thead><tr><th>Function</th><th>SID</th><th>When</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td class="fn">CanTrcv_MainFunction()</td><td>0x06</td><td>CanTrcvWakeUpSupport=POLLING</td><td>Scans all channels in STANDBY/SLEEP for wakeup events. If detected → sets wakeup event flag → calls EcuM_SetWakeupEvent. Non-reentrant. Period=CanTrcvMainFunctionPeriod.</td></tr>
+      <tr><td class="fn">CanTrcv_MainFunctionDiagnostics()</td><td>0x08</td><td>CanTrcvBusErrFlag=TRUE</td><td>Reads transceiver BUSERR flag periodically. If set → Dem_SetEventStatus(CANTRCV_E_BUS_ERROR, FAILED). If clear → PASSED. Exists only if CanTrcvBusErrFlag=TRUE. Period=CanTrcvMainFunctionDiagnosticsPeriod.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sh" style="margin-top:1.5rem;">Callbacks provided by CanTrcv (CanTrcv calls these on CanIf)</p>
+  <table class="api-t">
+    <thead><tr><th>Callback</th><th>When called</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="fn">CanIf_TrcvModeIndication(TransceiverId, TrcvMode)</td><td>After every SetOpMode completes</td><td><strong>Mandatory.</strong> Called even for same-mode requests. TransceiverId = abstract CanIf ID (mapped from CanTrcvChannelId). CanSM receives this via CanSM_TransceiverModeIndication.</td></tr>
+      <tr><td class="fn">EcuM_SetWakeupEvent(WakeupSource)</td><td>Wakeup detected in Init or CheckWakeup</td><td>WakeupSource = CanTrcvWakeupSourceRef bitmask. CanTrcv reports WU by bus, POR, SYSERR via separate refs. EcuM then validates via CanIf_CheckWakeup chain.</td></tr>
+      <tr><td class="fn">CanIf_ClearTrcvWufFlagIndication(TransceiverId)</td><td>After ClearTrcvWufFlag completes (PN)</td><td>Optional (PN only). Informs CanIf that WUF flag clearing is done. CanIf → CanSM_ClearTrcvWufFlagIndication. Needed for asynchronous SPI path.</td></tr>
+      <tr><td class="fn">CanIf_CheckTrcvWakeFlagIndication(TransceiverId)</td><td>After CheckWakeFlag completes (PN)</td><td>Optional (PN only). Informs CanIf that wake flag check is done. CanIf → CanSM_CheckTransceiverWakeFlagIndication. Async completion notification.</td></tr>
+      <tr><td class="fn">CanIf_ConfirmPnAvailability(TransceiverId)</td><td>After SetOpMode(NORMAL) with PN, no SYSERR</td><td>Optional (PN only). Confirms transceiver is running PN mode. CanIf → CanSM_ConfirmPnAvailability → CanNm_ConfirmPnAvailability.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sh" style="margin-top:1.5rem;">Key type definitions</p>
+  <div class="g2">
+    <div class="card"><p class="ct">CanTrcv_TrcvModeType</p><p class="cb"><span class="fn">CANTRCV_TRCVMODE_SLEEP</span><br><span class="fn">CANTRCV_TRCVMODE_STANDBY</span><br><span class="fn">CANTRCV_TRCVMODE_NORMAL = 0x00</span><br>Defined in Can_GeneralTypes.h</p></div>
+    <div class="card"><p class="ct">CanTrcv_TrcvWakeupReasonType</p><p class="cb"><span class="fn">CANTRCV_WU_ERROR (0x00)</span> — error reading reason<br><span class="fn">CANTRCV_WU_NOT_SUPPORTED (0x01)</span><br><span class="fn">CANTRCV_WU_BY_BUS (0x02)</span> — bus activity<br><span class="fn">CANTRCV_WU_INTERNALLY (0x03)</span> — ECU requested<br><span class="fn">CANTRCV_WU_RESET (0x04)</span><br><span class="fn">CANTRCV_WU_POWER_ON (0x05)</span><br><span class="fn">CANTRCV_WU_BY_PIN (0x06)</span><br><span class="fn">CANTRCV_WU_BY_SYSERR (0x07)</span></p></div>
+    <div class="card"><p class="ct">CanTrcv_TrcvWakeupModeType</p><p class="cb"><span class="fn">CANTRCV_WUMODE_ENABLE (0x00)</span> — enable wakeup notification<br><span class="fn">CANTRCV_WUMODE_DISABLE (0x01)</span> — disable but store events<br><span class="fn">CANTRCV_WUMODE_CLEAR (0x02)</span> — clear stored wakeup event</p></div>
+    <div class="card"><p class="ct">CanTrcv_TrcvFlagStateType (PN only)</p><p class="cb"><span class="fn">CANTRCV_FLAG_SET</span> — flag is set in HW<br><span class="fn">CANTRCV_FLAG_CLEARED</span> — flag is cleared<br>Used by ReadTrcvTimeoutFlag and ReadTrcvSilenceFlag</p></div>
+    <div class="card"><p class="ct">CanTrcv_PNActivationType (PN only)</p><p class="cb"><span class="fn">PN_ENABLED</span> — selective wakeup enabled<br><span class="fn">PN_DISABLED</span> — standard WUP wakeup only<br>Used by SetPNActivationState()</p></div>
+  </div>
+</div>
+
+<!-- ===== SEQUENCE FLOWS ===== -->
+<div id="pn-seq" class="pn">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="seq-btns"></div>
+  <div id="seq-display" class="card"></div>
+</div>
+
+<!-- ===== ERRORS & DEBUG ===== -->
+<div id="pn-errors" class="pn">
+  <p class="sh">Development Errors (DET)</p>
+  <div class="card">
+    <div class="er" style="font-weight:500;font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;border-bottom:0.5px solid var(--color-border-secondary);"><span>Value</span><span>Error Code</span><span>Cause & Debug Tip</span></div>
+    <div class="er"><span class="en">0x01</span><span class="ec">CANTRCV_E_INVALID_TRANSCEIVER</span><span style="color:var(--color-text-secondary)">Transceiver channel ID out of range. Check CanTrcvChannelId values in DaVinci. CanTrcvChannelId must be unique sequential integers starting from 0.</span></div>
+    <div class="er"><span class="en">0x02</span><span class="ec">CANTRCV_E_PARAM_POINTER</span><span style="color:var(--color-text-secondary)">NULL pointer passed to GetOpMode, GetBusWuReason, GetTrcvSystemData, ReadTrcvTimeoutFlag, ReadTrcvSilenceFlag. Check all output parameter pointer arguments.</span></div>
+    <div class="er"><span class="en">0x11</span><span class="ec">CANTRCV_E_UNINIT</span><span style="color:var(--color-text-secondary)">API called before CanTrcv_Init(). Check EcuM init sequence — DIO/SPI drivers must be initialized BEFORE CanTrcv_Init. CanTrcv_Init must be called before any other API.</span></div>
+    <div class="er"><span class="en">0x21</span><span class="ec">CANTRCV_E_TRCV_NOT_STANDBY</span><span style="color:var(--color-text-secondary)">SetOpMode(SLEEP) called when transceiver is not in STANDBY. SLEEP can only be entered from STANDBY — must call SetOpMode(STANDBY) first. Also raised by DeInit if transceiver is in NORMAL.</span></div>
+    <div class="er"><span class="en">0x22</span><span class="ec">CANTRCV_E_TRCV_NOT_NORMAL</span><span style="color:var(--color-text-secondary)">SetOpMode(STANDBY) called when transceiver is not in NORMAL or STANDBY. Rare — triggered in unexpected state sequences. Check state machine flow.</span></div>
+    <div class="er"><span class="en">0x23</span><span class="ec">CANTRCV_E_PARAM_TRCV_WAKEUP_MODE</span><span style="color:var(--color-text-secondary)">Invalid TrcvWakeupMode value passed to SetWakeupMode. Valid values: ENABLE/DISABLE/CLEAR only.</span></div>
+    <div class="er"><span class="en">0x24</span><span class="ec">CANTRCV_E_PARAM_TRCV_OPMODE</span><span style="color:var(--color-text-secondary)">Invalid OpMode value passed to SetOpMode. Valid values: NORMAL/STANDBY/SLEEP only.</span></div>
+    <div class="er"><span class="en">0x27</span><span class="ec">CANTRCV_E_INIT_FAILED</span><span style="color:var(--color-text-secondary)">CanTrcv_Init called with invalid ConfigPtr (post-build). Check ConfigPtr is not NULL and points to valid config. Check SPI/DIO driver availability at init time.</span></div>
+  </div>
+
+  <p class="sh">Runtime Errors (DET_ReportRuntimeError)</p>
+  <div class="card">
+    <div class="er"><span class="en">0x26</span><span class="ec">CANTRCV_E_NO_TRCV_CONTROL</span><span style="color:var(--color-text-secondary)">No or incorrect communication to transceiver. SPI: Spi_SyncTransmit returned error, response data invalid/NACK, or SPI timeout exceeded. DIO: Port pins in wrong configuration. Check SPI wiring, SPI sequence config, transceiver power supply, CanTrcvSPICommRetries/Timeout settings.</span></div>
+  </div>
+
+  <p class="sh">Extended Production Error (DEM)</p>
+  <div class="card">
+    <p class="cb"><strong>CANTRCV_E_BUS_ERROR:</strong> Physical bus failure detected by transceiver hardware.<br>
+    FAILED: when BUSERR flag is set in transceiver registers → Dem_SetEventStatus(CANTRCV_E_BUS_ERROR, DEM_EVENT_STATUS_FAILED)<br>
+    PASSED: when BUSERR flag cleared → DEM_EVENT_STATUS_PASSED<br>
+    Only exists if CanTrcvBusErrFlag=TRUE and hardware supports it.<br>
+    Checked cyclically by CanTrcv_MainFunctionDiagnostics().<br><br>
+    Debug: BUSERR indicates physical bus issues (short, dominant stuck, ground offset). Check CANH/CANL wiring, termination resistors (120Ω each end), ECU ground connections.</p>
+  </div>
+
+  <p class="sh">Debugging checklist — integration and interface testing</p>
+  <div class="card">
+    <p class="cb">
+    <strong>1. SetOpMode(NORMAL) returns E_NOT_OK</strong><br>
+    — Is CanTrcv_Init() called? (CANTRCV_E_UNINIT) · Is TransceiverId valid? · Is SPI communication working? (CANTRCV_E_NO_TRCV_CONTROL) · Is hardware powered?<br><br>
+    <strong>2. SetOpMode(SLEEP) raises CANTRCV_E_TRCV_NOT_STANDBY</strong><br>
+    — Transceiver is in NORMAL, not STANDBY. Must call SetOpMode(STANDBY) first, wait for CanIf_TrcvModeIndication(STANDBY), then call SetOpMode(SLEEP).<br><br>
+    <strong>3. Wakeup not detected after STANDBY</strong><br>
+    — Is CanTrcvWakeUpSupport=CANTRCV_WAKEUP_BY_POLLING? Is CanTrcv_MainFunction scheduled at correct period? Is CanTrcvWakeupByBusUsed=TRUE? Is CanTrcvWakeupSourceRef correctly linked to EcuM wakeup source?<br><br>
+    <strong>4. PN selective wakeup not working</strong><br>
+    — CanTrcvHwPnSupport=TRUE? CanTrcvPartialNetwork container configured? CanTrcvPnFrameCanId + Mask + DataMask match the expected WUF frame? Was CanTrcv_SetPNActivationState(PN_ENABLED) called? Was WUF flag cleared (ClearTrcvWufFlag) before entering STANDBY?<br><br>
+    <strong>5. SPI communication failures (CANTRCV_E_NO_TRCV_CONTROL in Init)</strong><br>
+    — Spi_Init() called before CanTrcv_Init()? SPI sequence configured correctly (CanTrcvSpiSequence → SpiSequence ref)? SPI clock speed within transceiver limits? CanTrcvSPICommTimeout set? Check SPI CS/CLK/MOSI/MISO wiring.<br><br>
+    <strong>6. CanIf_TrcvModeIndication not received after mode change</strong><br>
+    — CanTrcv must call CanIf_TrcvModeIndication even for same-mode requests. If using SPI async path: callback fires after Spi_AsyncTransmit completes (in ISR context). Ensure ISR priorities configured correctly.<br><br>
+    <strong>7. DIO-controlled transceiver wrong state</strong><br>
+    — Check DIO pin mapping in CanTrcvDioChannelAccess. Check pin logic level (some transceivers use active-low STB). Verify Port driver initializes pins to expected default state. Use DIO_WriteChannel debugging to verify pin outputs.</p>
+  </div>
+</div>
+
+<!-- ===== DAVINCI CONFIG ===== -->
+<div id="pn-config" class="pn">
+  <div class="card"><p class="ct">DaVinci Configurator — CanTrcv setup workflow</p><p class="cb">Navigate to BSW → CanTrcv (vendor-specific instance, e.g. CanTrcv_TJA1145 or CanTrcv_Tja1050). Container hierarchy: CanTrcv → CanTrcvGeneral + CanTrcvConfigSet → CanTrcvChannel(s).</p></div>
+
+  <p class="sh">CanTrcvGeneral — global pre-compile settings</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">CanTrcvDevErrorDetect</span><span class="cv">TRUE in development, FALSE in production. Enables DET error codes.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvIndex</span><span class="cv">Module instance ID. 0 if only one CanTrcv instance. Increment for multiple transceiver hardware types.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvWakeUpSupport</span><span class="cv">CANTRCV_WAKEUP_BY_POLLING: wakeup via periodic CanTrcv_MainFunction polling. CANTRCV_WAKEUP_NOT_SUPPORTED: no wakeup capability. Determines whether MainFunction must be scheduled.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvMainFunctionPeriod</span><span class="cv">Period (seconds) for CanTrcv_MainFunction call. Must match OS task period. Only used when WakeUpSupport=POLLING.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvMainFunctionDiagnosticsPeriod</span><span class="cv">Period (seconds) for CanTrcv_MainFunctionDiagnostics. Only if CanTrcvBusErrFlag=TRUE. Typical: 0.01–0.1s.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvVersionInfoApi</span><span class="cv">TRUE to enable CanTrcv_GetVersionInfo() API.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvWaitTime</span><span class="cv">Wait time (seconds, max 0.000255s = 255µs) for transceiver state changes. Uses Tm_BusyWait1us16bit. Set based on transceiver datasheet timing requirements.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvTimerType</span><span class="cv">None or Timer_1us16bit. Set Timer_1us16bit if CanTrcvWaitTime &gt; 0.</span></div>
+  </div>
+
+  <p class="sh">CanTrcvConfigSet — SPI global parameters</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">CanTrcvSPICommRetries</span><span class="cv">0–255. Max SPI retries on failure/NACK. 0 = no retry. Only for SPI-accessed transceivers. Common: 3.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvSPICommTimeout</span><span class="cv">0–100ms. SPI communication timeout. 0 = no specific timeout (HW capacity). Set based on transceiver response time.</span></div>
+  </div>
+
+  <p class="sh">CanTrcvChannel — one per physical transceiver chip</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">CanTrcvChannelId</span><span class="cv">Unique uint8 ID (0..255). withAuto=true → DaVinci auto-assigns. This ID is what all API Transceiver parameter values correspond to. Must match CanIf's CanSMTransceiverId reference.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvChannelUsed</span><span class="cv">TRUE = this channel is active. FALSE = skipped. Allows disabling unused channels.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvControlsPowerSupply</span><span class="cv">TRUE if this transceiver chip controls ECU power supply (SBC with voltage regulator). FALSE for standalone transceivers. Affects interpretation of SLEEP state power behavior.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvHwPnSupport</span><span class="cv">TRUE = hardware supports selective wakeup (PN). Enables CanTrcvPartialNetwork container, and PN-specific APIs (GetTrcvSystemData, ClearTrcvWufFlag, ReadTrcvTimeoutFlag, etc.).</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvInitState</span><span class="cv">CANTRCV_OP_MODE_STANDBY or CANTRCV_OP_MODE_SLEEP. Determines which state CanTrcv_Init puts this channel into. Choose STANDBY for most applications. SLEEP if hardware starts in sleep mode.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvMaxBaudrate</span><span class="cv">Maximum CAN baud rate supported by this transceiver hardware (kbit/s). Used for validation.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvWakeupByBusUsed</span><span class="cv">TRUE = CAN bus wakeup detection enabled for this channel. FALSE = wakeup by bus not used. Controls whether CanTrcvWakeupSourceRef is evaluated.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvWakeupSourceRef</span><span class="cv">Reference to EcuMWakeupSource for standard bus wakeup. Used in EcuM_SetWakeupEvent() call. Bitmask bit position.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvPorWakeupSourceRef</span><span class="cv">Reference to EcuMWakeupSource for power-on-reset wakeup. Separate source from bus wakeup. PN only.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvSyserrWakeupSourceRef</span><span class="cv">Reference to EcuMWakeupSource for system error wakeup. PN only. Reported when SYSERR flag is set in transceiver.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvIcuChannelRef</span><span class="cv">Reference to ICU channel for edge detection on wakeup pin. When configured: CanTrcv calls Icu_EnableNotification on STANDBY transition, Icu_DisableNotification on NORMAL transition.</span></div>
+  </div>
+
+  <p class="sh">CanTrcvAccess — hardware interface selection</p>
+  <div class="card">
+    <p class="cb">Choice container: select one of <strong>CanTrcvDioAccess</strong> (GPIO-controlled) or <strong>CanTrcvSpiAccess</strong> (SPI-controlled).</p>
+    <div class="cfg-r"><span class="ck">CanTrcvDioAccess</span><span class="cv">For TJA1050, TJA1042 etc. Contains CanTrcvDioChannelAccess sub-containers, each with CanTrcvDioChannelId → DioChannelRef and CanTrcvDioChannelLevel (required logic level per state).</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvSpiAccess</span><span class="cv">For TJA1145, UJA116x etc. Contains CanTrcvSpiSequence sub-containers with SpiSequenceRef → SpiSequence reference from SPI driver config. Multiple sequences for different operations.</span></div>
+  </div>
+
+  <p class="sh">CanTrcvPartialNetwork — selective wakeup (only if CanTrcvHwPnSupport=TRUE)</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">CanTrcvPnEnabled</span><span class="cv">TRUE = PN functionality enabled in this transceiver at init time. CanSM checks this to determine DeinitPnSupported vs DeinitPnNotSupported path.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvBusErrFlag</span><span class="cv">TRUE if transceiver can detect and report bus errors. Enables CanTrcv_MainFunctionDiagnostics and CANTRCV_E_BUS_ERROR DEM event.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvPnFrameCanId</span><span class="cv">CAN ID of the selective wakeup frame (WUF). Transceiver wakes only on this ID (when PN active).</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvPnFrameCanIdMask</span><span class="cv">Mask for WUF CAN ID. Allows waking on a range of IDs. 1=care bit, 0=don't care (check vendor docs — mask polarity varies!).</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvPnFrameDlc</span><span class="cv">Expected DLC of the WUF frame. Transceiver checks DLC matches before reporting wakeup.</span></div>
+    <div class="cfg-r"><span class="ck">CanTrcvPnFrameDataMaskSpec</span><span class="cv">Sub-container list: byte-level data mask for WUF payload. One entry per byte. CanTrcvPnFrameDataMask (byte value) + CanTrcvPnFrameDataMaskIndex (byte position). All masked bytes must match for wakeup.</span></div>
+  </div>
+
+  <p class="sh">Step-by-step DaVinci configuration workflow</p>
+  <div class="card">
+    <p class="cb">
+    <strong>Step 1: CanTrcvGeneral</strong> — CanTrcvDevErrorDetect=TRUE (dev), WakeUpSupport, MainFunctionPeriod, WaitTime (from transceiver datasheet — e.g. TJA1050 needs ~7µs for NORMAL→STANDBY).<br>
+    <strong>Step 2: CanTrcvConfigSet</strong> — If SPI: set SPICommRetries and SPICommTimeout.<br>
+    <strong>Step 3: CanTrcvChannel</strong> — One per chip. Set CanTrcvChannelId (auto), CanTrcvInitState, CanTrcvMaxBaudrate, CanTrcvWakeupByBusUsed=TRUE, CanTrcvWakeupSourceRef → link to EcuMWakeupSource.<br>
+    <strong>Step 4: CanTrcvAccess</strong> — Choose DioAccess or SpiAccess. For DIO: add CanTrcvDioChannelAccess entries for STB, EN, ERR pins. For SPI: add CanTrcvSpiSequence entries linking to SPI sequences.<br>
+    <strong>Step 5: CanTrcvHwPnSupport</strong> — If PN hardware: set TRUE, configure CanTrcvPartialNetwork (PnFrameCanId, Mask, Dlc, DataMaskSpec). Set CanTrcvPorWakeupSourceRef and CanTrcvSyserrWakeupSourceRef.<br>
+    <strong>Step 6: OS tasks</strong> — Add CanTrcv_MainFunction (if POLLING) and CanTrcv_MainFunctionDiagnostics (if BusErrFlag) to OS tasks with correct periods.<br>
+    <strong>Step 7: Cross-reference validation</strong> — CanTrcvChannelId ↔ CanIf transceiver mapping ↔ CanSM CanSMTransceiverId. EcuMWakeupSource refs must be consistent across CanTrcv+CanIf+EcuM.</p>
+  </div>
+
+  <p class="sh">Common DaVinci mistakes</p>
+  <div class="card">
+    <p class="cb">
+    • CanTrcvWaitTime=0 for a transceiver that needs timing → mode switch completes before hardware is ready → unreliable behavior<br>
+    • DIO pin logic level inverted (active-low STB on TJA1050 vs active-high on some SBCs) → transceiver always in wrong state<br>
+    • CanTrcvWakeupSourceRef not linked → EcuM_SetWakeupEvent called with 0 → wakeup not detected<br>
+    • CanTrcvSpiSequence references wrong SPI sequence → CANTRCV_E_NO_TRCV_CONTROL on every call<br>
+    • CanTrcvHwPnSupport=TRUE but CanTrcvPartialNetwork not configured → compile-time error or undefined behavior<br>
+    • CanTrcvWakeUpSupport=CANTRCV_WAKEUP_BY_POLLING but MainFunction not scheduled → wakeup events never detected<br>
+    • CanTrcvInitState=SLEEP but hardware starts in reset state requiring NORMAL first → Init sequence fails<br>
+    • Multiple CanTrcvChannel entries with same CanTrcvChannelId → parameter validation error in DaVinci</p>
+  </div>
+</div>
+
+<script>
+const OVD = {
+  canif:'<strong>CanIf (CAN Interface):</strong> The ONLY module allowed to call CanTrcv APIs. CanSM requests transceiver mode changes via CanIf_SetTrcvMode() → CanTrcv_SetOpMode(). CanIf abstracts the Transceiver ID from CanSM. CanTrcv reports back via CanIf_TrcvModeIndication() → CanSM_TransceiverModeIndication().',
+  cantrcv:'<strong>CanTrcv (this module):</strong> Directly accesses hardware via DIO pins or SPI commands. Has per-channel state machine. Handles wakeup detection, PN selective wakeup, and bus error reporting. Must be initialized after DIO/SPI drivers but before CanIf and CanSM use it.',
+  dio:'<strong>DIO (Digital I/O):</strong> Used for simple transceivers like TJA1050 where mode is controlled by setting STB/EN/INH pin levels. Dio_WriteChannel() sets the pin. Dio_ReadChannel() reads error/fault pins. DIO is synchronous and instant — no wait states needed for the communication itself, only for transceiver settling time.',
+  spi:'<strong>SPI (Serial Peripheral Interface):</strong> Used for advanced transceivers/SBCs like TJA1145 or UJA116x that have register interfaces. Spi_SyncTransmit() blocks until complete. Spi_AsyncTransmit() returns immediately — result arrives in ISR callback. SPI path enables detailed diagnostics, PN configuration, WUF flag management.',
+};
+function showOvD(id) {
+  const d = document.getElementById('ov-detail');
+  d.innerHTML = OVD[id]; d.style.display='block';
+}
+
+const SM_DETAILS = {
+  normal:'<strong>NORMAL mode in detail:</strong><br>• Physical: CANH/CANL driven differentially. Full ISO 11898 participation.<br>• ICU wakeup notifications: DISABLED (Icu_DisableNotification called on NORMAL entry)<br>• PN: WUF detection still possible in NORMAL (no WUF events lost during NORMAL→STANDBY transition)<br>• After entry: CanIf_TrcvModeIndication(CANTRCV_TRCVMODE_NORMAL) always called<br>• If PN enabled and SYSERR not set: CanIf_ConfirmPnAvailability() also called → tells CanNm PN is active',
+  standby:'<strong>STANDBY mode in detail:</strong><br>• Physical: Transceiver off bus but powered. Can detect WUP (wake-up pattern) = bus activity.<br>• ICU wakeup notifications: ENABLED (Icu_EnableNotification called on STANDBY entry)<br>• PN: WUF filter can detect selective wakeup frames even in STANDBY<br>• This is the ONLY entry point to SLEEP — you cannot go NORMAL→SLEEP directly<br>• DeInit() requires transceiver to be in STANDBY or SLEEP (or raises CANTRCV_E_TRCV_NOT_STANDBY)<br>• After ClearTrcvWufFlag: transceiver should be put in STANDBY',
+  sleep:'<strong>SLEEP mode in detail:</strong><br>• Physical: Lowest power state. ECU may be unpowered (if CanTrcvControlsPowerSupply=TRUE)<br>• Only reachable from STANDBY — driver enforces this (CANTRCV_E_TRCV_NOT_STANDBY if violated)<br>• Wakeup by bus (WUP pattern) or by WUF frame (if PN) can exit sleep<br>• After wakeup detected → transitions to STOPPED state in controller, CanTrcv reports to EcuM<br>• If hardware does not support real sleep → driver implements logical sleep (stays in STOPPED physically)<br>• CanTrcv_CheckWakeup can include state transition (Sleep→Normal) internally if HW needs it',
+  notactive:'<strong>NOT_ACTIVE in detail:</strong><br>• All channels in this state before CanTrcv_Init() is called<br>• Physical HW state is indeterminate — depends on Port driver initialization<br>• After CanTrcv_Init(): all channels move to configured CanTrcvInitState (STANDBY or SLEEP)<br>• After CanTrcv_DeInit(): all channels return to NOT_ACTIVE<br>• DeInit precondition: ALL transceivers must be in STANDBY or SLEEP (checked with DET enabled)',
+};
+function showSM(id) {
+  const d = document.getElementById('sm-detail');
+  d.innerHTML = SM_DETAILS[id]; d.style.display='block';
+}
+
+const FUNCS = [
+  {name:'Init & DeInit', html:`<p class="ct">CanTrcv_Init() and CanTrcv_DeInit() — lifecycle management</p>
+  <p class="cb" style="margin-bottom:12px"><strong>CanTrcv_Init(ConfigPtr):</strong></p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.75;">
+  1. Calls underlying DIO/SPI drivers to configure all transceiver hardware<br>
+  2. For each channel: puts transceiver into CanTrcvInitState (STANDBY or SLEEP)<br>
+  3. <strong>Stores wakeup events</strong> detected during init phase (power-on state reading)<br>
+  4. If PN supported: checks POR and SYSERR flags:<br>
+  &nbsp;&nbsp;• POR set → re-run PN configuration sequence + report EcuM_SetWakeupEvent(CanTrcvPorWakeupSourceRef)<br>
+  &nbsp;&nbsp;• SYSERR set → re-run PN configuration + report EcuM_SetWakeupEvent(CanTrcvSyserrWakeupSourceRef)<br>
+  &nbsp;&nbsp;• Neither set → config in transceiver RAM still valid, skip re-config<br>
+  5. If bus wakeup detected during init → EcuM_SetWakeupEvent(CanTrcvWakeupSourceRef)<br>
+  6. Reports CANTRCV_E_NO_TRCV_CONTROL if SPI/DIO communication fails<br>
+  7. Precondition: DIO and SPI drivers must be initialized before CanTrcv_Init<br><br>
+  <strong>CanTrcv_DeInit():</strong><br>
+  • De-initializes ALL connected transceivers<br>
+  • Sets hardware to NOT_ACTIVE state<br>
+  • Precondition: ALL transceivers must be in STANDBY or SLEEP<br>
+  • Raises CANTRCV_E_TRCV_NOT_STANDBY if any channel is in NORMAL (DET enabled)<br>
+  • Reports CANTRCV_E_NO_TRCV_CONTROL if SPI/DIO communication fails
+  </div>`},
+  {name:'SetOpMode rules', html:`<p class="ct">CanTrcv_SetOpMode() — transition rules and PN logic</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+  <strong>Allowed transitions (per current state):</strong><br>
+  Current NORMAL → request NORMAL or STANDBY → accepted<br>
+  Current STANDBY → request SLEEP, STANDBY, or NORMAL → accepted<br>
+  Current SLEEP → request STANDBY or NORMAL (implementation-specific) → accepted<br>
+  Same-mode request → always E_OK, CanIf_TrcvModeIndication still called<br><br>
+  <strong>Error cases:</strong><br>
+  SetOpMode(STANDBY) when not in NORMAL or STANDBY → CANTRCV_E_TRCV_NOT_NORMAL<br>
+  SetOpMode(SLEEP) when not in STANDBY → CANTRCV_E_TRCV_NOT_STANDBY<br>
+  Mode not supported by hardware → E_NOT_OK (not a DET error)<br><br>
+  <strong>PN logic in SetOpMode (CanTrcvHwPnSupport=TRUE):</strong><br>
+  On entry → read POR and SYSERR flags:<br>
+  • POR set → re-initialize transceiver PN configuration<br>
+  • SYSERR NOT set AND requested mode = NORMAL → call CanIf_ConfirmPnAvailability(TransceiverId)<br>
+  &nbsp;&nbsp;(This tells CanSM → CanNm that PN selective wakeup is active and working)<br>
+  • SYSERR set → transceiver disabled PN, will wake on any WUP (standard wakeup pattern)<br><br>
+  <strong>ICU management:</strong><br>
+  → NORMAL: Icu_DisableNotification(CanTrcvIcuChannelRef) — wakeup not needed while active<br>
+  → STANDBY: Icu_EnableNotification(CanTrcvIcuChannelRef) — prepare for wakeup detection<br>
+  </div>`},
+  {name:'Wakeup detection', html:`<p class="ct">Wakeup detection flow — CheckWakeup and MainFunction</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+  <strong>CanTrcv_CheckWakeup(Transceiver):</strong><br>
+  Called by CanIf (which is called by CanDrv, which is called by EcuM_CheckWakeup after wakeup).<br>
+  1. Reads HW wakeup flag from transceiver<br>
+  2. If wakeup detected → calls EcuM_SetWakeupEvent(CanTrcvWakeupSourceRef)<br>
+  3. Returns E_OK if API call accepted (not necessarily if wakeup confirmed)<br>
+  4. Implementation note: Can internally trigger Sleep→Normal state transition if needed by HW<br><br>
+  <strong>CanTrcv_MainFunction() — polling wakeup (CanTrcvWakeUpSupport=POLLING):</strong><br>
+  Scans all STANDBY and SLEEP channels each cycle for wakeup events.<br>
+  Sets internal wakeup event flag. EcuM polling picks this up.<br>
+  NOT the same as interrupt-based wakeup — higher latency, lower power impact.<br><br>
+  <strong>SetWakeupMode — wakeup notification control:</strong><br>
+  ENABLE: turn on wakeup notifications. If stored wakeup event pending → raise it as 'present'<br>
+  DISABLE: turn off notifications but continue storing events internally (must not lose events!)<br>
+  CLEAR: clear stored wakeup event. Used by higher layer when wakeup notification is disabled<br><br>
+  <strong>GetBusWuReason — read wakeup reason:</strong><br>
+  Returns per-channel last detected wakeup reason (WU_BY_BUS, WU_POWER_ON, WU_RESET etc.)<br>
+  Per-channel view — no voting across buses. If two channels have different reasons, both must be read independently.
+  </div>`},
+  {name:'Partial Networking (PN)', html:`<p class="ct">Selective wakeup (Partial Networking) — PN-specific API flow</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+  <strong>What is PN?</strong><br>
+  Partial Networking allows some ECU nodes to sleep while others communicate. PN-capable transceivers (TJA1145, UJA1169, etc.) wake ONLY on a specific CAN frame (WUF) instead of any bus activity (WUP). This dramatically reduces power consumption in large networks.<br><br>
+  <strong>PN configuration:</strong><br>
+  CanTrcvPnFrameCanId — the WUF CAN ID that wakes this node<br>
+  CanTrcvPnFrameCanIdMask — which bits of the ID to match<br>
+  CanTrcvPnFrameDlc — expected DLC<br>
+  CanTrcvPnFrameDataMaskSpec — per-byte data masks (e.g. match byte 0 = 0x12, byte 1 = 0x34)<br><br>
+  <strong>PN shutdown sequence (CanSM DeinitPnSupported path):</strong><br>
+  1. CanSM calls CanIf_ClearTrcvWufFlag() → CanTrcv_ClearTrcvWufFlag()<br>
+  2. CanTrcv clears WUF in hardware → calls CanIf_ClearTrcvWufFlagIndication()<br>
+  3. CanSM then puts controller STOPPED, then transceiver STANDBY<br>
+  4. CanSM calls CanIf_CheckTrcvWakeFlag() → CanTrcv_CheckWakeFlag()<br>
+  5. CanTrcv checks wake flag → calls CanIf_CheckTrcvWakeFlagIndication() with result<br>
+  6. Based on result: either wakeup was pending (report to EcuM) or proceed to SLEEP<br><br>
+  <strong>PN startup (SetOpMode NORMAL with PN):</strong><br>
+  CanTrcv_SetOpMode(NORMAL) → reads SYSERR flag:<br>
+  • SYSERR not set → calls CanIf_ConfirmPnAvailability() → CanNm_ConfirmPnAvailability() → enables PN filter in NM<br>
+  • SYSERR set → PN hardware error, system falls back to standard WUP wakeup<br><br>
+  <strong>PN-specific diagnostic APIs (exist only if CanTrcvHwPnSupport=TRUE):</strong><br>
+  GetTrcvSystemData() — read raw transceiver status registers (uint32)<br>
+  ClearTrcvWufFlag() — clear WUF flag before sleep<br>
+  ReadTrcvTimeoutFlag() — check if timeout occurred in transceiver<br>
+  ClearTrcvTimeoutFlag() — clear the timeout flag<br>
+  ReadTrcvSilenceFlag() — check if bus was silent (no frames detected) during previous period<br>
+  SetPNActivationState(PN_ENABLED/DISABLED) — runtime enable/disable of PN wakeup filter
+  </div>`},
+];
+
+function buildFunc() {
+  document.getElementById('func-btns').innerHTML = FUNCS.map((f,i)=>`<button class="sb${i===0?' sel':''}" onclick="showFunc(${i})">${f.name}</button>`).join('');
+  document.getElementById('func-display').innerHTML = FUNCS[0].html;
+}
+function showFunc(i) {
+  document.querySelectorAll('#func-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('func-display').innerHTML = FUNCS[i].html;
+}
+
+const APIS = [
+  {fn:'CanTrcv_Init(ConfigPtr)',sid:'0x00',mode:'SYNC',d:'Init all transceivers. Move each to CanTrcvInitState (STANDBY or SLEEP). Store wakeup events from power-on. Check POR/SYSERR for PN. Non-reentrant. void return.'},
+  {fn:'CanTrcv_SetOpMode(Transceiver, OpMode)',sid:'0x01',mode:'ASYNC',d:'Change transceiver mode to NORMAL/STANDBY/SLEEP. Reentrant for different Transceivers. Returns E_OK if accepted. Calls CanIf_TrcvModeIndication after reaching new mode. Manages ICU enable/disable.'},
+  {fn:'CanTrcv_GetOpMode(Transceiver, *OpMode)',sid:'0x02',mode:'SYNC',d:'Read current operation mode into *OpMode. Reentrant. Returns E_OK / E_NOT_OK. Raises CANTRCV_E_PARAM_POINTER if null, CANTRCV_E_UNINIT if not initialized.'},
+  {fn:'CanTrcv_GetBusWuReason(Transceiver, *reason)',sid:'0x03',mode:'SYNC',d:'Read wakeup reason into *reason. Returns per-channel reason without cross-bus voting. Reentrant. CANTRCV_WU_BY_BUS, _POWER_ON, _RESET, _INTERNALLY, _BY_PIN, _BY_SYSERR, _ERROR, _NOT_SUPPORTED.'},
+  {fn:'CanTrcv_GetVersionInfo(*versioninfo)',sid:'0x04',mode:'SYNC',d:'Read module version. Reentrant. void return. Enabled by CanTrcvVersionInfoApi=TRUE.'},
+  {fn:'CanTrcv_SetWakeupMode(Transceiver, TrcvWakeupMode)',sid:'0x05',mode:'SYNC',d:'ENABLE: enable wakeup notification, raise any pending stored event. DISABLE: disable but keep storing events. CLEAR: clear stored wakeup event. Reentrant for different Transceivers.'},
+  {fn:'CanTrcv_CheckWakeup(Transceiver)',sid:'0x07',mode:'SYNC',d:'Called by CanIf after EcuM wakeup check. Validates HW wakeup flag. If confirmed → EcuM_SetWakeupEvent(WakeupSourceRef). Can internally do Sleep→Normal if HW needs it. Reentrant.'},
+  {fn:'CanTrcv_GetTrcvSystemData(Transceiver, *TrcvSysData)',sid:'0x09',mode:'SYNC',d:'PN only (CanTrcvHwPnSupport=TRUE). Read raw transceiver status/config registers as uint32. For diagnostics. Non-reentrant. Returns E_OK / E_NOT_OK.'},
+  {fn:'CanTrcv_ClearTrcvWufFlag(Transceiver)',sid:'0x0a',mode:'SYNC',d:'PN only. Clear WUF (Wake-Up Frame) flag in transceiver HW. Calls CanIf_ClearTrcvWufFlagIndication when done (for async SPI). Must be called before entering STANDBY in PN shutdown sequence. Reentrant for different transceivers.'},
+  {fn:'CanTrcv_ReadTrcvTimeoutFlag(Transceiver, *FlagState)',sid:'0x0b',mode:'SYNC',d:'PN only. Read timeout flag from transceiver HW. Returns CANTRCV_FLAG_SET or CANTRCV_FLAG_CLEARED. Non-reentrant.'},
+  {fn:'CanTrcv_ClearTrcvTimeoutFlag(Transceiver)',sid:'0x0c',mode:'SYNC',d:'PN only. Clear timeout flag in transceiver HW. Non-reentrant. Returns E_OK / E_NOT_OK.'},
+  {fn:'CanTrcv_ReadTrcvSilenceFlag(Transceiver, *FlagState)',sid:'0x0d',mode:'SYNC',d:'PN only. Read silence flag — indicates no frames were received in previous period. Non-reentrant. Used to detect bus inactivity.'},
+  {fn:'CanTrcv_CheckWakeFlag(Transceiver)',sid:'0x0e',mode:'ASYNC',d:'PN only. Request check of transceiver wakeup flag asynchronously. Result comes via CanIf_CheckTrcvWakeFlagIndication callback. Non-reentrant.'},
+  {fn:'CanTrcv_SetPNActivationState(ActivationState)',sid:'0x0f',mode:'SYNC',d:'PN only. PN_ENABLED: transceiver wakes only on WUF (selective wakeup). PN_DISABLED: transceiver wakes on any WUP pattern (standard). Non-reentrant. No Transceiver param — applies to all PN channels.'},
+  {fn:'CanTrcv_DeInit()',sid:'0x10',mode:'SYNC',d:'De-init all transceivers → NOT_ACTIVE. All transceivers must be in STANDBY or SLEEP first (CANTRCV_E_TRCV_NOT_STANDBY if violated). Non-reentrant. void return.'},
+];
+function buildApi() {
+  document.getElementById('api-body').innerHTML = APIS.map(a=>`<tr>
+    <td class="fn">${a.fn}</td>
+    <td style="font-family:var(--font-mono);font-size:11px">${a.sid}</td>
+    <td><span class="badge ${a.mode==='SYNC'?'bs':'ba'}">${a.mode}</span></td>
+    <td>${a.d}</td>
+  </tr>`).join('');
+}
+function filterApi(q) {
+  document.querySelectorAll('#api-body tr').forEach(r=>{
+    r.style.display = !q||r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+
+const SEQS = [
+  {name:'Network startup (NOCOM→NORMAL)', html:`<p class="ct">Full startup: ComM FULL_COM → Transceiver NORMAL</p>
+  <svg width="100%" viewBox="0 0 680 300" role="img"><title>CanTrcv startup sequence</title>
+  <defs><marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="5" y="10" width="60" height="26" rx="5" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="35" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#3C3489">CanSM</text>
+  <rect x="105" y="10" width="60" height="26" rx="5" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="135" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#27500A">CanIf</text>
+  <rect x="205" y="10" width="70" height="26" rx="5" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="240" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#633806">CanTrcv</text>
+  <rect x="325" y="10" width="60" height="26" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="355" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#444441">DIO/SPI</text>
+  <rect x="430" y="10" width="60" height="26" rx="5" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/><text x="460" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#791F1F">ICU</text>
+  <line x1="35" y1="36" x2="35" y2="290" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="135" y1="36" x2="135" y2="290" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="240" y1="36" x2="240" y2="290" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="355" y1="36" x2="355" y2="290" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="460" y1="36" x2="460" y2="290" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="35" y1="56" x2="128" y2="56" stroke="#534AB7" stroke-width="1" marker-end="url(#as)"/><text x="81" y="49" text-anchor="middle" font-size="9" fill="#534AB7">CanIf_SetTrcvMode(NORMAL)</text>
+  <line x1="135" y1="70" x2="233" y2="70" stroke="#3B6D11" stroke-width="1" marker-end="url(#as)"/><text x="184" y="63" text-anchor="middle" font-size="9" fill="#3B6D11">CanTrcv_SetOpMode(Trcv, NORMAL)</text>
+  <line x1="240" y1="84" x2="348" y2="84" stroke="#BA7517" stroke-width="1" marker-end="url(#as)"/><text x="294" y="77" text-anchor="middle" font-size="9" fill="#BA7517">Dio_WriteChannel() / Spi_SyncTransmit()</text>
+  <text x="240" y="104" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[CanTrcvWaitTime for HW settling]</text>
+  <line x1="460" y1="114" x2="245" y2="114" stroke="#A32D2D" stroke-width="1" marker-end="url(#as)"/><text x="352" y="107" text-anchor="middle" font-size="9" fill="#A32D2D">Icu_DisableNotification(IcuChannel)</text>
+  <text x="240" y="134" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[If PN enabled and no SYSERR:]</text>
+  <line x1="240" y1="144" x2="142" y2="144" stroke="#3B6D11" stroke-width="1" marker-end="url(#as)"/><text x="191" y="137" text-anchor="middle" font-size="9" fill="#3B6D11">CanIf_ConfirmPnAvailability(TrcvId)</text>
+  <line x1="135" y1="158" x2="42" y2="158" stroke="#3B6D11" stroke-width="1" marker-end="url(#as)" stroke-dasharray="3 2"/><text x="88" y="151" text-anchor="middle" font-size="9" fill="#888780">CanSM_ConfirmPnAvailability</text>
+  <line x1="240" y1="178" x2="142" y2="178" stroke="#BA7517" stroke-width="1" marker-end="url(#as)"/><text x="191" y="171" text-anchor="middle" font-size="9" fill="#BA7517">CanIf_TrcvModeIndication(Trcv, NORMAL)</text>
+  <line x1="135" y1="194" x2="42" y2="194" stroke="#3B6D11" stroke-width="1" marker-end="url(#as)" stroke-dasharray="3 2"/><text x="88" y="188" text-anchor="middle" font-size="9" fill="#888780">CanSM_TransceiverModeIndication(NORMAL)</text>
+  <text x="340" y="218" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">Transceiver now in NORMAL — CAN comms enabled</text>
+  </svg>`},
+  {name:'Shutdown (NORMAL→STANDBY→SLEEP)', html:`<p class="ct">Network shutdown: NORMAL → STANDBY → SLEEP</p>
+  <svg width="100%" viewBox="0 0 680 280" role="img"><title>CanTrcv shutdown to sleep sequence</title>
+  <defs><marker id="as2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="5" y="10" width="60" height="26" rx="5" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="35" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#3C3489">CanSM</text>
+  <rect x="105" y="10" width="60" height="26" rx="5" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="135" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#27500A">CanIf</text>
+  <rect x="205" y="10" width="70" height="26" rx="5" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="240" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#633806">CanTrcv</text>
+  <rect x="325" y="10" width="60" height="26" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="355" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#444441">DIO/SPI</text>
+  <rect x="430" y="10" width="60" height="26" rx="5" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/><text x="460" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#791F1F">ICU</text>
+  <line x1="35" y1="36" x2="35" y2="270" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="135" y1="36" x2="135" y2="270" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="240" y1="36" x2="240" y2="270" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="355" y1="36" x2="355" y2="270" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="460" y1="36" x2="460" y2="270" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <!-- Step 1: STANDBY -->
+  <text x="350" y="55" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">— Step 1: NORMAL → STANDBY —</text>
+  <line x1="35" y1="62" x2="128" y2="62" stroke="#534AB7" stroke-width="1" marker-end="url(#as2)"/><text x="81" y="55" text-anchor="middle" font-size="9" fill="#534AB7">CanIf_SetTrcvMode(STANDBY)</text>
+  <line x1="135" y1="74" x2="233" y2="74" stroke="#3B6D11" stroke-width="1" marker-end="url(#as2)"/><text x="184" y="67" text-anchor="middle" font-size="9" fill="#3B6D11">CanTrcv_SetOpMode(Trcv, STANDBY)</text>
+  <line x1="240" y1="86" x2="348" y2="86" stroke="#BA7517" stroke-width="1" marker-end="url(#as2)"/><text x="294" y="79" text-anchor="middle" font-size="9" fill="#BA7517">Dio_WriteChannel() / Spi_Transmit()</text>
+  <line x1="460" y1="98" x2="245" y2="98" stroke="#A32D2D" stroke-width="1" marker-end="url(#as2)"/><text x="352" y="91" text-anchor="middle" font-size="9" fill="#A32D2D">Icu_EnableNotification(IcuChannel)</text>
+  <line x1="240" y1="112" x2="142" y2="112" stroke="#BA7517" stroke-width="1" marker-end="url(#as2)"/><text x="191" y="105" text-anchor="middle" font-size="9" fill="#BA7517">CanIf_TrcvModeIndication(STANDBY)</text>
+  <line x1="135" y1="124" x2="42" y2="124" stroke="#3B6D11" stroke-width="0.8" marker-end="url(#as2)" stroke-dasharray="3 2"/><text x="88" y="118" text-anchor="middle" font-size="9" fill="#888780">CanSM_TransceiverModeIndication(STANDBY)</text>
+  <!-- Step 2: SLEEP -->
+  <text x="350" y="145" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">— Step 2: STANDBY → SLEEP (after STANDBY confirmed) —</text>
+  <line x1="35" y1="152" x2="128" y2="152" stroke="#A32D2D" stroke-width="1" marker-end="url(#as2)"/><text x="81" y="145" text-anchor="middle" font-size="9" fill="#A32D2D">CanIf_SetTrcvMode(SLEEP)</text>
+  <line x1="135" y1="164" x2="233" y2="164" stroke="#3B6D11" stroke-width="1" marker-end="url(#as2)"/><text x="184" y="157" text-anchor="middle" font-size="9" fill="#3B6D11">CanTrcv_SetOpMode(Trcv, SLEEP)</text>
+  <line x1="240" y1="176" x2="348" y2="176" stroke="#BA7517" stroke-width="1" marker-end="url(#as2)"/><text x="294" y="169" text-anchor="middle" font-size="9" fill="#BA7517">Spi_Transmit(sleep_sequence)</text>
+  <line x1="240" y1="192" x2="142" y2="192" stroke="#BA7517" stroke-width="1" marker-end="url(#as2)"/><text x="191" y="185" text-anchor="middle" font-size="9" fill="#BA7517">CanIf_TrcvModeIndication(SLEEP)</text>
+  <line x1="135" y1="204" x2="42" y2="204" stroke="#3B6D11" stroke-width="0.8" marker-end="url(#as2)" stroke-dasharray="3 2"/><text x="88" y="198" text-anchor="middle" font-size="9" fill="#888780">CanSM_TransceiverModeIndication(SLEEP)</text>
+  <text x="340" y="235" text-anchor="middle" font-size="9" fill="#A32D2D">⚠ Note: NORMAL→SLEEP direct call → CANTRCV_E_TRCV_NOT_STANDBY</text>
+  <text x="340" y="252" text-anchor="middle" font-size="9" fill="#888780">Must always go NORMAL→STANDBY first, then STANDBY→SLEEP</text>
+  </svg>`},
+  {name:'Wakeup detection (polling)', html:`<div style="font-size:13px;line-height:1.75;color:var(--color-text-secondary);">
+  <p style="font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Polling wakeup flow (CanTrcvWakeUpSupport=POLLING)</p>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:12px;">
+  1. Transceiver in STANDBY/SLEEP, CanTrcv_MainFunction() called periodically by OS scheduler<br>
+  2. CanTrcv reads wakeup status bit from hardware (DIO pin read or SPI register read)<br>
+  3. If wakeup detected → calls <span class="fn">EcuM_SetWakeupEvent(CanTrcvWakeupSourceRef)</span><br>
+  4. EcuM processes wakeup source → calls <span class="fn">CanIf_CheckWakeup(WakeupSource)</span><br>
+  5. CanIf → <span class="fn">CanTrcv_CheckWakeup(Transceiver)</span><br>
+  6. CanTrcv verifies HW flag → if still set → <span class="fn">EcuM_SetWakeupEvent()</span> again (confirmation)<br>
+  7. EcuM_CheckWakeup validates source → calls <span class="fn">CanSM_StartWakeupSource()</span><br>
+  8. CanSM enters WUVALIDATION sub-machine → puts controller STOPPED then STARTED<br>
+  9. First valid RxIndication → wakeup validated → FULLCOM
+  </div>
+  <p style="font-weight:500;color:var(--color-text-primary);margin-bottom:8px">SetWakeupMode DISABLE/ENABLE pattern (used by CanSM during shutdown)</p>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;">
+  • Before sleep: CanIf calls SetWakeupMode(DISABLE) — prevent spurious wakeup reports during mode transition<br>
+  • CanTrcv continues storing wakeup events internally while disabled<br>
+  • After sleep configured: SetWakeupMode(ENABLE) — any stored events now raised<br>
+  • SetWakeupMode(CLEAR) — explicitly clear stored events (used if wakeup must be ignored)<br><br>
+  Key rule: Events must NOT be lost during disabled period. CanTrcv hardware stores them; software reads on re-enable.
+  </div>
+  </div>`},
+  {name:'PN shutdown (SPI sync)', html:`<div style="font-size:13px;line-height:1.75;color:var(--color-text-secondary);">
+  <p style="font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Partial Networking deinitialization — DeinitPnSupported path (CanSM → CanTrcv)</p>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:12px;font-size:12px;">
+  Initial state: Trcv=NORMAL, Ctrl=STARTED, ComM=SilentCom<br><br>
+  1. ComM → CanSM_RequestComMode(NoCom)<br>
+  2. CanSM_MainFunction: CanIf_ClearTrcvWufFlag(TrcvId) → CanTrcv_ClearTrcvWufFlag(Trcv)<br>
+  3. CanTrcv clears WUF via Spi_SyncTransmit() → (SPI completes synchronously)<br>
+  4. CanTrcv calls CanIf_ClearTrcvWufFlagIndication(TrcvId) → CanSM_ClearTrcvWufFlagIndication(Trcv)<br>
+  5. CanSM_MainFunction: SetControllerMode(CS_STOPPED) → waits indication<br>
+  6. CanSM_MainFunction: SetTrcvMode(STANDBY) → CanTrcv_SetOpMode(Trcv, STANDBY)<br>
+  7. Spi_SyncTransmit(STANDBY_sequence) → sets STANDBY mode in HW<br>
+  8. CanTrcv_TrcvModeIndication(STANDBY) → CanSM_TransceiverModeIndication(STANDBY)<br>
+  9. CanSM: SetControllerMode(CS_SLEEP) → waits<br>
+  10. CanSM: CanIf_CheckTrcvWakeFlag(TrcvId) → CanTrcv_CheckWakeFlag(Trcv)<br>
+  11. CanTrcv reads WUF via Spi_SyncTransmit() → checks for wakeup source<br>
+  12a. [Bus wakeup] → EcuM_SetWakeupEvent(WuSourceBus) → clear WUF → CanIf_CheckTrcvWakeFlagIndication()<br>
+  12b. [Pin wakeup] → EcuM_SetWakeupEvent(WuSourcePin) → clear WUF → CanIf_CheckTrcvWakeFlagIndication()<br>
+  12c. [No wakeup] → clear nothing → CanIf_CheckTrcvWakeFlagIndication()<br>
+  13. CanSM_CheckTransceiverWakeFlagIndication() processes result → if CS_SLEEP E_OK → ComM_BusSM_ModeIndication(NoCom)
+  </div>
+  <p style="font-size:12px;color:var(--color-text-tertiary)">For SPI Asynchronous path: same sequence but Spi_AsyncTransmit() used at steps 3, 7, 11. Callbacks trigger continuation instead of synchronous completion.</p>
+  </div>`},
+];
+
+function buildSeq() {
+  document.getElementById('seq-btns').innerHTML = SEQS.map((s,i)=>`<button class="sb${i===0?' sel':''}" onclick="showSeq(${i})">${s.name}</button>`).join('');
+  document.getElementById('seq-display').innerHTML = SEQS[0].html;
+}
+function showSeq(i) {
+  document.querySelectorAll('#seq-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('seq-display').innerHTML = SEQS[i].html;
+}
+
+function showTab(t, btn) {
+  document.querySelectorAll('.pn').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pn-'+t).classList.add('active');
+  btn.classList.add('active');
+  if(t==='api') buildApi();
+  if(t==='functional') buildFunc();
+  if(t==='seq') buildSeq();
+}
+buildApi(); buildFunc(); buildSeq();
+</script>

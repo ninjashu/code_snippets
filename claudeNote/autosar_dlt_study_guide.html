@@ -1,0 +1,777 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:0 0 12px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab{padding:6px 11px;font-size:11.5px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px}
+.card h3{font-size:14px;font-weight:500;margin-bottom:8px}
+.card p,.card li{font-size:12px;line-height:1.6;color:var(--color-text-secondary)}
+.card li{margin-left:16px;margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 7px;border-radius:var(--border-radius-md);margin:2px}
+.b-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.b-green{background:var(--color-background-success);color:var(--color-text-success)}
+.b-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.b-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.b-purple{background:#EEEDFE;color:#3C3489}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--color-background-secondary);padding:5px 9px;text-align:left;font-weight:500;font-size:11.5px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:5px 9px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 4px;border-radius:4px;color:var(--color-text-primary)}
+.api-block{border-left:3px solid var(--color-border-info);padding:9px 13px;margin-bottom:9px;background:var(--color-background-secondary);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.api-block h4{font-size:12.5px;font-weight:500;margin-bottom:5px;font-family:var(--font-mono)}
+.api-block p{font-size:11.5px;color:var(--color-text-secondary);margin-bottom:3px}
+.highlight{background:var(--color-background-warning);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:9px 13px;margin-bottom:10px;font-size:12px}
+.warn-box{background:var(--color-background-danger);border-radius:var(--border-radius-md);padding:9px 13px;margin-bottom:8px;font-size:12px;color:var(--color-text-danger)}
+.ok-box{background:var(--color-background-success);border-radius:var(--border-radius-md);padding:9px 13px;margin-bottom:8px;font-size:12px;color:var(--color-text-success)}
+.seq-step{display:flex;gap:9px;margin-bottom:7px;align-items:flex-start}
+.seq-num{min-width:20px;height:20px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.seq-text{font-size:12px;color:var(--color-text-secondary);padding-top:1px}
+.section-title{font-size:13px;font-weight:500;margin:14px 0 7px;color:var(--color-text-primary)}
+.flow-mono{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);line-height:2;color:var(--color-text-secondary)}
+.level-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:var(--border-radius-md);margin-bottom:4px;font-size:12px}
+</style>
+
+<div style="padding:12px 0">
+<h2 class="sr-only">AUTOSAR DLT (Diagnostic Log and Trace) comprehensive study guide</h2>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">Overview</div>
+  <div class="tab" onclick="switchTab('concepts')">Core concepts</div>
+  <div class="tab" onclick="switchTab('state')">State & data path</div>
+  <div class="tab" onclick="switchTab('api')">API spec</div>
+  <div class="tab" onclick="switchTab('errors')">Errors</div>
+  <div class="tab" onclick="switchTab('sequences')">Sequences</div>
+  <div class="tab" onclick="switchTab('types')">Data types</div>
+  <div class="tab" onclick="switchTab('davinci')">DaVinci config</div>
+  <div class="tab" onclick="switchTab('debug')">Test & debug</div>
+  <div class="tab" onclick="switchTab('compare')">vs PORT/I2C</div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="panel active">
+  <div class="highlight"><strong>DLT = the observability backbone of AUTOSAR CP.</strong> It collects log/trace data from SW-Cs, RTE (VFB traces), DEM events, and DET errors, then transmits them via communication buses to an external logging tool (e.g. DLT Viewer). Sits between RTE and PduR.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>What DLT does</h3>
+      <ul>
+        <li>Collects log messages from SW-Cs, BSW (via Dlt_SendLogMessage)</li>
+        <li>Collects trace messages (VFB events via RTE hook functions)</li>
+        <li>Forwards DET errors as log messages (Dlt_DetForwardErrorTrace)</li>
+        <li>Forwards DEM events as log messages (via CDD/SW-C)</li>
+        <li>Filters messages by log level threshold per AppID/ContextID tuple</li>
+        <li>Routes messages to one or more LogChannels (physical buses)</li>
+        <li>Buffers messages in LogChannel buffers, sends via PduR</li>
+        <li>Receives Dlt commands from external tool (SetLogLevel, etc.)</li>
+        <li>Stores filter config persistently via NvM (optional)</li>
+        <li>Supports traffic shaping — bandwidth limit per LogChannel</li>
+        <li>Sends BufferOverflowNotification when buffers full</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Architecture position</h3>
+      <div class="flow-mono">
+        External DLT tool (PC)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↕ Ethernet/CAN/etc.<br>
+        PduR ← DLT → PduR<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑<br>
+        RTE (VFB traces)&nbsp;&nbsp;&nbsp;BSW<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;↑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↑<br>
+        SW-Cs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DET / DEM
+      </div>
+      <p style="margin-top:8px">DLT sits above PduR (uses PduR_DltTransmit to send) and below RTE (RTE calls hook functions). It is NOT MCAL — it is a BSW module in the Services layer.</p>
+    </div>
+  </div>
+  <div class="grid3">
+    <div class="card">
+      <h3>Dependencies</h3>
+      <table>
+        <tr><td><strong>RTE</strong></td><td>VFB trace hooks, BSW scheduler calls Dlt_TxFunction</td></tr>
+        <tr><td><strong>PduR</strong></td><td>Mandatory — PduR_DltTransmit for Tx</td></tr>
+        <tr><td><strong>NvM</strong></td><td>Optional — persistent config storage</td></tr>
+        <tr><td><strong>GPT</strong></td><td>Optional — timestamp source (Gpt_GetTimeElapsed)</td></tr>
+        <tr><td><strong>StbM</strong></td><td>Optional — synchronized timestamp source</td></tr>
+        <tr><td><strong>DET</strong></td><td>Optional — forwards errors to DLT bus</td></tr>
+        <tr><td><strong>DEM</strong></td><td>Optional — via CDD/SW-C (no standardized interface)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>What DLT does NOT do</h3>
+      <ul>
+        <li>Does NOT store logs on ECU permanently (only buffers temporarily)</li>
+        <li>No standardized DEM↔DLT direct interface</li>
+        <li>VFB trace: only non-verbose mode supported</li>
+        <li>Does NOT support arbitrarily nested complex data types in verbose mode</li>
+        <li>Does NOT generate ASAM Fibex descriptions</li>
+        <li>MCU clock setup = MCU driver's job (like I2C)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Two message modes</h3>
+      <p><strong>Verbose mode:</strong> Arguments with type info included in payload. Human-readable but larger messages. Requires FIBEX/ARXML description for decoding.</p>
+      <p style="margin-top:6px"><strong>Non-verbose mode:</strong> Only a Message ID (4-byte uint32) in payload, no type info. Smaller messages. Decoder needs FIBEX file mapping ID→description. VFB trace always uses non-verbose.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Important note on spec status</h3>
+    <p>Many DLT SWS items are marked <span class="badge b-warn">DRAFT</span>. This is normal for R24-11 — DLT was heavily revised. Know which items are DRAFT for exam questions about spec maturity. The overall module is published and used in production automotive projects.</p>
+  </div>
+</div>
+
+<!-- CORE CONCEPTS -->
+<div id="concepts" class="panel">
+  <div class="highlight"><strong>Master these 6 concepts and DLT becomes intuitive:</strong> ApplicationID, ContextID, SessionID, LogLevel, LogChannel, and the filtering chain.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>ApplicationID (APID)</h3>
+      <ul>
+        <li>4-byte ASCII string identifying an application/SW-C (e.g. "ABS0", "COMB")</li>
+        <li>Type: <code>Dlt_ApplicationIDType</code> = uint32 (4 ASCII chars packed)</li>
+        <li>0x00000000 = wildcard (matches any AppID in filter rules)</li>
+        <li>Reserved: "DEM" (DEM events), "DET" (DET errors), "VFBT" (VFB traces)</li>
+        <li>Configured statically or registered dynamically via Dlt_RegisterContext</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>ContextID (CTID)</h3>
+      <ul>
+        <li>4-byte ASCII string grouping log messages within an AppID (e.g. "STD0", "INIT")</li>
+        <li>Type: <code>Dlt_ContextIDType</code> = uint32</li>
+        <li>0x00000000 = wildcard</li>
+        <li>Must be unique within one AppID</li>
+        <li>Source identified by tuple: <strong>(AppID, ContextID)</strong></li>
+        <li>Each ContextID has its own LogLevel threshold + trace status</li>
+        <li>VFB trace: each hook function gets its own ContextID. AppID = "VFBT" fixed.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>SessionID</h3>
+      <ul>
+        <li>Distinguishes multiple instances of same SW-C using same AppID/ContextID</li>
+        <li>For SW-Cs: port-defined argument value — not visible in SendLogMessage call</li>
+        <li>For BSW modules: module ID is used as SessionID</li>
+        <li>Range: starts at 0x1000 for SW-Cs. Each port gets unique, continuous SessionID.</li>
+        <li>BSW module ID = direct module number (e.g. DET module ID)</li>
+        <li>Configured as DltSwcSessionId per DltSwc container in DaVinci</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>LogChannel</h3>
+      <ul>
+        <li>A physical communication bus used to transmit DLT messages (e.g. Ethernet, CAN)</li>
+        <li>Multiple LogChannels can be configured — each with own buffer, threshold, bandwidth</li>
+        <li>One AppID/ContextID tuple can be assigned to multiple LogChannels</li>
+        <li>If tuple not assigned to any channel → default LogChannel used (DltDefaultLogChannelRef)</li>
+        <li>Each LogChannel has: name (4 chars), buffer, max message length, max retries, traffic shaping bandwidth, overflow timer</li>
+        <li>Identified in DaVinci as DltLogChannel container</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-title">Log levels — complete table (exam critical)</div>
+  <div class="card">
+    <div class="level-row" style="background:var(--color-background-secondary)"><span class="badge b-gray">DLT_LOG_OFF</span><span style="font-size:12px;color:var(--color-text-secondary);margin-left:4px">0x00</span><span style="font-size:12px;color:var(--color-text-secondary);margin-left:8px">Turn off all logging. No messages pass.</span></div>
+    <div class="level-row" style="background:var(--color-background-danger)"><span class="badge b-red">DLT_LOG_FATAL</span><span style="font-size:12px;color:var(--color-text-danger);margin-left:4px">0x01</span><span style="font-size:12px;color:var(--color-text-danger);margin-left:8px">Fatal system error — ECU cannot continue</span></div>
+    <div class="level-row" style="background:var(--color-background-danger)"><span class="badge b-red">DLT_LOG_ERROR</span><span style="font-size:12px;color:var(--color-text-danger);margin-left:4px">0x02</span><span style="font-size:12px;color:var(--color-text-danger);margin-left:8px">Errors with impact on correct functionality</span></div>
+    <div class="level-row" style="background:var(--color-background-warning)"><span class="badge b-warn">DLT_LOG_WARN</span><span style="font-size:12px;color:var(--color-text-warning);margin-left:4px">0x03</span><span style="font-size:12px;color:var(--color-text-warning);margin-left:8px">Incorrect behavior cannot be ensured</span></div>
+    <div class="level-row" style="background:var(--color-background-info)"><span class="badge b-blue">DLT_LOG_INFO</span><span style="font-size:12px;color:var(--color-text-info);margin-left:4px">0x04</span><span style="font-size:12px;color:var(--color-text-info);margin-left:8px">General information about internal behavior</span></div>
+    <div class="level-row" style="background:var(--color-background-secondary)"><span class="badge b-gray">DLT_LOG_DEBUG</span><span style="font-size:12px;color:var(--color-text-secondary);margin-left:4px">0x05</span><span style="font-size:12px;color:var(--color-text-secondary);margin-left:8px">Useful only for debugging</span></div>
+    <div class="level-row" style="background:var(--color-background-success)"><span class="badge b-green">DLT_LOG_VERBOSE</span><span style="font-size:12px;color:var(--color-text-success);margin-left:4px">0x06</span><span style="font-size:12px;color:var(--color-text-success);margin-left:8px">Highest level — all states, everything logged</span></div>
+    <p style="font-size:11.5px;color:var(--color-text-secondary);margin-top:8px"><strong>Filtering rule (exam trap):</strong> A message is DISCARDED if its log level is numerically HIGHER than the threshold. So if threshold = DLT_LOG_WARN (0x03), then INFO (0x04), DEBUG (0x05), and VERBOSE (0x06) are discarded. OFF (0x00) = highest threshold → nothing passes.</p>
+  </div>
+
+  <div class="card">
+    <h3>Message filtering algorithm (3-step lookup)</h3>
+    <p>For each incoming message with (AppID, ContextID) tuple, DLT finds the filter threshold via:</p>
+    <div class="seq-step" style="margin-top:8px"><div class="seq-num">1</div><div class="seq-text">Exact match: find mapping where AppID AND ContextID both match exactly → use that threshold</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Partial match: find mapping where AppID matches AND ContextID = wildcard (0x00000000) → use that threshold</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Default: use DltDefaultLogLevel (for log messages) or DltDefaultTraceStatus (for trace messages)</div></div>
+    <p style="font-size:11.5px;color:var(--color-text-secondary);margin-top:6px">First step that matches wins. This algorithm applies identically for LogChannel selection (to find which channels to route to) and for log level filtering.</p>
+  </div>
+
+  <div class="card">
+    <h3>RegisterContext / UnregisterContext</h3>
+    <ul>
+      <li>SW-Cs call <code>Dlt_RegisterContext(sessionId, appId, contextId, appDesc, appDescLen, contextDesc, contextDescLen)</code> at startup</li>
+      <li>DLT remembers the (AppID, ContextID) ↔ port interface mapping</li>
+      <li>If DltGeneralRegisterContextNotification=TRUE → DLT sends GetLogInfo control message to external tool on every register/unregister</li>
+      <li>Unregister on SW-C stop — DLT deletes tuple from registry, stops sending LogLevel change notifications to that SW-C</li>
+      <li>SW-Cs can receive LogLevel/TraceStatus change notifications via <code>LogTraceSessionControl</code> R-Port (if DltSwcSupportLogLevelAndTraceStatusChangeNotification=TRUE)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- STATE & DATA PATH -->
+<div id="state" class="panel">
+  <div class="highlight"><strong>DLT has 2 module states (UNINIT/INIT) plus a complex Tx data path with 7 inline steps + 3 deferred steps.</strong> The data path is the most exam-tested functional content.</div>
+
+  <div class="section-title">Module states</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>UNINIT → INIT transition</h3>
+      <p>After reset → UNINIT. After Dlt_Init() → INIT. There is no explicit SLEEP state.</p>
+      <p style="margin-top:6px"><strong>Critical startup rule:</strong> DLT CAN buffer messages that arrive before Dlt_Init() is called (SWS_Dlt_00003). This is unique — other drivers drop messages in UNINIT state.</p>
+      <p style="margin-top:6px"><strong>Startup delay:</strong> If DltGeneralStartUpDelayTimer configured, DLT waits after Init before processing buffered messages. All buffered data processed after timer expires.</p>
+      <p style="margin-top:6px"><strong>Init order:</strong> Dlt_Init should be called AFTER NvM is initialized (if NvRAM support enabled). NvM_ReadBlock reads stored config during init.</p>
+    </div>
+    <div class="card">
+      <h3>Startup behavior flowchart</h3>
+      <div class="flow-mono">
+        MCU reset → UNINIT state<br>
+        ↓<br>
+        SW-Cs start sending messages<br>
+        → buffered internally<br>
+        ↓<br>
+        NvM_Init() (if NvRAM support)<br>
+        ↓<br>
+        Dlt_Init(config)<br>
+        → load NvM config OR static config<br>
+        → start GPT timer (if timestamp)<br>
+        → start startup delay timer<br>
+        ↓<br>
+        Startup delay expires<br>
+        → process all buffered messages<br>
+        → INIT state, transmissions begin
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Tx data path — 7 inline steps (called in SendLogMessage/SendTraceMessage context)</div>
+  <div class="card">
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>Generate timestamp</strong> — only if DltHeaderUseTimestamp=TRUE. Source: GPT (Gpt_GetTimeElapsed) OR StbM (StbM_GetCurrentTime). If timestamp fetch fails → set 0x00000000.</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Filter message</strong> — 3-step AppID/ContextID lookup → find log level threshold. If message level > threshold → discard, return E_OK. For trace messages: check trace activation state.</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>Select target LogChannel(s)</strong> — same 3-step lookup for LogChannel assignment. Result: list of output LogChannels. If empty → use default LogChannel.</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>Check message length</strong> — if message + headers exceeds DltLogChannelMaxMessageLength for ALL assigned channels → discard, return DLT_E_MSG_TOO_LARGE. If fits at least one channel → continue for channels that fit.</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>Apply LogChannel threshold</strong> — per-channel filter. If log level > channel threshold → discard for that channel (not for others). Trace: if DltTraceStatus=FALSE for channel → skip that channel.</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>Copy to LogChannel buffer</strong> — copy message to all passing channels. If no space → DLT_E_NO_BUFFER, set buffer overflow flag, discard. Increase message counter. If copied to at least one → DLT_OK.</div></div>
+    <div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><strong>Apply message attributes</strong> — if attributes non-NULL and DltProtocolVersion ≥ 2 → add privacy level (WPVL/PRLV), message tags (WTGS). If protocol v1 and attributes non-NULL → DLT_E_NOT_SUPPORTED.</div></div>
+  </div>
+
+  <div class="section-title">3 deferred steps (called from Dlt_TxFunction — decoupled from SW-C context)</div>
+  <div class="card">
+    <div class="seq-step"><div class="seq-num">A</div><div class="seq-text"><strong>Send via PduR</strong> — call PduR_DltTransmit. Decoupled to shorten runtime of SW-C calls, enable traffic shaping and retry logic. If DltGeneralTrafficShapingSupport=TRUE → respect DltLogChannelTrafficShapingBandwidth per channel. If FALSE → send all buffered messages at once.</div></div>
+    <div class="seq-step"><div class="seq-num">B</div><div class="seq-text"><strong>Create Dlt header</strong> — assemble standard header (VERS, WEID, WSID, WTMS, MSBF, UEH, MCNT, LEN, optional ECU ID, Session ID, Timestamp) and extended header (VERB, MSTP, MTIN, NOAR, APID, CTID). Header bits set based on DltHeader* config params.</div></div>
+    <div class="seq-step"><div class="seq-num">C</div><div class="seq-text"><strong>Remove from buffer</strong> — remove message after: PduR returns E_NOT_OK, OR positive Tx confirmation received, OR negative Tx confirmation + transmit counter > DltLogChannelMaxNumOfRetries.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Buffer overflow handling</h3>
+    <ul>
+      <li>When buffer full: set overflow flag, discard message, DLT_E_NO_BUFFER returned</li>
+      <li>Dlt_TxFunction sends BufferOverflowNotification cyclically (per DltLogChannelBufferOverflowTimer) while buffer still full</li>
+      <li>After timer: clear overflow flag (allows next overflow notification cycle)</li>
+      <li>BufferOverflowNotification includes counter of lost messages since last notification</li>
+      <li>Per-channel: each LogChannel has its own overflow flag and timer</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Dlt header key bits (exam material)</h3>
+    <table>
+      <thead><tr><th>Bit</th><th>Full name</th><th>Set to 1 when</th></tr></thead>
+      <tbody>
+        <tr><td><code>VERS</code></td><td>Version</td><td>Always 001 (binary)</td></tr>
+        <tr><td><code>WEID</code></td><td>With ECU ID</td><td>DltHeaderUseEcuId=TRUE</td></tr>
+        <tr><td><code>WSID</code></td><td>With Session ID</td><td>DltHeaderUseSessionID=TRUE</td></tr>
+        <tr><td><code>WTMS</code></td><td>With Timestamp</td><td>DltHeaderUseTimestamp=TRUE</td></tr>
+        <tr><td><code>MSBF</code></td><td>Most Sig. Byte First</td><td>Platform is BIG-ENDIAN. 0 = little-endian.</td></tr>
+        <tr><td><code>UEH</code></td><td>Use Extended Header</td><td>DltUseVerboseMode=TRUE OR DltUseExtHeaderInNonVerbMode=TRUE</td></tr>
+        <tr><td><code>VERB</code></td><td>Verbose</td><td>DltUseVerboseMode=TRUE (in extended header)</td></tr>
+        <tr><td><code>MSTP</code></td><td>Message Type</td><td>0x0=LOG, 0x1=APP_TRACE, 0x2=NW_TRACE, 0x3=CONTROL (in extended header)</td></tr>
+        <tr><td><code>WPVL</code></td><td>With Privacy Level</td><td>Protocol v2+, attributes.withPrivacyLevel=TRUE</td></tr>
+        <tr><td><code>WTGS</code></td><td>With Tags</td><td>Protocol v2+, attributes.messageTags non-NULL</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- API SPEC -->
+<div id="api" class="panel">
+  <div class="highlight"><strong>24 functions + 8 callbacks + 1 scheduled function.</strong> DLT has the most complex API of any standard AUTOSAR module. Group them mentally: Init/DeInit, Send, Register, Control, Channel management.</div>
+
+  <div class="section-title">Group 1: Lifecycle</div>
+  <div class="api-block">
+    <h4>Dlt_Init(config) — Service ID: 0x01</h4>
+    <p><strong>Sync, Non-reentrant, void return</strong></p>
+    <p>Initializes DLT module. Loads NvM config (if DltGeneralNvRAMSupport=TRUE) or static config. Starts GPT timer for timestamps. Starts startup delay timer if configured. Must be called AFTER NvM_Init if NvRAM support enabled.</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_GetVersionInfo(versioninfo) — Service ID: 0x02</h4>
+    <p><strong>Sync, Reentrant, void return</strong> | Only if DltGeneralVersionInfoApi=TRUE</p>
+  </div>
+
+  <div class="section-title">Group 2: Message sending (core use cases)</div>
+  <div class="api-block">
+    <h4>Dlt_SendLogMessage(sessionId, logInfo, logData, logDataLength) — Service ID: 0x03</h4>
+    <p><strong>Sync, Reentrant, returns Std_ReturnType</strong></p>
+    <p>Primary API for SW-Cs and BSW to send log messages. <code>logInfo</code> = Dlt_MessageLogInfoType (appId, contextId, logLevel, options, argCount). Returns: DLT_OK / DLT_E_MSG_TOO_LARGE / DLT_E_NO_BUFFER / DLT_E_UNKNOWN_SESSION_ID.</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_SendTraceMessage(sessionId, traceInfo, traceData, traceDataLength) — Service ID: 0x04</h4>
+    <p><strong>Sync, Reentrant, returns Std_ReturnType</strong></p>
+    <p>For VFB traces and other trace events. <code>traceInfo</code> = Dlt_MessageTraceInfoType (appId, contextId, traceInfo [VARIABLE/FUNCTION_IN/FUNCTION_OUT/STATE/VFB], options).</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_SendLogMessageWithAttributes(…, attributes) — Service ID: 0x81</h4>
+    <p><strong>Sync, Reentrant</strong> | Same as SendLogMessage + <code>Dlt_MessageAttributesType*</code> parameter. If attributes=NULL → equivalent to SendLogMessage. If protocol v1 and attributes non-NULL → DLT_E_NOT_SUPPORTED.</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_SendTraceMessageWithAttributes(…, attributes) — Service ID: 0x82</h4>
+    <p><strong>Sync, Reentrant</strong> | Same as SendTraceMessage + attributes. Same NULL/v1 rules apply.</p>
+  </div>
+
+  <div class="section-title">Group 3: Context registration</div>
+  <div class="api-block">
+    <h4>Dlt_RegisterContext(sessionId, appId, contextId, appDesc, appDescLen, contextDesc, contextDescLen) — Service ID: 0x05</h4>
+    <p><strong>Sync, Reentrant</strong> | Call when SW module wants to use DLT for a specific context. Returns E_OK / DLT_E_CONTEXT_ALREADY_REG / DLT_E_UNKNOWN_SESSION_ID. For already-registered AppID, appDescription can be NULL and len=0.</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_UnregisterContext(sessionId, appId, contextId) — Service ID: 0x16</h4>
+    <p><strong>Sync, Reentrant</strong> | Call when SW module is being stopped. Returns E_OK / DLT_E_CONTEXT_NOT_YET_REG / DLT_E_UNKNOWN_SESSION_ID.</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_DetForwardErrorTrace(moduleId, instanceId, apiId, errorId) — Service ID: 0x07</h4>
+    <p><strong>Sync, Non-reentrant, void return</strong> | Called by DET fan-out. All DET parameters forwarded. Sends as DLT log message with AppID="DET", ContextID="STD", MessageID=0x00000002, LogLevel=Error. Available via Dlt_Det.h (not Dlt.h).</p>
+  </div>
+
+  <div class="section-title">Group 4: Runtime control (control API calls)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Function</th><th>ID</th><th>Purpose</th><th>Reentrant</th></tr></thead>
+      <tbody>
+        <tr><td><code>Dlt_SetLogLevel</code></td><td>0x08</td><td>Change LogLevel for given AppID/ContextID tuple</td><td>Yes</td></tr>
+        <tr><td><code>Dlt_SetTraceStatus</code></td><td>0x09</td><td>Enable/disable trace for given AppID/ContextID</td><td>No</td></tr>
+        <tr><td><code>Dlt_GetLogInfo</code></td><td>0x0A</td><td>Return registered AppIDs, ContextIDs and log levels</td><td>No</td></tr>
+        <tr><td><code>Dlt_GetDefaultLogLevel</code></td><td>0x18</td><td>Return current default log level</td><td>No</td></tr>
+        <tr><td><code>Dlt_SetDefaultLogLevel</code></td><td>0x11</td><td>Set wildcard log level for unmatched contexts</td><td>Yes</td></tr>
+        <tr><td><code>Dlt_GetDefaultTraceStatus</code></td><td>0x19</td><td>Return current default trace status</td><td>Yes</td></tr>
+        <tr><td><code>Dlt_SetDefaultTraceStatus</code></td><td>0x12</td><td>Enable/disable trace for all unmatched contexts</td><td>Yes</td></tr>
+        <tr><td><code>Dlt_GetTraceStatus</code></td><td>0x1F</td><td>Return trace status for AppID/ContextID</td><td>No</td></tr>
+        <tr><td><code>Dlt_SetMessageFiltering</code></td><td>0x1B</td><td>Enable/disable ALL filtering (TRUE=on, FALSE=all pass)</td><td>No</td></tr>
+        <tr><td><code>Dlt_StoreConfiguration</code></td><td>0x1A</td><td>Store current config to NvM (NvM_WriteBlock)</td><td>No</td></tr>
+        <tr><td><code>Dlt_ResetToFactoryDefault</code></td><td>0x06</td><td>Reset to static config; erase NvM if NvRAM enabled</td><td>No</td></tr>
+        <tr><td><code>Dlt_GetLogChannelNames</code></td><td>0x17</td><td>Return list of configured LogChannel names</td><td>No</td></tr>
+        <tr><td><code>Dlt_SetLogChannelAssignment</code></td><td>0x20</td><td>Add/remove AppID/ContextID ↔ LogChannel mapping</td><td>No</td></tr>
+        <tr><td><code>Dlt_SetLogChannelThreshold</code></td><td>0x21</td><td>Set log level + trace status for a LogChannel</td><td>Yes (diff channels)</td></tr>
+        <tr><td><code>Dlt_GetLogChannelThreshold</code></td><td>0x22</td><td>Get log level + trace status for a LogChannel</td><td>Yes (diff channels)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Group 5: Callbacks (called by PduR/ComIF)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Callback</th><th>ID</th><th>Direction</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>Dlt_RxIndication</code></td><td>0x42</td><td>PduR → DLT</td><td>Received PDU (Dlt command) from bus. IF-type reception.</td></tr>
+        <tr><td><code>Dlt_TriggerTransmit</code></td><td>0x41</td><td>PduR → DLT</td><td>Copy Tx data to provided buffer (IF trigger transmit)</td></tr>
+        <tr><td><code>Dlt_TxConfirmation</code></td><td>0x40</td><td>PduR → DLT</td><td>Tx result (E_OK = sent, E_NOT_OK = failed)</td></tr>
+        <tr><td><code>Dlt_TpTxConfirmation</code></td><td>0x48</td><td>PduR → DLT</td><td>TP Tx result (for transport protocol PDUs)</td></tr>
+        <tr><td><code>Dlt_CopyTxData</code></td><td>0x43</td><td>PduR → DLT</td><td>Provide TP Tx data segment-by-segment (TP lower layer)</td></tr>
+        <tr><td><code>Dlt_StartOfReception</code></td><td>0x46</td><td>PduR → DLT</td><td>Start of TP reception, provide Rx buffer size</td></tr>
+        <tr><td><code>Dlt_TpRxIndication</code></td><td>0x45</td><td>PduR → DLT</td><td>TP Rx complete result</td></tr>
+        <tr><td><code>Dlt_CopyRxData</code></td><td>0x44</td><td>PduR → DLT</td><td>Copy Rx segment data into DLT buffer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Scheduled function + configurable interface</div>
+  <div class="api-block">
+    <h4>Dlt_TxFunction(void) — Service ID: 0x80 [Scheduled]</h4>
+    <p>Called cyclically by BSW scheduler (via RTE). Available via SchM_Dlt.h. Sends buffered messages via PduR, handles traffic shaping, checks buffer overflow flags, sends BufferOverflowNotification, retries failed transmissions (up to DltLogChannelMaxNumOfRetries). This is the deferred send engine.</p>
+  </div>
+  <div class="api-block">
+    <h4>Dlt_InjectCall_&lt;SESSION&gt;(appId, contextId, serviceId, dataLength, data) [Configurable]</h4>
+    <p>Callback to inject a function call into SW-C. Configured per DltSwc (if DltGeneralInjectionSupport=TRUE). Asynchronous, Non-reentrant. Service ID and data interpretation are user-defined. Enables remote diagnostic triggers on specific SW-Cs.</p>
+  </div>
+</div>
+
+<!-- ERRORS -->
+<div id="errors" class="panel">
+  <div class="highlight"><strong>DLT has development errors AND runtime errors.</strong> No production errors. Note that DLT also has function-specific return value error codes (DLT_E_*) that are distinct from DET/DEM errors.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Development errors (DET) — 4 types</h3>
+      <table>
+        <thead><tr><th>Error code</th><th>Value</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td><code>DLT_E_PARAM</code></td><td>0x01</td><td>Wrong parameter passed to API service</td></tr>
+          <tr><td><code>DLT_E_PARAM_POINTER</code></td><td>0x02</td><td>NULL pointer passed as argument</td></tr>
+          <tr><td><code>DLT_E_INIT_FAILED</code></td><td>0x03</td><td>Initialization failed</td></tr>
+          <tr><td><code>DLT_E_REGISTRATION</code></td><td>0x04</td><td>Registration failed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Runtime errors (via Det_ReportRuntimeError) — 3 types</h3>
+      <table>
+        <thead><tr><th>Error code</th><th>Value</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td><code>DLT_E_SKIPPED_TRANSMISSION</code></td><td>0x05</td><td>Message could not be sent (transmission skipped)</td></tr>
+          <tr><td><code>DLT_E_DEPRECATED_PARAMETER</code></td><td>0x06</td><td>Received Dlt command with deprecated parameter value ≠ 0</td></tr>
+          <tr><td><code>DLT_E_MULTIPLE_REQUESTS</code></td><td>0x07</td><td>Multiple control requests received simultaneously</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Function return value error codes (not DET — returned in Std_ReturnType or as function return)</h3>
+    <table>
+      <thead><tr><th>Return code</th><th>Value</th><th>Meaning / returned by</th></tr></thead>
+      <tbody>
+        <tr><td><code>DLT_OK / E_OK</code></td><td>0x00</td><td>Success — SendLogMessage, SendTraceMessage etc.</td></tr>
+        <tr><td><code>DLT_E_MSG_TOO_LARGE</code></td><td>0x02</td><td>Message too large for all assigned LogChannels</td></tr>
+        <tr><td><code>DLT_E_CONTEXT_ALREADY_REG</code></td><td>0x03</td><td>RegisterContext: context already registered before</td></tr>
+        <tr><td><code>DLT_E_UNKNOWN_SESSION_ID</code></td><td>0x04</td><td>Provided sessionId not known to DLT module</td></tr>
+        <tr><td><code>DLT_E_NO_BUFFER</code></td><td>0x05</td><td>LogChannel buffer full — message could not be stored</td></tr>
+        <tr><td><code>DLT_E_CONTEXT_NOT_YET_REG</code></td><td>0x06</td><td>UnregisterContext: context was never registered</td></tr>
+        <tr><td><code>DLT_E_NOT_SUPPORTED</code></td><td>0x07</td><td>StoreConfiguration when NvRAM disabled; WithAttributes when protocol v1</td></tr>
+        <tr><td><code>DLT_E_ERROR</code></td><td>0x09</td><td>Generic error — command unsuccessful (SetLogLevel for unknown tuple etc.)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Dlt command error responses (protocol-level)</h3>
+    <table>
+      <thead><tr><th>Command</th><th>Error condition</th><th>Response</th></tr></thead>
+      <tbody>
+        <tr><td>SetLogLevel</td><td>Unknown AppID/ContextID tuple</td><td>DLT_E_ERROR</td></tr>
+        <tr><td>SetTraceStatus</td><td>Unknown AppID/ContextID tuple</td><td>DLT_E_ERROR</td></tr>
+        <tr><td>GetLogInfo</td><td>Unknown AppID/ContextID tuple</td><td>DLT_E_ERROR</td></tr>
+        <tr><td>StoreConfiguration</td><td>NvRAM support disabled</td><td>DLT_E_NOT_SUPPORTED</td></tr>
+        <tr><td>StoreConfiguration</td><td>NvM_WriteBlock returned E_NOT_OK</td><td>DLT_E_ERROR</td></tr>
+        <tr><td>SetLogChannelAssignment</td><td>Unknown tuple or channel name</td><td>DLT_E_ERROR</td></tr>
+        <tr><td>SetLogChannelThreshold</td><td>Unknown channel name or threshold</td><td>DLT_E_ERROR</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Dlt commands received — full service ID table</h3>
+    <table>
+      <thead><tr><th>Service ID</th><th>Command name</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>0x01</td><td>SetLogLevel</td><td>Set log level for AppID/ContextID</td></tr>
+        <tr><td>0x02</td><td>SetTraceStatus</td><td>Enable/disable trace for AppID/ContextID</td></tr>
+        <tr><td>0x03</td><td>GetLogInfo</td><td>Return registered SW-C log levels</td></tr>
+        <tr><td>0x04</td><td>GetDefaultLogLevel</td><td>Return wildcard log level</td></tr>
+        <tr><td>0x05</td><td>StoreConfiguration</td><td>Persist current config to NvRAM</td></tr>
+        <tr><td>0x06</td><td>ResetToFactoryDefault</td><td>Reset to static config, erase NvM</td></tr>
+        <tr><td>0x0A</td><td>SetMessageFiltering</td><td>Enable/disable all filters globally</td></tr>
+        <tr><td>0x11</td><td>SetDefaultLogLevel</td><td>Set wildcard log level</td></tr>
+        <tr><td>0x12</td><td>SetDefaultTraceStatus</td><td>Enable/disable trace wildcard</td></tr>
+        <tr><td>0x15</td><td>GetDefaultTraceStatus</td><td>Get wildcard trace level</td></tr>
+        <tr><td>0x17</td><td>GetLogChannelNames</td><td>Return configured LogChannel names</td></tr>
+        <tr><td>0x1F</td><td>GetTraceStatus</td><td>Get trace status for AppID/ContextID</td></tr>
+        <tr><td>0x20</td><td>SetLogChannelAssignment</td><td>Add/remove AppID/ContextID ↔ LogChannel</td></tr>
+        <tr><td>0x21</td><td>SetLogChannelThreshold</td><td>Set filter threshold for LogChannel</td></tr>
+        <tr><td>0x22</td><td>GetLogChannelThreshold</td><td>Get filter threshold for LogChannel</td></tr>
+        <tr><td>0x23</td><td>BufferOverflowNotification</td><td>Sent BY DLT when buffer overflows</td></tr>
+        <tr><td>0x24</td><td>SyncTimeStamp</td><td>Reports synchronized absolute time</td></tr>
+        <tr><td>0x13</td><td>GetSoftwareVersion</td><td>Get ECU software version</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SEQUENCES -->
+<div id="sequences" class="panel">
+  <div class="highlight"><strong>4 key sequence diagrams.</strong> Know all actors: EcuM, DLT, NvM, GPT, Dlt User (SW-C/DET/RTE), SchM, PduR.</div>
+
+  <div class="card">
+    <h3>Seq 9.1 — Dlt initialization</h3>
+    <p>Actors: EcuM, DLT, NvM, Gpt</p>
+    <div class="seq-step" style="margin-top:8px"><div class="seq-num">1</div><div class="seq-text">EcuM calls <code>Dlt_Init(config)</code></div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">DLT calls <code>Load configuration()</code> — internal setup</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>[Optional - if DltGeneralTimeStampSource=UPTIME]</strong> DLT calls <code>Gpt_StartTimer(Channel, Value)</code> to start uptime counter</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>[Alt: DltGeneralNvRAMSupport=TRUE]</strong> DLT calls <code>NvM_ReadBlock(BlockId, NvM_DstPtr)</code> to restore persisted config (log levels, channel assignments)</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>[Alt: DltGeneralNvRAMSupport=FALSE]</strong> DLT loads local/static configuration</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>[Optional - if DltGeneralStartUpDelayTimer configured]</strong> DLT starts startup delay timer — buffered messages not processed until timer expires</div></div>
+    <p style="font-size:11.5px;color:var(--color-text-secondary);margin-top:6px">Key insight: messages arriving BEFORE Dlt_Init are buffered (SWS_Dlt_00003). Once init + delay timer expire, all buffered messages are processed.</p>
+  </div>
+
+  <div class="card">
+    <h3>Seq 9.2 — Dlt message transmission on one LogChannel</h3>
+    <p>Actors: Dlt User (DET/RTE/SWC), SchM, DLT, Gpt, PduR</p>
+    <div class="seq-step" style="margin-top:8px"><div class="seq-num">1</div><div class="seq-text"><strong>[Alt: DET user]</strong> Dlt_DetForwardErrorTrace(moduleId, instanceId, apiId, errorId)</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>[Alt: RTE user]</strong> Dlt_SendTraceMessage(sessionId, traceInfo, traceData, length)</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>[Alt: SWC user]</strong> Dlt_SendLogMessage(sessionId, logInfo, logData, length)</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">DLT → Gpt_GetPredefTimerValue() — get timestamp (if enabled)</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">DLT internal: Apply message filtering → Select LogChannel → Check length → Apply LogChannel threshold → Increment message counter → Add to LogChannel buffer</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">SchM calls <code>Dlt_TxFunction()</code> cyclically</div></div>
+    <div class="seq-step"><div class="seq-num">7</div><div class="seq-text">DLT: Compose Dlt header → call <code>PduR_DltTransmit(PduId)</code></div></div>
+    <div class="seq-step"><div class="seq-num">8</div><div class="seq-text">[Optional retry loop] If Tx fails: retry up to DltLogChannelMaxNumOfRetries</div></div>
+    <div class="seq-step"><div class="seq-num">9</div><div class="seq-text">Remove message from LogChannel buffer after Tx confirm or max retries reached</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Seq 9.3 — SetLogLevelFilter (runtime log level change)</h3>
+    <p>Actors: SWC, DLT, PduR</p>
+    <div class="seq-step" style="margin-top:8px"><div class="seq-num">1</div><div class="seq-text"><strong>[Optional loop: SWC registration]</strong> SWC calls <code>Dlt_RegisterContext(sessionId, appId, contextId, descriptions)</code> → DLT stores registered SWC</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">External tool sends SetLogLevel command → PduR delivers to DLT via <code>Dlt_RxIndication(PduId)</code></div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">DLT: Update LogLevelFilter for the addressed AppID/ContextID tuple</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>[Optional: if DltSwcSupportLogLevelAndTraceStatusChangeNotification=TRUE]</strong> DLT looks up registered SWC for this AppID/ContextID</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">DLT calls <code>LogLevelChangedNotification(appId, contextId, newLevel)</code> on SWC's R-Port (LogTraceSessionControl interface)</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">DLT sends SetLogLevel response via <code>PduR_DltTransmit(PduId)</code></div></div>
+    <p style="font-size:11.5px;color:var(--color-text-secondary);margin-top:6px">SW-Cs use this notification to SKIP generating log messages at the source — more efficient than generating then filtering at DLT level.</p>
+  </div>
+
+  <div class="card">
+    <h3>Seq 9.4 — Buffer overflow indication</h3>
+    <p>Actors: SWC, Gpt, DLT, PduR</p>
+    <div class="seq-step" style="margin-top:8px"><div class="seq-num">1</div><div class="seq-text">SWC calls Dlt_SendLogMessage → DLT processes: filter → channel → check length → check threshold</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Buffer full → discard message, set BufferOverflowFlag, start BufferOverflowTimer</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Dlt_TxFunction called cyclically by SchM</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>[If BufferOverflowFlag=1 AND overflow message not yet sent]</strong> DLT sends BufferOverflowNotification control message via PduR. Sets MessageSent=TRUE.</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>[If BufferOverflowFlag=1 AND overflow message already sent]</strong> Wait for DltLogChannelBufferOverflowTimer to expire → reset flag AND MessageSent=FALSE → next occurrence can send new notification</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>[If BufferOverflowFlag=0]</strong> Normal operation — no overflow notification sent</div></div>
+  </div>
+</div>
+
+<!-- DATA TYPES -->
+<div id="types" class="panel">
+  <div class="card">
+    <h3>Core data types — complete reference</h3>
+    <table>
+      <thead><tr><th>Type</th><th>Kind</th><th>Base type</th><th>Key info</th></tr></thead>
+      <tbody>
+        <tr><td><code>Dlt_ConfigType</code></td><td>Structure</td><td>impl-specific</td><td>Init data. Pointer passed to Dlt_Init(). Available via Dlt.h</td></tr>
+        <tr><td><code>Dlt_ApplicationIDType</code></td><td>Type</td><td>uint32</td><td>4 ASCII chars packed. 0x00000000=wildcard. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_ContextIDType</code></td><td>Type</td><td>uint32</td><td>4 ASCII chars packed. 0x00000000=wildcard. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_SessionIDType</code></td><td>Type</td><td>uint32</td><td>Session identifier. ≥0x1000 for SW-Cs, module ID for BSW. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageType</code></td><td>Enum</td><td>—</td><td>DLT_TYPE_LOG(0), APP_TRACE(1), NW_TRACE(2), CONTROL(3). Via Dlt.h</td></tr>
+        <tr><td><code>Dlt_MessageLogLevelType</code></td><td>Type</td><td>uint8</td><td>OFF(0), FATAL(1), ERROR(2), WARN(3), INFO(4), DEBUG(5), VERBOSE(6). Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageLogInfoType</code></td><td>Structure</td><td>—</td><td>argCount, logLevel, options, contextId, appId. Passed to SendLogMessage. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageTraceInfoType</code></td><td>Structure</td><td>—</td><td>traceInfo (trace type), options, contextId, appId. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageTraceType</code></td><td>Type</td><td>uint8</td><td>VARIABLE(1), FUNCTION_IN(2), FUNCTION_OUT(3), STATE(4), VFB(5). Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageOptionsType</code></td><td>Type</td><td>uint8 bitfield</td><td>Bit0=verbose_mode, Bits1-3=message_type. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageArgumentCount</code></td><td>Type</td><td>uint16</td><td>Only lower 8 bits used. Number of arguments in message. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageIDType</code></td><td>Array[4]</td><td>uint8</td><td>OBSOLETE. 4-byte unique message ID for non-verbose mode. Via Dlt.h</td></tr>
+        <tr><td><code>Dlt_MessageNetworkTraceInfoType</code></td><td>Enum</td><td>—</td><td>IPC(1), CAN(2), FLEXRAY(3), MOST(4), ETHERNET(5), SOMEIP(6). Via Dlt.h</td></tr>
+        <tr><td><code>Dlt_LogInfoType</code></td><td>Structure</td><td>—</td><td>appIdCount + array of Dlt_ApplicationIdInfoType. GetLogInfo result. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_AssignmentOperation</code></td><td>Type</td><td>uint8</td><td>DLT_ASSIGN_REMOVE(0), DLT_ASSIGN_ADD(1). Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_MessageAttributesType</code></td><td>Structure</td><td>—</td><td>withPrivacyLevel(bool), privacyLevel(uint8), messageTags(const char** NULL-terminated array). Protocol v2+ only. Via Rte_Dlt_Type.h</td></tr>
+        <tr><td><code>Dlt_LogChannelNameType</code></td><td>Array[4]</td><td>uint8</td><td>4-byte LogChannel name. Via Rte_Dlt_Type.h</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Reserved Message IDs</h3>
+    <p>Per SWS_Dlt_00031 — these IDs MUST NOT be used by SW-Cs:</p>
+    <table>
+      <thead><tr><th>Value</th><th>Reserved for</th><th>AppID / ContextID</th></tr></thead>
+      <tbody>
+        <tr><td>0x00000001</td><td>DEM events</td><td>AppID="DEM", ContextID="STD0"</td></tr>
+        <tr><td>0x00000002</td><td>DET errors</td><td>AppID="DET", ContextID="STD"</td></tr>
+        <tr><td>0x00000003</td><td>Trace messages</td><td>VFB traces AppID="VFBT"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="davinci" class="panel">
+  <div class="highlight"><strong>DaVinci hierarchy:</strong> Dlt → DltGeneral + DltConfigSet + DltSwc[0..*] → DltSwcContext → DltConfigSet → DltProtocol + DltLogOutput → DltLogChannel + DltTxPdu + DltRxPdu</div>
+
+  <div class="card">
+    <h3>Configuration hierarchy</h3>
+    <div class="flow-mono">
+      Dlt (EcucModuleDef) — supports PRE-COMPILE, LINK-TIME, POST-BUILD<br>
+      ├── DltGeneral [1] ← module-wide feature switches<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralDevErrorDetect (bool)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralNvRAMSupport (bool, default=false)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralRxDataPathSupport (bool, default=false)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralTrafficShapingSupport (bool, default=TRUE)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralTimeStampSupport (bool, default=false)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralInjectionSupport (bool, default=false)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralRegisterContextNotification (bool, default=false)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralStartUpDelayTimer (float, 0.001..10 s, optional)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralVersionInfoApi (bool, optional)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltMaxNumberOfChannels (int, 1..65535)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltProtocolVersion (int, 1..255, default=1)<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralGptChannelRef → ref to GptChannelConfiguration<br>
+      │&nbsp;&nbsp;&nbsp;├── DltGeneralNvRamRef → ref to NvMBlockDescriptor<br>
+      │&nbsp;&nbsp;&nbsp;└── DltGeneralStbMTimeBaseRef → ref to StbMSynchronizedTimeBase<br>
+      ├── DltSwc [0..*] ← per SW-C<br>
+      │&nbsp;&nbsp;&nbsp;├── DltSwcSessionId (int) ← ECU-unique port identifier<br>
+      │&nbsp;&nbsp;&nbsp;├── DltSwcSupportLogLevelAndTraceStatusChangeNotification (bool)<br>
+      │&nbsp;&nbsp;&nbsp;├── MaxSwcLogMessageLength (int, 8..65535)<br>
+      │&nbsp;&nbsp;&nbsp;├── MaxSwcTraceMessageLength (int, 8..65535)<br>
+      │&nbsp;&nbsp;&nbsp;└── DltSwcContext [0..*]<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── DltSwcApplicationId (string, 4 chars)<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── DltSwcContextId (string, 4 chars)<br>
+      └── DltConfigSet [1] ← runtime config<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;├── DltProtocol ← header configuration<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├── DltHeaderUseEcuId (bool)<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├── DltHeaderUseSessionID (bool)<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├── DltHeaderUseTimestamp (bool)<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├── DltUseVerboseMode (bool)<br>
+      │&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;└── DltUseExtHeaderInNonVerbMode (bool)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;└── DltLogOutput [1] ← log channels and filters<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── DltLogChannel [1..*]<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltLogChannelName (4-char string)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltLogChannelThreshold (log level enum)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltTraceStatus (bool)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltLogChannelMaxMessageLength (int)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltLogChannelMaxNumOfRetries (int)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltLogChannelTrafficShapingBandwidth (int, bytes/s)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── DltLogChannelBufferOverflowTimer (float, s)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── DltTxPdu → ref to DltTxPdu<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── DltTxPdu [1..*] ← transmit PDU per channel<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── DltRxPdu [0..*] ← receive PDU (if Rx enabled)
+    </div>
+  </div>
+
+  <div class="section-title">DaVinci step-by-step workflow</div>
+  <div class="card">
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>DltGeneral setup:</strong> Enable DltGeneralDevErrorDetect=TRUE (dev phase). Set DltGeneralNvRAMSupport based on need for persistent logging. Set DltGeneralRxDataPathSupport=TRUE if external DLT tool should control log levels over bus. Set DltProtocolVersion (1 or 2). Set DltMaxNumberOfChannels to number of LogChannels you plan to configure.</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Timestamp configuration:</strong> If DltGeneralTimeStampSupport=TRUE, configure EITHER DltGeneralGptChannelRef (reference a GPT channel) OR DltGeneralStbMTimeBaseRef (reference a StbM time base) — NOT both. GPT = uptime counter, StbM = synchronized time.</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>NvRAM (if needed):</strong> Set DltGeneralNvRAMSupport=TRUE. Add DltGeneralNvRamRef pointing to your NvM block. This block will store LogLevel settings, LogChannel assignments, and thresholds persistently across ECU resets.</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>DltSwc per SW-C:</strong> Add one DltSwc container per SW-C that uses DLT. Set DltSwcSessionId (unique across ECU, ≥0x1000). Set DltSwcSupportLogLevelAndTraceStatusChangeNotification=TRUE if SW-C should be notified of level changes. Set max message lengths. Add DltSwcContext with AppID/ContextID pairs.</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>DltProtocol (header bits):</strong> Configure DltHeaderUseEcuId (include ECU ID in header), DltHeaderUseSessionID, DltHeaderUseTimestamp, DltUseVerboseMode (verbose vs non-verbose), DltUseExtHeaderInNonVerbMode.</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>DltLogChannel per physical bus:</strong> Add one DltLogChannel per bus (e.g. "ETH1", "CAN0"). Set name (4 chars), LogChannelThreshold (initial log level), TraceStatus, MaxMessageLength, MaxRetries, traffic shaping bandwidth, overflow timer. Add DltTxPdu reference for PduR routing.</div></div>
+    <div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><strong>Log level and channel assignments:</strong> Configure DltLogLevelThreshold for specific AppID/ContextID tuples. Configure DltLogChannelAssignment to route tuples to specific channels. Configure DltDefaultLogChannelRef (mandatory fallback).</div></div>
+    <div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><strong>DltRxPdu (if Rx enabled):</strong> Add DltRxPdu containers with PduR references for receiving control messages from external DLT tool.</div></div>
+    <div class="seq-step"><div class="seq-num">9</div><div class="seq-text"><strong>DET integration (optional):</strong> In DET module config, enable DLT as DET fan-out target. DET calls Dlt_DetForwardErrorTrace via fan-out mechanism.</div></div>
+    <div class="seq-step"><div class="seq-num">10</div><div class="seq-text"><strong>Generate code:</strong> DaVinci generates Dlt_Cfg.h, Dlt_Cfg.c, Dlt_PBcfg.c. SW-Cs call DLT via RTE port DltSwcMessageService_{SW-C}.</div></div>
+  </div>
+</div>
+
+<!-- TEST & DEBUG -->
+<div id="debug" class="panel">
+  <div class="highlight"><strong>DLT integration testing focuses on 4 areas:</strong> message delivery, log level filtering, buffer management, and command reception from external DLT tool.</div>
+
+  <div class="card">
+    <h3>Integration testing — startup sequence</h3>
+    <ul>
+      <li>Verify Dlt_Init called after NvM_Init (if NvRAM support enabled)</li>
+      <li>Verify messages sent before Dlt_Init are buffered and then delivered after init + startup delay</li>
+      <li>Confirm no messages lost if SW-C starts logging before DLT is up</li>
+      <li>Check NvM_ReadBlock called during init when DltGeneralNvRAMSupport=TRUE</li>
+      <li>Verify startup delay timer fires and triggers buffered message processing</li>
+      <li>Confirm all sequence results initialized to correct state after init</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Message delivery testing (bus-level with DLT Viewer)</h3>
+    <ul>
+      <li>Connect DLT Viewer (or similar tool) to configured LogChannel (Ethernet/CAN)</li>
+      <li>Verify ECU ID in DLT header matches DltEcuIdValue config</li>
+      <li>Verify Session ID matches DltSwcSessionId for each SW-C</li>
+      <li>Verify timestamp increments correctly (GPT/StbM based)</li>
+      <li>Verify MSBF bit matches ECU endianness</li>
+      <li>Verify AppID and ContextID correctly appear per configured tuples</li>
+      <li>Test verbose vs non-verbose mode: verbose includes typed arguments, non-verbose has MessageID only</li>
+      <li>Send DLT_LOG_VERBOSE message while threshold = DLT_LOG_INFO → verify message does NOT appear on bus</li>
+      <li>Send DLT_LOG_ERROR message → verify appears regardless of threshold (unless DLT_LOG_OFF)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Log level filtering testing</h3>
+    <ul>
+      <li>Test 3-step lookup: configure exact match, wildcard match, and default → verify each fires correctly</li>
+      <li>Change log level via DLT Viewer SetLogLevel command → verify new level effective immediately</li>
+      <li>Verify SW-C receives LogLevelChangedNotification (if configured) after SetLogLevel</li>
+      <li>Test SetMessageFiltering(FALSE) → verify ALL messages pass regardless of level</li>
+      <li>Verify SetDefaultLogLevel affects only unmatched contexts</li>
+      <li>Test StoreConfiguration → reset ECU → verify levels persist (NvRAM test)</li>
+      <li>Test ResetToFactoryDefault → verify static config restored</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Buffer overflow testing</h3>
+    <ul>
+      <li>Flood DLT with high-rate messages → fill LogChannel buffer → verify DLT_E_NO_BUFFER returned</li>
+      <li>Verify BufferOverflowNotification sent to external tool when buffer full</li>
+      <li>Verify overflowCounter in notification contains count of lost messages</li>
+      <li>Verify notification not sent again until DltLogChannelBufferOverflowTimer expires</li>
+      <li>Verify no more than one BufferOverflowNotification per timer cycle</li>
+      <li>Reduce message rate → verify normal operation resumes as buffer drains</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Common debugging scenarios</h3>
+    <table>
+      <thead><tr><th>Symptom</th><th>Root cause / fix</th></tr></thead>
+      <tbody>
+        <tr><td>No DLT messages visible in DLT Viewer</td><td>Check: DltGeneralTrafficShapingSupport/bandwidth, PduR routing (DltTxPduId), Dlt_TxFunction called cyclically, LogChannel threshold not = DLT_LOG_OFF, check DltGeneralRxDataPathSupport if control commands not working</td></tr>
+        <tr><td>Messages visible but wrong AppID/ContextID</td><td>SW-C not calling RegisterContext, or DltSwcContext config mismatch. Check DltSwcApplicationId/DltSwcContextId in DaVinci.</td></tr>
+        <tr><td>SendLogMessage returns DLT_E_UNKNOWN_SESSION_ID</td><td>SessionId in function call doesn't match DltSwcSessionId configured for that SW-C port. Check port-defined argument value.</td></tr>
+        <tr><td>Messages lost at high rate</td><td>Buffer too small or traffic shaping bandwidth too low. Increase DltLogChannelMaxMessageLength or DltLogChannelTrafficShapingBandwidth. Increase buffer size (impl-specific).</td></tr>
+        <tr><td>Log level change from DLT Viewer not taking effect</td><td>DltGeneralRxDataPathSupport=FALSE. Or DltRxPdu not configured. Or PduR not routing Rx PDU to DLT.</td></tr>
+        <tr><td>NvM config not restored after reset</td><td>DltGeneralNvRAMSupport=FALSE, or DltGeneralNvRamRef not configured, or NvM not initialized before Dlt_Init, or NvM block invalid.</td></tr>
+        <tr><td>VFB trace not appearing</td><td>RTE VFB trace not configured (RteVfbTraceClientPrefix ≠ "Dlt"). Or trace status for "VFBT" AppID = FALSE. Or hook function not generated by RTE.</td></tr>
+        <tr><td>DET errors not forwarded to DLT</td><td>DET fan-out to DLT not configured. DLT not added as DET target. Check DET module config in DaVinci.</td></tr>
+        <tr><td>Timestamps all 0x00000000</td><td>DltGeneralTimeStampSupport=FALSE or GPT/StbM reference not configured. Or GPT timer not started before Dlt_Init.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ok-box">Industry best practice: Set DltGeneralDevErrorDetect=TRUE in development. Use DLT_LOG_DEBUG/VERBOSE during integration testing, switch to DLT_LOG_WARN or DLT_LOG_ERROR in production builds to reduce bus load. Use StoreConfiguration to persist tuned log levels discovered during vehicle testing.</div>
+</div>
+
+<!-- COMPARE -->
+<div id="compare" class="panel">
+  <div class="highlight"><strong>DLT is fundamentally different from PORT and I2C</strong> — it is a BSW Services module, not MCAL. It handles software observability, not hardware I/O.</div>
+  <div class="card">
+    <h3>DLT vs PORT vs I2C — key comparison</h3>
+    <table>
+      <thead><tr><th>Aspect</th><th>PORT Driver</th><th>I2C Driver</th><th>DLT Module</th></tr></thead>
+      <tbody>
+        <tr><td>Layer</td><td>MCAL</td><td>MCAL</td><td>BSW Services layer</td></tr>
+        <tr><td>Purpose</td><td>Configure MCU pins</td><td>I2C bus communication</td><td>Log/trace collection and transmission</td></tr>
+        <tr><td>Users</td><td>DIO driver, SPI driver</td><td>Upper layer drivers</td><td>ALL SW-Cs, BSW modules, RTE, DET, DEM</td></tr>
+        <tr><td>Module states</td><td>UNINIT / INIT</td><td>UNINIT / INIT</td><td>UNINIT / INIT + complex internal filtering state</td></tr>
+        <tr><td>Pre-init behavior</td><td>Drop / undefined</td><td>Drop / error</td><td>BUFFER messages until init (unique!)</td></tr>
+        <tr><td>Runtime errors</td><td>None</td><td>5 types (NACK etc.)</td><td>3 types (SKIPPED etc.)</td></tr>
+        <tr><td>Callbacks</td><td>None</td><td>I2C_SeqEndNotification</td><td>8 PduR callbacks + InjectCall + LogTraceSessionControl</td></tr>
+        <tr><td>Scheduled functions</td><td>None</td><td>I2C_MainFunction</td><td>Dlt_TxFunction (critical for transmission)</td></tr>
+        <tr><td>NvM dependency</td><td>None</td><td>None</td><td>Optional (persistent log config)</td></tr>
+        <tr><td>Mandatory interfaces</td><td>None</td><td>None</td><td>PduR_DltTransmit (mandatory)</td></tr>
+        <tr><td>Re-init rule</td><td>Direct re-init OK</td><td>DeInit → Init required</td><td>Can re-init (NvM loaded fresh)</td></tr>
+        <tr><td>API count</td><td>5 functions</td><td>8 functions + 1 scheduled</td><td>24 functions + 8 callbacks + 1 scheduled</td></tr>
+        <tr><td>Protocol version</td><td>N/A</td><td>N/A</td><td>DltProtocolVersion 1 or 2 (v2 adds privacy/tags)</td></tr>
+        <tr><td>External tool interaction</td><td>None</td><td>None</td><td>Yes — DLT Viewer controls log levels via bus</td></tr>
+        <tr><td>Header file</td><td>Port.h</td><td>I2c.h</td><td>Dlt.h + Dlt_Det.h + SchM_Dlt.h</td></tr>
+        <tr><td>Service interfaces (RTE)</td><td>None</td><td>None</td><td>Yes — DltControlService, DltSwcMessageService, LogTraceSessionControl, InjectionCallback</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Exam trap summary — all 3 modules</h3>
+    <ul>
+      <li><strong>PORT only:</strong> must be initialized before DIO functions; no runtime errors; direction refresh skips changeable pins; atomic access required</li>
+      <li><strong>I2C only:</strong> DeInit required before re-Init; has NACK/bus error runtime errors; async FIFO queuing; StartListening for Target mode; no queuing for SyncTransmit</li>
+      <li><strong>DLT only:</strong> buffers messages before init (unique!); Dlt_TxFunction is mandatory scheduler call; 3-step AppID/ContextID filter lookup; 7 inline + 3 deferred Tx steps; PduR is mandatory interface; VFBT AppID is reserved; FilterMessageFiltering(FALSE) = let ALL messages pass</li>
+      <li><strong>All three:</strong> none have production errors; none have mandatory interfaces from modules other than their own stack dependencies; GetVersionInfo conditional on config flag</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>

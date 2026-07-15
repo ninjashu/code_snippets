@@ -1,0 +1,680 @@
+
+<style>
+  :root { --accent: #534AB7; --accent-light: #EEEDFE; }
+  h2.sr-only { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0); }
+  .tab-bar { display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary); }
+  .tab-btn { font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .15s; }
+  .tab-btn.active { background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info); }
+  .tab-btn:hover:not(.active) { background:var(--color-background-secondary); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* Cards */
+  .card { background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem; }
+  .card-title { font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 8px; }
+  .card-body { font-size:13px;color:var(--color-text-secondary);line-height:1.6; }
+
+  /* Layer stack */
+  .layer { display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s; }
+  .layer:hover { opacity:.8; }
+  .layer-label { flex:1; }
+  .layer-sub { font-size:11px;font-weight:400;opacity:.75;margin-top:2px; }
+  .layer-arrow { font-size:11px;opacity:.5;margin-left:8px; }
+
+  /* State machine */
+  .state-box { border-radius:var(--border-radius-lg);padding:12px 18px;font-size:13px;font-weight:500;cursor:pointer;margin:4px;display:inline-block;transition:transform .12s; }
+  .state-box:hover { transform:scale(1.03); }
+  .state-row { display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:8px 0; }
+  .arrow-label { font-size:11px;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-radius:10px;padding:2px 8px;white-space:nowrap; }
+
+  /* API table */
+  .api-table { width:100%;border-collapse:collapse;font-size:12px; }
+  .api-table th { text-align:left;padding:6px 8px;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em; }
+  .api-table td { padding:8px 8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5; }
+  .api-table tr:last-child td { border-bottom:none; }
+  .api-table tr:hover td { background:var(--color-background-secondary); }
+  .badge { display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:500;white-space:nowrap; }
+  .badge-sync { background:var(--color-background-success);color:var(--color-text-success); }
+  .badge-async { background:var(--color-background-warning);color:var(--color-text-warning); }
+  .badge-cb { background:var(--color-background-info);color:var(--color-text-info); }
+  .fn { font-family:var(--font-mono);font-size:11px;color:var(--color-text-info); }
+  .err-code { font-family:var(--font-mono);font-size:11px;background:var(--color-background-danger);color:var(--color-text-danger);border-radius:4px;padding:1px 4px; }
+
+  /* Seq diagram */
+  .seq-actor { border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;font-weight:500;text-align:center;min-width:90px; }
+  .seq-msg { font-size:11px;color:var(--color-text-secondary);padding:2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+  .seq-btn { font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans); }
+  .seq-btn.sel { background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info); }
+
+  /* Config table */
+  .cfg-row { display:grid;grid-template-columns:200px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px; }
+  .cfg-row:last-child { border-bottom:none; }
+  .cfg-key { font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);word-break:break-all; }
+  .cfg-val { color:var(--color-text-secondary);line-height:1.5; }
+
+  /* Error table */
+  .err-row { display:grid;grid-template-columns:50px 1fr 200px;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;align-items:start; }
+  .err-num { font-weight:500;color:var(--color-text-primary);font-family:var(--font-mono); }
+
+  /* Tooltip popup */
+  .detail-box { background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-top:8px;font-size:13px;line-height:1.6; }
+  .detail-box strong { font-weight:500;color:var(--color-text-primary); }
+
+  /* Search */
+  .search-input { width:100%;box-sizing:border-box;font-family:var(--font-sans);font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:12px; }
+  .search-input:focus { outline:none;border-color:var(--color-border-info); }
+
+  /* Flow diagram in SVG */
+  .highlight { stroke:#534AB7!important;stroke-width:2px!important; }
+
+  /* Section header */
+  .sec-hdr { font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin:1.2rem 0 .5rem; }
+
+  /* PDU mode pill */
+  .pdu-pill { border-radius:20px;padding:6px 16px;font-size:12px;font-weight:500;display:inline-block;margin:4px; }
+</style>
+
+<h2 class="sr-only">AUTOSAR CAN Interface (CanIf) complete study guide — R24-11</h2>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview & Architecture</button>
+  <button class="tab-btn" onclick="showTab('state')">State Diagrams</button>
+  <button class="tab-btn" onclick="showTab('functional')">Functional Spec</button>
+  <button class="tab-btn" onclick="showTab('api')">API Reference</button>
+  <button class="tab-btn" onclick="showTab('seq')">Sequence Diagrams</button>
+  <button class="tab-btn" onclick="showTab('errors')">Errors & Debug</button>
+  <button class="tab-btn" onclick="showTab('config')">DaVinci Config</button>
+</div>
+
+<!-- ============ OVERVIEW ============ -->
+<div id="panel-overview" class="panel active">
+  <div class="card">
+    <p class="card-title">What is CanIf?</p>
+    <p class="card-body">CanIf (CAN Interface) is the AUTOSAR BSW module that sits between the low-level CAN device drivers and upper communication service layers. It provides one unified abstraction so upper layers (PduR, CanNm, CanTp, CanSm) never need to know which physical CAN hardware is underneath.</p>
+  </div>
+
+  <p class="sec-hdr">AUTOSAR CAN Stack — Click a layer for details</p>
+  <div id="layer-detail" class="detail-box" style="display:none"></div>
+
+  <div onclick="showLayer('ecum')" class="layer" style="background:var(--color-background-warning);color:var(--color-text-warning);">
+    <div class="layer-label">EcuM / CanSm / ComM<div class="layer-sub">ECU State Manager, CAN State Manager, Communication Manager</div></div>
+    <span class="layer-arrow">▼</span>
+  </div>
+  <div onclick="showLayer('upper')" class="layer" style="background:#EEEDFE;color:#3C3489;">
+    <div class="layer-label">PduR / CanNm / CanTp / XCP / CanTSyn / J1939<div class="layer-sub">Upper protocol layers — data consumers & producers</div></div>
+    <span class="layer-arrow">▼</span>
+  </div>
+  <div onclick="showLayer('canif')" class="layer" style="background:var(--color-background-info);color:var(--color-text-info);border:2px solid var(--color-border-info);">
+    <div class="layer-label">⭐ CanIf — CAN Interface (this module)<div class="layer-sub">CanIf_Init, CanIf_Transmit, CanIf_RxIndication, CanIf_SetControllerMode ...</div></div>
+    <span class="layer-arrow">▼</span>
+  </div>
+  <div onclick="showLayer('candrv')" class="layer" style="background:var(--color-background-success);color:var(--color-text-success);">
+    <div class="layer-label">CanDrv — CAN Driver<div class="layer-sub">Can_Write, Can_SetControllerMode — hardware-specific</div></div>
+    <span class="layer-arrow">▼</span>
+  </div>
+  <div onclick="showLayer('cantrcv')" class="layer" style="background:var(--color-background-secondary);">
+    <div class="layer-label">CanTrcv — CAN Transceiver Driver<div class="layer-sub">Physical layer: TJA1050, TJA1042, SBC transceivers</div></div>
+    <span class="layer-arrow">▼</span>
+  </div>
+  <div class="layer" style="background:var(--color-background-danger);color:var(--color-text-danger);opacity:.7;cursor:default;">
+    <div class="layer-label">CAN Physical Bus (ISO 11898)<div class="layer-sub">CAN 2.0, CAN FD (up to 64 bytes), CAN XL (up to 2048 bytes)</div></div>
+  </div>
+
+  <p class="sec-hdr">Key Responsibilities of CanIf</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-title">Tx Path</p><p class="card-body">Accepts CanIf_Transmit() from upper layers → maps PduId to HTH → calls Can_Write() → handles buffering if CAN_BUSY</p></div>
+    <div class="card"><p class="card-title">Rx Path</p><p class="card-body">Receives CanIf_RxIndication() from CanDrv → software filtering → DLC check → dispatch to upper layer via LSduR_CanIfRxIndication()</p></div>
+    <div class="card"><p class="card-title">Controller Mode</p><p class="card-body">CanIf_SetControllerMode() → forwards to CanDrv, receives CanIf_ControllerModeIndication() callback → notifies CanSm</p></div>
+    <div class="card"><p class="card-title">Transceiver Mode</p><p class="card-body">CanIf_SetTrcvMode() → forwarded to CanTrcv. Wake-up detection, wake-up validation, partial networking filter</p></div>
+  </div>
+
+  <p class="sec-hdr">L-PDU vs L-SDU — critical distinction for exams</p>
+  <div class="card">
+    <p class="card-body"><strong>CAN L-PDU:</strong> What the CAN Driver sees — CanId + DLC + data (raw frame).<br><strong>CAN L-SDU:</strong> What upper layers see — the data payload only (stripped of CAN framing). CanIf bridges the two views. When you call CanIf_Transmit() you pass an L-SDU; CanIf builds the full L-PDU and hands it to CanDrv.</p>
+  </div>
+
+  <p class="sec-hdr">HOH — Hardware Object Handles (exam favourite)</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-title">HTH — Hardware Transmit Handle</p><p class="card-body">References a CAN TX mailbox. One or more Tx L-PDUs map to one HTH. CanIf uses it to call Can_Write(HTH, ...). Associated with CanIfBufferCfg for software buffering.</p></div>
+    <div class="card"><p class="card-title">HRH — Hardware Receive Handle</p><p class="card-body">References a CAN RX mailbox. Passed back in CanIf_RxIndication(). If HRH is BasicCAN → software filter runs. If FullCAN → exact match, no software filter needed.</p></div>
+  </div>
+</div>
+
+<!-- ============ STATE DIAGRAMS ============ -->
+<div id="panel-state" class="panel">
+  <p class="sec-hdr">CAN Controller Mode State Machine (CanIf view)</p>
+  <div class="card">
+    <p class="card-body" style="margin-bottom:12px;">State transitions are <strong>asynchronous</strong> — CanIf_SetControllerMode() returns E_OK immediately; the actual transition is confirmed later via CanIf_ControllerModeIndication() callback from CanDrv.</p>
+
+    <svg width="100%" viewBox="0 0 640 280" role="img">
+      <title>CAN Controller Mode State Machine</title>
+      <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+      <!-- UNINIT box -->
+      <rect x="20" y="20" width="120" height="48" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+      <text x="80" y="48" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#444441">UNINIT</text>
+
+      <!-- STOPPED box -->
+      <rect x="240" y="20" width="130" height="48" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+      <text x="305" y="44" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#3C3489">CAN_CS_STOPPED</text>
+
+      <!-- STARTED box -->
+      <rect x="240" y="120" width="130" height="48" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+      <text x="305" y="144" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#27500A">CAN_CS_STARTED</text>
+
+      <!-- SLEEP box -->
+      <rect x="450" y="20" width="120" height="48" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+      <text x="510" y="44" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#633806">CAN_CS_SLEEP</text>
+
+      <!-- BusOff condition note -->
+      <rect x="430" y="120" width="170" height="48" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+      <text x="515" y="138" text-anchor="middle" font-size="12" font-weight="500" fill="#791F1F">BusOff event</text>
+      <text x="515" y="155" text-anchor="middle" font-size="11" fill="#A32D2D">→ set PDU ch. TX_OFFLINE</text>
+
+      <!-- Arrows: UNINIT → STOPPED -->
+      <line x1="140" y1="44" x2="238" y2="44" stroke="#534AB7" stroke-width="1" marker-end="url(#arr2)"/>
+      <text x="190" y="36" text-anchor="middle" font-size="10" fill="#7F77DD">CanIf_Init()</text>
+
+      <!-- STOPPED ↔ STARTED -->
+      <path d="M295 68 L295 118" fill="none" stroke="#3B6D11" stroke-width="1" marker-end="url(#arr2)"/>
+      <text x="255" y="98" text-anchor="middle" font-size="10" fill="#639922">SET_STARTED</text>
+      <path d="M315 118 L315 68" fill="none" stroke="#888780" stroke-width="1" marker-end="url(#arr2)"/>
+      <text x="358" y="98" text-anchor="middle" font-size="10" fill="#5F5E5A">SET_STOPPED</text>
+
+      <!-- STOPPED ↔ SLEEP -->
+      <line x1="370" y1="30" x2="448" y2="30" stroke="#BA7517" stroke-width="1" marker-end="url(#arr2)"/>
+      <text x="410" y="22" text-anchor="middle" font-size="10" fill="#854F0B">SET_SLEEP</text>
+      <line x1="448" y1="58" x2="370" y2="58" stroke="#534AB7" stroke-width="1" marker-end="url(#arr2)"/>
+      <text x="410" y="72" text-anchor="middle" font-size="10" fill="#534AB7">SET_STOPPED</text>
+
+      <!-- STARTED → BusOff -->
+      <line x1="370" y1="144" x2="428" y2="144" stroke="#A32D2D" stroke-width="1" marker-end="url(#arr2)"/>
+      <text x="398" y="136" text-anchor="middle" font-size="10" fill="#A32D2D">BusOff ISR</text>
+
+      <!-- SLEEP → STARTED (not direct, via STOPPED) -->
+      <path d="M510 68 L510 100 L370 100 L370 120" fill="none" stroke="#888780" stroke-width="0.5" stroke-dasharray="4 3" marker-end="url(#arr2)"/>
+      <text x="480" y="108" font-size="9" fill="#888780">via STOPPED first</text>
+
+      <!-- PDU mode note -->
+      <text x="320" y="240" text-anchor="middle" font-size="11" fill="#444441">Default PDU Channel Mode after CanIf_Init(): CANIF_OFFLINE</text>
+      <text x="320" y="258" text-anchor="middle" font-size="11" fill="#888780">CS_STARTED + SetPduMode(CANIF_ONLINE) → full comms enabled</text>
+    </svg>
+  </div>
+
+  <p class="sec-hdr">PDU Channel Mode State Machine</p>
+  <div class="card">
+    <p class="card-body" style="margin-bottom:12px;">PDU modes control Tx/Rx independently per CAN channel. Can only be changed when controller is in CAN_CS_STARTED.</p>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px;">
+      <span class="pdu-pill" style="background:#FCEBEB;color:#791F1F;">CANIF_OFFLINE (0x00)<br><span style="font-weight:400;font-size:10px;">No Tx, No Rx</span></span>
+      <span style="font-size:18px;color:var(--color-text-tertiary)">⇄</span>
+      <span class="pdu-pill" style="background:#FAEEDA;color:#633806;">CANIF_TX_OFFLINE (0x01)<br><span style="font-weight:400;font-size:10px;">No Tx, Rx enabled</span></span>
+      <span style="font-size:18px;color:var(--color-text-tertiary)">⇄</span>
+      <span class="pdu-pill" style="background:#EEEDFE;color:#3C3489;">CANIF_TX_OFFLINE_ACTIVE (0x02)<br><span style="font-weight:400;font-size:10px;">Simulated Tx, Rx enabled</span></span>
+      <span style="font-size:18px;color:var(--color-text-tertiary)">⇄</span>
+      <span class="pdu-pill" style="background:#EAF3DE;color:#27500A;">CANIF_ONLINE (0x03)<br><span style="font-weight:400;font-size:10px;">Full Tx + Rx</span></span>
+    </div>
+    <p class="card-body"><strong>Key rules (examinable):</strong><br>
+    • OFFLINE → cleared by CanIf_Init() and when CS_SLEEP is set<br>
+    • TX_OFFLINE → set automatically on CS_STOPPED or BusOff<br>
+    • TX_OFFLINE_ACTIVE → diagnostic passive mode: upper layer gets TxConfirmation immediately (no bus traffic)<br>
+    • Setting CS_SLEEP → forces PDU mode to CANIF_OFFLINE</p>
+  </div>
+
+  <p class="sec-hdr">Transceiver Mode State Machine</p>
+  <div class="card">
+    <div class="state-row">
+      <span class="state-box" style="background:#EAF3DE;color:#27500A;">CANTRCV_TRCVMODE_NORMAL</span>
+      <span style="font-size:20px;color:var(--color-text-tertiary)">⇄</span>
+      <span class="state-box" style="background:#FAEEDA;color:#633806;">CANTRCV_TRCVMODE_STANDBY</span>
+      <span style="font-size:20px;color:var(--color-text-tertiary)">⇄</span>
+      <span class="state-box" style="background:#F1EFE8;color:#444441;">CANTRCV_TRCVMODE_SLEEP</span>
+    </div>
+    <p class="card-body" style="margin-top:8px;"><strong>Important:</strong> NORMAL→SLEEP is not direct; must go NORMAL→STANDBY→SLEEP. CanIf does NOT enforce this — it is up to CanTrcv. CanIf just passes the request through via CanTrcv_SetOpMode().</p>
+  </div>
+</div>
+
+<!-- ============ FUNCTIONAL SPEC ============ -->
+<div id="panel-functional" class="panel">
+  <p class="sec-hdr">Transmit Data Flow — step by step</p>
+  <div class="card">
+    <div id="tx-step" style="font-size:13px;line-height:1.7;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="seq-btn sel" onclick="setTxStep(0)">1. Upper layer calls Transmit</button>
+      <button class="seq-btn" onclick="setTxStep(1)">2. CanIf checks state</button>
+      <button class="seq-btn" onclick="setTxStep(2)">3. Can_Write call</button>
+      <button class="seq-btn" onclick="setTxStep(3)">4. CAN_BUSY → buffering</button>
+      <button class="seq-btn" onclick="setTxStep(4)">5. TxConfirmation</button>
+    </div>
+  </div>
+
+  <p class="sec-hdr">Receive Data Flow — step by step</p>
+  <div class="card">
+    <div id="rx-step" style="font-size:13px;line-height:1.7;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      <button class="seq-btn sel" onclick="setRxStep(0)">1. CAN frame arrives</button>
+      <button class="seq-btn" onclick="setRxStep(1)">2. Software filter</button>
+      <button class="seq-btn" onclick="setRxStep(2)">3. DLC check</button>
+      <button class="seq-btn" onclick="setRxStep(3)">4. Buffer & dispatch</button>
+    </div>
+  </div>
+
+  <p class="sec-hdr">Software Receive Filter — BasicCAN vs FullCAN</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card">
+      <p class="card-title">FullCAN reception</p>
+      <p class="card-body">One mailbox = exactly one CanId. Hardware filter is exact match. <strong>No software filter needed.</strong> Direct HRH→L-SDU mapping. Fast, but uses more HW mailboxes.</p>
+    </div>
+    <div class="card">
+      <p class="card-title">BasicCAN reception</p>
+      <p class="card-body">One mailbox = range of CanIds. Hardware filter is mask/range based. <strong>Software filter is mandatory.</strong> CanIf searches the HRH's Rx L-PDU list using linear/table/hash algorithm (implementation choice).</p>
+    </div>
+  </div>
+  <div class="card">
+    <p class="card-title">Software filter algorithms (implementation choice)</p>
+    <p class="card-body">Linear search — simple, slow for many IDs. Table/binary search — faster. Hash search — O(1) but complex. Filter can use: exact CanId, range (upper+lower limit), or base+mask. Priority: exact CanId &gt; smaller range &gt; larger range.</p>
+  </div>
+
+  <p class="sec-hdr">Transmit Buffering (BasicCAN only — NOT for CAN XL)</p>
+  <div class="card">
+    <p class="card-body">If Can_Write() returns <strong>CAN_BUSY</strong> (HW mailbox occupied), CanIf can buffer the L-PDU in software CanIfTxBuffer — but only if:<br>
+    1. CanIfPublicTxBuffering = TRUE<br>
+    2. CanIfBufferSize &gt; 0 for that HTH<br>
+    3. Not already buffered (CanIf overwrites if same PduId)<br>
+    4. Buffer not full (if full and new PduId → return E_NOT_OK)<br><br>
+    On next TxConfirmation callback, CanIf drains the buffer in <strong>CAN priority order (ISO 11898-1)</strong>, not FIFO. Data integrity protected via SchM exclusive areas (SchM_Enter/Exit_CanIf).</p>
+  </div>
+
+  <p class="sec-hdr">DLC (Data Length Check)</p>
+  <div class="card">
+    <p class="card-body">CanIf accepts Rx L-PDUs with received length <strong>≥ configured CanIfRxPduDataLength</strong>.<br>
+    If check fails → report CANIF_E_INVALID_DATA_LENGTH to DET as runtime error.<br>
+    DLC check enabled globally by CanIfPrivateDataLengthCheck; can be disabled per-PDU via CanIfRxPduDataLengthCheck.<br><br>
+    Tx size limits: Classic CAN max 8 bytes, CAN FD max 64 bytes, CAN XL max 2048 bytes.</p>
+  </div>
+
+  <p class="sec-hdr">Wake-up sequence</p>
+  <div class="card">
+    <p class="card-body">
+    1. Sleep → CAN bus activity detected → EcuM wakes up<br>
+    2. EcuM calls <span class="fn">CanIf_CheckWakeup(WakeupSource)</span> → CanIf queries CanDrv/CanTrcv<br>
+    3. If confirmed → CanIf_SetControllerMode(CS_STARTED)<br>
+    4. CanIf_SetPduMode(CANIF_TX_OFFLINE) — listen only for validation<br>
+    5. First valid Rx → stored internally. CanIf_CheckValidation() → calls User_ValidateWakeupEvent()<br>
+    6. On validation success → PDU mode set to CANIF_ONLINE<br><br>
+    <strong>Validation options:</strong> CanIfPublicWakeupCheckValidByNM=TRUE → only NM PDUs count; FALSE → any Rx PDU validates.</p>
+  </div>
+
+  <p class="sec-hdr">Partial Networking (PN)</p>
+  <div class="card">
+    <p class="card-body">PnTxFilter: enabled at init and on CS_SLEEP. Blocks ALL Tx requests except the configured CanIfTxPduPnFilterPdu (NM wakeup frame). Disabled when TxConfirmation of that frame arrives, or on any RxIndication while PN active. This ensures the first transmitted frame is always the NM wakeup frame — critical for PN-capable nodes to wake their peers.</p>
+  </div>
+
+  <p class="sec-hdr">CAN FD & CAN XL support</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-title">CAN FD</p><p class="card-body">Up to 64 bytes. Indicated by 2nd MSB of Can_IdType. Configured via CanIfTxPduCanIdType. Falls back to classic if no FD baud rate configured. Same CanId space — each ID used only once.</p></div>
+    <div class="card"><p class="card-title">CAN XL</p><p class="card-body">Up to 2048 bytes. Uses CanXL_Write() instead of Can_Write(). New attributes: PriorityID (not linked to content), SDU Type, VCID (virtual network), Acceptance Field. No CanIf Tx buffering for XL frames.</p></div>
+  </div>
+</div>
+
+<!-- ============ API REFERENCE ============ -->
+<div id="panel-api" class="panel">
+  <input class="search-input" type="text" placeholder="Filter functions... (e.g. Controller, Pdu, Transmit)" oninput="filterApi(this.value)" id="api-search">
+
+  <p class="sec-hdr">Service Functions (Called by upper layers)</p>
+  <table class="api-table" id="api-tbl">
+    <thead><tr><th>Function</th><th>SID</th><th>Sync?</th><th>Key behaviour & return</th></tr></thead>
+    <tbody id="api-body"></tbody>
+  </table>
+
+  <p class="sec-hdr" style="margin-top:1.5rem;">Callback Notifications (Called BY CanDrv → CanIf)</p>
+  <table class="api-table">
+    <thead><tr><th>Callback</th><th>Source</th><th>What CanIf does</th></tr></thead>
+    <tbody>
+      <tr><td class="fn">CanIf_TxConfirmation(PduIdType)</td><td>CanDrv ISR</td><td>Notify upper layer via LSduR_CanIfTxConfirmation(E_OK). Drain Tx buffer for that HTH.</td></tr>
+      <tr><td class="fn">CanIf_RxIndication(Can_HwType*, PduInfoType*)</td><td>CanDrv ISR</td><td>SW filter → DLC check → buffer → LSduR_CanIfRxIndication(). Must be reentrant.</td></tr>
+      <tr><td class="fn">CanIf_XLRxIndication(CanXL_HwType*, PduInfoType*)</td><td>CanDrv ISR</td><td>Same as RxIndication but for CAN XL frames with XL params.</td></tr>
+      <tr><td class="fn">CanIf_ControllerBusOff(uint8 ControllerId)</td><td>CanDrv ISR</td><td>Set PDU ch. to TX_OFFLINE. Call CanSM_ControllerBusOff(). Report SEV_CAN_ERRORSTATE_BUSOFF.</td></tr>
+      <tr><td class="fn">CanIf_ControllerModeIndication(uint8, Can_ControllerStateType)</td><td>CanDrv</td><td>Store new mode. Call CanSM_ControllerModeIndication().</td></tr>
+      <tr><td class="fn">CanIf_TrcvModeIndication(uint8, CanTrcv_TrcvModeType)</td><td>CanTrcv</td><td>Call CanSM_TransceiverModeIndication().</td></tr>
+      <tr><td class="fn">CanIf_TriggerTransmit(PduIdType, PduInfoType*)</td><td>CanDrv</td><td>Fetch data from upper layer just-in-time for triggered Tx. Upper layer fills PduInfo buffer.</td></tr>
+      <tr><td class="fn">CanIf_ControllerErrorStatePassive(uint8, uint8, uint8)</td><td>CanDrv</td><td>Report SEV_CAN_ERRORSTATE_PASSIVE when TEC or REC &gt; 127.</td></tr>
+      <tr><td class="fn">CanIf_ErrorNotification(uint8, Can_ErrorType)</td><td>CanDrv</td><td>Evaluate Tx vs Rx error → report SEV_CAN_TX/RX_ERROR_DETECTED.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sec-hdr" style="margin-top:1.5rem;">Type definitions (know these cold)</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-title">CanIf_PduModeType</p><p class="card-body"><span class="fn">CANIF_OFFLINE=0x00, CANIF_TX_OFFLINE=0x01,<br>CANIF_TX_OFFLINE_ACTIVE=0x02, CANIF_ONLINE=0x03</span></p></div>
+    <div class="card"><p class="card-title">CanIf_NotifStatusType</p><p class="card-body"><span class="fn">CANIF_NO_NOTIFICATION=0x00,<br>CANIF_TX_RX_NOTIFICATION</span> — returned by ReadTxNotifStatus / ReadRxNotifStatus (read-and-clear)</p></div>
+    <div class="card"><p class="card-title">CanIf_ConfigType</p><p class="card-body">Post-build configuration structure. Passed to CanIf_Init(). Contains all L-PDU, controller, transceiver, and HOH config. Implementation-specific internals.</p></div>
+    <div class="card"><p class="card-title">Can_IdType (from CanDrv)</p><p class="card-body">MSB=Extended ID flag, 2nd MSB=CAN FD flag. CanIf sets these bits before calling Can_Write() based on CanIfTxPduCanIdType.</p></div>
+  </div>
+</div>
+
+<!-- ============ SEQUENCE DIAGRAMS ============ -->
+<div id="panel-seq" class="panel">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="seq-btns"></div>
+  <div id="seq-display" class="card"></div>
+</div>
+
+<!-- ============ ERRORS & DEBUG ============ -->
+<div id="panel-errors" class="panel">
+  <p class="sec-hdr">Development Errors (DET — reported by Det_ReportError)</p>
+  <div class="card">
+    <div class="err-row" style="font-weight:500;font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;border-bottom:0.5px solid var(--color-border-secondary);">
+      <span>Value</span><span>Error Code</span><span>Typical cause / debug tip</span>
+    </div>
+    <div class="err-row"><span class="err-num">10</span><span class="err-code">CANIF_E_PARAM_CANID</span><span style="color:var(--color-text-secondary)">Invalid CanId passed to SetDynamicTxId. Check MSBs of Can_IdType.</span></div>
+    <div class="err-row"><span class="err-num">12</span><span class="err-code">CANIF_E_PARAM_HOH</span><span style="color:var(--color-text-secondary)">HOH ID out of configured range. Check CanDrv HOH numbering starts at 0.</span></div>
+    <div class="err-row"><span class="err-num">13</span><span class="err-code">CANIF_E_PARAM_LPDU</span><span style="color:var(--color-text-secondary)">L-PDU ID does not exist in config. Verify CanIfTxPduId / CanIfRxPduId.</span></div>
+    <div class="err-row"><span class="err-num">15</span><span class="err-code">CANIF_E_PARAM_CONTROLLERID</span><span style="color:var(--color-text-secondary)">ControllerId not in [0, N-1]. Check CanIfCtrlId configuration. Common integration bug.</span></div>
+    <div class="err-row"><span class="err-num">16</span><span class="err-code">CANIF_E_PARAM_WAKEUPSOURCE</span><span style="color:var(--color-text-secondary)">WakeupSource bitmask invalid. Check EcuMWakeupSource reference in CanIf config.</span></div>
+    <div class="err-row"><span class="err-num">17</span><span class="err-code">CANIF_E_PARAM_TRCV</span><span style="color:var(--color-text-secondary)">Invalid TransceiverId. Check CanIfTrcvId range. Common when transceiver not configured.</span></div>
+    <div class="err-row"><span class="err-num">20</span><span class="err-code">CANIF_E_PARAM_POINTER</span><span style="color:var(--color-text-secondary)">NULL pointer passed. Always check output ptr parameters before calling GetControllerMode etc.</span></div>
+    <div class="err-row"><span class="err-num">21</span><span class="err-code">CANIF_E_PARAM_CTRLMODE</span><span style="color:var(--color-text-secondary)">ControllerMode not one of STARTED/STOPPED/SLEEP. Check caller (CanSm) state machine.</span></div>
+    <div class="err-row"><span class="err-num">22</span><span class="err-code">CANIF_E_PARAM_PDU_MODE</span><span style="color:var(--color-text-secondary)">Invalid PduModeRequest (not 0x00–0x03). Check CanIf_PduModeType enum usage.</span></div>
+    <div class="err-row"><span class="err-num">30</span><span class="err-code">CANIF_E_UNINIT</span><span style="color:var(--color-text-secondary)">API called before CanIf_Init(). EcuM init sequence issue. All APIs except Init and GetVersionInfo need initialization.</span></div>
+    <div class="err-row"><span class="err-num">50</span><span class="err-code">CANIF_E_INVALID_TXPDUID</span><span style="color:var(--color-text-secondary)">TxPduId not configured in CanIfTxPduCfg. Frequent during integration — verify PduRouter Tx path.</span></div>
+    <div class="err-row"><span class="err-num">60</span><span class="err-code">CANIF_E_INVALID_RXPDUID</span><span style="color:var(--color-text-secondary)">RxPduId not configured. Check CanIfRxPduCfg and CanIfPublicReadRxPduDataApi.</span></div>
+    <div class="err-row"><span class="err-num">80</span><span class="err-code">CANIF_E_INIT_FAILED</span><span style="color:var(--color-text-secondary)">CanIf_Init() internal failure. ConfigPtr invalid or hardware not ready.</span></div>
+  </div>
+
+  <p class="sec-hdr">Runtime Errors (reported by Det_ReportRuntimeError)</p>
+  <div class="card">
+    <div class="err-row"><span class="err-num">61</span><span class="err-code">CANIF_E_INVALID_DATA_LENGTH</span><span style="color:var(--color-text-secondary)">Received DLC &lt; configured CanIfRxPduDataLength. DLC check failed. Possible bus corruption or wrong config.</span></div>
+    <div class="err-row"><span class="err-num">62</span><span class="err-code">CANIF_E_DATA_LENGTH_MISMATCH</span><span style="color:var(--color-text-secondary)">Tx SduLength &gt; max for frame type, or buffer too small. Check PduRouter Tx data length vs CanIf PDU config.</span></div>
+    <div class="err-row"><span class="err-num">70</span><span class="err-code">CANIF_E_STOPPED</span><span style="color:var(--color-text-secondary)">Transmit request while PDU channel is CANIF_OFFLINE. Ensure SetPduMode(CANIF_ONLINE) called after CS_STARTED.</span></div>
+    <div class="err-row"><span class="err-num">90</span><span class="err-code">CANIF_E_TXPDU_LENGTH_EXCEEDED</span><span style="color:var(--color-text-secondary)">Tx SduLength &gt; global PDU size (ECUCC). Set CanIfTxPduTruncation=TRUE to auto-truncate instead.</span></div>
+  </div>
+
+  <p class="sec-hdr">Security Events (IdsM — R24-11 feature)</p>
+  <div class="card">
+    <div class="err-row"><span class="err-num">19</span><span class="err-code" style="background:#FEF9EC;color:#854F0B;">SEV_CAN_TX_ERROR_DETECTED</span><span style="color:var(--color-text-secondary)">Tx error from ErrorNotification: bit monitoring, ACK fail, arbitration lost, overload. Context: ControllerId + CanError.</span></div>
+    <div class="err-row"><span class="err-num">20</span><span class="err-code" style="background:#FEF9EC;color:#854F0B;">SEV_CAN_RX_ERROR_DETECTED</span><span style="color:var(--color-text-secondary)">Rx error: form check, stuffing, CRC fail, bus lock. Context: ControllerId + CanError byte.</span></div>
+    <div class="err-row"><span class="err-num">21</span><span class="err-code" style="background:#FEF9EC;color:#854F0B;">SEV_CAN_ERRORSTATE_PASSIVE</span><span style="color:var(--color-text-secondary)">TEC or REC &gt; 127. Controller still participates but cannot send error frames actively. Watch counters.</span></div>
+    <div class="err-row"><span class="err-num">22</span><span class="err-code" style="background:#FEF9EC;color:#854F0B;">SEV_CAN_ERRORSTATE_BUSOFF</span><span style="color:var(--color-text-secondary)">TEC &gt; 255. Controller off bus. CanSm handles recovery (automatic or manual per CanSmBusOffRecovery).</span></div>
+  </div>
+
+  <p class="sec-hdr">Debugging checklist — interface testing</p>
+  <div class="card">
+    <p class="card-body">
+    <strong>1. Tx side</strong> — Is controller in CS_STARTED? Is PDU channel CANIF_ONLINE? Is TxPduId valid? Is CanIf_Init() called? Is PnTxFilter active (blocking all but NM frame)?<br><br>
+    <strong>2. Rx side</strong> — Is HRH BasicCAN? If so, is software filter enabled and CanId in HRH range? Does received DLC ≥ configured length? Is PDU channel mode allowing Rx?<br><br>
+    <strong>3. BusOff recovery</strong> — CanSm calls CanIf_SetControllerMode(CS_STOPPED) then (CS_STARTED). Check PDU mode after: should be TX_OFFLINE until CanSm explicitly sets ONLINE.<br><br>
+    <strong>4. Wakeup not working</strong> — Check CanIfPublicWakeupCheckValidSupport=TRUE. Check EcuMWakeupSourceRef in CanIfCtrlCfg. Ensure CS_STARTED before CheckValidation. PDU mode must NOT be ONLINE during validation.<br><br>
+    <strong>5. Multiple drivers</strong> — Each CanDrv has own HOH numbering from 0. CanIf maps them via CanIfCtrlDrvCfg. Ensure ControllerId abstraction is consistent. Callbacks identify driver via Mailbox.ControllerId.</p>
+  </div>
+</div>
+
+<!-- ============ DAVINCI CONFIG ============ -->
+<div id="panel-config" class="panel">
+  <div class="card">
+    <p class="card-title">Vector DaVinci Configurator — CanIf setup workflow</p>
+    <p class="card-body">Open DaVinci Developer or DaVinci Configurator Pro. Navigate to: BSW → CanIf. Below is the container hierarchy and key parameters.</p>
+  </div>
+
+  <p class="sec-hdr">Configuration Container Hierarchy</p>
+  <div class="card">
+    <div class="cfg-row"><span class="cfg-key">CanIf</span><span class="cfg-val">Top-level module container. Holds all sub-containers.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfPublicCfg</span><span class="cfg-val">Global feature enables: TxBuffering, ReadRxPduDataApi, ReadTxNotifStatus, PnSupport, BusMirroring, WakeupCheckValidSupport, MultipleDriverSupport, TxOfflineActiveSupport, SetDynamicTxIdApi</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfPrivateCfg</span><span class="cfg-val">SoftwareFilterType (LINEAR/BINARY/INDEX/TABLE), DataLengthCheck (global DLC enable)</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfInitCfg</span><span class="cfg-val">Initialization config set container (supports post-build). Contains Tx/Rx PDU configs.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfCtrlDrvCfg</span><span class="cfg-val">One per CanDrv. Links CanIf to physical CanDrv module instance.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfCtrlCfg</span><span class="cfg-val">One per CAN Controller. Key params: CanIfCtrlId (abstract ID), CanIfCtrlCanCtrlRef (→CanDrv controller), CanIfCtrlWakeupSupport</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfTrcvDrvCfg / CanIfTrcvCfg</span><span class="cfg-val">One per transceiver driver / transceiver instance. CanIfTrcvId (abstract), CanIfTrcvCanTrcvRef</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfInitHohCfg</span><span class="cfg-val">HOH configuration block (links to CanDrv HOHs)</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfHthCfg</span><span class="cfg-val">Per HTH: CanIfHthCanCtrlIdRef (→CanIfCtrlCfg), CanIfHthIdSymRef (→Can HTH object). Type: BASIC or FULL CAN.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfHrhCfg</span><span class="cfg-val">Per HRH: CanIfHrhCanCtrlIdRef, CanIfHrhIdSymRef, CanIfHrhSoftwareFilter (TRUE/FALSE). Contains CanIfHrhRangeCfg for BasicCAN range.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfHrhRangeCfg</span><span class="cfg-val">CanId range for BasicCAN SW filter: CanIfHrhRangeRxPduLowerCanId, CanIfHrhRangeRxPduUpperCanId (or BaseId+Mask). CanIfHrhRangeRxPduRangeCanIdType (STANDARD/EXTENDED)</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfBufferCfg</span><span class="cfg-val">Software Tx buffer: CanIfBufferHthRef (→CanIfHthCfg), CanIfBufferSize (0=just HTH reference, >0=actual buffer slots)</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfTxPduCfg</span><span class="cfg-val">Per Tx PDU: CanIfTxPduId, CanIfTxPduCanId, CanIfTxPduCanIdType (STANDARD_CAN/EXTENDED_CAN/STANDARD_FD/EXTENDED_FD), CanIfTxPduType (STATIC/DYNAMIC), CanIfTxPduBufferRef (→CanIfBufferCfg), CanIfTxPduTriggerTransmit, CanIfTxPduPnFilterPdu, CanIfTxPduReadNotifyStatus</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfRxPduCfg</span><span class="cfg-val">Per Rx PDU: CanIfRxPduId, CanIfRxPduCanId, CanIfRxPduCanIdMask, CanIfRxPduCanIdType, CanIfRxPduDataLength, CanIfRxPduHrhIdRef (→HRH), CanIfRxPduReadData, CanIfRxPduReadNotifyStatus, CanIfRxPduUserRxIndicationName (callback fn name), CanIfRxPduUserRxIndicationUL (module: PDUR/CANNM/CANTP/CDD)</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfDispatchCfg</span><span class="cfg-val">Configurable interface callbacks: User_ControllerBusOff, User_ControllerModeIndication, User_TrcvModeIndication, User_ValidateWakeupEvent — maps to CanSm or CDD</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanIfSecurityEventRefs</span><span class="cfg-val">IdsM security event references. CanIfEnableSecurityEventReporting=TRUE to activate.</span></div>
+  </div>
+
+  <p class="sec-hdr">Step-by-step DaVinci configuration for a new CAN network</p>
+  <div class="card">
+    <p class="card-body">
+    <strong>Step 1: Add CanIfCtrlDrvCfg</strong> — one per CanDrv module. Set reference to your CanDrv instance.<br>
+    <strong>Step 2: Add CanIfCtrlCfg</strong> — assign CanIfCtrlId=0 (or sequential). Reference the CanDrv controller object. Set wake-up support if needed.<br>
+    <strong>Step 3: Configure HOHs</strong> — add CanIfHthCfg and CanIfHrhCfg. Reference the HTH/HRH objects from CanDrv. Set BasicCAN/FullCAN type. For BasicCAN HRH, add CanIfHrhRangeCfg with CanId range and enable CanIfHrhSoftwareFilter.<br>
+    <strong>Step 4: Add CanIfBufferCfg</strong> — one per HTH (minimum). Set size=0 if no buffering, or &gt;0 for software buffering of BasicCAN.<br>
+    <strong>Step 5: Configure Tx PDUs (CanIfTxPduCfg)</strong> — one per signal/PDU to transmit. Set CanId, type, buffer reference. Set callback user (PduR, CanNm, etc.). Generate symbolic name matching PduRouter config.<br>
+    <strong>Step 6: Configure Rx PDUs (CanIfRxPduCfg)</strong> — one per signal/PDU to receive. Set CanId, DLC, HRH reference, upper layer callback. Set CanIfRxPduDataLength carefully (≤ actual frame data length).<br>
+    <strong>Step 7: CanIfPublicCfg</strong> — enable/disable features. Match with other module configs (PduR, CanSm, CanNm).<br>
+    <strong>Step 8: CanIfDispatchCfg</strong> — connect BusOff, mode indication callbacks to CanSm functions.<br>
+    <strong>Step 9: Generate code</strong> — DaVinci generates CanIf_PBcfg.c/h with all static tables. Verify generated CanIf_Init(ConfigPtr) call in EcuM_AL_DriverInitOne().</p>
+  </div>
+
+  <p class="sec-hdr">Common DaVinci integration mistakes</p>
+  <div class="card">
+    <p class="card-body">
+    • Tx PDU not linked to correct CanIfBufferCfg → transmit silently fails<br>
+    • HRH BasicCAN range too wide → unrelated frames passed to upper layer (false Rx)<br>
+    • CanIfRxPduDataLength &gt; actual frame size → every Rx triggers DLC error<br>
+    • Missing CanIfDispatchCfg callback → BusOff not forwarded to CanSm → network stuck<br>
+    • CanIfCtrlId mismatch between CanIf and CanSm configs → CANIF_E_PARAM_CONTROLLERID at runtime<br>
+    • CanIfTxPduCanIdType EXTENDED but CanDrv HTH configured for STANDARD → wrong MSBs on bus<br>
+    • PnTxFilter not considered → first Tx frame is not NM frame → PN peers stay asleep</p>
+  </div>
+</div>
+
+<script>
+const APIs = [
+  {fn:'CanIf_Init(ConfigPtr)',sid:'0x01',sync:'SYNC',desc:'Initialize CanIf. Called only by EcuM. Inits all vars, buffers, flags. Controllers remain NOT started.', ret:'void'},
+  {fn:'CanIf_DeInit()',sid:'0x02',sync:'SYNC',desc:'De-initialize CanIf. Caller must ensure no ongoing Tx/Rx or pending confirmations.', ret:'void'},
+  {fn:'CanIf_SetControllerMode(ControllerId, ControllerMode)',sid:'0x03',sync:'ASYNC',desc:'Request mode change to STARTED/STOPPED/SLEEP. Actual transition confirmed via CanIf_ControllerModeIndication() callback. Returns E_OK if request accepted.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetControllerMode(ControllerId, *ModePtr)',sid:'0x04',sync:'SYNC',desc:'Read current controller mode. Fills *ModePtr. Returns E_NOT_OK if uninit or invalid ID.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetControllerErrorState(ControllerId, *ErrorStatePtr)',sid:'0x4b',sync:'SYNC',desc:'Read CAN error state: CAN_ERRORSTATE_ACTIVE / PASSIVE / BUSOFF. Key for diagnostics.', ret:'Std_ReturnType'},
+  {fn:'CanIf_Transmit(TxPduId, *PduInfoPtr)',sid:'0x49',sync:'SYNC',desc:'Request Tx. Maps PduId→HTH→Can_Write(). Returns E_OK even if buffered. Reentrant for different PduIds.', ret:'Std_ReturnType'},
+  {fn:'CanIf_ReadRxPduData(RxSduId, *RxInfoPtr)',sid:'0x06',sync:'SYNC',desc:'Poll latest received data for an Rx PDU. Requires CanIfPublicReadRxPduDataApi=TRUE and CanIfRxPduReadData=TRUE per PDU.', ret:'Std_ReturnType'},
+  {fn:'CanIf_ReadTxNotifStatus(TxSduId)',sid:'0x07',sync:'SYNC',desc:'Read-and-clear Tx confirmation flag. Returns CANIF_TX_RX_NOTIFICATION if confirmed since last call. Requires CanIfPublicReadTxPduNotifyStatusApi=TRUE.', ret:'CanIf_NotifStatusType'},
+  {fn:'CanIf_ReadRxNotifStatus(RxSduId)',sid:'0x08',sync:'SYNC',desc:'Read-and-clear Rx indication flag. Returns CANIF_TX_RX_NOTIFICATION if received since last call.', ret:'CanIf_NotifStatusType'},
+  {fn:'CanIf_SetPduMode(ControllerId, PduModeRequest)',sid:'0x09',sync:'SYNC',desc:'Set channel PDU mode. Only valid when CS_STARTED. Returns E_NOT_OK otherwise.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetPduMode(ControllerId, *PduModePtr)',sid:'0x0a',sync:'SYNC',desc:'Read current PDU channel mode. Reentrant for different channels.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetVersionInfo(*VersionInfo)',sid:'0x0b',sync:'SYNC',desc:'Read module version info (BSW standard function). Reentrant.', ret:'void'},
+  {fn:'CanIf_SetDynamicTxId(TxSduId, CanId)',sid:'0x0c',sync:'SYNC',desc:'Runtime CanId change for DYNAMIC Tx PDUs. Only for DYNAMIC type. Not valid for CAN XL PDUs. May conflict with concurrent Transmit — use exclusive areas.', ret:'void'},
+  {fn:'CanIf_SetTrcvMode(TransceiverId, TrcvMode)',sid:'0x0d',sync:'ASYNC',desc:'Set transceiver mode (NORMAL/STANDBY/SLEEP). Forwarded to CanTrcv_SetOpMode(). Transition confirmed via TrcvModeIndication callback.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetTrcvMode(TransceiverId, *ModePtr)',sid:'0x0e',sync:'SYNC',desc:'Read current transceiver mode via CanTrcv_GetOpMode().', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetTrcvWakeupReason(TransceiverId, *ReasonPtr)',sid:'0x0f',sync:'SYNC',desc:'Read why transceiver woke up (BUS/INTERNAL/RESET/POWER_ON/PIN/SYSERR). Per-network view — no voting.', ret:'Std_ReturnType'},
+  {fn:'CanIf_SetTrcvWakeupMode(TransceiverId, WakeupMode)',sid:'0x10',sync:'SYNC',desc:'Enable/Disable/Clear transceiver wakeup notifications. CLEAR clears buffered events when notifications disabled.', ret:'Std_ReturnType'},
+  {fn:'CanIf_CheckWakeup(WakeupSource)',sid:'0x11',sync:'ASYNC',desc:'Called by EcuM. CanIf queries all CanDrv/CanTrcv for wake source. Returns E_OK if at least one confirms.', ret:'Std_ReturnType'},
+  {fn:'CanIf_CheckValidation(WakeupSource)',sid:'0x12',sync:'SYNC',desc:'Called by EcuM. If first valid RxIndication stored → calls User_ValidateWakeupEvent(). Validates that network is really active.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetTxConfirmationState(ControllerId)',sid:'0x19',sync:'SYNC',desc:'Returns CANIF_TX_RX_NOTIFICATION if TxConfirmation occurred on that controller since last call. Requires CanIfPublicTxConfirmPollingSupport=TRUE.', ret:'CanIf_NotifStatusType'},
+  {fn:'CanIf_SetBaudrate(ControllerId, BaudrateConfigID)',sid:'0x27',sync:'ASYNC',desc:'Change CAN baud rate at runtime. Forwarded to Can_SetBaudrate(). Controller must be in STOPPED mode.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetControllerRxErrorCounter(ControllerId, *Counter)',sid:'0x30',sync:'SYNC',desc:'Read hardware REC (Receive Error Counter). >127 = error passive. >255 = bus-off.', ret:'Std_ReturnType'},
+  {fn:'CanIf_GetControllerTxErrorCounter(ControllerId, *Counter)',sid:'0x31',sync:'SYNC',desc:'Read hardware TEC (Transmit Error Counter). Critical for debugging bus integrity.', ret:'Std_ReturnType'},
+  {fn:'CanIf_EnableBusMirroring(ControllerId, MirroringActive)',sid:'0x32',sync:'SYNC',desc:'Activate/deactivate Bus Mirroring per controller. When active, every Tx/Rx frame forwarded to Mirror_ReportCanFrame().', ret:'Std_ReturnType'},
+];
+
+function buildApiTable() {
+  const tbody = document.getElementById('api-body');
+  tbody.innerHTML = APIs.map(a => `<tr>
+    <td class="fn">${a.fn}</td>
+    <td style="font-family:var(--font-mono);font-size:11px;">${a.sid}</td>
+    <td><span class="badge ${a.sync==='SYNC'?'badge-sync':'badge-async'}">${a.sync}</span></td>
+    <td>${a.desc}</td>
+  </tr>`).join('');
+}
+function filterApi(q) {
+  const qq = q.toLowerCase();
+  const rows = document.querySelectorAll('#api-body tr');
+  rows.forEach(r => { r.style.display = q==='' || r.textContent.toLowerCase().includes(qq) ? '' : 'none'; });
+}
+
+const TX_STEPS = [
+  '<strong>Upper layer (PduR/CanNm/CanTp) calls CanIf_Transmit(TxPduId, PduInfoPtr)</strong><br>PduInfoPtr contains: SduDataPtr (payload pointer), SduLength, MetaDataPtr (optional, for dynamic CanId or CAN XL params). For trigger-transmit PDUs, SduDataPtr may be NULL — data fetched later.',
+  '<strong>CanIf pre-checks before calling CanDrv:</strong><br>1. Is CanIf initialized? (CANIF_E_UNINIT if not)<br>2. Is TxPduId valid? (CANIF_E_INVALID_TXPDUID)<br>3. Is controller in CS_STARTED? (E_NOT_OK if not)<br>4. Is PDU channel mode at least ONLINE or TX_OFFLINE_ACTIVE? (CANIF_E_STOPPED if OFFLINE)<br>5. Is SduLength within frame type limit? (CANIF_E_DATA_LENGTH_MISMATCH if exceeded)<br>6. Is PnTxFilter active? (block if not the PN filter PDU)',
+  '<strong>CanIf calls Can_Write(HTH, Can_PduType*)</strong> (or CanXL_Write for CAN XL)<br>Can_PduType contains: swPduHandle=TxPduId, length, id (with MSBs set for extended/FD), sdu=data pointer. HTH resolved from CanIfBufferCfg linked to TxPduId. If Bus Mirroring enabled → store frame content now for later Mirror_ReportCanFrame() in TxConfirmation.',
+  '<strong>If Can_Write() returns CAN_BUSY:</strong><br>HW mailbox occupied (another frame pending). If buffering enabled (CanIfBufferSize>0): store in CanIfTxBuffer. Overwrite if same PduId already buffered. Return E_OK to upper layer (transparent retry). If buffer full and different PduId → return E_NOT_OK. Buffer protected by SchM_Enter/Exit_CanIf exclusive areas to prevent data races.',
+  '<strong>When HW confirms transmission → CanIf_TxConfirmation(TxPduId) called by CanDrv ISR:</strong><br>1. If Bus Mirroring active → Mirror_ReportCanFrame(). 2. Drain CanIfTxBuffer for this HTH — pick highest CAN priority PDU, call Can_Write() again. 3. Notify upper layer via LSduR_CanIfTxConfirmation(PduId, E_OK). 4. Update notification status if ReadTxNotifStatus enabled.',
+];
+
+const RX_STEPS = [
+  '<strong>CAN frame arrives → CanDrv ISR fires → CanIf_RxIndication(Mailbox*, PduInfoPtr*) called</strong><br>Mailbox contains: HRH (identifies which HW receive object fired), CanId (received ID with type bits), ControllerId. PduInfoPtr contains received data pointer and length. If multiple CanDrvs: all share one CanIf_RxIndication — ControllerId in Mailbox identifies the driver.',
+  '<strong>Software filter (only for BasicCAN HRH where CanIfHrhSoftwareFilter=TRUE):</strong><br>CanIf searches the configured Rx L-PDU list for this HRH. Compares received CanId against configured CanIfRxPduCanId (and type bits from MSBs). Uses configured algorithm (linear/table/hash). Priority: exact CanId > smaller range > larger range. If no match → frame silently discarded. For FullCAN HRH → direct mapping, no search.',
+  '<strong>Data Length Check (if CanIfPrivateDataLengthCheck=TRUE and not disabled per PDU):</strong><br>Compare received length with CanIfRxPduDataLength. Must be ≥ (not strictly equal — allows padding bytes). If fail → CANIF_E_INVALID_DATA_LENGTH runtime error to DET. PDU discarded. If pass → copy length from received frame (not configured value) to upper layer.',
+  '<strong>Buffer and dispatch:</strong><br>If CanIfRxPduReadData=TRUE → copy received data to static Rx buffer (for polling via CanIf_ReadRxPduData). If Bus Mirroring active → Mirror_ReportCanFrame(). Call LSduR_CanIfRxIndication(CanRxPduId, PduInfoPtr) — routes to PduR/CanNm/CanTp based on CanIfRxPduUserRxIndicationUL. Update Rx notification status if enabled. CAN HW object unlocked immediately on return.',
+];
+
+let currentTxStep = 0, currentRxStep = 0;
+function setTxStep(i) {
+  currentTxStep = i;
+  document.getElementById('tx-step').innerHTML = TX_STEPS[i];
+  document.querySelectorAll('#panel-functional .seq-btn').forEach((b,j) => b.classList.toggle('sel', j===i));
+}
+function setRxStep(i) {
+  currentRxStep = i;
+  document.getElementById('rx-step').innerHTML = RX_STEPS[i];
+  const btns = document.querySelectorAll('#panel-functional .seq-btn');
+  btns.forEach((b,j) => { if(j>=5) b.classList.toggle('sel', j-5===i); });
+}
+
+const SEQS = [
+  { name:'Transmit (interrupt)', html:`
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;">Interrupt-driven: CanDrv ISR calls CanIf_TxConfirmation directly.</p>
+  <svg width="100%" viewBox="0 0 640 260">
+  <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="10" y="10" width="80" height="28" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="50" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">PduR/CanNm</text>
+  <rect x="200" y="10" width="80" height="28" rx="6" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="240" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">CanIf</text>
+  <rect x="390" y="10" width="80" height="28" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="430" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">CanDrv</text>
+  <rect x="560" y="10" width="70" height="28" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="595" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">CAN HW</text>
+  <line x1="50" y1="38" x2="50" y2="250" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="240" y1="38" x2="240" y2="250" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="430" y1="38" x2="430" y2="250" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="595" y1="38" x2="595" y2="250" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="50" y1="70" x2="235" y2="70" stroke="#534AB7" stroke-width="1" marker-end="url(#a3)"/><text x="142" y="64" text-anchor="middle" font-size="10" fill="#534AB7">CanIf_Transmit(TxPduId, Info)</text>
+  <line x1="240" y1="90" x2="425" y2="90" stroke="#3B6D11" stroke-width="1" marker-end="url(#a3)"/><text x="332" y="84" text-anchor="middle" font-size="10" fill="#3B6D11">Can_Write(HTH, PduType)</text>
+  <line x1="430" y1="110" x2="580" y2="110" stroke="#BA7517" stroke-width="1" marker-end="url(#a3)"/><text x="505" y="104" text-anchor="middle" font-size="10" fill="#BA7517">Copy to HW mailbox</text>
+  <line x1="595" y1="140" x2="435" y2="140" stroke="#888780" stroke-width="1" marker-end="url(#a3)" stroke-dasharray="4 2"/><text x="515" y="134" text-anchor="middle" font-size="10" fill="#888780">Tx ISR fires</text>
+  <line x1="430" y1="160" x2="245" y2="160" stroke="#BA7517" stroke-width="1" marker-end="url(#a3)"/><text x="337" y="154" text-anchor="middle" font-size="10" fill="#BA7517">CanIf_TxConfirmation(HTH)</text>
+  <line x1="240" y1="180" x2="55" y2="180" stroke="#3B6D11" stroke-width="1" marker-end="url(#a3)"/><text x="147" y="174" text-anchor="middle" font-size="10" fill="#3B6D11">LSduR_CanIfTxConfirmation(E_OK)</text>
+  <text x="50" y="210" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">upper layer</text>
+  <text x="240" y="210" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">CanIf</text>
+  <text x="430" y="210" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">CanDrv</text>
+  <text x="595" y="210" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">CAN bus</text>
+  </svg>`},
+  { name:'Receive (interrupt)', html:`
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;">Interrupt-driven receive indication flow including software filtering.</p>
+  <svg width="100%" viewBox="0 0 640 230">
+  <defs><marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="10" y="10" width="80" height="28" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="50" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">PduR/CanNm</text>
+  <rect x="200" y="10" width="80" height="28" rx="6" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="240" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">CanIf</text>
+  <rect x="390" y="10" width="80" height="28" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="430" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">CanDrv</text>
+  <rect x="560" y="10" width="70" height="28" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="595" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">CAN HW</text>
+  <line x1="50" y1="38" x2="50" y2="220" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="240" y1="38" x2="240" y2="220" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="430" y1="38" x2="430" y2="220" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="595" y1="38" x2="595" y2="220" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="595" y1="65" x2="435" y2="65" stroke="#888780" stroke-width="1" marker-end="url(#a4)" stroke-dasharray="4 2"/><text x="515" y="58" text-anchor="middle" font-size="10" fill="#888780">Rx ISR fires</text>
+  <line x1="430" y1="85" x2="245" y2="85" stroke="#BA7517" stroke-width="1" marker-end="url(#a4)"/><text x="337" y="78" text-anchor="middle" font-size="10" fill="#BA7517">CanIf_RxIndication(Mailbox, Info)</text>
+  <rect x="243" y="98" width="182" height="16" rx="3" fill="#EEEDFE" stroke="none"/><text x="334" y="110" text-anchor="middle" font-size="10" fill="#3C3489">[SW filter + DLC check]</text>
+  <line x1="240" y1="125" x2="55" y2="125" stroke="#3B6D11" stroke-width="1" marker-end="url(#a4)"/><text x="147" y="118" text-anchor="middle" font-size="10" fill="#3B6D11">LSduR_CanIfRxIndication(RxPduId, Info)</text>
+  <text x="240" y="160" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">HW unlocked immediately on return</text>
+  </svg>`},
+  { name:'BusOff recovery', html:`
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;">BusOff event and CanSm-driven recovery sequence.</p>
+  <svg width="100%" viewBox="0 0 640 310">
+  <defs><marker id="a5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="10" y="10" width="70" height="28" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="45" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">CanSm</text>
+  <rect x="180" y="10" width="70" height="28" rx="6" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="215" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">CanIf</text>
+  <rect x="350" y="10" width="70" height="28" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="385" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">CanDrv</text>
+  <line x1="45" y1="38" x2="45" y2="300" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="215" y1="38" x2="215" y2="300" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="385" y1="38" x2="385" y2="300" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <text x="490" y="65" font-size="10" fill="#A32D2D">TEC &gt; 255 → BusOff</text>
+  <line x1="385" y1="75" x2="220" y2="75" stroke="#A32D2D" stroke-width="1" marker-end="url(#a5)"/><text x="302" y="68" text-anchor="middle" font-size="10" fill="#A32D2D">CanIf_ControllerBusOff(CtrlId)</text>
+  <rect x="218" y="85" width="192" height="14" rx="3" fill="#FCEBEB" stroke="none"/><text x="314" y="96" text-anchor="middle" font-size="10" fill="#A32D2D">PDU channel → TX_OFFLINE</text>
+  <line x1="215" y1="108" x2="50" y2="108" stroke="#3B6D11" stroke-width="1" marker-end="url(#a5)"/><text x="132" y="101" text-anchor="middle" font-size="10" fill="#3B6D11">CanSM_ControllerBusOff(CtrlId)</text>
+  <text x="280" y="135" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">— recovery wait (CanSmBusOffRecovery) —</text>
+  <line x1="45" y1="150" x2="210" y2="150" stroke="#534AB7" stroke-width="1" marker-end="url(#a5)"/><text x="127" y="143" text-anchor="middle" font-size="10" fill="#534AB7">CanIf_SetControllerMode(CS_STOPPED)</text>
+  <line x1="215" y1="165" x2="370" y2="165" stroke="#3B6D11" stroke-width="1" marker-end="url(#a5)"/><text x="292" y="158" text-anchor="middle" font-size="10" fill="#3B6D11">Can_SetControllerMode(STOPPED)</text>
+  <line x1="385" y1="185" x2="220" y2="185" stroke="#BA7517" stroke-width="0.8" marker-end="url(#a5)" stroke-dasharray="3 2"/><text x="302" y="178" text-anchor="middle" font-size="10" fill="#888780">ControllerModeIndication(STOPPED)</text>
+  <line x1="215" y1="205" x2="50" y2="205" stroke="#3B6D11" stroke-width="0.8" marker-end="url(#a5)" stroke-dasharray="3 2"/><text x="132" y="198" text-anchor="middle" font-size="10" fill="#888780">CanSM_ControllerModeIndication</text>
+  <line x1="45" y1="225" x2="210" y2="225" stroke="#534AB7" stroke-width="1" marker-end="url(#a5)"/><text x="127" y="218" text-anchor="middle" font-size="10" fill="#534AB7">CanIf_SetControllerMode(CS_STARTED)</text>
+  <line x1="215" y1="245" x2="370" y2="245" stroke="#3B6D11" stroke-width="1" marker-end="url(#a5)"/><text x="292" y="238" text-anchor="middle" font-size="10" fill="#3B6D11">Can_SetControllerMode(STARTED)</text>
+  <text x="300" y="275" font-size="10" fill="var(--color-text-tertiary)">CanSm then calls SetPduMode(CANIF_ONLINE) to resume comms</text>
+  </svg>`},
+  { name:'Start CAN network', html:`
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;">EcuM-driven startup sequence: Init → STOPPED → STARTED → ONLINE.</p>
+  <svg width="100%" viewBox="0 0 640 280">
+  <defs><marker id="a6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="5" y="10" width="60" height="28" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="35" y="28" text-anchor="middle" font-size="10" font-weight="500" fill="#633806">EcuM</text>
+  <rect x="105" y="10" width="60" height="28" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="135" y="28" text-anchor="middle" font-size="10" font-weight="500" fill="#444441">CanSm</text>
+  <rect x="205" y="10" width="60" height="28" rx="6" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="235" y="28" text-anchor="middle" font-size="10" font-weight="500" fill="#27500A">CanIf</text>
+  <rect x="305" y="10" width="60" height="28" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="335" y="28" text-anchor="middle" font-size="10" font-weight="500" fill="#3C3489">CanDrv</text>
+  <rect x="405" y="10" width="70" height="28" rx="6" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="440" y="28" text-anchor="middle" font-size="10" font-weight="500" fill="#444441">CanTrcv</text>
+  <line x1="35" y1="38" x2="35" y2="272" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="135" y1="38" x2="135" y2="272" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="235" y1="38" x2="235" y2="272" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="335" y1="38" x2="335" y2="272" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="440" y1="38" x2="440" y2="272" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="35" y1="65" x2="228" y2="65" stroke="#BA7517" stroke-width="1" marker-end="url(#a6)"/><text x="131" y="58" text-anchor="middle" font-size="9" fill="#BA7517">CanIf_Init(ConfigPtr)</text>
+  <line x1="35" y1="82" x2="328" y2="82" stroke="#BA7517" stroke-width="1" marker-end="url(#a6)"/><text x="181" y="75" text-anchor="middle" font-size="9" fill="#BA7517">Can_Init()</text>
+  <line x1="35" y1="99" x2="433" y2="99" stroke="#BA7517" stroke-width="1" marker-end="url(#a6)"/><text x="234" y="92" text-anchor="middle" font-size="9" fill="#BA7517">CanTrcv_Init()</text>
+  <text x="340" y="118" font-size="9" fill="var(--color-text-tertiary)">— init done, all STOPPED / OFFLINE —</text>
+  <line x1="135" y1="130" x2="228" y2="130" stroke="#888780" stroke-width="1" marker-end="url(#a6)"/><text x="181" y="122" text-anchor="middle" font-size="9" fill="#888780">CanIf_SetControllerMode(CS_STARTED)</text>
+  <line x1="235" y1="147" x2="328" y2="147" stroke="#3B6D11" stroke-width="1" marker-end="url(#a6)"/><text x="281" y="139" text-anchor="middle" font-size="9" fill="#3B6D11">Can_SetControllerMode(START)</text>
+  <line x1="335" y1="164" x2="242" y2="164" stroke="#534AB7" stroke-width="0.8" marker-end="url(#a6)" stroke-dasharray="3 2"/><text x="288" y="157" text-anchor="middle" font-size="9" fill="#888780">ControllerModeIndication(STARTED)</text>
+  <line x1="235" y1="181" x2="142" y2="181" stroke="#3B6D11" stroke-width="0.8" marker-end="url(#a6)" stroke-dasharray="3 2"/><text x="188" y="174" text-anchor="middle" font-size="9" fill="#888780">CanSM_ControllerModeIndication</text>
+  <line x1="135" y1="198" x2="228" y2="198" stroke="#888780" stroke-width="1" marker-end="url(#a6)"/><text x="181" y="190" text-anchor="middle" font-size="9" fill="#888780">CanIf_SetPduMode(CANIF_ONLINE)</text>
+  <text x="320" y="225" font-size="9" fill="var(--color-text-tertiary)">Network fully operational — Tx and Rx enabled</text>
+  </svg>`},
+  { name:'Trigger Transmit', html:`
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;">Trigger-transmit: data fetched just-in-time from upper layer when HW is ready.</p>
+  <div class="card" style="margin-top:0;"><p class="card-body">
+  1. Upper layer calls CanIf_Transmit(TxPduId, PduInfo with NULL SduDataPtr) — registers intent<br>
+  2. CanIf calls Can_Write() with null data pointer (sets up pending transmit request)<br>
+  3. When CAN HW mailbox free → CanDrv calls CanIf_TriggerTransmit(PduId, *PduInfo)<br>
+  4. CanIf forwards to upper layer: upper layer fills PduInfo->SduDataPtr with current data<br>
+  5. CanDrv copies fresh data to HW mailbox → transmission occurs<br>
+  6. TxConfirmation follows as normal<br><br>
+  <strong>When to use:</strong> Periodic signals where data is always changing. Avoids storing stale data in CanIf buffer — always sends the latest value at the moment of actual transmission.
+  </p></div>`},
+];
+
+function buildSeqPanel() {
+  const btnDiv = document.getElementById('seq-btns');
+  btnDiv.innerHTML = SEQS.map((s,i)=>`<button class="seq-btn${i===0?' sel':''}" onclick="showSeq(${i})">${s.name}</button>`).join('');
+  document.getElementById('seq-display').innerHTML = SEQS[0].html;
+}
+function showSeq(i) {
+  document.querySelectorAll('#seq-btns .seq-btn').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('seq-display').innerHTML = SEQS[i].html;
+}
+
+const LAYER_DETAILS = {
+  ecum: '<strong>EcuM (ECU State Manager):</strong> Calls CanIf_Init() at startup. Calls CanIf_CheckWakeup() and CanIf_CheckValidation() during wakeup procedure. CanSm controls controller modes. ComM manages network requests from application.',
+  upper: '<strong>Upper layers:</strong> PduR routes PDUs between stacks. CanNm manages CAN network management frames. CanTp fragments/reassembles large diagnostic messages (ISO 15765-2). XCP used for calibration. CanTSyn for time sync. J1939 for heavy-duty vehicle. All call CanIf_Transmit() to send; all receive via LSduR_CanIfRxIndication() callbacks.',
+  canif: '<strong>CanIf (CAN Interface):</strong> Your module! Provides one unified API regardless of how many CAN controllers or transceivers are underneath. Key abstraction: ControllerId (CanIf-level) maps to physical controller IDs from CanDrv. TransceiverId maps to physical transceiver IDs from CanTrcv.',
+  candrv: '<strong>CanDrv (CAN Driver):</strong> Hardware-specific. Provides Can_Write(), Can_SetControllerMode(), Can_GetControllerMode(). Calls back CanIf via CanIf_TxConfirmation(), CanIf_RxIndication(), CanIf_ControllerBusOff(), CanIf_ControllerModeIndication(). One CanDrv per CAN Hardware Unit (e.g. one on-chip CAN peripheral).',
+  cantrcv: '<strong>CanTrcv (CAN Transceiver Driver):</strong> Controls the physical layer chip (TJA1050, TJA1042 etc). Provides CanTrcv_SetOpMode(), CanTrcv_GetBusWuReason(). CanIf wraps all CanTrcv instances under one unified interface. Multiple ECUs may share one transceiver.',
+};
+function showLayer(id) {
+  const d = document.getElementById('layer-detail');
+  d.innerHTML = LAYER_DETAILS[id] || '';
+  d.style.display = 'block';
+}
+
+function showTab(t) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>{ if(b.textContent.toLowerCase().includes(t.slice(0,4))) b.classList.add('active'); });
+  if(t==='api') buildApiTable();
+  if(t==='seq') buildSeqPanel();
+}
+// Fix tab button active detection
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// init
+setTxStep(0);
+setRxStep(0);
+buildApiTable();
+</script>

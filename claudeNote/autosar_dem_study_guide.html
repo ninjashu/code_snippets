@@ -1,0 +1,593 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.tabs{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tab{padding:6px 11px;border-radius:6px 6px 0 0;border:0.5px solid transparent;cursor:pointer;font-size:11px;color:var(--color-text-secondary);background:transparent;transition:all .15s}
+.tab.on{color:var(--color-text-primary);border-color:var(--color-border-tertiary);border-bottom-color:var(--color-background-primary);background:var(--color-background-primary);font-weight:500}
+.pane{display:none;padding:16px 14px}
+.pane.on{display:block}
+h3{font-size:14px;font-weight:500;margin-bottom:10px}
+h4{font-size:12px;font-weight:500;margin:12px 0 5px;color:var(--color-text-secondary)}
+.card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;margin:2px}
+.b-blue{background:#E6F1FB;color:#0C447C}.b-amber{background:#FAEEDA;color:#633806}
+.b-red{background:#FCEBEB;color:#791F1F}.b-green{background:#EAF3DE;color:#27500A}
+.b-purple{background:#EEEDFE;color:#3C3489}.b-gray{background:#F1EFE8;color:#444441}
+.b-teal{background:#E1F5EE;color:#085041}.b-coral{background:#FAECE7;color:#712B13}
+@media(prefers-color-scheme:dark){
+.b-blue{background:#0C447C;color:#B5D4F4}.b-amber{background:#633806;color:#FAC775}
+.b-red{background:#791F1F;color:#F7C1C1}.b-green{background:#27500A;color:#C0DD97}
+.b-purple{background:#3C3489;color:#CECBF6}.b-gray{background:#444441;color:#D3D1C7}
+.b-teal{background:#085041;color:#9FE1CB}.b-coral{background:#712B13;color:#F5C4B3}
+}
+table{width:100%;border-collapse:collapse;font-size:11px}
+td,th{padding:6px 9px;border:0.5px solid var(--color-border-tertiary);text-align:left;vertical-align:top}
+th{background:var(--color-background-secondary);font-weight:500;font-size:11px}
+code{font-family:var(--font-mono);font-size:10px;background:var(--color-background-secondary);padding:1px 4px;border-radius:3px}
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.fbox{padding:6px 12px;border-radius:6px;border:0.5px solid;text-align:center;font-size:11px;min-width:190px;max-width:340px}
+.arrow{font-size:16px;line-height:1.2;color:var(--color-text-secondary)}
+.arrlbl{font-size:10px;color:var(--color-text-secondary);margin:-2px 0;text-align:center}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+@media(max-width:520px){.cols2,.cols3{grid-template-columns:1fr}}
+.hl{background:var(--color-background-warning);border-left:3px solid #BA7517;padding:7px 10px;border-radius:0 6px 6px 0;font-size:11px;margin:7px 0}
+.warn{background:var(--color-background-danger);border-left:3px solid #A32D2D;padding:7px 10px;border-radius:0 6px 6px 0;font-size:11px;margin:7px 0}
+.ok{background:var(--color-background-success);border-left:3px solid #3B6D11;padding:7px 10px;border-radius:0 6px 6px 0;font-size:11px;margin:7px 0}
+.step-row{display:flex;gap:7px;align-items:flex-start;margin-bottom:7px}
+.step-num{min-width:20px;height:20px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-txt{font-size:11px;padding-top:2px}
+.bit-row{display:flex;gap:2px;margin:8px 0}
+.bit{width:38px;height:38px;border-radius:5px;border:0.5px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.bit:hover{transform:scale(1.05)}
+.bit .bn{font-size:8px;font-weight:500}
+.bit .bv{font-size:11px;font-weight:600}
+#bit-detail{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px;font-size:11px;min-height:50px;margin-top:8px}
+.dbc-wrap{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.dbc-chart{flex:0 0 auto}
+.dbc-info{flex:1;min-width:180px}
+</style>
+
+<div class="tabs">
+  <div class="tab on" onclick="show('overview',this)">Overview</div>
+  <div class="tab" onclick="show('init',this)">Init & Lifecycle</div>
+  <div class="tab" onclick="show('events',this)">Events & DTCs</div>
+  <div class="tab" onclick="show('status',this)">UDS Status Bits</div>
+  <div class="tab" onclick="show('debounce',this)">Debouncing</div>
+  <div class="tab" onclick="show('memory',this)">Event Memory</div>
+  <div class="tab" onclick="show('aging',this)">Aging & Healing</div>
+  <div class="tab" onclick="show('conditions',this)">Conditions</div>
+  <div class="tab" onclick="show('freeze',this)">Freeze Frame & ExtData</div>
+  <div class="tab" onclick="show('opcycle',this)">Op Cycles</div>
+  <div class="tab" onclick="show('dcm',this)">Dcm Interface</div>
+  <div class="tab" onclick="show('errors',this)">Errors & APIs</div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="pane-overview" class="pane on">
+<h3>What is DEM?</h3>
+<div class="card">Diagnostic Event Manager manages ALL diagnostic faults in the ECU. Receives monitor results from SW-Cs (via RTE) and BSW modules (via C-API). Stores DTCs and freeze frames in event memory. Provides DTC status to Dcm (UDS tester). Coordinates aging, healing, displacement, and NvM storage.</div>
+<svg width="100%" viewBox="0 0 680 290" role="img"><title>DEM position in AUTOSAR stack</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<!-- SW-C monitors -->
+<rect x="30" y="10" width="160" height="40" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="110" y="27" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">SW-C Monitors</text>
+<text x="110" y="41" text-anchor="middle" font-size="10" fill="#534AB7">SetEventStatus via RTE</text>
+<!-- BSW monitors -->
+<rect x="210" y="10" width="160" height="40" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="290" y="27" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">BSW Modules</text>
+<text x="290" y="41" text-anchor="middle" font-size="10" fill="#534AB7">Dem_SetEventStatus C-API</text>
+<!-- DCM -->
+<rect x="390" y="10" width="120" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="450" y="27" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">Dcm</text>
+<text x="450" y="41" text-anchor="middle" font-size="10" fill="#0F6E56">Tester / UDS</text>
+<!-- FiM -->
+<rect x="525" y="10" width="100" height="40" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="575" y="27" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">FiM</text>
+<text x="575" y="41" text-anchor="middle" font-size="10" fill="#185FA5">Func Inhibition</text>
+<!-- DEM box -->
+<rect x="20" y="90" width="640" height="80" rx="10" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
+<text x="340" y="122" text-anchor="middle" font-size="15" font-weight="500" fill="#633806">DEM — Diagnostic Event Manager</text>
+<text x="340" y="140" text-anchor="middle" font-size="10" fill="#854F0B">Event status mgmt • Debouncing • Event memory • Freeze frames • Aging • Healing • OBD • J1939</text>
+<text x="340" y="156" text-anchor="middle" font-size="10" fill="#854F0B">Monitor status (sync) → UDS status (async) → NvM persistence</text>
+<!-- NvM -->
+<rect x="80" y="220" width="140" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="150" y="237" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">NvM</text>
+<text x="150" y="251" text-anchor="middle" font-size="10" fill="#0F6E56">Persistent storage</text>
+<!-- DET -->
+<rect x="260" y="220" width="140" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="330" y="237" text-anchor="middle" font-size="12" font-weight="500" fill="#2C2C2A">DET</text>
+<text x="330" y="251" text-anchor="middle" font-size="10" fill="#5F5E5A">Dev error reporting</text>
+<!-- J1939Dcm -->
+<rect x="440" y="220" width="160" height="40" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="520" y="237" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">J1939Dcm / BswM</text>
+<text x="520" y="251" text-anchor="middle" font-size="10" fill="#185FA5">Op cycle mgmt</text>
+<!-- Arrows down into DEM -->
+<line x1="110" y1="50" x2="110" y2="88" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+<line x1="290" y1="50" x2="290" y2="88" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+<line x1="450" y1="88" x2="450" y2="52" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+<line x1="575" y1="88" x2="575" y2="52" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+<!-- Arrows from DEM down -->
+<line x1="150" y1="170" x2="150" y2="218" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+<line x1="330" y1="170" x2="330" y2="218" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+<line x1="520" y1="170" x2="520" y2="218" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#a)"/>
+</svg>
+<h4>Key DEM terminology</h4>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>EventId</b></td><td>Unique numeric ID for each diagnostic event. Symbolic name in config, number at runtime.</td></tr>
+<tr><td><b>DTC</b></td><td>Diagnostic Trouble Code — the fault code shown to the tester. One DTC can map to multiple events (combination).</td></tr>
+<tr><td><b>Monitor</b></td><td>SW-C or BSW routine that checks hardware/software functionality and reports FAILED/PASSED to Dem.</td></tr>
+<tr><td><b>FDC</b></td><td>Fault Detection Counter. -128 (fully passed) to +127 (fully failed). Debouncing moves this value.</td></tr>
+<tr><td><b>UDS status byte</b></td><td>8-bit ISO14229 status byte per event — what the tester reads via $19 service.</td></tr>
+<tr><td><b>Monitor status</b></td><td>Internal Dem status byte (2 bits relevant: TestFailed, TestNotCompleteThisOpCycle). Updated synchronously.</td></tr>
+<tr><td><b>Event memory</b></td><td>RAM+NvM storage of confirmed/pending DTC entries including freeze frames and extended data.</td></tr>
+<tr><td><b>Aging</b></td><td>Automatic removal of DTC from event memory after N passed operation cycles (no fault recurring).</td></tr>
+<tr><td><b>Healing</b></td><td>Deactivation of warning indicator (MIL) after N passed operation cycles.</td></tr>
+<tr><td><b>Displacement</b></td><td>Replacement of lowest-priority DTC from full event memory by a higher-priority new entry.</td></tr>
+</table>
+</div>
+
+<!-- INIT & LIFECYCLE -->
+<div id="pane-init" class="pane">
+<h3>DEM Initialization Lifecycle</h3>
+<div class="hl"><b>Two-phase init:</b> Dem_PreInit happens BEFORE NvM restore (BSW events can report). Dem_Init happens AFTER NvM restore (full operation).</div>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">ECU Power-up / EcuM startup</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_PreInit(ConfigPtr) — SWS_Dem_00180</div>
+<div class="arrlbl">Inits internal state, resets debounce counters. BSW can now call Dem_SetEventStatus.</div>
+<div class="arrlbl">Dem is in "pre-init" state. Op cycle restarts queued (not processed until Dem_Init).</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">NvM restore completes (NvM_ReadAll done)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_Init(ConfigPtr) — full initialization</div>
+<div class="arrlbl">Restores non-volatile status bits, debounce counters (if configured), event memory entries.</div>
+<div class="arrlbl">Initializes monitor status (Dem_GetMonitorStatus returns E_OK from here).</div>
+<div class="arrlbl">Initializes PduRRoutingPathGroups at their configured init state (enabled/disabled).</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">RTE starts → SW-C monitors initialize via Rte_Start</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Normal operation — all APIs available</div>
+<div class="arrow">↓ (at shutdown)</div>
+<div class="fbox" style="background:#FCEBEB;border-color:#A32D2D;color:#791F1F">Dem_Shutdown() → triggers NvM write, saves volatile state</div>
+</div>
+<h4>APIs valid in each phase</h4>
+<table>
+<tr><th>API</th><th>Pre-Init</th><th>Post-Init</th><th>Post-Shutdown</th></tr>
+<tr><td><code>Dem_SetEventStatus</code></td><td style="color:green">✓</td><td style="color:green">✓</td><td style="color:green">✓</td></tr>
+<tr><td><code>Dem_ResetEventDebounceStatus</code></td><td style="color:green">✓</td><td style="color:green">✓</td><td style="color:green">✓</td></tr>
+<tr><td><code>Dem_GetVersionInfo</code></td><td style="color:green">✓</td><td style="color:green">✓</td><td style="color:green">✓</td></tr>
+<tr><td><code>Dem_MainFunction</code></td><td style="color:green">✓</td><td style="color:green">✓</td><td style="color:green">✓</td></tr>
+<tr><td><code>Dem_RestartOperationCycle</code></td><td style="color:orange">queued</td><td style="color:green">✓</td><td style="color:red">✗ E_UNINIT</td></tr>
+<tr><td><code>Dem_ClearDTC, Dem_GetEventUdsStatus</code></td><td style="color:red">✗ E_UNINIT</td><td style="color:green">✓</td><td style="color:red">✗ E_UNINIT</td></tr>
+<tr><td>All other Dem APIs</td><td style="color:red">✗ E_UNINIT</td><td style="color:green">✓</td><td style="color:red">✗ E_UNINIT</td></tr>
+</table>
+<h4>InitMonitorForEvent callback — trigger priorities (SWS_Dem_01046)</h4>
+<div class="card">Monitor init callback fired when monitor should re-initialize. Multiple triggers → only ONE callback, with highest priority reason:<br>
+<span class="badge b-red">Highest</span> <code>DEM_INIT_MONITOR_CLEAR</code> — Dem_ClearDTC called<br>
+<span class="badge b-amber">Mid</span> <code>DEM_INIT_MONITOR_RESTART</code> — Dem_RestartOperationCycle called<br>
+<span class="badge b-green">Lowest</span> <code>DEM_INIT_MONITOR_REENABLED</code> — enable condition or ControlDTCSetting re-enabled</div>
+</div>
+
+<!-- EVENTS & DTCs -->
+<div id="pane-events" class="pane">
+<h3>Diagnostic Event & DTC Concepts</h3>
+<div class="cols2">
+<div class="card"><b>Event (DemEventParameter)</b>
+<br><span class="badge b-blue">EventId</span> Unique numeric ID (1..65535)
+<br><span class="badge b-purple">EventKind</span> BSW or SWC
+<br><span class="badge b-amber">DTC ref</span> Optional — event without DTC has no memory entry
+<br><span class="badge b-green">OpCycle ref</span> Which cycle controls status bits
+<br><span class="badge b-gray">ConfirmThreshold</span> Cycles before ConfirmedDTC=1
+<br><span class="badge b-teal">Debounce class</span> CounterBased / TimeBased / MonitorInternal</div>
+<div class="card"><b>DTC (DemDTC)</b>
+<br><span class="badge b-blue">DtcValue</span> 3-byte UDS DTC number shown to tester
+<br><span class="badge b-amber">Priority</span> 1=highest. Controls displacement.
+<br><span class="badge b-red">Kind</span> EMISSION / NON-EMISSION
+<br><span class="badge b-green">Format</span> ISO14229-1 / SAE-J2012A / J1939 / OBD
+<br><span class="badge b-purple">Memory dest</span> Primary / UserDefined / Permanent
+<br><span class="badge b-gray">Severity</span> Check at next halt / maintenance only / no service</div>
+</div>
+<h4>Event kinds (DemEventKind)</h4>
+<table>
+<tr><th>Kind</th><th>Who reports</th><th>API used</th><th>Can report before Dem_Init?</th></tr>
+<tr><td><code>DEM_EVENT_KIND_BSW</code></td><td>BSW modules</td><td><code>Dem_SetEventStatus()</code> C-API</td><td style="color:green">YES (after PreInit) — buffered</td></tr>
+<tr><td><code>DEM_EVENT_KIND_SWC</code></td><td>SW-Components</td><td>RTE SetEventStatus port</td><td style="color:red">NO — needs full Dem_Init</td></tr>
+</table>
+<h4>Event destination memory (DemMemoryDestinationRef)</h4>
+<div class="cols3">
+<div class="card"><span class="badge b-blue">Primary</span><p style="font-size:10px;margin-top:4px">Main event memory. Most events stored here. Size = DemMaxNumberEventEntryPrimary.</p></div>
+<div class="card"><span class="badge b-purple">User Defined</span><p style="font-size:10px;margin-top:4px">OEM-specific additional memory. Same behavior as primary. Accessed with DemClient param.</p></div>
+<div class="card"><span class="badge b-amber">Permanent</span><p style="font-size:10px;margin-top:4px">OBD emission-related only. Derived from DTC kind. Cannot be cleared by normal ClearDTC.</p></div>
+</div>
+<h4>Event combination (DemEventCombinationSupport)</h4>
+<table>
+<tr><th>Type</th><th>Storage</th><th>Status calc</th><th>Use case</th></tr>
+<tr><td><code>DEM_EVCOMB_DISABLED</code></td><td>1 entry per event</td><td>Per event</td><td>Default — no combination</td></tr>
+<tr><td><code>DEM_EVCOMB_ONSTORAGE</code></td><td>1 shared entry for all sub-events</td><td>Bitwise OR of all sub-events</td><td>Single DTC for multiple monitors</td></tr>
+<tr><td><code>DEM_EVCOMB_ONRETRIEVAL</code></td><td>Separate entry per sub-event</td><td>Bitwise OR at read time</td><td>Per-event freeze frames, combined DTC view</td></tr>
+</table>
+<h4>DTC priority rule (exam trap!)</h4>
+<div class="hl"><b>Priority 1 = HIGHEST. Larger number = LOWER priority.</b> Used in displacement: lower priority DTC displaced by higher. If priorities equal: untested-in-cycle DTC displaced first. If still equal: oldest (least recent) displaced.</div>
+<h4>Component dependency (DemComponent)</h4>
+<div class="card" style="font-size:11px">Events assigned to DemComponents. If a higher-priority event on same component is FAILED → lower-priority events report is treated as CONSECUTIVE FAULT (not stored). If parent DemComponent is FAILED → child events also considered CONSECUTIVE. Causal fault delay (<code>DemCausalityDelayTime</code>) allows time window to reconsider.</div>
+</div>
+
+<!-- UDS STATUS BITS -->
+<div id="pane-status" class="pane">
+<h3>UDS Status Byte — All 8 Bits (ISO14229-1)</h3>
+<p style="font-size:11px;margin-bottom:8px;color:var(--color-text-secondary)">Click a bit to see its full transition logic. Initial value after ClearDTC: <code>0x50</code> (bits 4 and 6 = 1).</p>
+<div class="bit-row" id="bits"></div>
+<div id="bit-detail">Click any bit above to see its transitions and debug tips.</div>
+<h4>Status bit summary table</h4>
+<table>
+<tr><th>Bit</th><th>Name</th><th>Set to 1 when</th><th>Reset to 0 when</th><th>Volatile?</th></tr>
+<tr><td>0</td><td>TestFailed (TF)</td><td>Monitor reports FAILED (after debounce)</td><td>PASSED reported / ResetEventStatus / ClearDTC</td><td>Config: DemStatusBitStorageTestFailed</td></tr>
+<tr><td>1</td><td>TestFailedThisOpCycle (TFTOC)</td><td>FAILED reported in current cycle</td><td>Operation cycle restart / ClearDTC</td><td>Non-volatile</td></tr>
+<tr><td>2</td><td>PendingDTC (PDTC)</td><td>FAILED reported (storage condition fulfilled)</td><td>Op cycle restart with no TF + no TNCTOC / ClearDTC / Displacement</td><td>Non-volatile</td></tr>
+<tr><td>3</td><td>ConfirmedDTC (CDTC)</td><td>ConfirmThreshold reached (FAILED in N consecutive cycles)</td><td>AgingCriteria fulfilled / ClearDTC / Displacement</td><td>Non-volatile</td></tr>
+<tr><td>4</td><td>TestNotCompletedSinceLastClear (TNCSLS)</td><td>After ClearDTC (initial)</td><td>Any FAILED or PASSED reported</td><td>Non-volatile</td></tr>
+<tr><td>5</td><td>TestFailedSinceLastClear (TFSLC)</td><td>FAILED reported (any cycle since last clear)</td><td>ClearDTC / Aging (if configured) / Displacement (if configured)</td><td>Non-volatile</td></tr>
+<tr><td>6</td><td>TestNotCompleteThisOpCycle (TNCTOC)</td><td>After op cycle restart (initial for cycle)</td><td>Any FAILED or PASSED reported in cycle</td><td>Non-volatile</td></tr>
+<tr><td>7</td><td>WarningIndicatorRequested (WIR)</td><td>FAILED + WarningIndicatorOnCriteria met</td><td>ClearDTC / WarningIndicatorOffCriteria met (healing)</td><td>Volatile (calculated from indicator states)</td></tr>
+</table>
+<h4>ConfirmedDTC threshold (DemEventConfirmationThreshold)</h4>
+<table>
+<tr><th>Value</th><th>When CDTC set</th><th>Use case</th></tr>
+<tr><td>1</td><td>Same cycle as first FAILED (immediate / "zero trip")</td><td>Non-OBD UDS DTCs</td></tr>
+<tr><td>2</td><td>Cycle AFTER first FAILED ("one trip")</td><td>US OBD legislated</td></tr>
+<tr><td>3</td><td>Second cycle after first FAILED ("two trip")</td><td>EU OBD/Euro 5/6</td></tr>
+</table>
+<div class="hl"><b>Processing model:</b> Monitor status updated SYNCHRONOUSLY in Dem_SetEventStatus context. UDS status updated ASYNCHRONOUSLY in Dem_MainFunction. Both are processed in sequence — monitor status first, UDS status queued for main function.</div>
+</div>
+
+<!-- DEBOUNCING -->
+<div id="pane-debounce" class="pane">
+<h3>Debouncing Algorithms</h3>
+<div class="hl">Debounce = fault maturation. Prevents single glitch from causing DTC storage. FDC range: -128 (fully passed) to +127 (fully failed). Dem updates FDC, then qualifies FAILED or PASSED.</div>
+<div class="cols3">
+<div class="card"><span class="badge b-blue">Counter-Based</span><p style="font-size:10px;margin-top:5px">Uses internal sint16 counter. Reports PREFAILED/PREPASSED to increment/decrement by step size. Instant thresholds on FAILED/PASSED reports.</p></div>
+<div class="card"><span class="badge b-amber">Time-Based</span><p style="font-size:10px;margin-top:5px">Uses internal timer. PREFAILED starts timer. Timer reaches threshold → qualified. FAILED/PASSED instantly set timer to threshold. Timer can be frozen or reset.</p></div>
+<div class="card"><span class="badge b-green">Monitor-Internal</span><p style="font-size:10px;margin-top:5px">Monitor handles debouncing itself. Only reports FAILED/PASSED to Dem. PREFAILED/PREPASSED NOT allowed (DET error if sent). Dem retrieves FDC via callback.</p></div>
+</div>
+<h4>Counter-Based in detail</h4>
+<table>
+<tr><th>Monitor reports</th><th>Dem action on internal counter</th></tr>
+<tr><td><code>DEM_EVENT_STATUS_PREFAILED</code></td><td>Increment by DemDebounceCounterIncrementStepSize. Cap at FailedThreshold.</td></tr>
+<tr><td><code>DEM_EVENT_STATUS_PREPASSED</code></td><td>Decrement by DemDebounceCounterDecrementStepSize. Cap at PassedThreshold.</td></tr>
+<tr><td><code>DEM_EVENT_STATUS_FAILED</code></td><td>Set counter = DemDebounceCounterFailedThreshold immediately → qualified FAILED</td></tr>
+<tr><td><code>DEM_EVENT_STATUS_PASSED</code></td><td>Set counter = DemDebounceCounterPassedThreshold immediately → qualified PASSED</td></tr>
+</table>
+<div class="card" style="margin-top:8px"><b>Jump behavior:</b>
+<br><span class="badge b-purple">JumpUp</span> When direction changes from decrement→increment AND counter &lt; JumpUpValue → snap to JumpUpValue first, then increment. Prevents slow response when fault reappears.
+<br><span class="badge b-coral">JumpDown</span> When direction changes from increment→decrement AND counter &gt; JumpDownValue → snap to JumpDownValue first, then decrement. Fast recovery.</div>
+<h4>Debounce behavior when enable condition not fulfilled</h4>
+<div class="cols2">
+<div class="card"><span class="badge b-amber">DEM_DEBOUNCE_STATUS_FREEZE</span><p style="font-size:10px;margin-top:5px">Counter/timer frozen at current value. Resumes when conditions fulfilled. Does NOT reset. Use: temporary monitoring interruptions (e.g. sensor offline briefly).</p></div>
+<div class="card"><span class="badge b-red">DEM_DEBOUNCE_STATUS_RESET</span><p style="font-size:10px;margin-top:5px">Counter/timer reset to 0 when enable condition fails or ControlDTCSetting disabled. Must re-debounce from scratch. Use: conditions are prerequisites for valid monitoring.</p></div>
+</div>
+<h4>Debounce reset conditions</h4>
+<div class="card"><p style="font-size:11px">Counter/timer reset on: <b>Dem_PreInit()</b> / <b>operation cycle restart</b> (Dem_RestartOperationCycle) / <b>Dem_ClearDTC</b> / <b>Dem_ResetEventDebounceStatus(DEM_DEBOUNCE_STATUS_RESET)</b> / enable condition → not fulfilled (if DEM_DEBOUNCE_RESET configured)</p></div>
+<div class="hl"><b>NvM persistence of counter:</b> If DemDebounceCounterStorage=TRUE → counter saved non-volatile. Restored in Dem_Init. BSW events with NvM debounce cannot report before Dem_Init (counter not yet restored)!</div>
+<h4>FDC retrieval — Dem_GetFaultDetectionCounter</h4>
+<div class="card"><p style="font-size:11px">Counter-based/time-based: Dem reads internal value directly.<br>Monitor-internal: Dem calls DemCallbackGetFDC callback to SW-C/BSW. If no callback configured → returns DEM_E_NO_FDC_AVAILABLE.</p></div>
+<div class="hl"><b>FDC_THRESHOLD_REACHED:</b> Special event status — monitor reports when FDC hits configured FdcThresholdStorageValue. Triggers pre-storage of freeze frame before full qualification. Used for early capture of volatile data.</div>
+</div>
+
+<!-- EVENT MEMORY -->
+<div id="pane-memory" class="pane">
+<h3>Event Memory Management</h3>
+<h4>Storage trigger (DemEventMemoryEntryStorageTrigger)</h4>
+<table>
+<tr><th>Trigger value</th><th>When entry created</th><th>Notes</th></tr>
+<tr><td><code>DEM_TRIGGER_ON_TEST_FAILED</code></td><td>Bit0 (TF) changes 0→1 (qualified FAILED)</td><td>Most common for non-OBD DTCs</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_FDC_THRESHOLD</code></td><td>FDC reaches DemCounterBasedFdcThresholdStorageValue</td><td>Early storage before full qualification</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_CONFIRMED</code></td><td>Bit3 (CDTC) changes 0→1 (confirmed)</td><td>OBD use cases</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_PENDING</code></td><td>Bit2 (PDTC) changes 0→1</td><td>Same as TF for threshold=1 configs</td></tr>
+</table>
+<h4>Event displacement — memory full handling</h4>
+<div class="card"><p style="font-size:11px;margin-bottom:6px">When memory full and new event needs storage → displacement algorithm:</p>
+<div class="step-row"><div class="step-num">1</div><div class="step-txt"><b>Priority:</b> Lower priority DTC displaced by higher priority new event. (Priority 1 = best, larger number = worse)</div></div>
+<div class="step-row"><div class="step-num">2</div><div class="step-txt"><b>Active/Passive:</b> (DEM_DISPLACEMENT_FULL only) Passive events (TF=0) displaced before active events (TF=1)</div></div>
+<div class="step-row"><div class="step-num">3</div><div class="step-txt"><b>Occurrence/Age:</b> Older stored events displaced before newer. If event re-fails → it moves to most recent position.</div></div>
+</div>
+<h4>Displacement strategies (DemEventDisplacementStrategy)</h4>
+<div class="cols3">
+<div class="card"><span class="badge b-gray">DEM_DISPLACEMENT_NONE</span><p style="font-size:10px;margin-top:4px">No displacement. Memory full = new event discarded. Simple, but risks missing important new faults.</p></div>
+<div class="card"><span class="badge b-blue">DEM_DISPLACEMENT_PRIO_OCC</span><p style="font-size:10px;margin-top:4px">Priority + occurrence only. No passive/active distinction. Simpler than FULL.</p></div>
+<div class="card"><span class="badge b-amber">DEM_DISPLACEMENT_FULL</span><p style="font-size:10px;margin-top:4px">Full algorithm: Priority → Active/Passive → Occurrence. Most complete OBD-compliant strategy.</p></div>
+</div>
+<h4>Post-displacement status reset (important for testing!)</h4>
+<table>
+<tr><th>Config param</th><th>When true</th><th>Effect</th></tr>
+<tr><td><code>DemResetConfirmedBitOnOverflow</code></td><td>TRUE</td><td>Bit3 (CDTC) reset to 0 when event displaced</td></tr>
+<tr><td><code>DemResetPendingBitOnOverflow</code></td><td>TRUE</td><td>Bit2 (PDTC) reset to 0 when event displaced</td></tr>
+</table>
+<h4>Memory overflow indication</h4>
+<div class="card"><p style="font-size:11px">Dem_GetEventMemoryOverflow() — returns if memory was full and a storage attempt was made. Reset only when ALL DTCs cleared via ClearDTC. NOT reset by aging or individual DTC delete. Used in workshop diagnostics.</p></div>
+<h4>Chronological reporting order</h4>
+<div class="card"><p style="font-size:11px">When GetNextFilteredDTC called with pending+confirmed bits: most recent event reported first. When event re-fails → it becomes most recent. New entry → also becomes most recent.</p></div>
+<div class="hl"><b>Storage condition vs enable condition:</b> Enable condition blocks event report processing entirely (no debounce). Storage condition allows debounce but prevents memory entry creation and freeze frame storage.</div>
+</div>
+
+<!-- AGING & HEALING -->
+<div id="pane-aging" class="pane">
+<h3>Aging and Healing</h3>
+<h4>Healing — deactivate warning indicator (MIL)</h4>
+<div class="flow">
+<div class="fbox" style="background:#FCEBEB;border-color:#A32D2D;color:#791F1F">Event confirmed, WarningIndicator=1 (MIL on)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">Monitor reports PASSED in operation cycle (TFTOC=0)</div>
+<div class="arrlbl">Each completed cycle with TFTOC=0 and TNCTOC=0 → increment HealingCounter</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">HealingCounter ≥ DemIndicatorHealingCycleCounterThreshold</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">WarningIndicatorOffCriteriaFulfilled → Bit7 (WIR) = 0 → MIL off</div>
+<div class="arrlbl">SWS_Dem_00698: Aging counter starts ONLY AFTER healing complete!</div>
+</div>
+<h4>Aging — remove event from memory</h4>
+<div class="flow">
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Healing complete (WIR=0), event passes</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">Each completed aging cycle with event qualified PASSED → AgingCounter++</div>
+<div class="arrlbl">DemAgingRequiresTestedCycle=TRUE: only count if TNCTOC=0 (test ran in cycle)</div>
+<div class="arrlbl">DemAgingRequiresNotFailedCycle=TRUE: only count if no FAILED in that cycle</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">AgingCounter ≥ DemAgingCycleCounterThreshold</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Event memory entry DELETED. CDTC (bit3) = 0. Freeze frames removed.</div>
+</div>
+<h4>Aging configuration options</h4>
+<table>
+<tr><th>Config</th><th>Effect</th></tr>
+<tr><td><code>DemAgingCycleCounterThreshold</code></td><td>N aging cycles needed to age out. Common values: 40 (EU OBD), varies by OEM.</td></tr>
+<tr><td><code>DemAgingRequiresTestedCycle=TRUE</code></td><td>Aging cycle only counts if monitor ran (TNCTOC=0) during that cycle. Prevents aging on idle/untested cycles.</td></tr>
+<tr><td><code>DemAgingRequiresNotFailedCycle=TRUE</code></td><td>Aging cycle not counted if event failed during that cycle. Strict requirement.</td></tr>
+<tr><td><code>DemAgingCycleCounterThresholdForTFSLC</code></td><td>Separate threshold to also age-out bit5 (TFSLC). Optional.</td></tr>
+<tr><td><code>DemAgingCycleRef</code></td><td>Which operation cycle drives aging counter. Default often = ignition cycle.</td></tr>
+</table>
+<div class="hl"><b>Aging can't start until healing complete!</b> SWS_Dem_00698 explicit. Aging counter = 0 while WIR=1. Heal first, age second.</div>
+<h4>What gets reset on aging (SWS_Dem_00498, 01075)</h4>
+<div class="card"><p style="font-size:11px">Bit3 (CDTC) → reset to 0. Freeze frame data → deleted. Extended data records → deleted. Occurrence counter → stays (not reset). Bit5 (TFSLC) → reset ONLY if DemAgingCycleCounterThresholdForTFSLC configured and reached. Bit0 stays as-is. Other bits stay.</p></div>
+<h4>Reoccurrence after aging (SWS_Dem_00161)</h4>
+<div class="ok">If aged-out event occurs again → treated as a NEW event (fresh entry). AgingCounter reset to 0. Occurrence counter restarted from 1.</div>
+</div>
+
+<!-- CONDITIONS -->
+<div id="pane-conditions" class="pane">
+<h3>Enable Conditions & Storage Conditions</h3>
+<div class="cols2">
+<div class="card"><b>Enable Conditions</b><span class="badge b-red" style="float:right">Blocks reports</span>
+<p style="font-size:11px;margin-top:6px">Gate on Dem_SetEventStatus processing. If any assigned enable condition NOT fulfilled → event report IGNORED. Debounce counter frozen or reset (per DemDebounceBehavior). UDS status byte NOT changed.</p>
+<p style="font-size:11px;margin-top:4px">Set via: <code>Dem_SetEnableCondition(conditionId, TRUE/FALSE)</code></p>
+<p style="font-size:11px;margin-top:4px">When re-enabled → callback InitMonitorForEvent fires with DEM_INIT_MONITOR_REENABLED.</p></div>
+<div class="card"><b>Storage Conditions</b><span class="badge b-amber" style="float:right">Blocks storage</span>
+<p style="font-size:11px;margin-top:6px">Gate on event memory storage. Debouncing proceeds normally. Event qualified FAILED/PASSED normally. But if storage condition NOT fulfilled: no memory entry created, no freeze frame stored, bits 2 (PDTC) and 3 (CDTC) NOT set from 0 to 1.</p>
+<p style="font-size:11px;margin-top:4px">Set via: <code>Dem_SetStorageCondition(conditionId, TRUE/FALSE)</code></p>
+<p style="font-size:11px;margin-top:4px">Replacement event: if storage condition FALSE and original event FAILED → replacement event (configured via DemStorageConditionReplacementEventRef) gets set FAILED instead.</p></div>
+</div>
+<h4>Enable condition group logic</h4>
+<div class="card"><p style="font-size:11px">Multiple conditions → grouped into DemEnableConditionGroup. Event references a group. All conditions in the group must be TRUE → group fulfilled. Event assigned to group → ALL conditions must be fulfilled for event to be processed.</p></div>
+<h4>ControlDTCSetting (UDS service $85)</h4>
+<div class="card"><p style="font-size:11px">Dcm calls Dem_DisableDTCSetting / Dem_EnableDTCSetting. Effect similar to enable condition:<br>
+• Dem_DisableDTCSetting → debounce frozen/reset (per DemDebounceBehavior) + InitMonitorForEvent NOT called<br>
+• Dem_EnableDTCSetting → debounce resumes + InitMonitorForEvent with DEM_INIT_MONITOR_REENABLED</p></div>
+<h4>ClearEventAllowed callback</h4>
+<div class="card"><p style="font-size:11px">Per-event callback. Called before clearing that event. If returns FALSE + DEM_NO_STATUS_BYTE_CHANGE → UDS byte unchanged, event not cleared. If returns FALSE + DEM_ONLY_THIS_CYCLE_AND_READINESS → bits 1, 4, 5, 6 reset but event not fully cleared. Designed for special modes (transport, assembly, flash mode).</p></div>
+<div class="hl"><b>Debug tip — common test:</b> Disable enable condition → verify events not processed (FDC stays) → re-enable → verify InitMonitorForEvent callback fires → verify events process again. This tests the full enable condition loop.</div>
+</div>
+
+<!-- FREEZE FRAME & EXT DATA -->
+<div id="pane-freeze" class="pane">
+<h3>Freeze Frame & Extended Data</h3>
+<h4>Freeze frame storage triggers (DemFreezeFrameRecordTrigger)</h4>
+<table>
+<tr><th>Trigger</th><th>When captured</th></tr>
+<tr><td><code>DEM_TRIGGER_ON_FDC_THRESHOLD</code></td><td>FDC reaches configured threshold. At most once per op cycle. Early capture before full qualification.</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_TEST_FAILED</code></td><td>Each time UDS bit0 (TF) changes 0→1. Standard trigger.</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_PENDING</code></td><td>Each time UDS bit2 (PDTC) changes 0→1.</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_CONFIRMED</code></td><td>Each time UDS bit3 (CDTC) changes 0→1.</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_TEST_FAILED_THIS_OPERATION_CYCLE</code></td><td>TFTOC (bit1) 0→1 transition.</td></tr>
+<tr><td><code>DEM_TRIGGER_ON_EVERY_TEST_FAILED</code></td><td>Every FAILED report (continuously updates FF). Use for latest-value freeze frame.</td></tr>
+</table>
+<h4>Pre-stored freeze frame (DemFFPrestorageSupported)</h4>
+<div class="card">
+<div class="step-row"><div class="step-num">1</div><div class="step-txt">Monitor sees early sign of fault. Calls <code>Dem_PrestoreFreezeFrame(eventId)</code>. FF data captured immediately regardless of UDS status.</div></div>
+<div class="step-row"><div class="step-num">2</div><div class="step-txt">If event later confirmed FAILED → pre-stored FF moved to event memory entry.</div></div>
+<div class="step-row"><div class="step-num">3</div><div class="step-txt">If event passes without confirmation → pre-stored FF discarded. Call <code>Dem_ClearPrestoredFreezeFrame(eventId)</code> to explicitly discard.</div></div>
+<div class="step-row"><div class="step-num">4</div><div class="step-txt">DemFFPrestorageInNvm: if TRUE, pre-stored data also written to NvM.</div></div>
+</div>
+<h4>Extended data records</h4>
+<div class="cols2">
+<div class="card"><b>Internal data elements (DemInternalDataElement)</b>
+<p style="font-size:10px;margin-top:4px">Dem-managed counters automatically available per event:<br>
+<code>DEM_OCCCTR</code> — occurrence counter<br>
+<code>DEM_FAILED_CYCLES</code> — cycles where event failed<br>
+<code>DEM_CYCLES_SINCE_LAST_FAILED</code> — cycles since last failure<br>
+<code>DEM_CYCLES_SINCE_FIRST_FAILED</code> — cycles since first failure<br>
+<code>DEM_MAX_FDC_DURING_CURRENT_CYCLE</code> — peak FDC this cycle<br>
+<code>DEM_MAX_FDC_SINCE_LAST_CLEAR</code> — peak FDC ever<br>
+<code>DEM_AGINGCTR_UPCNT</code> — current aging counter value</p></div>
+<div class="card"><b>External data elements</b>
+<p style="font-size:10px;margin-top:4px">Collected from SW-C via ReadData operation or C-callback (DemCallbackGetFDC). Captured asynchronously — at latest in next Dem_MainFunction cycle.<br><br>If SW-C returns other than E_OK → Dem fills with 0xFF padding and reports runtime error DEM_E_NODATAAVAILABLE to DET.</p></div>
+</div>
+<h4>Capture timing (critical!)</h4>
+<div class="hl">Freeze frames and extended data captured ASYNCHRONOUSLY — in the NEXT Dem_MainFunction cycle after the trigger. NOT in the context of Dem_SetEventStatus. This means there is a small window where data may not be from the exact fault moment.</div>
+<div class="card"><b>Dem_SetEventStatusWithMonitorData()</b> — extends Dem_SetEventStatus with monitorData0 and monitorData1 parameters. monitorData0 can be passed to ReadData operation to help align captured data with fault report context. Used for highly volatile data.</div>
+</div>
+
+<!-- OPERATION CYCLES -->
+<div id="pane-opcycle" class="pane">
+<h3>Operation Cycle Management</h3>
+<h4>Common operation cycle types</h4>
+<div class="cols3">
+<div class="card"><span class="badge b-blue">Ignition Cycle</span><p style="font-size:10px;margin-top:4px">IGN ON/OFF. Most common basis for TFTOC, CDTC confirmation, aging, healing. Standard AUTOSAR cycle.</p></div>
+<div class="card"><span class="badge b-amber">OBD Driving Cycle</span><p style="font-size:10px;margin-top:4px">Specific drive conditions met. Used for OBD readiness and MIL confirmation (DemOBDDrivingCycleRef). Qualification required (DemOBDDelayedDCYConfirmedAndMIL).</p></div>
+<div class="card"><span class="badge b-green">Warm-up Cycle</span><p style="font-size:10px;margin-top:4px">Engine reaches operating temp. Used by some OBD systems for catalyst, misfire monitors. OEM specific.</p></div>
+</div>
+<h4>Operation cycle restart flow</h4>
+<div class="flow">
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">BswM calls Dem_RestartOperationCycle(cycleId)</div>
+<div class="arrlbl">SWS_Dem_01318: allowed after Dem_PreInit. Before Dem_Init → queued.</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">End of previous cycle processing:</div>
+<div class="arrlbl">• Increment Cycles-since-last-failed / Cycles-since-first-failed (if stored)</div>
+<div class="arrlbl">• Increment Failed-cycles counter (if TFTOC=1)</div>
+<div class="arrlbl">• Increment AgingCounter (if healing complete and pass conditions met)</div>
+<div class="arrlbl">• Update ConfirmedDTC (if failure counter ≥ threshold)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">Start of new cycle:</div>
+<div class="arrlbl">• Reset TFTOC (bit1) = 0</div>
+<div class="arrlbl">• Reset TNCTOC (bit6) = 1 (not complete yet)</div>
+<div class="arrlbl">• Reset Dem-internal debounce counter/timer</div>
+<div class="arrlbl">• Reset Max-FDC-during-current-cycle to 0</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">InitMonitorForEvent called with DEM_INIT_MONITOR_RESTART for all linked events</div>
+</div>
+<h4>Operation cycle counters (per event memory entry)</h4>
+<table>
+<tr><th>Counter</th><th>Reset when</th><th>Incremented when</th><th>Max</th></tr>
+<tr><td>Cycles since last failed</td><td>FDC reaches FailedThreshold (+127)</td><td>End of each op cycle (always)</td><td>0xFF (latch)</td></tr>
+<tr><td>Cycles since first failed</td><td>First time FDC reaches +127 (per clear)</td><td>End of each op cycle (always)</td><td>0xFF (latch)</td></tr>
+<tr><td>Failed cycles</td><td>ClearDTC</td><td>End of op cycle IF bit1 (TFTOC)=1</td><td>0xFF (latch)</td></tr>
+</table>
+<h4>Dependent (qualified) operation cycles</h4>
+<div class="card"><p style="font-size:11px">DemLeadingCycleRef → makes a cycle dependent on a "leading" cycle. Dependent cycle only restarts when leading cycle restarts AND dependent cycle is "qualified" (Dem_SetCycleQualified). Qualification state persisted over power cycles. OBD driving cycle qualification used to delay CDTC confirmation until valid drive conditions met.</p></div>
+</div>
+
+<!-- DCM INTERFACE -->
+<div id="pane-dcm" class="pane">
+<h3>Dcm ↔ Dem Interface (UDS $19 Service)</h3>
+<h4>DTC filter-based access (stateful API)</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">Dcm calls Dem_SetDTCFilter(DTCStatusMask, DTCFormat, DTCOrigin, FilterWithSeverity, DTCSeverityMask, FilterForFDC)</div>
+<div class="arrlbl">Sets filter criteria. Returns DEM_FILTER_ACCEPTED or DEM_WRONG_DTC.</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_GetNumberOfFilteredDTC(NumberOfFilteredDTC)</div>
+<div class="arrlbl">Returns count of matching entries. Used for $19 0A, 0B, 0C, 0D responses.</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Loop: Dem_GetNextFilteredDTC(DTC, DTCStatus) → DEM_FILTERED_OK or DEM_FILTERED_NO_MATCHING_ELEMENT</div>
+<div class="arrlbl">Iterate through all matching DTCs. NOT reentrant — parallel access via DEM_FILTERED_PENDING handled internally.</div>
+</div>
+<h4>Extended data access ($19 06)</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">Dcm calls Dem_SelectDTC(ClientId, DTC, DTCFormat, DTCOrigin)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_GetSizeOfExtendedDataRecordSelection(SizeOfExtendedDataRecord)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_GetNextExtendedDataRecord(DestBuffer, BufSize)</div>
+</div>
+<h4>Freeze frame access ($19 04)</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">Dcm calls Dem_SelectFreezeFrameData(ClientId, DTC, DTCFormat, RecordNumber, DTCOrigin)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_GetSizeOfFreezeFrameSelection(SizeOfFreezeFrame)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem_GetNextFreezeFrameData(DestBuffer, BufSize)</div>
+</div>
+<h4>Clear DTC ($14 service) flow</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">Dcm calls Dem_SelectDTC then Dem_ClearDTC(ClientId)</div>
+<div class="arrlbl">Returns DEM_CLEAR_OK / DEM_CLEAR_FAILED / DEM_CLEAR_PENDING / DEM_CLEAR_MEMORY_ERROR</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dem checks ClearEventAllowed callback per event</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Clears: UDS status → 0x50, FDC → 0, event memory entries, freeze frames, extended data</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">InitMonitorForEvent with DEM_INIT_MONITOR_CLEAR (highest priority)</div>
+</div>
+<h4>ClearDTC behavior (DemClearDTCBehavior)</h4>
+<table>
+<tr><th>Value</th><th>Returns E_OK when</th></tr>
+<tr><td><code>DEM_CLRRESP_VOLATILE</code></td><td>RAM cleared (fast, NvM write pending)</td></tr>
+<tr><td><code>DEM_CLRRESP_NONVOLATILE_TRIGGER</code></td><td>RAM cleared AND NvM write triggered (not finished)</td></tr>
+<tr><td><code>DEM_CLRRESP_NONVOLATILE_FINISH</code></td><td>RAM AND NvM both fully cleared (slow — waits for NvM)</td></tr>
+</table>
+<div class="hl"><b>Parallel clear:</b> If second client calls ClearDTC while first is ongoing → returns DEM_CLEAR_PENDING (SWS_Dem_00664). No queue — must poll/retry.</div>
+</div>
+
+<!-- ERRORS & APIs -->
+<div id="pane-errors" class="pane">
+<h3>Error Classification & Key APIs</h3>
+<h4>Development Errors (DET — SWS_Dem_00173)</h4>
+<table>
+<tr><th>Code</th><th>Value</th><th>Cause</th><th>Debug action</th></tr>
+<tr><td><code>DEM_E_WRONG_CONFIGURATION</code></td><td>0x10</td><td>API called with parameter not allowed by active config (e.g., PREFAILED on monitor-internal event)</td><td>Check DemDebounceAlgorithmClass, DemEventCombinationSupport config</td></tr>
+<tr><td><code>DEM_E_PARAM_POINTER</code></td><td>0x11</td><td>NULL pointer passed</td><td>Check buffer pointers in caller</td></tr>
+<tr><td><code>DEM_E_PARAM_DATA</code></td><td>0x12</td><td>Wrong parameter value</td><td>Check EventId, DTC values are within configured range</td></tr>
+<tr><td><code>DEM_E_PARAM_LENGTH</code></td><td>0x13</td><td>Wrong length parameter</td><td>Check buffer size params</td></tr>
+<tr><td><code>DEM_E_INIT_FAILED</code></td><td>0x14</td><td>Initialization failed</td><td>Check NvM data integrity, config pointer validity</td></tr>
+<tr><td><code>DEM_E_UNINIT</code></td><td>0x20</td><td>API called before Dem_Init (or after Shutdown)</td><td>Ensure init sequence: PreInit → NvM → Init</td></tr>
+<tr><td><code>DEM_E_WRONG_CONDITION</code></td><td>0x40</td><td>Preconditions not met (e.g., filter not set before GetNextFilteredDTC)</td><td>Check API call sequence, filter must be set before iterating</td></tr>
+<tr><td><code>DEM_E_INVALID_OBDMID</code></td><td>0x50</td><td>Invalid OBD MID passed</td><td>Check OBD MID config</td></tr>
+</table>
+<h4>Runtime Errors (DET — SWS_Dem_91035)</h4>
+<table>
+<tr><th>Code</th><th>Value</th><th>Cause</th><th>Debug</th></tr>
+<tr><td><code>DEM_E_UDS_STATUS_PROCESSING_FAILED</code></td><td>0x21</td><td>Monitor status processed but UDS status could not be queued for async processing</td><td>Check Dem_MainFunction scheduling — running? Queue overflow?</td></tr>
+<tr><td><code>DEM_E_NODATAAVAILABLE</code></td><td>0x30</td><td>SW-C/BSW returned non-E_OK for ReadData call during freeze frame capture</td><td>Check SW-C implementation — fill with 0xFF, log this in integration test</td></tr>
+</table>
+<h4>Key APIs quick reference</h4>
+<table>
+<tr><th>API</th><th>Called by</th><th>Purpose</th><th>Return</th></tr>
+<tr><td><code>Dem_PreInit(ConfigPtr)</code></td><td>EcuM</td><td>Phase 1 init — allows BSW event reporting</td><td>void</td></tr>
+<tr><td><code>Dem_Init(ConfigPtr)</code></td><td>EcuM (after NvM)</td><td>Phase 2 init — full operation</td><td>void</td></tr>
+<tr><td><code>Dem_Shutdown()</code></td><td>EcuM</td><td>Shutdown — triggers NvM write</td><td>void</td></tr>
+<tr><td><code>Dem_SetEventStatus(EventId, EventStatus)</code></td><td>SW-C/BSW</td><td>Report FAILED/PASSED/PREFAILED/PREPASSED</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_ResetEventStatus(EventId)</code></td><td>SW-C/BSW</td><td>Reset bit0 (TF) without reporting PASSED. Returns E_NOT_OK if already tested this cycle (bit6=0).</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_GetEventUdsStatus(EventId, *UdsStatusByte)</code></td><td>SW-C/FiM</td><td>Read current UDS status byte</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_GetMonitorStatus(EventId, *MonitorStatus)</code></td><td>SW-C</td><td>Read current monitor status</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_GetFaultDetectionCounter(EventId, *FDC)</code></td><td>SW-C/BSW</td><td>Get current FDC (-128..+127)</td><td>E_OK / DEM_E_NO_FDC_AVAILABLE</td></tr>
+<tr><td><code>Dem_SetEnableCondition(condId, condStatus)</code></td><td>BSW/SW-C</td><td>Enable/disable an enable condition</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_SetStorageCondition(condId, condStatus)</code></td><td>BSW/SW-C</td><td>Enable/disable a storage condition</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_RestartOperationCycle(cycleId)</code></td><td>BswM</td><td>End/restart an operation cycle</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_ClearDTC(clientId)</code></td><td>Dcm</td><td>Clear DTC information</td><td>DEM_CLEAR_OK / _FAILED / _PENDING / _MEMORY_ERROR</td></tr>
+<tr><td><code>Dem_SetDTCFilter(...)</code></td><td>Dcm</td><td>Set filter before iterating DTCs</td><td>DEM_FILTER_ACCEPTED / DEM_WRONG_DTC</td></tr>
+<tr><td><code>Dem_GetNextFilteredDTC(DTC, DTCStatus)</code></td><td>Dcm</td><td>Iterate through filtered DTCs</td><td>DEM_FILTERED_OK / _NO_MATCHING_ELEMENT / _PENDING</td></tr>
+<tr><td><code>Dem_EnableDTCSetting / Dem_DisableDTCSetting</code></td><td>Dcm ($85)</td><td>Enable/disable DTC setting globally</td><td>E_OK</td></tr>
+<tr><td><code>Dem_PrestoreFreezeFrame(EventId)</code></td><td>SW-C monitor</td><td>Capture FF data early (before qualification)</td><td>E_OK / E_NOT_OK</td></tr>
+<tr><td><code>Dem_GetEventMemoryOverflow(clientId, origin, *overflow)</code></td><td>SW-C/Dcm</td><td>Check if event memory was ever full</td><td>E_OK</td></tr>
+<tr><td><code>Dem_SetEventAvailable(EventId, available)</code></td><td>BSW/CDD</td><td>Mark event available/unavailable (variant handling)</td><td>E_OK / E_NOT_OK</td></tr>
+</table>
+<div class="warn"><b>DEM_E_UNINIT exceptions:</b> Dem_SetEventStatus, Dem_ResetEventDebounceStatus, Dem_SetEventAvailable, Dem_ResetEventStatus, Dem_GetVersionInfo, Dem_MainFunction — these do NOT report DEM_E_UNINIT if called before full init. All other APIs DO report E_UNINIT if called before Dem_Init.</div>
+</div>
+
+<script>
+function show(id,el){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pane-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+// UDS bits interactive
+const bitData=[
+  {name:"TF",full:"TestFailed",color:"#FCEBEB",border:"#A32D2D",text:"#791F1F",
+   detail:"<b>Bit 0 — TestFailed (TF)</b><br>Set 0→1: Dem_SetEventStatus(FAILED) after debounce. Reset 1→0: PASSED reported / Dem_ResetEventStatus / Dem_ClearDTC / op cycle restart (if DemStatusBitStorageTestFailed=FALSE). <b>Volatile or NvM:</b> config param DemStatusBitStorageTestFailed. TRUE=NvM, FALSE=reset on power cycle. WWH-OBD requires TRUE. Debug: TF stays 1 after power cycle? Check DemStatusBitStorageTestFailed. TF=1 but no memory entry? Check storage conditions."},
+  {name:"TFTOC",full:"TestFailedThisOpCycle",color:"#FAECE7",border:"#993C1D",text:"#712B13",
+   detail:"<b>Bit 1 — TestFailedThisOperationCycle (TFTOC)</b><br>Set 0→1: Any FAILED or PASSED reported while TF=0 in current cycle (i.e., first FAILED in cycle). Reset 1→0: Op cycle restart / ClearDTC. ALWAYS non-volatile. Key for: confirmation counting (failure counter only increments at cycle end if TFTOC=1), healing (counts pass cycles only if TFTOC=0 that cycle). Debug: TFTOC=1 unexpectedly → cycle not restarted? Check Dem_RestartOperationCycle call."},
+  {name:"PDTC",full:"PendingDTC",color:"#FAEEDA",border:"#BA7517",text:"#633806",
+   detail:"<b>Bit 2 — PendingDTC (PDTC)</b><br>Set 0→1: FAILED + storage condition fulfilled. Reset 1→0: Op cycle restart with TFTOC=0 AND TNCTOC=0 (test ran and passed this cycle) / ClearDTC / FaultRecordOverwritten (displacement, if configured). Non-volatile. PDTC=1 means 'fault occurred, investigating'. CDTC=0 still. Critical: storage condition must be fulfilled for PDTC to set! Debug: PDTC stuck at 1 after many pass cycles? Check op cycle restart and TNCTOC. Maybe monitor not running (TNCTOC stays 1)."},
+  {name:"CDTC",full:"ConfirmedDTC",color:"#EEEDFE",border:"#534AB7",text:"#3C3489",
+   detail:"<b>Bit 3 — ConfirmedDTC (CDTC)</b><br>Set 0→1: Failure counter reaches DemEventConfirmationThreshold. For threshold=1: set same cycle as FAILED. For threshold=2: set next cycle. Reset 1→0: AgingCriteria fulfilled / ClearDTC / Displacement (if DemResetConfirmedBitOnOverflow=TRUE). Non-volatile. Aging starts only after healing (WIR=0). Reoccurrence after aging → treat as new event. Debug: CDTC never sets? Check DemEventConfirmationThreshold vs number of failure cycles. OBD driving cycle qualified?"},
+  {name:"TNCSLS",full:"TestNotCompletedSinceLastClear",color:"#E6F1FB",border:"#185FA5",text:"#0C447C",
+   detail:"<b>Bit 4 — TestNotCompletedSinceLastClear (TNCSLS)</b><br>Initial value after ClearDTC: 1 (not tested yet). Set 1→0: Any FAILED or PASSED reported (test ran). Reset 0→1: ClearDTC. Non-volatile. Readiness indicator — shows monitor has run at least once. Debug: Always 1 on fresh ECU or after clear. If stays 1 for long time → monitor not running. Check enable conditions, monitor execution triggers."},
+  {name:"TFSLC",full:"TestFailedSinceLastClear",color:"#EAF3DE",border:"#639922",text:"#27500A",
+   detail:"<b>Bit 5 — TestFailedSinceLastClear (TFSLC)</b><br>Set 0→1: FAILED reported (any cycle since last clear). Reset 1→0: ClearDTC / AgingCriteria (optional, if DemStatusBitHandlingTestFailedSinceLastClear=DEM_STATUS_BIT_AGING_AND_DISPLACEMENT) / FaultRecordOverwritten (optional). Non-volatile. Historical indicator — 'has this fault ever occurred since last clear?'. Debug: TFSLC=1 but CDTC=0 and PDTC=0 → fault occurred but aged out or very brief. Check aging configuration."},
+  {name:"TNCTOC",full:"TestNotCompleteThisOpCycle",color:"#FAEEDA",border:"#BA7517",text:"#633806",
+   detail:"<b>Bit 6 — TestNotCompleteThisOperationCycle (TNCTOC)</b><br>Initial value at op cycle start: 1 (not tested yet). Set 1→0: Any FAILED or PASSED reported in current cycle. Reset 0→1: Op cycle restart / ClearDTC. Non-volatile. Key for: aging (requires TNCTOC=0 if DemAgingRequiresTestedCycle=TRUE). Debug: TNCTOC always 1? Monitor never runs in this cycle. Check enable conditions, timing, task scheduling. TNCTOC=1 at cycle end prevents aging counter increment if requires tested cycle."},
+  {name:"WIR",full:"WarningIndicatorRequested",color:"#FCEBEB",border:"#A32D2D",text:"#791F1F",
+   detail:"<b>Bit 7 — WarningIndicatorRequested (WIR)</b><br>Set 0→1: FAILED + WarningIndicatorOnCriteriaFulfilled (indicator confirmed on — via DemIndicatorFailureCycleCounterThreshold or DemEventConfirmationThreshold for MIL). Reset 1→0: ClearDTC / WarningIndicatorOffCriteriaFulfilled (healing complete: DemIndicatorHealingCycleCounterThreshold passed cycles). Volatile (calculated from indicator states). Critical: Healing MUST complete (WIR=0) before aging counter starts (SWS_Dem_00698). Debug: WIR=1 but no MIL request? Check DemIndicator configuration and DemIndicatorBehaviour (BLINKING/CONTINUOUS/SHORT)."},
+];
+
+const row=document.getElementById('bits');
+bitData.forEach((b,i)=>{
+  const d=document.createElement('div');
+  d.className='bit';
+  d.style.cssText=`background:${b.color};border-color:${b.border};color:${b.text}`;
+  d.innerHTML=`<div class="bn">${b.name}</div><div class="bv">${i}</div>`;
+  d.onclick=()=>{document.getElementById('bit-detail').innerHTML=b.detail};
+  row.appendChild(d);
+});
+</script>

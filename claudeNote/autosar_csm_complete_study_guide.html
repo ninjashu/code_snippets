@@ -1,0 +1,711 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.guide{padding:1rem 0;color:var(--color-text-primary)}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:1rem}
+.nav-btn{font-size:12px;padding:5px 12px;border:0.5px solid var(--color-border-secondary);border-radius:20px;background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.nav-btn.active,.nav-btn:hover{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.nav-btn.active{font-weight:500}
+.section{display:none}.section.active{display:block}
+h2{font-size:18px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary)}
+h3{font-size:15px;font-weight:500;margin:1.2rem 0 0.6rem;color:var(--color-text-primary)}
+h4{font-size:13px;font-weight:500;margin:0.8rem 0 0.4rem;color:var(--color-text-secondary)}
+p{font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:0.6rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:0.8rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-bottom:1rem}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.badge-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.layer{border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:6px;font-size:13px}
+.arrow-down{text-align:center;color:var(--color-text-tertiary);font-size:18px;margin:2px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1rem}
+th{text-align:left;padding:6px 10px;background:var(--color-background-secondary);font-weight:500;font-size:12px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.5}
+td:first-child{font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);white-space:nowrap}
+.state-box{border-radius:var(--border-radius-md);padding:12px 16px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:0.5px solid transparent}
+.state-box:hover{transform:translateY(-1px)}
+.state-idle{background:var(--color-background-secondary);color:var(--color-text-secondary);border-color:var(--color-border-secondary)}
+.state-active{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success,var(--color-border-secondary))}
+.state-arrow{display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-text-tertiary);padding:4px 0}
+.seq-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.seq-num{width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.seq-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.seq-text code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+.expand-btn{background:none;border:none;font-size:13px;color:var(--color-text-info);cursor:pointer;padding:0;display:inline}
+.expand-content{display:none;margin-top:6px}
+.expand-content.open{display:block}
+.flow-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.flow-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--color-text-primary)}
+.flow-diamond{background:var(--color-background-warning);border:0.5px solid var(--color-border-secondary);border-radius:4px;padding:5px 10px;font-size:12px;color:var(--color-text-warning);font-style:italic}
+.flow-arr{color:var(--color-text-tertiary);font-size:14px}
+.tip{background:var(--color-background-info);border-left:2px solid var(--color-border-info);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:8px 12px;font-size:13px;color:var(--color-text-info);margin-bottom:0.8rem;line-height:1.6}
+.warn{background:var(--color-background-warning);border-left:2px solid var(--color-border-warning,#EF9F27);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:8px 12px;font-size:13px;color:var(--color-text-warning);margin-bottom:0.8rem;line-height:1.6}
+.quiz-q{font-size:14px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary)}
+.quiz-opt{display:block;width:100%;text-align:left;font-size:13px;padding:8px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;cursor:pointer;margin-bottom:5px;color:var(--color-text-secondary);transition:all .15s}
+.quiz-opt:hover{background:var(--color-background-secondary)}
+.quiz-opt.correct{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success,var(--color-border-secondary))}
+.quiz-opt.wrong{background:var(--color-background-danger);color:var(--color-text-danger);border-color:var(--color-border-danger,var(--color-border-secondary))}
+.feedback{font-size:13px;margin-top:6px;min-height:20px;color:var(--color-text-secondary)}
+</style>
+
+<div class="guide">
+<h2 class="sr-only">AUTOSAR CSM Complete Study Guide</h2>
+
+<div class="nav" id="nav">
+  <button class="nav-btn active" onclick="show('arch')">1. Architecture</button>
+  <button class="nav-btn" onclick="show('state')">2. State Machine</button>
+  <button class="nav-btn" onclick="show('func')">3. Functional Spec</button>
+  <button class="nav-btn" onclick="show('api')">4. API Reference</button>
+  <button class="nav-btn" onclick="show('seq')">5. Sequences</button>
+  <button class="nav-btn" onclick="show('err')">6. Errors &amp; Debug</button>
+  <button class="nav-btn" onclick="show('keys')">7. Key Management</button>
+  <button class="nav-btn" onclick="show('quiz')">8. Exam Quiz</button>
+</div>
+
+<!-- 1. ARCHITECTURE -->
+<div class="section active" id="arch">
+<h2>1. Architecture &amp; Stack Overview</h2>
+
+<div class="tip">CSM = Crypto Service Manager. It sits in the <strong>Service Layer</strong> of AUTOSAR Classic Platform, acting as the single gateway for all crypto operations.</div>
+
+<h3>The 4-Layer Crypto Stack</h3>
+<p>Think of it as a vertical pipe. Your application never touches hardware directly — it calls CSM, which delegates downward.</p>
+
+<div class="layer" style="background:var(--color-background-info);border:0.5px solid var(--color-border-info)">
+  <span class="badge badge-blue" style="margin-bottom:4px;display:inline-block">Application / SW-C / BSW modules</span><br>
+  <span style="font-size:12px;color:var(--color-text-info)">Calls Csm_Hash(), Csm_Encrypt(), Csm_MacGenerate(), etc.</span>
+</div>
+<div class="arrow-down">↕ (Job-based API + Direct API)</div>
+<div class="layer" style="background:var(--color-background-success);border:0.5px solid var(--color-border-success,var(--color-border-secondary))">
+  <span class="badge badge-green" style="margin-bottom:4px;display:inline-block">CSM — Crypto Service Manager (Service Layer)</span><br>
+  <span style="font-size:12px;color:var(--color-text-success)">Schedules jobs, manages queues, routes to CryIf. No crypto math here.</span>
+</div>
+<div class="arrow-down">↕ (CryIf_ProcessJob, CryIf_KeyElementSet, …)</div>
+<div class="layer" style="background:var(--color-background-warning);border:0.5px solid var(--color-border-warning,var(--color-border-secondary))">
+  <span class="badge badge-amber" style="margin-bottom:4px;display:inline-block">CryIf — Crypto Interface (HAL-style abstraction)</span><br>
+  <span style="font-size:12px;color:var(--color-text-warning)">Dispatches to the correct Crypto Driver Object via channel routing.</span>
+</div>
+<div class="arrow-down">↕</div>
+<div class="layer" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary)">
+  <span class="badge badge-gray" style="margin-bottom:4px;display:inline-block">CRYPTO — Crypto Driver + Crypto Driver Object</span><br>
+  <span style="font-size:12px;color:var(--color-text-secondary)">HW (HSM, SHE) or SW library. Actually performs AES/SHA/RSA/ECC math. Holds the keys.</span>
+</div>
+
+<h3>Key Concepts (Exam Definitions)</h3>
+<div class="card-grid" style="grid-template-columns:1fr 1fr">
+  <div class="card"><h4>Job</h4><p>A configured CsmJob instance. Links: primitive (algorithm), key, queue, priority, sync/async mode. The unit of work CSM processes.</p></div>
+  <div class="card"><h4>Channel</h4><p>Path from a CSM queue → CryIf → specific Crypto Driver Object. Each queue maps to exactly one channel.</p></div>
+  <div class="card"><h4>Primitive</h4><p>A configured algorithm instance. Specifies AlgorithmFamily (AES, RSA…), AlgorithmMode (CBC, GCM…), and service type (HASH, MACGENERATE…).</p></div>
+  <div class="card"><h4>Crypto Driver Object</h4><p>Independent crypto "device" (HW accelerator or SW lib). Has its own workspace — only ONE primitive at a time per object.</p></div>
+  <div class="card"><h4>Key / Key Element</h4><p>Key lives in Crypto Driver. CSM holds only an ID reference. Key has elements (material, IV, seed…) each with a standard ID.</p></div>
+  <div class="card"><h4>Operation Modes</h4><p>START, UPDATE, FINISH (bit flags). Can be ORed together for single-call. Only streaming services support SUF; others use SINGLECALL.</p></div>
+</div>
+
+<h3>Two API Families</h3>
+<div class="card-grid" style="grid-template-columns:1fr 1fr">
+  <div class="card">
+    <span class="badge badge-blue">Job-Based API</span>
+    <p style="margin-top:8px">All crypto services (Hash, MAC, Encrypt…). Uses <code>Crypto_JobType</code> structure. Supports sync AND async. Goes through queue/scheduler.</p>
+    <p><strong>Examples:</strong> Csm_Hash, Csm_MacGenerate, Csm_Encrypt, Csm_SignatureVerify</p>
+  </div>
+  <div class="card">
+    <span class="badge badge-amber">Direct API</span>
+    <p style="margin-top:8px">Key management functions only. Always synchronous. Bypasses queue. Passes params directly to CryIf function.</p>
+    <p><strong>Examples:</strong> Csm_KeyElementSet, Csm_KeySetValid, Csm_KeyElementGet, Csm_KeyDerive</p>
+  </div>
+</div>
+
+<div class="tip" style="margin-top:8px"><strong>Exam trap:</strong> Keys are NEVER stored in CSM. CSM only holds numeric IDs. The physical key material lives inside the Crypto Driver, protected from the application.</div>
+</div>
+
+<!-- 2. STATE MACHINE -->
+<div class="section" id="state">
+<h2>2. Job State Machine</h2>
+<p>Every job has exactly two states. The state transitions happen in the Crypto Driver (where the actual workspace lives), but CSM reads the state to decide how to route requests.</p>
+
+<div class="card-grid" style="grid-template-columns:1fr 60px 1fr;align-items:center">
+  <div class="state-box state-idle" onclick="showStateInfo('idle')">
+    <div style="font-size:11px;margin-bottom:4px">CRYPTO_JOBSTATE_IDLE (0x00)</div>
+    <div style="font-size:16px">IDLE</div>
+    <div style="font-size:11px;margin-top:4px;opacity:0.7">After Init or Finish</div>
+  </div>
+  <div class="state-arrow" style="flex-direction:column;gap:4px">
+    <span style="font-size:11px;color:var(--color-text-info)">START/UPDATE</span>
+    <span>⇄</span>
+    <span style="font-size:11px;color:var(--color-text-secondary)">FINISH</span>
+  </div>
+  <div class="state-box state-active" onclick="showStateInfo('active')">
+    <div style="font-size:11px;margin-bottom:4px">CRYPTO_JOBSTATE_ACTIVE (0x01)</div>
+    <div style="font-size:16px">ACTIVE</div>
+    <div style="font-size:11px;margin-top:4px;opacity:0.7">After START or UPDATE</div>
+  </div>
+</div>
+
+<div class="card" id="state-info" style="margin-top:10px;min-height:60px">
+  <p style="color:var(--color-text-tertiary);font-style:italic">Click a state box above to learn more.</p>
+</div>
+
+<h3>Streaming Operation Modes (Bit Flags)</h3>
+<table>
+  <tr><th>Mode</th><th>Value</th><th>Meaning</th><th>When Used</th></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_START</td><td>0x01</td><td>Initialize the primitive, cancel previous</td><td>First call of a streaming sequence</td></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_UPDATE</td><td>0x02</td><td>Feed input data, may provide intermediate results</td><td>Called ≥1 times after START</td></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_STREAMSTART</td><td>0x03</td><td>START | UPDATE combined</td><td>First call with data</td></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_FINISH</td><td>0x04</td><td>All data fed, finalize and get result</td><td>Last call</td></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_SINGLECALL</td><td>0x07</td><td>START | UPDATE | FINISH in one shot</td><td>Small data, single-call APIs</td></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_SAVE_CONTEXT</td><td>0x05</td><td>Snapshot workspace to buffer</td><td>Csm_SaveContextJob</td></tr>
+  <tr><td>CRYPTO_OPERATIONMODE_RESTORE_CONTEXT</td><td>0x06</td><td>Restore workspace from buffer</td><td>Csm_RestoreContextJob</td></tr>
+</table>
+
+<div class="warn"><strong>Exam trap:</strong> START + FINISH without UPDATE (mode 0x05 = 0x01|0x04) → <code>E_NOT_OK</code>. START+FINISH without UPDATE is explicitly forbidden. UPDATE must appear at least implicitly.</div>
+
+<h3>Which Services Support Streaming?</h3>
+<p>Only these 9 services support START / UPDATE / FINISH. All others use SINGLECALL internally regardless of what the caller passes:</p>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem">
+  <span class="badge badge-blue">HASH</span>
+  <span class="badge badge-blue">MACGENERATE</span>
+  <span class="badge badge-blue">MACVERIFY</span>
+  <span class="badge badge-blue">ENCRYPT</span>
+  <span class="badge badge-blue">DECRYPT</span>
+  <span class="badge badge-blue">AEAD_ENCRYPT</span>
+  <span class="badge badge-blue">AEAD_DECRYPT</span>
+  <span class="badge badge-blue">SIGNATUREGENERATE</span>
+  <span class="badge badge-blue">SIGNATUREVERIFY</span>
+</div>
+
+<h3>Context Save/Restore</h3>
+<p>Allows pausing a streaming job, saving its internal workspace, and resuming later. Useful in multicore or time-sharing scenarios.</p>
+<div class="card">
+  <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Job must be in <strong>ACTIVE</strong> state. Calling Save/Restore on IDLE job → returns <code>E_NOT_OK</code>.</div></div>
+  <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><code>Csm_SaveContextJob(jobId, contextBufferPtr, contextBufferLengthPtr)</code> — CSM sets mode to SAVE_CONTEXT, calls CryIf_ProcessJob.</div></div>
+  <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Crypto Driver writes workspace bytes into contextBufferPtr. Key elements are NOT part of context.</div></div>
+  <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><code>Csm_RestoreContextJob(jobId, contextBufferPtr, contextBufferLength)</code> — CSM sets mode to RESTORE_CONTEXT, calls CryIf_ProcessJob.</div></div>
+  <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Continue with UPDATE/FINISH normally.</div></div>
+</div>
+</div>
+
+<!-- 3. FUNCTIONAL SPEC -->
+<div class="section" id="func">
+<h2>3. Functional Specification</h2>
+
+<h3>Queue &amp; Priority System</h3>
+<p>CSM can have multiple queues (CsmQueues). Each queue maps to one channel → one Crypto Driver Object. Jobs sit in queues sorted by priority (higher numeric value = higher priority).</p>
+
+<div class="tip"><strong>Priority rules:</strong> If sync job priority &gt; highest queued priority → queue is "paused" until sync job completes. If sync job priority &lt; highest queued → returns CRYPTO_E_BUSY. Queue can optionally have zero size (synchronous-only channels).</div>
+
+<h3>Csm_&lt;Service&gt; Behavior Flowchart</h3>
+<div class="card">
+  <div class="flow-row"><div class="flow-diamond">Is job ACTIVE?</div></div>
+  <div class="flow-row" style="margin-left:20px">
+    <span class="flow-arr">→ YES →</span>
+    <div class="flow-box">Call CryIf_ProcessJob immediately (streaming UPDATE/FINISH)</div>
+  </div>
+  <div class="flow-row" style="margin-left:20px">
+    <span class="flow-arr">→ NO →</span>
+    <div class="flow-diamond">Queue empty?</div>
+  </div>
+  <div class="flow-row" style="margin-left:60px">
+    <span class="flow-arr">→ YES →</span>
+    <div class="flow-diamond">Sync job?</div>
+    <span class="flow-arr">→ YES →</span>
+    <div class="flow-box">Call CryIf_ProcessJob directly</div>
+  </div>
+  <div class="flow-row" style="margin-left:100px">
+    <span class="flow-arr">→ NO (async) →</span>
+    <div class="flow-box">Enqueue job</div>
+  </div>
+  <div class="flow-row" style="margin-left:60px">
+    <span class="flow-arr">→ NO (queue not empty) →</span>
+    <div class="flow-diamond">Priority &gt; highest in queue?</div>
+  </div>
+  <div class="flow-row" style="margin-left:60px">
+    <span class="flow-arr">→ YES →</span>
+    <div class="flow-diamond">Queue full?</div>
+    <span class="flow-arr">→ YES →</span>
+    <div class="flow-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">Return CRYPTO_E_BUSY</div>
+  </div>
+  <div class="flow-row" style="margin-left:60px">
+    <span class="flow-arr">→ NO (full) →</span>
+    <div class="flow-box">Enqueue job</div>
+  </div>
+  <div class="flow-row" style="margin-left:60px">
+    <span class="flow-arr">→ NO (priority too low) →</span>
+    <div class="flow-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">Return CRYPTO_E_BUSY</div>
+  </div>
+</div>
+
+<h3>CSM Module Startup</h3>
+<div class="card">
+  <p><strong>Csm_Init(configPtr)</strong> — configPtr must ALWAYS be NULL_PTR. Returns void. CSM does NOT trigger CryIf init — that is BswM's responsibility.</p>
+  <p>If init fails → reports CSM_E_INIT_FAILED to DET (if CsmDevErrorDetect = true).</p>
+  <p>Partitioned ECUs: CSM may provide one init function per partition.</p>
+</div>
+
+<h3>Multicore Support</h3>
+<p>CsmQueues are handled in the MainFunction context. Each CsmQueue references a CsmQueueMainFunctionRef to assign it to a partition. Csm_&lt;Service&gt; APIs can be called from partitions their jobs are assigned to, with appropriate inter-partition mechanisms.</p>
+
+<h3>Sync vs Async — Full Comparison</h3>
+<table>
+  <tr><th>Attribute</th><th>Synchronous</th><th>Asynchronous</th></tr>
+  <tr><td>CRYPTO_PROCESSING_SYNC / ASYNC</td><td>0x01</td><td>0x00</td></tr>
+  <tr><td>Result available</td><td>When function returns</td><td>Via callback notification</td></tr>
+  <tr><td>Blocks caller</td><td>Yes (until complete)</td><td>No (returns immediately)</td></tr>
+  <tr><td>Queue usage</td><td>Typically 0-size queue</td><td>Uses queues</td></tr>
+  <tr><td>Callback required</td><td>No</td><td>Yes (CsmCallback in job config)</td></tr>
+  <tr><td>MainFunction needed</td><td>No</td><td>Yes (drives queue processing)</td></tr>
+  <tr><td>Key management APIs</td><td>Always sync</td><td>N/A</td></tr>
+</table>
+
+<h3>I/O Redirection</h3>
+<p>Input or output of a job can be redirected to a key element (instead of a pointer buffer). This is static compile-time config — cannot change at runtime.</p>
+<p><strong>Crypto_JobRedirectionInfoType.redirectionConfig</strong> is a bit field:</p>
+<table>
+  <tr><th>Bit</th><th>Meaning</th><th>Constant</th></tr>
+  <tr><td>Bit 0 (0x01)</td><td>Primary input → inputKeyId/KeyElementId</td><td>CRYPTO_REDIRECT_CONFIG_PRIMARY_INPUT</td></tr>
+  <tr><td>Bit 1 (0x02)</td><td>Secondary input redirected</td><td>CRYPTO_REDIRECT_CONFIG_SECONDARY_INPUT</td></tr>
+  <tr><td>Bit 2 (0x04)</td><td>Tertiary input redirected</td><td>CRYPTO_REDIRECT_CONFIG_TERTIARY_INPUT</td></tr>
+  <tr><td>Bit 4 (0x10)</td><td>Primary output → outputKeyId/KeyElementId</td><td>CRYPTO_REDIRECT_CONFIG_PRIMARY_OUTPUT</td></tr>
+  <tr><td>Bit 5 (0x20)</td><td>Secondary output redirected</td><td>CRYPTO_REDIRECT_CONFIG_SECONDARY_OUTPUT</td></tr>
+</table>
+<div class="warn">If redirection is configured for an I/O but the corresponding length parameter is NOT 0 → job not processed, returns E_NOT_OK.</div>
+</div>
+
+<!-- 4. API SPEC -->
+<div class="section" id="api">
+<h2>4. Complete API Reference</h2>
+<p>Click any service name to expand its full signature and return codes.</p>
+
+<h3>General Interface</h3>
+<div class="card">
+  <button class="expand-btn" onclick="toggleExpand('api-init')">▶ Csm_Init (0x00)</button>
+  <div class="expand-content" id="api-init">
+    <p><code>void Csm_Init(const Csm_ConfigType* configPtr)</code></p>
+    <p>configPtr MUST be NULL. Non-reentrant. Synchronous. Returns void. Reports CSM_E_INIT_FAILED on failure.</p>
+  </div>
+</div>
+<div class="card">
+  <button class="expand-btn" onclick="toggleExpand('api-ver')">▶ Csm_GetVersionInfo (0x3B)</button>
+  <div class="expand-content" id="api-ver">
+    <p><code>void Csm_GetVersionInfo(Std_VersionInfoType* versioninfo)</code></p>
+    <p>Reentrant. Returns version info. NULL ptr → CSM_E_PARAM_POINTER reported.</p>
+  </div>
+</div>
+<div class="card">
+  <button class="expand-btn" onclick="toggleExpand('api-main')">▶ Csm_MainFunction (0x01) — Scheduled</button>
+  <div class="expand-content" id="api-main">
+    <p><code>void Csm_MainFunction(void)</code></p>
+    <p>Called cyclically by BSW Scheduler. Processes queued async jobs — dispatches to CryIf_ProcessJob. Each CsmMainFunction container instance generates one Csm_MainFunction_&lt;shortName&gt;. Non-reentrant.</p>
+  </div>
+</div>
+
+<h3>Crypto Services</h3>
+
+<table>
+  <tr><th>API</th><th>SvcID</th><th>Key params</th><th>Returns</th></tr>
+  <tr>
+    <td>Csm_Hash</td><td>0x5D</td>
+    <td>jobId, mode, dataPtr, dataLength, resultPtr, resultLengthPtr*</td>
+    <td>E_OK, E_NOT_OK, BUSY</td>
+  </tr>
+  <tr>
+    <td>Csm_MacGenerate</td><td>0x60</td>
+    <td>jobId, mode, dataPtr, dataLength, macPtr, macLengthPtr*</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_MacVerify</td><td>0x61</td>
+    <td>jobId, mode, dataPtr, dataLength, macPtr, macLength(BITS!), verifyPtr</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_Encrypt</td><td>0x5E</td>
+    <td>jobId, mode, dataPtr, dataLength, resultPtr, resultLengthPtr*</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_Decrypt</td><td>0x5F</td>
+    <td>jobId, mode, dataPtr, dataLength, resultPtr, resultLengthPtr*</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_AEADEncrypt</td><td>0x62</td>
+    <td>jobId, mode, plaintextPtr, plaintextLen, assocDataPtr, assocDataLen, ciphertextPtr, ciphertextLenPtr*, tagPtr, tagLenPtr*</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_AEADDecrypt</td><td>0x63</td>
+    <td>jobId, mode, ciphertextPtr, ciphertextLen, assocDataPtr, assocDataLen, tagPtr, tagLen, plaintextPtr, plaintextLenPtr*, verifyPtr</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_SignatureGenerate</td><td>0x76</td>
+    <td>jobId, mode, dataPtr, dataLength, signaturePtr, signatureLengthPtr*</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_SignatureVerify</td><td>0x64</td>
+    <td>jobId, mode, dataPtr, dataLength, signaturePtr, signatureLength, verifyPtr</td>
+    <td>+KEY_NOT_VALID, KEY_SIZE_MISMATCH, KEY_EMPTY</td>
+  </tr>
+  <tr>
+    <td>Csm_RandomGenerate</td><td>0x72</td>
+    <td>jobId, resultPtr, resultLengthPtr*</td>
+    <td>+ENTROPY_EXHAUSTED</td>
+  </tr>
+  <tr>
+    <td>Csm_CancelJob</td><td>0x6F</td>
+    <td>jobId, mode (ignored)</td>
+    <td>E_OK, E_NOT_OK, CRYPTO_E_JOB_CANCELED</td>
+  </tr>
+  <tr>
+    <td>Csm_CustomService</td><td>0x13</td>
+    <td>jobId, mode, targetKeyId, up to 3 inputs, up to 2 outputs, verifyPtr</td>
+    <td>+CRYPTO_E_CUSTOM_ERROR</td>
+  </tr>
+  <tr>
+    <td>Csm_SaveContextJob</td><td>0x86</td>
+    <td>jobId, contextBufferPtr, contextBufferLengthPtr*</td>
+    <td>E_OK, E_NOT_OK, CRYPTO_E_BUSY</td>
+  </tr>
+  <tr>
+    <td>Csm_RestoreContextJob</td><td>0x87</td>
+    <td>jobId, contextBufferPtr, contextBufferLength</td>
+    <td>E_OK, E_NOT_OK, CRYPTO_E_BUSY</td>
+  </tr>
+</table>
+
+<div class="tip">* Parameters marked with * are <strong>inout</strong>: caller writes the buffer size, driver writes the actual length used. This is the AUTOSAR double-pointer pattern.</div>
+
+<div class="tip"><strong>macLength in Csm_MacVerify is in BITS, not bytes!</strong> This is a known exam trap. All other length parameters are in bytes.</div>
+
+<h3>Callback</h3>
+<div class="card">
+  <button class="expand-btn" onclick="toggleExpand('api-cb')">▶ Csm_CallbackNotification (0x70) &amp; Application Callback</button>
+  <div class="expand-content" id="api-cb">
+    <p><code>void Csm_CallbackNotification(Crypto_JobType* job, Crypto_ResultType result)</code></p>
+    <p>Called by CryIf when async job finishes. CSM then calls the application's configured callback:</p>
+    <p><code>void &lt;CsmCallbackFunc&gt;(uint32 jobId, Crypto_ResultType result)</code></p>
+    <p>Triggered only once per job call — when FINISH bit is set in mode. The app callback name is configured via CsmJobPrimitiveCallbackRef → CsmCallbackFunc.</p>
+    <p>Conditions for callback: CsmProcessingMode==ASYNC AND CsmJobInterfaceUsePort==CRYPTO_USE_FNC AND CsmJobPrimitiveCallbackRef != 0.</p>
+  </div>
+</div>
+
+<h3>Key Structures (Most Important for Exams)</h3>
+<table>
+  <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+  <tr><td>Crypto_JobType.jobId</td><td>uint32</td><td>Identifies the job (must match CsmJob config)</td></tr>
+  <tr><td>.jobState</td><td>Crypto_JobStateType</td><td>IDLE or ACTIVE — set by Crypto Driver</td></tr>
+  <tr><td>.jobPrimitiveInputOutput</td><td>Crypto_JobPrimitiveInputOutputType</td><td>All I/O pointers, lengths, mode, verify result</td></tr>
+  <tr><td>.jobPrimitiveInfo</td><td>const Crypto_JobPrimitiveInfoType*</td><td>Algorithm config, callback ID, processing type, CryIf key ID</td></tr>
+  <tr><td>.jobRedirectionInfoRef</td><td>Crypto_JobRedirectionInfoType*</td><td>NULL if no redirection, else key-based I/O config</td></tr>
+  <tr><td>.cryptoKeyId</td><td>uint32</td><td>Crypto Driver key ID (written by CryIf)</td></tr>
+  <tr><td>.jobPriority</td><td>const uint32</td><td>Higher value = higher priority</td></tr>
+</table>
+</div>
+
+<!-- 5. SEQUENCE DIAGRAMS -->
+<div class="section" id="seq">
+<h2>5. Sequence Diagrams</h2>
+<p>Select a scenario to see the full call sequence.</p>
+
+<div class="nav" style="border-bottom:none;padding-bottom:0;margin-bottom:1rem">
+  <button class="nav-btn active" onclick="showSeq('sync')">Sync Hash</button>
+  <button class="nav-btn" onclick="showSeq('async')">Async MAC</button>
+  <button class="nav-btn" onclick="showSeq('keysetup')">Key Setup</button>
+  <button class="nav-btn" onclick="showSeq('ecdh')">ECDH Exchange</button>
+  <button class="nav-btn" onclick="showSeq('cancel')">Job Cancel</button>
+</div>
+
+<div id="seq-sync" class="seq-section">
+<h3>Synchronous Hash (Single-call) — SHA-256</h3>
+<div class="card">
+  <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_Hash(jobId, SINGLECALL, dataPtr, dataLen, resultPtr, &resultLen)</code></div></div>
+  <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">CSM checks: initialized? jobId valid? pointers non-null? If any fail → DET error, return E_NOT_OK.</div></div>
+  <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">CSM checks job state = IDLE, packs Crypto_JobType (I/O pointers, mode=SINGLECALL, primitiveInfo with SHA-256 config).</div></div>
+  <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>CSM → CryIf:</strong> <code>CryIf_ProcessJob(channelId, &job)</code></div></div>
+  <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>CryIf → Crypto Driver:</strong> <code>Crypto_ProcessJob(objectId, &job)</code> — Driver executes SHA-256 in-place.</div></div>
+  <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Crypto Driver writes hash to resultPtr, updates resultLen, returns E_OK.</div></div>
+  <div class="seq-step"><div class="seq-num">7</div><div class="seq-text">Return value bubbles back: CryIf → CSM → App. <strong>No callback</strong> (synchronous).</div></div>
+</div>
+</div>
+
+<div id="seq-async" class="seq-section" style="display:none">
+<h3>Asynchronous MAC-Generate (Streaming — AES-CMAC)</h3>
+<div class="card">
+  <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>App:</strong> Key must be VALID before calling. Check with Csm_KeyGetStatus if needed.</div></div>
+  <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_MacGenerate(jobId, START, dataPtr1, len1, macPtr, &macLen)</code> → returns E_OK (job queued or passed to CryIf immediately).</div></div>
+  <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>Csm_MainFunction()</strong> runs cyclically — picks job from queue, calls <code>CryIf_ProcessJob</code>. Job transitions to ACTIVE.</div></div>
+  <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_MacGenerate(jobId, UPDATE, dataPtr2, len2, macPtr, &macLen)</code> → CSM sees job ACTIVE, calls CryIf immediately.</div></div>
+  <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Repeat UPDATE as many times as needed for all data chunks.</div></div>
+  <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_MacGenerate(jobId, FINISH, NULL, 0, macPtr, &macLen)</code></div></div>
+  <div class="seq-step"><div class="seq-num">7</div><div class="seq-text">Crypto Driver finalizes CMAC, writes to macPtr. Calls back via CryIf_CallbackNotification → <code>Csm_CallbackNotification(job, E_OK)</code>.</div></div>
+  <div class="seq-step"><div class="seq-num">8</div><div class="seq-text">CSM sees FINISH bit set → calls <strong>App's configured callback</strong> <code>MyMacCallback(jobId, E_OK)</code>.</div></div>
+  <div class="seq-step"><div class="seq-num">9</div><div class="seq-text">App reads MAC value from macPtr. Job state returns to IDLE.</div></div>
+</div>
+</div>
+
+<div id="seq-keysetup" class="seq-section" style="display:none">
+<h3>Key Setup Sequence — Setting an AES-128 Key</h3>
+<div class="card">
+  <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_KeyElementSet(keyId, CRYPTO_KE_CIPHER_KEY, aesKeyBytes, 16)</code> — write 128-bit key material to element ID 1 of key "keyId".</div></div>
+  <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">CSM validates params (no DET errors), calls <code>CryIf_KeyElementSet(cryIfKeyId, CRYPTO_KE_CIPHER_KEY, ...)</code>.</div></div>
+  <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">CryIf maps to Crypto Driver, calls <code>Crypto_KeyElementSet(cryptoKeyId, ...)</code>. Key material written to Driver's secure storage.</div></div>
+  <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">(Optional) Set IV: <code>Csm_KeyElementSet(keyId, CRYPTO_KE_CIPHER_IV, ivBytes, 16)</code></div></div>
+  <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_KeySetValid(keyId)</code> — marks key as valid. Key cannot be used for crypto ops until this is called.</div></div>
+  <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">CryIf_KeySetValid → Crypto_KeySetValid. Key state = VALID.</div></div>
+  <div class="seq-step"><div class="seq-num">7</div><div class="seq-text">Now <code>Csm_Encrypt(jobId, SINGLECALL, ...)</code> will succeed. If called before KeySetValid → CRYPTO_E_KEY_NOT_VALID.</div></div>
+</div>
+<div class="warn">Key management functions call <code>Csm_DisableProcessing</code> internally — CSM stops loading new jobs from queue until next MainFunction cycle. This prevents race conditions.</div>
+</div>
+
+<div id="seq-ecdh" class="seq-section" style="display:none">
+<h3>ECDH Key Exchange (Alice &amp; Bob)</h3>
+<div class="card">
+  <p style="font-size:12px;font-style:italic;margin-bottom:8px">Both ECUs run same procedure. Alice initiates.</p>
+  <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>Alice — Setup:</strong> Set CRYPTO_KE_KEYEXCHANGE_BASE (generator point / modulus), CRYPTO_KE_KEYEXCHANGE_PRIVKEY (private key or let driver generate). Call Csm_KeySetValid.</div></div>
+  <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Alice → CSM:</strong> <code>Csm_KeyExchangeCalcPubVal(keyId, pubValPtr, &pubValLen)</code> → Crypto Driver generates own public value using private key.</div></div>
+  <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Alice sends pubValPtr data to Bob over network (may need signing/encryption depending on protocol).</div></div>
+  <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>Bob</strong> does same: sets up keys, calls CalcPubVal, sends his public value to Alice.</div></div>
+  <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>Alice → CSM:</strong> <code>Csm_KeyExchangeCalcSecret(keyId, bobPubValPtr, bobPubValLen)</code> → Crypto Driver computes shared secret, stores in CRYPTO_KE_KEYEXCHANGE_SHAREDVALUE.</div></div>
+  <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Bob does same with Alice's public value. Both now have same shared secret in their SHAREDVALUE key element.</div></div>
+  <div class="seq-step"><div class="seq-num">7</div><div class="seq-text">Copy shared secret to a session key using <code>Csm_KeyElementCopy</code>, call <code>Csm_KeySetValid</code>, then use for AES/CMAC.</div></div>
+</div>
+</div>
+
+<div id="seq-cancel" class="seq-section" style="display:none">
+<h3>Job Cancellation</h3>
+<div class="card">
+  <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>App → CSM:</strong> <code>Csm_CancelJob(jobId, mode)</code> — mode parameter is ignored (compatibility only). Synchronous call.</div></div>
+  <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">If job is in CSM queue (not yet dispatched to driver): removed from queue. Returns E_OK. <strong>Callback is NOT called</strong> in this path.</div></div>
+  <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">If job is already in Crypto Driver: CSM calls <code>CryIf_CancelJob</code>.</div></div>
+  <div class="seq-step"><div class="seq-num">4a</div><div class="seq-text"><strong>Instant cancel (CryIf returns E_OK):</strong> CSM calls job callback with CRYPTO_E_JOB_CANCELED. App must NOT read output buffers.</div></div>
+  <div class="seq-step"><div class="seq-num">4b</div><div class="seq-text"><strong>Deferred cancel (CryIf returns CRYPTO_E_JOB_CANCELED):</strong> Driver is mid-operation. CSM waits — callback will be called with CRYPTO_E_JOB_CANCELED at next Csm_CallbackNotification. Buffers may still be written!</div></div>
+  <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>Cannot cancel sync jobs</strong> → CSM_E_PROCESSING_MODE reported to DET, returns E_NOT_OK.</div></div>
+</div>
+</div>
+</div>
+
+<!-- 6. ERRORS & DEBUG -->
+<div class="section" id="err">
+<h2>6. Errors, Debugging &amp; Integration Testing</h2>
+
+<h3>Development Errors (DET — default error tracer)</h3>
+<table>
+  <tr><th>Error Code</th><th>Value</th><th>Trigger Condition</th><th>Debug Action</th></tr>
+  <tr><td>CSM_E_PARAM_POINTER</td><td>0x01</td><td>NULL pointer passed (when not using I/O redirection)</td><td>Check all pointer args. Check if redirect config wrongly set.</td></tr>
+  <tr><td>CSM_E_PARAM_HANDLE</td><td>0x04</td><td>jobId or keyId out of configured range</td><td>Verify generated CsmJob/CsmKey containers match IDs used in code.</td></tr>
+  <tr><td>CSM_E_UNINIT</td><td>0x05</td><td>CSM API called before Csm_Init</td><td>Ensure BswM/EcuM init sequence calls Csm_Init before app use.</td></tr>
+  <tr><td>CSM_E_INIT_FAILED</td><td>0x07</td><td>Csm_Init itself failed internally</td><td>Check underlying CryIf/Crypto init. Check config tool output.</td></tr>
+  <tr><td>CSM_E_PROCESSING_MODE</td><td>0x08</td><td>Invalid mode value, or CancelJob called on sync job</td><td>Check operation mode bitmask. Verify job config sync/async.</td></tr>
+  <tr><td>CSM_E_SERVICE_TYPE</td><td>0x09</td><td>Wrong API for job type (e.g. Csm_Hash called with MACGENERATE jobId)</td><td>Check CsmJobPrimitive mapping in config tool.</td></tr>
+</table>
+
+<h3>Runtime Errors</h3>
+<table>
+  <tr><th>Error Code</th><th>Value</th><th>Trigger</th><th>Debug Action</th></tr>
+  <tr><td>CSM_E_QUEUE_FULL</td><td>0x01</td><td>Queue overrun — job can't be enqueued</td><td>Increase CsmQueueSize, reduce job rate, increase priorities.</td></tr>
+</table>
+
+<h3>Return Value / Status Errors (Std_ReturnType extensions)</h3>
+<table>
+  <tr><th>Return Code</th><th>Value</th><th>Meaning &amp; Common Cause</th></tr>
+  <tr><td>E_OK</td><td>0x00</td><td>Success</td></tr>
+  <tr><td>E_NOT_OK</td><td>0x01</td><td>General failure — check DET for development error first</td></tr>
+  <tr><td>CRYPTO_E_BUSY</td><td>0x02</td><td>Driver object or queue is busy. Retry later, or increase queue/driver capacity.</td></tr>
+  <tr><td>CRYPTO_E_ENTROPY_EXHAUSTED</td><td>0x04</td><td>TRNG/PRNG has no entropy. Must reseed before generating random numbers.</td></tr>
+  <tr><td>CRYPTO_E_KEY_READ_FAIL</td><td>0x06</td><td>Read access denied. Check key element CryptoKeyElementReadAccess config.</td></tr>
+  <tr><td>CRYPTO_E_KEY_WRITE_FAIL</td><td>0x07</td><td>Write access denied. Check CryptoKeyElementWriteAccess config.</td></tr>
+  <tr><td>CRYPTO_E_KEY_NOT_AVAILABLE</td><td>0x08</td><td>Key element does not exist. Check keyId + keyElementId combination.</td></tr>
+  <tr><td>CRYPTO_E_KEY_NOT_VALID</td><td>0x09</td><td>Key exists but not marked valid. Call Csm_KeySetValid first.</td></tr>
+  <tr><td>CRYPTO_E_KEY_SIZE_MISMATCH</td><td>0x0A</td><td>Key element size wrong. AES-128 key must be exactly 16 bytes.</td></tr>
+  <tr><td>CRYPTO_E_JOB_CANCELED</td><td>0x0C</td><td>Job was canceled. Check cancel logic timing.</td></tr>
+  <tr><td>CRYPTO_E_KEY_EMPTY</td><td>0x0D</td><td>Key element uninitialized (length=0). Set key material before use.</td></tr>
+  <tr><td>CRYPTO_E_CUSTOM_ERROR</td><td>0x0E</td><td>Vendor-specific custom service failure.</td></tr>
+</table>
+
+<h3>Integration Testing Checklist</h3>
+<div class="card">
+  <h4>Startup / Init</h4>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Csm_Init called with NULL before any service API</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">CryIf and Crypto Driver initialized by BswM before CSM services used</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Csm_MainFunction scheduled correctly at expected cycle time</div></div>
+</div>
+<div class="card">
+  <h4>Key Handling</h4>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">KeyElementSet called before KeySetValid (order matters!)</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Csm_KeyGetStatus used to verify VALID state before crypto ops</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Key invalidated (Csm_KeySetInvalid) on key compromise detection</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">ECC keys: both key material AND curve type element set (CRYPTO_KE_xxx_CURVETYPE)</div></div>
+</div>
+<div class="card">
+  <h4>Streaming API</h4>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">START called exactly once per operation</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">At least one UPDATE between START and FINISH</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">resultLengthPtr initialized to buffer size before call; actual length read after</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">MacVerify: macLength is in BITS not bytes</div></div>
+</div>
+<div class="card">
+  <h4>Async Operations</h4>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Callback registered in CsmJob → CsmCallback → CsmCallbackFunc</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Input/output buffers NOT freed until callback received with result</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">After canceled job callback: do NOT read output buffer (may be corrupted)</div></div>
+  <div class="seq-step"><div class="seq-num">✓</div><div class="seq-text">Callback called exactly ONCE per operation, at FINISH</div></div>
+</div>
+</div>
+
+<!-- 7. KEY MANAGEMENT -->
+<div class="section" id="keys">
+<h2>7. Key Management — Complete Reference</h2>
+
+<h3>Key Architecture</h3>
+<p>Keys live in the Crypto Driver. CSM references them by ID only. Applications <em>never</em> see symmetric or private key material — the Crypto Driver enforces access control.</p>
+
+<div class="card-grid" style="grid-template-columns:1fr 1fr 1fr">
+  <div class="card"><h4>Key (CsmKey)</h4><p>Named ID in CSM config. Has 1+ elements. Can be marked valid/invalid. Config: CsmKeyUsePort (RTE port or function interface)</p></div>
+  <div class="card"><h4>Key Element</h4><p>Typed byte array within a key. Standard IDs defined by spec. Vendor-specific IDs start at 1000+. Access-controlled (read/write/exportable).</p></div>
+  <div class="card"><h4>Key Formats</h4><p>BIN_OCTET, BIN_SHEKEYS (M1-M5), BIN_IDENT_PRIVATEKEY_PKCS8, BIN_IDENT_PUBLICKEY, BIN_RSA_PRIVATEKEY, BIN_RSA_PUBLICKEY</p></div>
+</div>
+
+<h3>Standard Key Element IDs</h3>
+<table>
+  <tr><th>Service</th><th>Element Name</th><th>ID</th></tr>
+  <tr><td>MAC</td><td>CRYPTO_KE_MAC_KEY (key material)</td><td>1</td></tr>
+  <tr><td>MAC</td><td>CRYPTO_KE_MAC_PROOF (SHE)</td><td>2</td></tr>
+  <tr><td>Signature</td><td>CRYPTO_KE_SIGNATURE_KEY</td><td>1</td></tr>
+  <tr><td>Signature</td><td>CRYPTO_KE_SIGNATURE_CURVETYPE</td><td>29</td></tr>
+  <tr><td>Random</td><td>CRYPTO_KE_RANDOM_SEED_STATE</td><td>3</td></tr>
+  <tr><td>Random</td><td>CRYPTO_KE_RANDOM_ALGORITHM</td><td>4</td></tr>
+  <tr><td>Cipher</td><td>CRYPTO_KE_CIPHER_KEY</td><td>1</td></tr>
+  <tr><td>Cipher</td><td>CRYPTO_KE_CIPHER_IV</td><td>5</td></tr>
+  <tr><td>Cipher</td><td>CRYPTO_KE_CIPHER_2NDKEY</td><td>7</td></tr>
+  <tr><td>Key Exchange</td><td>CRYPTO_KE_KEYEXCHANGE_BASE</td><td>8</td></tr>
+  <tr><td>Key Exchange</td><td>CRYPTO_KE_KEYEXCHANGE_PRIVKEY</td><td>9</td></tr>
+  <tr><td>Key Exchange</td><td>CRYPTO_KE_KEYEXCHANGE_OWNPUBKEY</td><td>10</td></tr>
+  <tr><td>Key Exchange</td><td>CRYPTO_KE_KEYEXCHANGE_SHAREDVALUE</td><td>1</td></tr>
+  <tr><td>Key Exchange</td><td>CRYPTO_KE_KEYEXCHANGE_ALGORITHM</td><td>12</td></tr>
+  <tr><td>Key Derivation</td><td>CRYPTO_KE_KEYDERIVATION_PASSWORD</td><td>1</td></tr>
+  <tr><td>Key Derivation</td><td>CRYPTO_KE_KEYDERIVATION_SALT</td><td>13</td></tr>
+  <tr><td>Key Derivation</td><td>CRYPTO_KE_KEYDERIVATION_ITERATIONS</td><td>14</td></tr>
+  <tr><td>Key Generate</td><td>CRYPTO_KE_KEYGENERATE_KEY</td><td>1</td></tr>
+  <tr><td>Key Generate</td><td>CRYPTO_KE_KEYGENERATE_SEED</td><td>16</td></tr>
+  <tr><td>Key Generate</td><td>CRYPTO_KE_KEYGENERATE_ALGORITHM</td><td>17</td></tr>
+  <tr><td>Key Wrap</td><td>CRYPTO_KE_KEYWRAP_KEY</td><td>1</td></tr>
+  <tr><td>All ECC</td><td>CRYPTO_KE_xxx_CURVETYPE</td><td>29</td></tr>
+</table>
+
+<h3>All Key Management APIs</h3>
+<table>
+  <tr><th>API</th><th>SvcID</th><th>Description</th></tr>
+  <tr><td>Csm_KeyElementSet</td><td>0x78</td><td>Write bytes to a key element. Non-reentrant. Always sync.</td></tr>
+  <tr><td>Csm_KeySetValid</td><td>0x67</td><td>Mark key as valid (required before use). Non-reentrant. Sync.</td></tr>
+  <tr><td>Csm_KeySetInvalid</td><td>0x85</td><td>Mark key invalid (key unusable until re-validated). Sync.</td></tr>
+  <tr><td>Csm_KeyGetStatus</td><td>0x83</td><td>Read key state (VALID/INVALID/EMPTY). Reentrant. Sync.</td></tr>
+  <tr><td>Csm_KeyElementGet</td><td>0x68</td><td>Extract key element bytes (if access allows). Reentrant. Sync.</td></tr>
+  <tr><td>Csm_KeyElementCopy</td><td>0x71</td><td>Copy one key element to another key. Reentrant (not same keyId). Sync.</td></tr>
+  <tr><td>Csm_KeyElementCopyPartial</td><td>0x79</td><td>Copy partial bytes from source element to target at offset. Sync.</td></tr>
+  <tr><td>Csm_KeyCopy</td><td>0x73</td><td>Copy ALL elements from source key to target key. Sync.</td></tr>
+  <tr><td>Csm_RandomSeed</td><td>0x69</td><td>Feed entropy to CRYPTO_KE_RANDOM_SEED_STATE. Sync.</td></tr>
+  <tr><td>Csm_KeyGenerate</td><td>0x6A</td><td>Generate key material using seed in CRYPTO_KE_KEYGENERATE_SEED. Sync.</td></tr>
+  <tr><td>Csm_KeyDerive</td><td>0x6B</td><td>Derive key using KDF (PBKDF2/HKDF/X9.63). Source: password+salt. Sync.</td></tr>
+  <tr><td>Csm_KeyExchangeCalcPubVal</td><td>0x6C</td><td>Compute own DH/ECDH public value. Sync.</td></tr>
+  <tr><td>Csm_KeyExchangeCalcSecret</td><td>0x6D</td><td>Compute shared secret from partner's public value. Sync.</td></tr>
+  <tr><td>Csm_JobKeyWrap</td><td>0x89</td><td>Wrap key with wrapping key → encrypted key blob. Job-based (async possible).</td></tr>
+  <tr><td>Csm_JobKeyUnwrap</td><td>0x8A</td><td>Unwrap encrypted key blob → key element. Job-based. Verifies authenticator.</td></tr>
+</table>
+
+<div class="tip"><strong>Job-based key ops (Csm_JobKeySetValid, Csm_JobKeyGenerate, etc.)</strong> are the asynchronous-capable versions of the direct APIs. They use jobId instead of keyId and go through the queue/scheduler. These are newer additions for async key provisioning flows.</div>
+</div>
+
+<!-- 8. QUIZ -->
+<div class="section" id="quiz">
+<h2>8. Exam Self-Test</h2>
+<p>Test your knowledge. All questions are industry-exam difficulty based directly on the spec.</p>
+<div id="quiz-container"></div>
+<button onclick="nextQ()" style="margin-top:1rem;padding:8px 20px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;cursor:pointer;color:var(--color-text-primary)">Next Question →</button>
+<div style="margin-top:6px;font-size:12px;color:var(--color-text-tertiary)" id="quiz-score"></div>
+</div>
+
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const idx = ['arch','state','func','api','seq','err','keys','quiz'].indexOf(id);
+  document.querySelectorAll('#nav .nav-btn')[idx].classList.add('active');
+}
+
+function toggleExpand(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling;
+  btn.textContent = btn.textContent.replace(/[▶▼]/,el.classList.contains('open')?'▼':'▶');
+}
+
+const stateInfo = {
+  idle: '<h4>CRYPTO_JOBSTATE_IDLE (0x00)</h4><p>Initial state after Csm_Init or after FINISH completes. No workspace active. Any START call from this state begins a fresh operation. Calling SaveContextJob or RestoreContextJob when IDLE → E_NOT_OK.</p>',
+  active: '<h4>CRYPTO_JOBSTATE_ACTIVE (0x01)</h4><p>Job has been started (START or START+UPDATE sent). Crypto Driver has an active workspace. In this state: UPDATE/FINISH calls pass directly to CryIf (bypassing queue). SaveContextJob/RestoreContextJob are valid. No other operation can run on same Crypto Driver Object.</p>'
+};
+function showStateInfo(s){ document.getElementById('state-info').innerHTML=stateInfo[s]; }
+
+function showSeq(id) {
+  document.querySelectorAll('.seq-section').forEach(s=>s.style.display='none');
+  document.getElementById('seq-'+id).style.display='block';
+  document.querySelectorAll('#seq .nav-btn').forEach(b=>b.classList.remove('active'));
+  const ids=['sync','async','keysetup','ecdh','cancel'];
+  document.querySelectorAll('#seq .nav-btn')[ids.indexOf(id)].classList.add('active');
+}
+
+const questions = [
+  {q:"A call to Csm_MacVerify specifies macLength=64. What unit is this in?",opts:["Bytes","Bits","Nibbles","Words"],ans:1,exp:"macLength in Csm_MacVerify is in BITS. This is a critical exam trap — all other length parameters are in bytes."},
+  {q:"What is the mandatory value for configPtr when calling Csm_Init?",opts:["A pointer to CsmGeneral config","NULL_PTR","A pointer to CsmMainFunction config","A pointer to the first CsmJob"],ans:1,exp:"[SWS_Csm_00186]: configPtr shall ALWAYS be NULL_PTR. The parameter is reserved for future use."},
+  {q:"If Csm_CancelJob is called on a synchronous job, what happens?",opts:["Job is immediately canceled","CRYPTO_E_JOB_CANCELED returned","CSM_E_PROCESSING_MODE reported to DET, returns E_NOT_OK","E_NOT_OK returned silently"],ans:2,exp:"[SWS_Csm_01086]: CancelJob on a sync job → CSM_E_PROCESSING_MODE reported to DET AND returns E_NOT_OK."},
+  {q:"Which of these correctly describes the START+FINISH without UPDATE scenario?",opts:["Valid single-call shortcut","Returns E_NOT_OK per spec","Equivalent to SINGLECALL","Triggers E_OK with partial result"],ans:1,exp:"[SWS_Csm_01045]: If START and FINISH bits are set but UPDATE is NOT set, Csm_<Service> returns E_NOT_OK."},
+  {q:"Where do keys (cryptographic material) physically reside in the AUTOSAR stack?",opts:["In the CSM module's RAM","In the CryIf abstraction layer","In the Crypto Driver","In the application SWC"],ans:2,exp:"Keys reside in the Crypto Driver. CSM holds only a numeric key ID reference. This enables access control and hardware-protected keys (HSM/SHE)."},
+  {q:"Csm_KeyGetStatus is needed. A key element was written (KeyElementSet) but was never marked valid. What will KeyGetStatus return?",opts:["CRYPTO_E_KEY_NOT_VALID","CRYPTO_E_KEY_EMPTY","CRYPTO_E_KEY_NOT_AVAILABLE","E_NOT_OK"],ans:0,exp:"A key that has had material written but was never KeySetValid returns CRYPTO_E_KEY_NOT_VALID when any crypto op tries to use it. KeyGetStatus returns this state."},
+  {q:"In async processing, when exactly is the application callback called?",opts:["After every UPDATE","After START","Once per job call, when FINISH bit is set","On every successful CryIf_ProcessJob"],ans:2,exp:"[SWS_Csm_01090]: The application callback is called ONCE at the end when FINISH bit is processed, regardless of how many START/UPDATE calls were made."},
+  {q:"What is the standard Key Element ID for an Initialization Vector used in cipher operations?",opts:["1","3","5","7"],ans:2,exp:"CRYPTO_KE_CIPHER_IV has ID = 5. Key material itself (CRYPTO_KE_CIPHER_KEY) is ID = 1. Proof (SHE) = 2. Seed State = 3."},
+  {q:"A CsmJob is configured for CRYPTO_PROCESSING_ASYNC. The queue is empty. What does Csm_Encrypt() do when called?",opts:["Calls CryIf_ProcessJob immediately and blocks until done","Enqueues the job for Csm_MainFunction to process","Returns CRYPTO_E_BUSY","Calls the callback immediately with E_NOT_OK"],ans:1,exp:"Async job with empty queue → job is enqueued. Csm_MainFunction (run cyclically by scheduler) will pick it up and call CryIf_ProcessJob. Function returns E_OK immediately."},
+  {q:"Csm_KeyExchangeCalcSecret stores the shared secret in which key element?",opts:["CRYPTO_KE_KEYEXCHANGE_BASE (ID=8)","CRYPTO_KE_KEYEXCHANGE_PRIVKEY (ID=9)","CRYPTO_KE_KEYEXCHANGE_SHAREDVALUE (ID=1)","CRYPTO_KE_KEYEXCHANGE_ALGORITHM (ID=12)"],ans:2,exp:"The shared secret is stored in CRYPTO_KE_KEYEXCHANGE_SHAREDVALUE which has ID=1 (same ID as 'Key Material' in other contexts, but for the Key Exchange key type it maps to the shared value)."},
+  {q:"What does I/O redirection in a CSM job allow?",opts:["Redirect output to DET for logging","Use a key element as input or output instead of memory buffer","Redirect the job to a different Crypto Driver","Forward results to another SW-C via RTE"],ans:1,exp:"[SWS_Csm_91013]: I/O redirection allows input/output to be sourced from or written to a key element instead of a pointer buffer. This is static compile-time config (Crypto_JobRedirectionInfoType)."},
+  {q:"Which algorithm mode constant enables AES-GCM (Galois/Counter Mode)?",opts:["CRYPTO_ALGOMODE_CTR (0x05)","CRYPTO_ALGOMODE_GCM (0x06)","CRYPTO_ALGOMODE_CBC (0x02)","CRYPTO_ALGOMODE_GMAC (0x11)"],ans:1,exp:"CRYPTO_ALGOMODE_GCM = 0x06 is AES-GCM. GMAC (0x11) is only the MAC part without encryption. GCM provides both encryption and authentication (AEAD)."}
+];
+
+let qIdx=0, score=0, answered=false;
+
+function renderQ() {
+  answered=false;
+  const q=questions[qIdx];
+  let html=`<div class="card"><p class="quiz-q">Q${qIdx+1}/${questions.length}: ${q.q}</p>`;
+  q.opts.forEach((o,i)=>{ html+=`<button class="quiz-opt" onclick="checkAns(${i})">${String.fromCharCode(65+i)}. ${o}</button>`; });
+  html+=`<div class="feedback" id="fb"></div></div>`;
+  document.getElementById('quiz-container').innerHTML=html;
+  document.getElementById('quiz-score').textContent=`Score: ${score}/${qIdx}`;
+}
+
+function checkAns(i) {
+  if(answered) return;
+  answered=true;
+  const q=questions[qIdx];
+  const btns=document.querySelectorAll('.quiz-opt');
+  btns[i].classList.add(i===q.ans?'correct':'wrong');
+  if(i===q.ans){ score++; }
+  btns[q.ans].classList.add('correct');
+  document.getElementById('fb').textContent=q.exp;
+  document.getElementById('quiz-score').textContent=`Score: ${score}/${qIdx+1}`;
+}
+
+function nextQ() {
+  qIdx=(qIdx+1)%questions.length;
+  if(qIdx===0) score=0;
+  renderQ();
+}
+
+renderQ();
+</script>

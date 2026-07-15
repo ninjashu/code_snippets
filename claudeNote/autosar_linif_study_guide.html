@@ -1,0 +1,647 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.tb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tb-btn{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .15s}
+.tb-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.tb-btn:hover:not(.active){background:var(--color-background-secondary)}
+.pn{display:none}.pn.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.ct{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 8px}
+.cb{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.sh{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin:1.2rem 0 .5rem}
+.fn{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info)}
+.ec{font-family:var(--font-mono);font-size:11px;background:var(--color-background-danger);color:var(--color-text-danger);border-radius:4px;padding:1px 4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:7px 10px;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em;background:var(--color-background-secondary)}
+.tbl td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--color-background-secondary)}
+.cfg-r{display:grid;grid-template-columns:185px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.cfg-r:last-child{border-bottom:none}
+.ck{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);word-break:break-all}
+.cv{color:var(--color-text-secondary);line-height:1.5}
+.sb{font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.sb.sel{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.pill{border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;display:inline-block;margin:3px}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:500}
+.bs{background:var(--color-background-success);color:var(--color-text-success)}
+.ba{background:var(--color-background-warning);color:var(--color-text-warning)}
+.bi{background:var(--color-background-info);color:var(--color-text-info)}
+.bo{background:var(--color-background-danger);color:var(--color-text-danger)}
+input.si{width:100%;box-sizing:border-box;font-family:var(--font-sans);font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:12px}
+input.si:focus{outline:none;border-color:var(--color-border-info)}
+.master-tag{background:#EAF3DE;color:#27500A;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.slave-tag{background:#EEEDFE;color:#3C3489;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+.both-tag{background:#FAEEDA;color:#633806;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500}
+</style>
+
+<h2 class="sr-only">AUTOSAR LIN Interface (LinIf + LinTp) complete study guide — R24-11</h2>
+
+<div class="tb" id="tab-bar">
+  <button class="tb-btn active" onclick="showTab('overview',this)">Overview & Stack</button>
+  <button class="tb-btn" onclick="showTab('state',this)">State Machines</button>
+  <button class="tb-btn" onclick="showTab('frames',this)">Frame Types & Flow</button>
+  <button class="tb-btn" onclick="showTab('schedule',this)">Schedule Tables</button>
+  <button class="tb-btn" onclick="showTab('api',this)">API Reference</button>
+  <button class="tb-btn" onclick="showTab('lintp',this)">LIN TP</button>
+  <button class="tb-btn" onclick="showTab('errors',this)">Errors & Debug</button>
+  <button class="tb-btn" onclick="showTab('config',this)">DaVinci Config</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="pn-overview" class="pn active">
+  <div class="card">
+    <p class="ct">What is LinIf?</p>
+    <p class="cb">LinIf (LIN Interface) is the AUTOSAR BSW module that provides ISO 17987 (LIN 2.x) protocol behaviour for both <span class="master-tag">MASTER</span> and <span class="slave-tag">SLAVE</span> nodes. It sits between upper communication layers (LSduR, PduR, LinSM) and the lower LIN Driver + LIN Transceiver Driver. It includes an integrated LIN Transport Protocol (LinTp) for diagnostic messaging. One LinIf instance handles ALL LIN channels of an ECU.</p>
+  </div>
+
+  <p class="sh">AUTOSAR LIN Stack — click for detail</p>
+  <div id="ov-detail" style="display:none;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;font-size:13px;line-height:1.65;"></div>
+
+  <div onclick="showOvD('linsm')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:var(--color-background-warning);color:var(--color-text-warning);">
+    <div><span>LinSM + BswM + ComM — LIN State Manager and upper control</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">LinIf_ScheduleRequest · LinIf_GotoSleep · LinIf_Wakeup · GotoSleepConfirmation · WakeupConfirmation</div></div>
+  </div>
+  <div onclick="showOvD('lsdu')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#EEEDFE;color:#3C3489;">
+    <div><span>LSduR — L-SDU Router (frame PDU routing for LinIf part)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">LSduR_LinIfTriggerTransmit · LSduR_LinIfRxIndication · LSduR_LinIfTxConfirmation</div></div>
+  </div>
+  <div onclick="showOvD('pdur')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#F1EFE8;color:#444441;">
+    <div><span>PduR — PDU Router (LinTp diagnostic messages only)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">PduR_LinTpStartOfReception · CopyRxData · CopyTxData · TxConfirmation · RxIndication</div></div>
+  </div>
+  <div onclick="showOvD('linif')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#EAF3DE;color:#27500A;border:2px solid #3B6D11;">
+    <div><span>⭐ LinIf + LinTp — LIN Interface + Transport Protocol (this module)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">LinIf_Init · ScheduleRequest · GotoSleep · Wakeup · Transmit · MainFunction_&lt;ChannelId&gt; | LinTp_Init · LinTp_Transmit</div></div>
+  </div>
+  <div onclick="showOvD('lindrv')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#FAEEDA;color:#633806;">
+    <div><span>Lin — LIN Driver (lower layer)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Lin_SendFrame · Lin_GoToSleep · Lin_GetStatus · Lin_Wakeup | Slave callbacks: LinIf_HeaderIndication · LinIf_RxIndication · LinIf_TxConfirmation</div></div>
+  </div>
+  <div onclick="showOvD('trcv')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#F1EFE8;color:#444441;opacity:.7;">
+    <div><span>LinTrcv — LIN Transceiver Driver (optional)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">LinTrcv_SetOpMode · LinTrcv_GetBusWuReason · LinTrcv_CheckWakeup</div></div>
+  </div>
+  <div style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;font-size:13px;font-weight:500;background:#FCEBEB;color:#791F1F;opacity:.6;cursor:default;">
+    <div><span>Physical LIN Bus (ISO 17987 / LIN 2.x)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Single-wire UART, 1–20 kbps, 1 master + up to 16 slaves, break–sync–PID–data–checksum frame</div></div>
+  </div>
+
+  <p class="sh">Master vs Slave — key conceptual difference (exam essential)</p>
+  <div class="g2">
+    <div class="card">
+      <p class="ct"><span class="master-tag">MASTER</span> — schedule-driven</p>
+      <p class="cb">Controls all bus timing via schedule table. LinIf_MainFunction_&lt;Ch&gt; runs at fixed tick rate and decides which frame to transmit next. Calls Lin_SendFrame to send header. Uses Lin_GetStatus to poll completion. Initiates go-to-sleep by sending diagnostic MRF with NAD=0. Can request schedule table switches at runtime.</p>
+    </div>
+    <div class="card">
+      <p class="ct"><span class="slave-tag">SLAVE</span> — interrupt/event-driven</p>
+      <p class="cb">No scheduling knowledge. Reacts to headers received from master via LinIf_HeaderIndication callback. Evaluates PID to decide: transmit, receive, or ignore (irrelevant). Enters sleep on go-to-sleep command received (MRF NAD=0) or bus idle timeout (LinIfBusIdleTimeoutPeriod). MainFunction_&lt;Ch&gt; supervises timing only.</p>
+    </div>
+  </div>
+
+  <p class="sh">LIN physical frame anatomy</p>
+  <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+    <span class="pill" style="background:#FCEBEB;color:#791F1F;">BREAK (13+ bits dominant)</span>
+    <span style="font-size:16px;color:var(--color-text-tertiary)">→</span>
+    <span class="pill" style="background:#FAEEDA;color:#633806;">SYNC (0x55)</span>
+    <span style="font-size:16px;color:var(--color-text-tertiary)">→</span>
+    <span class="pill" style="background:#EEEDFE;color:#3C3489;">PID (Protected ID)</span>
+    <span style="font-size:16px;color:var(--color-text-tertiary)">→</span>
+    <span class="pill" style="background:#EAF3DE;color:#27500A;">DATA (1–8 bytes)</span>
+    <span style="font-size:16px;color:var(--color-text-tertiary)">→</span>
+    <span class="pill" style="background:var(--color-background-info);color:var(--color-text-info);">CHECKSUM</span>
+  </div>
+  <div class="card"><p class="cb"><strong>PID</strong> = Protected ID: 6-bit frame ID + 2 parity bits. MRF always has frame ID 0x3C (PID 0x3C). SRF always 0x3D (PID 0x7D). Classic (LIN 2.0) checksum covers data only. Enhanced checksum (LIN 2.x) covers PID+data. LinIf configures checksum type per frame via LinIfChecksumType.</p></div>
+</div>
+
+<!-- ===== STATE MACHINES ===== -->
+<div id="pn-state" class="pn">
+  <p class="sh">LinIf module state machine — top level</p>
+  <div class="card">
+    <svg width="100%" viewBox="0 0 640 120" role="img"><title>LinIf top-level module state machine</title>
+    <defs><marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <rect x="20" y="30" width="130" height="46" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="85" y="53" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">LINIF_UNINIT</text>
+    <text x="85" y="69" text-anchor="middle" font-size="10" fill="#854F0B">After reset</text>
+    <rect x="260" y="30" width="130" height="46" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/>
+    <text x="325" y="53" text-anchor="middle" font-size="12" font-weight="500" fill="#27500A">LINIF_INIT</text>
+    <text x="325" y="69" text-anchor="middle" font-size="10" fill="#3B6D11">All channel sub-states active</text>
+    <line x1="150" y1="53" x2="258" y2="53" stroke="#3B6D11" stroke-width="1" marker-end="url(#am)"/>
+    <text x="204" y="45" text-anchor="middle" font-size="10" fill="#3B6D11">LinIf_Init()</text>
+    <text x="20" y="100" font-size="10" fill="var(--color-text-tertiary)">After Init: each channel starts in LINIF_CHANNEL_SLEEP (no go-to-sleep sent)</text>
+    </svg>
+  </div>
+
+  <p class="sh">Channel sub-state machine — <span class="master-tag">MASTER</span> node</p>
+  <div class="card">
+    <svg width="100%" viewBox="0 0 660 260" role="img"><title>LinIf channel state machine for master nodes</title>
+    <defs><marker id="am2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <!-- SLEEP -->
+    <rect x="20" y="30" width="180" height="60" rx="10" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+    <text x="110" y="55" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">LINIF_CHANNEL_SLEEP</text>
+    <text x="110" y="72" text-anchor="middle" font-size="10" fill="#854F0B">NULL_SCHEDULE active</text>
+    <text x="110" y="84" text-anchor="middle" font-size="10" fill="#854F0B">No bus traffic</text>
+    <!-- OPERATIONAL -->
+    <rect x="350" y="30" width="200" height="60" rx="10" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/>
+    <text x="450" y="55" text-anchor="middle" font-size="12" font-weight="500" fill="#27500A">LINIF_CHANNEL_OPERATIONAL</text>
+    <text x="450" y="72" text-anchor="middle" font-size="10" fill="#3B6D11">Schedule table runs</text>
+    <text x="450" y="84" text-anchor="middle" font-size="10" fill="#3B6D11">Tx/Rx active</text>
+    <!-- SLEEP → OPERATIONAL -->
+    <path d="M200 50 L348 50" fill="none" stroke="#3B6D11" stroke-width="1.2" marker-end="url(#am2)"/>
+    <text x="274" y="43" text-anchor="middle" font-size="10" fill="#3B6D11">LinIf_Wakeup() → E_OK</text>
+    <!-- OPERATIONAL → SLEEP -->
+    <path d="M350 72 L202 72" fill="none" stroke="#BA7517" stroke-width="1.2" marker-end="url(#am2)"/>
+    <text x="276" y="86" text-anchor="middle" font-size="10" fill="#BA7517">LinIf_GotoSleep() → Lin_GoToSleep() → Lin_GetStatus()==LIN_CH_SLEEP</text>
+    <!-- Init arrow -->
+    <line x1="20" y1="185" x2="108" y2="93" stroke="#534AB7" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#am2)"/>
+    <text x="0" y="200" font-size="10" fill="#534AB7">LinIf_Init()</text>
+    <!-- Key notes -->
+    <rect x="20" y="140" width="620" height="110" rx="8" fill="var(--color-background-secondary)"/>
+    <text x="30" y="162" font-size="11" font-weight="500" fill="var(--color-text-primary)">Key master-specific rules:</text>
+    <text x="30" y="180" font-size="10" fill="var(--color-text-secondary)">• Go-to-sleep is NOT immediate — LinIf_GotoSleep() sets a pending flag; MainFunction sends it at next schedule slot</text>
+    <text x="30" y="196" font-size="10" fill="var(--color-text-secondary)">• If upper layer calls LinIf_Wakeup() BEFORE go-to-sleep executes → pending go-to-sleep is cancelled, OPERATIONAL maintained</text>
+    <text x="30" y="212" font-size="10" fill="var(--color-text-secondary)">• If master already sent sleep frame and upper requests wakeup → Lin_Wakeup() called to recover (no GotoSleepConfirmation callback)</text>
+    <text x="30" y="228" font-size="10" fill="var(--color-text-secondary)">• On entering SLEEP: schedule switches to NULL_SCHEDULE (no bus traffic allowed)</text>
+    <text x="30" y="244" font-size="10" fill="var(--color-text-secondary)">• LinIf_Wakeup confirmation: master calls WakeupConfirmation(TRUE) immediately if E_OK, WakeupConfirmation(FALSE) if E_NOT_OK</text>
+    </svg>
+  </div>
+
+  <p class="sh">Channel sub-state machine — <span class="slave-tag">SLAVE</span> node</p>
+  <div class="card">
+    <p class="cb"><strong>Entry:</strong> LinIf_Init() → channel starts in LINIF_CHANNEL_SLEEP<br>
+    <strong>SLEEP→OPERATIONAL:</strong> LinIf_Wakeup() called (returns E_OK)<br>
+    <strong>OPERATIONAL→SLEEP:</strong> LinIf_GotoSleep() called directly (calls Lin_GoToSleepInternal immediately, no waiting for next schedule slot)<br><br>
+    <strong>Two triggers to enter sleep (slave-specific):</strong><br>
+    1. Reception of go-to-sleep command: MRF with NAD byte = 0x00 → calls <span class="fn">&lt;User&gt;_GotoSleepIndication()</span> → upper layer calls LinIf_GotoSleep() → Lin_GoToSleepInternal()<br>
+    2. Bus idle timeout (LinIfBusIdleTimeoutPeriod expires): same flow as above<br><br>
+    <strong>Slave wakeup confirmation:</strong> Only confirmed (WakeupConfirmation(TRUE)) when the FIRST LinIf_HeaderIndication arrives after LinIf_Wakeup(). If master never schedules → no confirmation → LinSM timeout.<br><br>
+    <strong>Wakeup during sleep transition (slave):</strong> If LinIf_Wakeup() called after Lin_GoToSleepInternal but before GotoSleepConfirmation → Lin_Wakeup() called, GotoSleepConfirmation NOT invoked.</p>
+  </div>
+
+  <p class="sh">LinTp state machine (per channel)</p>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="pill" style="background:#FAEEDA;color:#633806;">LINTP_UNINIT</span>
+      <span style="font-size:18px;color:var(--color-text-tertiary)">→ LinTp_Init()</span>
+      <span class="pill" style="background:#EAF3DE;color:#27500A;">LINTP_INIT</span>
+      <span style="font-size:14px;color:var(--color-text-tertiary)">containing</span>
+    </div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="pill" style="background:var(--color-background-info);color:var(--color-text-info);">LINTP_CHANNEL_IDLE</span>
+      <span style="font-size:18px;color:var(--color-text-tertiary)">⇄ TP message</span>
+      <span class="pill" style="background:#FCEBEB;color:#791F1F;">LINTP_CHANNEL_BUSY</span>
+    </div>
+    <p class="cb" style="margin-top:10px;">→ BUSY: When FF or SF received/transmitted<br>→ IDLE: After successful/failed TP message completion or unrecoverable error<br>→ UNINIT: LinTp_Shutdown() called (closes all connections, frees resources)</p>
+  </div>
+</div>
+
+<!-- ===== FRAMES ===== -->
+<div id="pn-frames" class="pn">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="frame-btns"></div>
+  <div id="frame-display" class="card"></div>
+
+  <p class="sh">Frame direction summary (master perspective)</p>
+  <table class="tbl">
+    <thead><tr><th>Direction</th><th>Who sends header</th><th>Who sends response</th><th>Lin_SendFrame param</th><th>Status check</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Master Tx</strong></td><td>Master (LinIf MainFunc)</td><td>Master (LinIf provides data)</td><td>LIN_FRAMERESPONSE_TX</td><td>Lin_GetStatus → LIN_TX_OK/ERROR</td></tr>
+      <tr><td><strong>Master Rx</strong></td><td>Master (LinIf MainFunc)</td><td>Slave (no data from master)</td><td>LIN_FRAMERESPONSE_RX</td><td>Lin_GetStatus → LIN_RX_OK/ERROR/NO_RESPONSE</td></tr>
+      <tr><td><strong>Slave-to-Slave</strong></td><td>Master (LinIf MainFunc)</td><td>Slave (to another slave)</td><td>LIN_FRAMERESPONSE_IGNORE</td><td>NOT checked by LinIf</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sh">Slave frame direction (slave perspective)</p>
+  <table class="tbl">
+    <thead><tr><th>Evaluated PID result</th><th>Action in HeaderIndication</th><th>Callback from LinDrv</th></tr></thead>
+    <tbody>
+      <tr><td>Transmit frame</td><td>Call LSduR_LinIfTriggerTransmit → set PduPtr→Drc=TX, fill Cs+Dl</td><td>LinIf_TxConfirmation (success) or LinIf_LinErrorIndication (fail)</td></tr>
+      <tr><td>Receive frame</td><td>Set PduPtr→Cs, Dl, Drc=RX</td><td>LinIf_RxIndication (success) or LinIf_LinErrorIndication (fail)</td></tr>
+      <tr><td>Irrelevant frame</td><td>Set PduPtr→Drc=IGNORE</td><td>None (driver ignores response)</td></tr>
+      <tr><td>Unknown PID</td><td>Set PduPtr→Drc=IGNORE</td><td>None</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== SCHEDULE TABLES ===== -->
+<div id="pn-schedule" class="pn">
+  <div class="card">
+    <p class="ct">Schedule tables — master node only</p>
+    <p class="cb">The schedule table defines the sequence and timing of all LIN frames. LinIf_MainFunction_&lt;Ch&gt; is the only function that processes the schedule table and initiates frame transfers. Each channel has its own independent set of schedule tables.</p>
+  </div>
+
+  <p class="sh">Schedule table types</p>
+  <div class="g2">
+    <div class="card">
+      <p class="ct">RUN_CONTINUOUS</p>
+      <p class="cb">Loops indefinitely until a new schedule is requested. Normal operational schedule. Can be interrupted by a RUN_ONCE request. After RUN_ONCE completes, resumes from the position defined by LinIfResumePosition (from start or from the interrupted position).</p>
+    </div>
+    <div class="card">
+      <p class="ct">RUN_ONCE</p>
+      <p class="cb">Executes from first to last entry, then switches back to the latest requested RUN_CONTINUOUS schedule. Use cases: diagnostic sessions, node configuration, collision resolving. Exception: if NULL_SCHEDULE requested → always switches immediately (overrides RUN_ONCE in progress).</p>
+    </div>
+  </div>
+
+  <p class="sh">NULL_SCHEDULE — special mandatory schedule</p>
+  <div class="card">
+    <p class="cb">Every channel has a predefined NULL_SCHEDULE containing NO entries. Set automatically on: LinIf_Init(), entering LINIF_CHANNEL_SLEEP, go-to-sleep successful. NULL_SCHEDULE can be requested at any time and always applies immediately — even interrupting a running RUN_ONCE. If LinIf_Transmit() is called while NULL_SCHEDULE is active → returns E_NOT_OK.</p>
+  </div>
+
+  <p class="sh">Schedule table switching — LinIf_ScheduleRequest()</p>
+  <div class="card">
+    <p class="cb">
+    • LinSM calls LinIf_ScheduleRequest(Channel, ScheduleTableIdx) → ASYNC (returns E_OK if accepted)<br>
+    • Actual switch timing: configurable via LinIfScheduleChangeNextTimeBase:<br>
+    &nbsp;&nbsp;– FALSE (default): switch after current entry finishes<br>
+    &nbsp;&nbsp;– TRUE: switch after current frame's Tx/Rx status is checked<br>
+    • <span class="fn">&lt;User&gt;_ScheduleRequestConfirmation(channel, ScheduleTableIdx)</span> called when new schedule is active<br>
+    • Requesting same schedule → restarts from beginning<br>
+    • Sporadic frame pending flags NOT cleared on schedule switch<br>
+    • LinIf_ScheduleRequest in SLEEP state → DET error LINIF_E_SCHEDULE_REQUEST_ERROR<br>
+    • BswM calls LinIf via LinSM for TP diagnostic schedule changes (if LinTpScheduleChangeDiag=TRUE)</p>
+  </div>
+
+  <p class="sh">Frame slot timing</p>
+  <div class="card">
+    <p class="cb"><strong>Slot delay:</strong> Number of MainFunction ticks between start of consecutive frames. Configured per LinIfEntry as LinIfDelay (in MainFunction periods).<br><br>
+    <strong>Maximum frame length = TFRAME_MAX</strong> (nominal frame length × 140%). Lin_GetStatus must be called between TFRAME_MAX elapsed and next slot due. Too early → LIN_TX/RX_BUSY (frame still ongoing). Too late → next frame delayed.<br><br>
+    <strong>Jitter:</strong> Difference between worst-case and best-case execution time. LinIfMainFunctionPeriod should be significantly smaller than frame slot time to keep jitter low.</p>
+  </div>
+</div>
+
+<!-- ===== API ===== -->
+<div id="pn-api" class="pn">
+  <input type="text" class="si" id="api-search" placeholder="Filter APIs... (e.g. Sleep, Schedule, Wakeup, Transmit, TP)" oninput="filterApi(this.value)">
+
+  <p class="sh">Service Functions (called by upper layers)</p>
+  <table class="tbl"><thead><tr><th>Function</th><th>SID</th><th>Mode</th><th>Node</th><th>Key Behaviour</th></tr></thead>
+  <tbody id="api-body"></tbody></table>
+
+  <p class="sh" style="margin-top:1.5rem;">Callback Notifications (called BY LinDrv → LinIf — slave nodes only)</p>
+  <table class="tbl"><thead><tr><th>Callback</th><th>SID</th><th>Source</th><th>LinIf action</th></tr></thead>
+  <tbody>
+    <tr><td class="fn">LinIf_HeaderIndication(Channel, PduPtr*)</td><td>0x78</td><td><span class="slave-tag">SLAVE</span> LinDrv ISR</td><td>Evaluate PID → set Drc (TX/RX/IGNORE) + Cs + Dl. If TX: call LSduR_LinIfTriggerTransmit. Reloads bus idle timer. Reentrant for diff channels.</td></tr>
+    <tr><td class="fn">LinIf_RxIndication(Channel, Lin_SduPtr*)</td><td>0x79</td><td><span class="slave-tag">SLAVE</span> LinDrv ISR</td><td>Calls LSduR_LinIfRxIndication with data. Sets response_error if error. Reloads bus idle timer. Reentrant for diff channels.</td></tr>
+    <tr><td class="fn">LinIf_TxConfirmation(Channel)</td><td>0x7a</td><td><span class="slave-tag">SLAVE</span> LinDrv ISR</td><td>Calls LSduR_LinIfTxConfirmation(E_OK). Clears response_error if frame carried it. Reloads bus idle timer.</td></tr>
+    <tr><td class="fn">LinIf_LinErrorIndication(Channel, ErrorStatus)</td><td>0x7b</td><td><span class="slave-tag">SLAVE</span> LinDrv ISR</td><td>Reports LINIF_E_RESPONSE to DET (unless LIN_ERR_HEADER). Sets response_error signal for certain error types. Reloads bus idle timer.</td></tr>
+    <tr><td class="fn">LinIf_WakeupConfirmation(WakeupSource)</td><td>0x61</td><td>LinDrv or LinTrcv</td><td>Sets internal wakeup flag for the corresponding channel. Used to distinguish LinIf_Wakeup path (Lin_WakeupInternal vs Lin_Wakeup).</td></tr>
+  </tbody></table>
+
+  <p class="sh" style="margin-top:1.5rem;">Scheduled function — called by OS/SchM</p>
+  <div class="card">
+    <p class="ct"><span class="fn">LinIf_MainFunction_&lt;LinIfChannel.ShortName&gt;()</span> — SID 0x80</p>
+    <p class="cb">One instance per configured LIN channel. Named after channel ShortName from DaVinci config (e.g. LinIf_MainFunction_LIN1).<br><br>
+    <span class="master-tag">MASTER</span>: Polls schedule table manager → triggers frame TX/RX via Lin_SendFrame → calls Lin_GetStatus → invokes upper layer callbacks. Processes sleep/wakeup transitions.<br>
+    <span class="slave-tag">SLAVE</span>: Supervises bus idle timer, N_As/N_Cs/N_Cr TP timeouts. Frame handling is interrupt-driven via LinIf_HeaderIndication callback.<br><br>
+    Non-reentrant. Period = LinIfMainFunctionPeriod (the "tick" for schedule table slot delays).</p>
+  </div>
+
+  <p class="sh" style="margin-top:1rem;">Configurable callbacks (called BY LinIf → LinSM/CDD)</p>
+  <table class="tbl"><thead><tr><th>Callback</th><th>Node</th><th>When called</th><th>Parameters</th></tr></thead>
+  <tbody>
+    <tr><td class="fn">&lt;User&gt;_ScheduleRequestConfirmation(channel, idx)</td><td><span class="master-tag">MASTER</span></td><td>After schedule table switch completes</td><td>Channel ID + new schedule index</td></tr>
+    <tr><td class="fn">&lt;User&gt;_GotoSleepConfirmation(channel, success)</td><td><span class="both-tag">BOTH</span></td><td>After sleep frame sent (TRUE/FALSE) or Lin_GoToSleepInternal called (TRUE)</td><td>Channel ID + bool success</td></tr>
+    <tr><td class="fn">&lt;User&gt;_WakeupConfirmation(channel, success)</td><td><span class="both-tag">BOTH</span></td><td>Master: immediately after LinIf_Wakeup result. Slave: on first LinIf_HeaderIndication after wakeup</td><td>Channel ID + bool success</td></tr>
+    <tr><td class="fn">&lt;User&gt;_GotoSleepIndication(channel)</td><td><span class="slave-tag">SLAVE</span></td><td>When go-to-sleep MRF received (NAD=0) or bus idle timeout</td><td>Channel ID</td></tr>
+    <tr><td class="fn">&lt;User_ResponseErrorSignalChanged&gt;(channel, val)</td><td><span class="slave-tag">SLAVE</span></td><td>When response_error signal value changes (optional callout)</td><td>Channel ID + new boolean value</td></tr>
+    <tr><td class="fn">&lt;User_SaveConfigurationRequest&gt;(channel)</td><td><span class="slave-tag">SLAVE</span></td><td>On receipt of "Save Configuration" node config request</td><td>Channel ID → returns bool (TRUE=send positive response)</td></tr>
+  </tbody></table>
+</div>
+
+<!-- ===== LIN TP ===== -->
+<div id="pn-lintp" class="pn">
+  <div class="card">
+    <p class="ct">LIN Transport Protocol (LinTp) — part of LinIf</p>
+    <p class="cb">LinTp implements the ISO 17987-2 diagnostic transport layer. It is used to transport multi-byte diagnostic messages (UDS/KWP) between tester and slave nodes over the LIN bus using MRF (Master Request Frame, PID 0x3C) and SRF (Slave Response Frame, PID 0x3D). Enabled by LinIfTpSupported=TRUE. One TP connection per channel, but functional and physical requests can coexist.</p>
+  </div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="tp-btns"></div>
+  <div id="tp-display" class="card"></div>
+
+  <p class="sh">TP timing parameters (all configurable per channel)</p>
+  <table class="tbl">
+    <thead><tr><th>Timer</th><th>Config param</th><th>Started</th><th>Stopped</th><th>On timeout</th></tr></thead>
+    <tbody>
+      <tr><td><strong>N_As</strong></td><td class="fn">LinTpNas</td><td>After Lin_SendFrame for MRF (master) / after LinTp_Transmit with E_OK (slave)</td><td>Lin_GetStatus=LIN_TX_OK (master) / LinIf_TxConfirmation (slave)</td><td>Abort TX → schedule switch to applicative → PduR_LinTpTxConfirmation(E_NOT_OK)</td></tr>
+      <tr><td><strong>N_Cs</strong></td><td class="fn">LinTpNcs</td><td>After LIN_TX_OK for MRF FF/CF (master) / LinIf_TxConfirmation (slave)</td><td>Next Lin_SendFrame for MRF CF (master) / LinIf_HeaderIndication (slave)</td><td>Abort TX → schedule switch → PduR_LinTpTxConfirmation(E_NOT_OK)</td></tr>
+      <tr><td><strong>N_Cr</strong></td><td class="fn">LinTpNcr</td><td>After LIN_RX_OK for SRF FF/CF (master) / LinIf_RxIndication FF/CF (slave)</td><td>Next LIN_RX_OK for SRF CF (master) / LinIf_RxIndication next CF (slave)</td><td>Abort RX → schedule switch → PduR_LinTpRxIndication(E_NOT_OK)</td></tr>
+      <tr><td><strong>P2</strong></td><td class="fn">LinTpP2Timing</td><td><span class="master-tag">MASTER</span> only: after last MRF (SF or CF) sent</td><td>LIN_RX_OK for first SRF (SF or FF)</td><td>Abort RX → schedule switch → PduR_LinTpRxIndication(E_NOT_OK)</td></tr>
+      <tr><td><strong>P2*</strong></td><td class="fn">LinTpP2Max</td><td><span class="master-tag">MASTER</span> only: after receiving UDS 0x78 (Response Pending)</td><td>Next LIN_RX_OK for SRF (SF or FF)</td><td>Same as P2 timeout</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sh">TP frame structure (single-wire UART, max 8 bytes payload)</p>
+  <table class="tbl">
+    <thead><tr><th>Frame type</th><th>PCI byte (byte 0)</th><th>Data</th><th>Max payload</th></tr></thead>
+    <tbody>
+      <tr><td><strong>SF (Single Frame)</strong></td><td class="fn">0x0N (N=length, 1–6)</td><td>NAD, PCI, SID, data bytes</td><td>Up to 6 bytes (SID + 5 data)</td></tr>
+      <tr><td><strong>FF (First Frame)</strong></td><td class="fn">0x1X (X=MSN of length)</td><td>NAD, PCI, LEN, SID, 4 data bytes</td><td>5 bytes (SID + 4) in first frame</td></tr>
+      <tr><td><strong>CF (Consecutive Frame)</strong></td><td class="fn">0x2N (N=sequence 1–15)</td><td>NAD, PCI, 6 data bytes</td><td>6 bytes per CF</td></tr>
+    </tbody>
+  </table>
+  <div class="card"><p class="cb">NAD (Node Address) identifies the slave. Physical address = 0x01–0x7D. Broadcast = 0x7F. Functional = 0x7E (LinIf uses NAD 0x7E for functional requests from master). Go-to-sleep command: MRF with NAD=0x00 (data byte 0 = 0).</p></div>
+</div>
+
+<!-- ===== ERRORS ===== -->
+<div id="pn-errors" class="pn">
+  <p class="sh">Development Errors (DET)</p>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Value</th><th>Error Code</th><th>Cause</th><th>Debug tip</th></tr></thead>
+      <tbody>
+        <tr><td class="fn">0x00</td><td><span class="ec">LINIF_E_UNINIT</span></td><td>API called before LinIf_Init()</td><td>Check EcuM init sequence — LinIf_Init must precede any other LinIf call</td></tr>
+        <tr><td class="fn">0x10</td><td><span class="ec">LINIF_E_INIT_FAILED</span></td><td>Init failed — invalid config set</td><td>Check ConfigPtr is valid and not NULL. Verify post-build config integrity.</td></tr>
+        <tr><td class="fn">0x20</td><td><span class="ec">LINIF_E_NONEXISTENT_CHANNEL</span></td><td>Channel ID out of range</td><td>Check LinIfComMNetworkHandleRef mapping. ComM channel ↔ LinIf channel ID must match.</td></tr>
+        <tr><td class="fn">0x30</td><td><span class="ec">LINIF_E_PARAMETER</span></td><td>Wrong parameter (invalid value)</td><td>Check ScheduleTableIdx range, NAD value (not 0 for SetConfiguredNAD), PidBufferLength.</td></tr>
+        <tr><td class="fn">0x40</td><td><span class="ec">LINIF_E_PARAM_POINTER</span></td><td>NULL pointer passed</td><td>Check all output pointer parameters (versioninfo, Nad, PidBuffer, etc.)</td></tr>
+        <tr><td class="fn">0x51</td><td><span class="ec">LINIF_E_SCHEDULE_REQUEST_ERROR</span></td><td>Schedule request in SLEEP state or invalid schedule index</td><td>Master only. Ensure wakeup completes before requesting schedule. Check ScheduleTableIdx is valid (0=NULL_SCHEDULE, 1..N = configured tables).</td></tr>
+        <tr><td class="fn">0x53</td><td><span class="ec">LINIF_E_TRCV_INV_MODE</span></td><td>Invalid transceiver mode requested</td><td>Check TransceiverMode value is NORMAL/STANDBY/SLEEP only.</td></tr>
+        <tr><td class="fn">0x54</td><td><span class="ec">LINIF_E_TRCV_NOT_NORMAL</span></td><td>GetTrcvWakeupReason called while trcv not in NORMAL</td><td>Put transceiver in NORMAL first before reading wakeup reason.</td></tr>
+        <tr><td class="fn">0x55</td><td><span class="ec">LINIF_E_PARAM_WAKEUPSOURCE</span></td><td>Invalid WakeupSource parameter</td><td>Check EcuMWakeupSourceRef configuration. WakeupSource must match configured sources.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sh">Runtime Errors (DET_ReportRuntimeError)</p>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Value</th><th>Error Code</th><th>Triggered when</th><th>Debugging</th></tr></thead>
+      <tbody>
+        <tr><td class="fn">0x60</td><td><span class="ec">LINIF_E_RESPONSE</span></td><td>Lin_GetStatus returns LIN_TX_ERROR/RX_ERROR, or LIN_TX_BUSY on next frame start, or LIN_RX_NO_RESPONSE for unconditional frame, or LinIf_LinErrorIndication received (slave)</td><td>Check physical bus (wiring, termination). Check baud rate match. Check signal quality with oscilloscope. For RX_NO_RESPONSE: slave may not be responding. Check slave NAD/PID config.</td></tr>
+        <tr><td class="fn">0x61</td><td><span class="ec">LINIF_E_NC_NO_RESPONSE</span></td><td>SRF expected after node config command but no slave response received (timeout)</td><td>Check slave NAD matches configured NAD. Check slave has the node config service implemented. Check SRF slot is in schedule table after MRF.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sh">Extended Production Errors (DEM)</p>
+  <div class="card">
+    <table class="tbl">
+      <thead><tr><th>Error Name</th><th>FAIL condition</th><th>PASS condition</th></tr></thead>
+      <tbody>
+        <tr><td class="fn">LINTP_E_LINTPNAS_TIMEOUT_OCCURRED</td><td>N_As timer expired during TP TX</td><td>LinTp_Init() called</td></tr>
+        <tr><td class="fn">LINTP_E_LINTPNCS_TIMEOUT_OCCURRED</td><td>N_Cs timer expired during TP TX</td><td>LinTp_Init() called</td></tr>
+        <tr><td class="fn">LINTP_E_LINTPNCR_TIMEOUT_OCCURRED</td><td>N_Cr timer expired during TP RX</td><td>LinTp_Init() called</td></tr>
+        <tr><td class="fn">LINTP_E_SWAPPED_CONSECUTIVE_FRAMES_RECEIVED</td><td>Swapped CF sequence number received</td><td>LinTp_Init() called</td></tr>
+        <tr><td class="fn">LINTP_E_DROPPED_CONSECUTIVE_FRAMES_DETECTED</td><td>Missing CF detected (gap in sequence)</td><td>LinTp_Init() called</td></tr>
+        <tr><td class="fn">LINIF_E_SCHEDULE_TABLE_SWITCH_REQUEST_NOT_ACCEPTED</td><td>LinIf_ScheduleRequest returned E_NOT_OK</td><td>LinTp_Init() called</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="sh">Debugging checklist — integration testing</p>
+  <div class="card">
+    <p class="cb">
+    <strong>1. Frames not transmitted (master)</strong> — Is LinIf_Init called? Is schedule active (not NULL_SCHEDULE)? Is LinIf_MainFunction_&lt;Ch&gt; scheduled at LinIfMainFunctionPeriod? Is LIN driver initialized? Check schedule entry delay vs MainFunction period.<br><br>
+    <strong>2. Slave not responding</strong> — Check NAD matches (initial and configured). Check PID matches LinIfFrameId. Check checksum type (enhanced vs classic). Check baud rate. Oscilloscope the bus.<br><br>
+    <strong>3. LINIF_E_RESPONSE constantly reported</strong> — Physical layer issue (termination missing, short circuit, grounding). Wrong baud rate. Master frame length too short for slave response time.<br><br>
+    <strong>4. Sleep/wakeup not working</strong> — Check WakeupSourceRef configuration. Check LinIfBusIdleTimeoutPeriod (slave). Check go-to-sleep confirmation callback (LinIfGotoSleepConfirmationUL = LIN_SM). If using transceiver: check LinIfTrcvDriverSupported=TRUE and LinIfSetTrcvMode called after sleep.<br><br>
+    <strong>5. TP session failing</strong> — Check schedule table contains MRF+SRF slots. Check LinTpScheduleChangeDiag=TRUE if dynamic schedule switch needed. Check N_As/N_Cs/N_Cr timing parameters match slave node timing. Check LinTpNasTimeout > max bus latency.<br><br>
+    <strong>6. Schedule switch not happening</strong> — Check LinIf_ScheduleRequest return value. Check LINIF_E_SCHEDULE_TABLE_SWITCH_REQUEST_NOT_ACCEPTED in DEM. Is channel in SLEEP state?<br><br>
+    <strong>7. response_error signal always set (slave)</strong> — Frequent LinIf_LinErrorIndication callbacks. Check bus quality. Check checksum type mismatch. Check LIN_ERR_RESP_STOPBIT = UART timing issue.</p>
+  </div>
+</div>
+
+<!-- ===== DAVINCI CONFIG ===== -->
+<div id="pn-config" class="pn">
+  <div class="card"><p class="ct">DaVinci Configurator — LinIf setup</p><p class="cb">Navigate: BSW → LinIf (and LinTp if TP needed). Main containers: LinIfGeneral → LinIfGlobalConfig → LinIfChannel → LinIfFrame + LinIfScheduleTable + LinIfMaster/LinIfSlave.</p></div>
+
+  <p class="sh">LinIfGeneral — global pre-compile flags</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinIfDevErrorDetect</span><span class="cv">TRUE in development. Enables all DET error checks.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfTpSupported</span><span class="cv">TRUE to enable LinTp module (adds LinTp_Init, LinTp_Transmit, LinTp_Shutdown APIs and PduR_LinTp* interfaces).</span></div>
+    <div class="cfg-r"><span class="ck">LinIfTrcvDriverSupported</span><span class="cv">TRUE if any channel has a LIN transceiver driver. Enables LinIf_SetTrcvMode, LinIf_GetTrcvMode, LinIf_GetTrcvWakeupReason, LinIf_SetTrcvWakeupMode APIs.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfNcOptionalRequestSupported</span><span class="cv">TRUE to enable "Assign NAD" node configuration command (master: in schedule; slave: react to it). Optional ISO 17987-3 service.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfMultipleDriversSupported</span><span class="cv">TRUE for ECUs with multiple LIN hardware types requiring separate Lin module instances (rare — one LinDrv per hardware type).</span></div>
+    <div class="cfg-r"><span class="ck">LinIfBusMirroringSupported</span><span class="cv">TRUE to enable Mirror_ReportLinFrame() calls for bus mirroring. Enables LinIf_EnableBusMirroring() API.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfResponseErrorSignalChangedCallout</span><span class="cv">Optional function name for response_error signal change notification callback (slave only).</span></div>
+    <div class="cfg-r"><span class="ck">LinIfSaveConfigurationCallout</span><span class="cv">Optional function name for Save Configuration request callback (slave only).</span></div>
+    <div class="cfg-r"><span class="ck">LinIfPublicCddHeaderFile</span><span class="cv">Header file names for CDD callbacks (if upper layer is CDD, not LinSM). 1–32 chars per entry.</span></div>
+  </div>
+
+  <p class="sh">LinIfChannel — one per physical LIN channel</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinIfMainFunctionPeriod</span><span class="cv">Period (seconds) of LinIf_MainFunction_&lt;Ch&gt; call. The tick base for schedule slot delays. All LinIfDelay values are multiples of this. Match OS task period.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfNodeType</span><span class="cv">Choice container: LinIfMaster (master node) or LinIfSlave (slave node). Determines which APIs are available on this channel.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfComMNetworkHandleRef</span><span class="cv">Reference to ComM channel. This is how LinIf, LinSM, and ComM find each other. Must be consistent across all three modules.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfScheduleRequestConfirmationUL</span><span class="cv">LIN_SM or CDD. Determines which callback module receives schedule request confirmation. Typically LIN_SM → LinSM_ScheduleRequestConfirmation().</span></div>
+    <div class="cfg-r"><span class="ck">LinIfGotoSleepConfirmationUL</span><span class="cv">LIN_SM or CDD → LinSM_GotoSleepConfirmation(). Called after go-to-sleep sent/failed.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfWakeupConfirmationUL</span><span class="cv">LIN_SM or CDD → LinSM_WakeupConfirmation(). Called after wakeup success/failure.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfGotoSleepIndicationUL</span><span class="cv">LIN_SM or CDD → LinSM_GotoSleepIndication(). Slave only: called on go-to-sleep received or bus idle timeout.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfTransceiverDrvConfig</span><span class="cv">Links this channel to a LIN transceiver driver instance. Set TransceiverId to LinTrcv channel ID.</span></div>
+  </div>
+
+  <p class="sh">LinIfMaster — master-specific channel config</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinIfTimebase</span><span class="cv">Schedule timebase in seconds. Usually same as LinIfMainFunctionPeriod.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfResumePosition</span><span class="cv">WHERE to resume RUN_CONTINUOUS after RUN_ONCE: CONTINUE_AT_IT_POINT (continue from interruption) or RESTART (start from beginning).</span></div>
+    <div class="cfg-r"><span class="ck">LinIfScheduleChangeNextTimeBase</span><span class="cv">FALSE: switch after current entry. TRUE: switch after current frame status confirmed. Affects schedule switch latency.</span></div>
+  </div>
+
+  <p class="sh">LinIfSlave — slave-specific channel config</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinIfBusIdleTimeoutPeriod</span><span class="cv">Time (seconds) of bus inactivity before slave auto-enters sleep. Per ISO 17987: external nodes enter sleep after 4–10s inactivity. Set accordingly.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfInitialNAD</span><span class="cv">Factory NAD (Node Address). Used for "Assign NAD" service matching. Does not change at runtime.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfConfiguredNAD</span><span class="cv">Operational NAD. Can be updated at runtime by "Assign NAD" command or by LinIf_SetConfiguredNAD(). Used for TP and most node config services.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfSupplierId / LinIfFunctionId / LinIfVariantId</span><span class="cv">Product identification used by "Read by Identifier" service. Must match the ECU's LDF file values.</span></div>
+  </div>
+
+  <p class="sh">LinIfFrame — one per LIN frame</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinIfFrameId</span><span class="cv">LIN frame ID (0x00–0x3F). This is the unprotected ID. LinIf computes the PID internally. MRF=0x3C, SRF=0x3D are reserved and cannot be reassigned.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfFrameType</span><span class="cv">UNCONDITIONAL, EVENT_TRIGGERED, SPORADIC, MRF, SRF, NODE_CONFIGURATION, ASSIGN_FRAMEID_RANGE, UNASSIGN_FRAMEID, SAVE_CONFIGURATION, FREE_FORMAT, ASSIGN_NAD.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfChecksumType</span><span class="cv">CLASSIC (LIN 2.0/1.x) or ENHANCED (LIN 2.1+/ISO 17987). Must match what slave expects. Wrong checksum type → checksum errors on every frame.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfLength</span><span class="cv">Frame data length in bytes (1–8).</span></div>
+    <div class="cfg-r"><span class="ck">LinIfPduDirection</span><span class="cv">Container: LinIfRxPdu (reception) or LinIfTxPdu (transmission) with LSduR PDU reference and PduId.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfFramePriority</span><span class="cv">SPORADIC frames only: priority among sporadic frames in same slot (0=highest). Sets transmission order when multiple sporadic frames pending.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfCollisionResolvingRef</span><span class="cv">EVENT_TRIGGERED frames only: reference to the collision-resolving RUN_ONCE schedule table to switch to when collision detected.</span></div>
+  </div>
+
+  <p class="sh">LinIfScheduleTable — one per schedule table</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinIfScheduleTableType</span><span class="cv">RUN_ONCE or RUN_CONTINUOUS.</span></div>
+    <div class="cfg-r"><span class="ck">LinIfEntry</span><span class="cv">Sub-container list (ordered). Each entry: LinIfDelay (slot duration in MainFunction ticks) + LinIfFrameRef (→ LinIfFrame). Order determines schedule execution sequence.</span></div>
+  </div>
+
+  <p class="sh">LinTpChannelConfig — per-channel TP timing</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">LinTpNas / LinTpNcs / LinTpNcr</span><span class="cv">N_As, N_Cs, N_Cr timeouts (seconds). (N_Cs + N_As) must be &lt; 0.9 × N_Cr. Default: consult ISO 17987-2 clause 7. Must be multiples of LinIfMainFunctionPeriod.</span></div>
+    <div class="cfg-r"><span class="ck">LinTpP2Timing / LinTpP2Max</span><span class="cv">P2 and P2* timeouts for diagnostic response (master only). P2Max used after receiving UDS 0x78 Response Pending. LinTpMaxNumberOfRespPendingFrames limits 0x78 count.</span></div>
+    <div class="cfg-r"><span class="ck">LinTpScheduleChangeDiag</span><span class="cv">TRUE: LinTp requests BswM to switch schedule via BswM_LinTp_RequestMode() for diagnostic sessions. FALSE: upper layer manages schedule switching independently.</span></div>
+    <div class="cfg-r"><span class="ck">LinTpDropNotRequestedNad</span><span class="cv">TRUE: drop TP response if NAD doesn't match requested NAD. FALSE: accept response regardless (useful for broadcast or flexible NAD scenarios).</span></div>
+    <div class="cfg-r"><span class="ck">LinTpMaxBufReq</span><span class="cv">Max retries when PduR_LinTpCopyTxData returns BUFREQ_E_BUSY before aborting transmission.</span></div>
+  </div>
+
+  <p class="sh">Step-by-step DaVinci workflow</p>
+  <div class="card">
+    <p class="cb">
+    <strong>Step 1: LinIfGeneral</strong> — Set LinIfDevErrorDetect=TRUE, LinIfTpSupported, LinIfTrcvDriverSupported, LinIfNcOptionalRequestSupported, LinIfBusMirroringSupported.<br>
+    <strong>Step 2: LinIfChannel</strong> — One per bus. Set LinIfMainFunctionPeriod (match OS task), LinIfComMNetworkHandleRef → ComM channel, callback UL references (all to LIN_SM for standard setup).<br>
+    <strong>Step 3: Node type</strong> — Add LinIfMaster or LinIfSlave container. For master: set LinIfResumePosition, LinIfScheduleChangeNextTimeBase. For slave: LinIfBusIdleTimeoutPeriod, NADs, product IDs.<br>
+    <strong>Step 4: LinIfFrame</strong> — One per frame in LDF. Set FrameId, FrameType, ChecksumType, Length. Add LinIfRxPdu/LinIfTxPdu with LSduR PDU references.<br>
+    <strong>Step 5: LinIfScheduleTable</strong> — One per schedule in LDF. Set type. Add LinIfEntry sub-containers in order with LinIfDelay + LinIfFrameRef. Ensure NULL_SCHEDULE is present (auto-generated).<br>
+    <strong>Step 6: LinTp config</strong> — If LinIfTpSupported: add LinTpChannelConfig per channel with N_As/N_Cs/N_Cr/P2 timings. Add LinTpRxNSdu and LinTpTxNSdu with NAD and PduR references.<br>
+    <strong>Step 7: Transceiver link</strong> — If LinIfTrcvDriverSupported: add LinIfTransceiverDrvConfig and reference to LinTrcv channel.<br>
+    <strong>Step 8: OS scheduling</strong> — Add LinIf_MainFunction_&lt;ChannelShortName&gt; to OS BSW task at LinIfMainFunctionPeriod. If LinTp: also call LinTp_Init in EcuM init sequence after LinIf_Init.
+    </p>
+  </div>
+
+  <p class="sh">Common DaVinci integration mistakes</p>
+  <div class="card">
+    <p class="cb">
+    • LinIfComMNetworkHandleRef pointing to wrong ComM channel → LinSM_ScheduleRequest calls go to wrong LinIf channel → LINIF_E_NONEXISTENT_CHANNEL<br>
+    • LinIfMainFunctionPeriod not matching OS task period → frame slot timing off, LIN bus timing errors<br>
+    • LinIfFrameId 0x3C or 0x3D explicitly configured for user frames → conflict with MRF/SRF (reserved IDs)<br>
+    • LinIfChecksumType CLASSIC on slave but master expects ENHANCED → checksum error on every frame → LINIF_E_RESPONSE constantly<br>
+    • Missing SRF slot in schedule table after MRF in TP diagnostic schedule → N_Cr timer fires immediately → LINTP_E_LINTPNCR_TIMEOUT_OCCURRED<br>
+    • LinTpNas / LinTpNcs / LinTpNcr not multiples of LinIfMainFunctionPeriod → timer granularity issues<br>
+    • LinIfBusIdleTimeoutPeriod too short → slave enters sleep prematurely during low-traffic phases<br>
+    • Callback UL set to CDD but LinIfPublicCddHeaderFile not configured → missing header include → compile error</p>
+  </div>
+</div>
+
+<script>
+const OVD = {
+  linsm:'<strong>LinSM (LIN State Manager):</strong> The primary caller of LinIf_ScheduleRequest(), LinIf_GotoSleep(), and LinIf_Wakeup(). Receives confirmations: LinSM_GotoSleepConfirmation, LinSM_GotoSleepIndication, LinSM_WakeupConfirmation, LinSM_ScheduleRequestConfirmation. BswM calls LinSM for TP schedule changes via BswM_LinTp_RequestMode().',
+  lsdu:'<strong>LSduR (L-SDU Router):</strong> R24-11 update — LSduR replaces PduR for LinIf frame PDU routing (LinIf part only, NOT LinTp). LinIf calls LSduR_LinIfTriggerTransmit() to get frame data, LSduR_LinIfRxIndication() on reception, LSduR_LinIfTxConfirmation() on confirmation. Previous PduR_LinIf* APIs are OBSOLETE in R24-11.',
+  pdur:'<strong>PduR (PDU Router):</strong> Still used by LinTp only (not LinIf frame part). PduR_LinTpStartOfReception, PduR_LinTpCopyRxData, PduR_LinTpCopyTxData, PduR_LinTpRxIndication, PduR_LinTpTxConfirmation — all for diagnostic TP messaging.',
+  linif:'<strong>LinIf (this module):</strong> Contains both LinIf (frame/schedule) and LinTp (transport protocol). One instance per ECU, handles ALL LIN channels. Master channels run schedule tables; slave channels react to headers. The MainFunction_<Ch> is the central processing engine.',
+  lindrv:'<strong>Lin Driver:</strong> Master: Lin_SendFrame(), Lin_GoToSleep(), Lin_GetStatus(). Slave: calls LinIf callbacks — LinIf_HeaderIndication(), LinIf_RxIndication(), LinIf_TxConfirmation(), LinIf_LinErrorIndication(). Common: Lin_Wakeup(), Lin_WakeupInternal(), Lin_GoToSleepInternal().',
+  trcv:'<strong>LinTrcv (LIN Transceiver Driver):</strong> Optional. LinIf wraps it for mode management via LinIf_SetTrcvMode/GetTrcvMode/GetTrcvWakeupReason/SetTrcvWakeupMode APIs. Calls LinTrcv_SetOpMode(), LinTrcv_GetOpMode(), LinTrcv_GetBusWuReason(), LinTrcv_SetWakeupMode(), LinTrcv_CheckWakeup().',
+};
+function showOvD(id) { const d=document.getElementById('ov-detail'); d.innerHTML=OVD[id]; d.style.display='block'; }
+
+const FRAMES = [
+  {name:'Unconditional', html:`<p class="ct">Unconditional Frame <span class="master-tag">MASTER</span> <span class="slave-tag">SLAVE</span></p>
+  <p class="cb">The standard frame type. Transportation strictly follows schedule table (master) or responds to received header (slave). Always transmitted when scheduled — no condition check. Both master-to-slave (TX) and slave-to-master (RX) directions.<br><br>
+  <strong>Master:</strong> MainFunction calls Lin_SendFrame(HTH, LIN_FRAMERESPONSE_TX or RX) → polls Lin_GetStatus → on TX_OK calls LSduR_LinIfTxConfirmation(E_OK). On RX_OK calls LSduR_LinIfRxIndication(data).<br><br>
+  <strong>Slave:</strong> LinIf_HeaderIndication → PID evaluated → if TX: LSduR_LinIfTriggerTransmit provides data → sets PduPtr Drc=TX. LinIf_TxConfirmation confirms success. LinIf_RxIndication delivers received data.</p>`},
+  {name:'Sporadic', html:`<p class="ct">Sporadic Frame <span class="master-tag">MASTER only</span></p>
+  <p class="cb">A sporadic frame is an unconditional frame that is transmitted only when the master's upper layer marks it as pending. A sporadic <em>slot</em> in the schedule has no frame ID — it is a placeholder. Multiple sporadic frames can share one slot; priority (LinIfFramePriority) determines which is sent first.<br><br>
+  <strong>Flow:</strong> Upper layer calls LinIf_Transmit(TxPduId, PduInfo) → LinIf marks the specific sporadic frame as pending (sets a flag). When the sporadic slot is due in MainFunction, LinIf checks pending flags in priority order → picks highest priority pending frame → sends it as a normal TX frame → clears pending flag on TxConfirmation.<br><br>
+  <strong>Key rules:</strong> LinIf_Transmit() for sporadic just sets a flag — always returns E_OK (or E_OK even for non-sporadic if initialized). Repeated calls while pending → tolerated (no double-set). Pending flags NOT cleared on schedule switch. No FIFO (PduRQueueDepth &gt;1 not recommended).</p>`},
+  {name:'Event-Triggered', html:`<p class="ct">Event-Triggered Frame <span class="master-tag">MASTER</span> <span class="slave-tag">SLAVE</span></p>
+  <p class="cb">Allows sporadic transmission from slaves without dedicated slot per slave. Master sends one header — potentially multiple slaves could respond (but only one should).<br><br>
+  <strong>Master — no collision:</strong> Master sends ETF header. One slave responds with its PID in first data byte + payload. Lin_GetStatus=LIN_RX_OK → LinIf reads first byte (PID of originating slave), resolves to PduId → LSduR_LinIfRxIndication. LIN_RX_NO_RESPONSE = no slave responded = NOT an error.<br><br>
+  <strong>Master — collision:</strong> Two+ slaves respond simultaneously → garbled response. Lin_GetStatus=LIN_RX_ERROR → LinIf switches to collision-resolving schedule table (LinIfCollisionResolvingRef, type=RUN_ONCE) → each slave gets its own unconditional slot to retry.<br><br>
+  <strong>Slave:</strong> LinIf_Transmit() sets pending flag. On LinIf_HeaderIndication for the ETF: if pending → call LSduR_LinIfTriggerTransmit, prepend PID of associated unconditional frame as first data byte, set Drc=TX. After LinIf_TxConfirmation: clear pending flag.</p>`},
+  {name:'MRF / SRF', html:`<p class="ct">Diagnostic Frames: MRF + SRF <span class="master-tag">MASTER</span> <span class="slave-tag">SLAVE</span></p>
+  <p class="cb"><strong>MRF (Master Request Frame) — Frame ID 0x3C:</strong> Master sends header AND data (response). Used to carry TP messages from master to slave, and node configuration commands. LinIf sends MRF when TP transmission is ongoing and MRF slot is due. Fixed data format: NAD, PCI, SID, data bytes (SF/FF/CF structure).<br><br>
+  <strong>SRF (Slave Response Frame) — Frame ID 0x3D:</strong> Master sends header ONLY. Slave sends response data. Used to receive TP messages from slave. Master sends SRF header at every SRF schedule slot (unless TP says buffer not available). SRF used by both TP and node configuration handler — node config has higher priority. Cannot change PIDs of MRF or SRF (LinIfFrameId 0x3C and 0x3D are reserved).<br><br>
+  <strong>Go-to-sleep command:</strong> MRF with NAD byte (first data byte) = 0x00. Slave LinIf detects this in LinIf_RxIndication and triggers sleep transition. Not to be confused with regular TP messages — sleep detection has priority.<br><br>
+  <strong>Slave dispatcher priority:</strong> 1) Node Configuration Handler processes MRF first. 2) If not NC request → forwarded to TP. SRF header: 1) NC response pending → NC handler transmits. 2) No NC pending → forwarded to TP.</p>`},
+  {name:'Slave-to-Slave / Irrelevant', html:`<p class="ct">Slave-to-Slave / Irrelevant Frames</p>
+  <p class="cb"><strong>Slave-to-Slave <span class="master-tag">MASTER</span>:</strong> Master sends header with LIN_FRAMERESPONSE_IGNORE direction. One slave transmits response to another slave. Master does NOT monitor the response and does NOT call Lin_GetStatus for this slot. Upper layer NOT notified. Not recommended (creates dependencies between slaves).<br><br>
+  <strong>Irrelevant frames <span class="slave-tag">SLAVE</span>:</strong> A frame whose PID does not match any frame relevant to this slave (either because master is sending data to another slave, or two other slaves are communicating). Slave LinIf evaluates PID in LinIf_HeaderIndication → sets PduPtr→Drc = LIN_FRAMERESPONSE_IGNORE → no further action. Driver does not call LinIf_RxIndication or LinIf_TxConfirmation for ignored frames.</p>`},
+];
+function buildFrameBtns() {
+  document.getElementById('frame-btns').innerHTML=FRAMES.map((f,i)=>`<button class="sb${i===0?' sel':''}" onclick="showFrame(${i})">${f.name}</button>`).join('');
+  document.getElementById('frame-display').innerHTML=FRAMES[0].html;
+}
+function showFrame(i) {
+  document.querySelectorAll('#frame-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('frame-display').innerHTML=FRAMES[i].html;
+}
+
+const TP_TABS = [
+  {name:'Tx flow (master)', html:`<p class="ct">LinTp Transmission — Master node</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.75;">
+  1. PduR calls <span class="fn">LinTp_Transmit(TxPduId, PduInfoPtr)</span> → LinIf accepts, channel→LINTP_CHANNEL_BUSY<br>
+  2. If LinTpScheduleChangeDiag=TRUE: <span class="fn">BswM_LinTp_RequestMode(LINTP_DIAG_REQUEST)</span> → LinSM→LinIf_ScheduleRequest switches to diagnostic-request schedule<br>
+  3. Each MainFunction tick: LinIf calls <span class="fn">PduR_LinTpCopyTxData()</span> to get next N-PDU data (5B for FF, up to 6B for SF, 6B for CF). If BUFREQ_E_BUSY → retry next tick (up to LinTpMaxBufReq times)<br>
+  4. After CopyTxData returns BUFREQ_OK: <span class="fn">Lin_SendFrame(MRF)</span> with data<br>
+  5. Next MainFunction: <span class="fn">Lin_GetStatus()</span> → if LIN_TX_OK: N_As stopped, N_Cs started (for multi-frame)<br>
+  6. For FF/CF: N_Cs timeout starts waiting for next MRF slot. On next MRF slot: repeat step 3<br>
+  7. After last CF/SF transmitted and LIN_TX_OK: <span class="fn">BswM_LinTp_RequestMode(LINTP_DIAG_RESPONSE)</span> → switch to response schedule<br>
+  8. <span class="fn">PduR_LinTpTxConfirmation(E_OK)</span> called. Channel→LINTP_CHANNEL_IDLE after full completion.
+  </div>`},
+  {name:'Rx flow (master)', html:`<p class="ct">LinTp Reception — Master node</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.75;">
+  1. After sending last MRF (physical request): P2 timer starts. Schedule must include SRF slots<br>
+  2. When SRF slot is due: <span class="fn">Lin_SendFrame(SRF, RECEIVE)</span> header transmitted. Slave responds with SF or FF<br>
+  3. MainFunction: <span class="fn">Lin_GetStatus()</span> → LIN_RX_OK → LinIf reads received data<br>
+  4. If SF or FF received: P2 stopped. <span class="fn">PduR_LinTpStartOfReception()</span> called with NAD-to-NSDU mapping<br>
+  5. <span class="fn">PduR_LinTpCopyRxData()</span> called for each received segment<br>
+  6. For multi-frame: N_Cr timer active between SRF slots. If BUFREQ_OK with insufficient buffer → suspend SRF headers, poll with SduLength=0 until buffer available<br>
+  7. After last CF received (LIN_RX_OK): <span class="fn">BswM_LinTp_RequestMode(LINTP_APPLICATIVE_SCHEDULE)</span> → switch back<br>
+  8. <span class="fn">PduR_LinTpRxIndication(E_OK)</span> called. Channel→LINTP_CHANNEL_IDLE<br>
+  9. If UDS 0x78 (response pending) received → P2 reloaded with P2Max timing
+  </div>`},
+  {name:'Tx flow (slave)', html:`<p class="ct">LinTp Transmission — Slave node</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.75;">
+  1. PduR calls <span class="fn">LinTp_Transmit(TxPduId, PduInfoPtr)</span> → NAD resolved to specific channel. Channel→LINTP_CHANNEL_BUSY<br>
+  2. N_As timer starts (waiting for SRF header from master)<br>
+  3. Master sends SRF header → LinIf_HeaderIndication() fires<br>
+  4. If TP is selected (no NC response pending): <span class="fn">PduR_LinTpCopyTxData()</span> called to get SF/FF/CF data<br>
+  5. Data fills the SRF response buffer. PduPtr→Drc=TX set. N_As timer stopped, N_Cs started<br>
+  6. <span class="fn">LinIf_TxConfirmation()</span> confirms frame sent. N_Cs timer started<br>
+  7. For multi-frame: wait for next SRF header (N_Cs timer). On header → repeat step 4<br>
+  8. After last CF: <span class="fn">PduR_LinTpTxConfirmation(E_OK)</span>. Channel→LINTP_CHANNEL_IDLE<br>
+  If CopyTxData returns BUFREQ_E_BUSY: retry on next SRF header (up to LinTpMaxBufReq times). If BUFREQ_E_NOT_OK or timeout: PduR_LinTpTxConfirmation(E_NOT_OK).
+  </div>`},
+  {name:'Rx flow (slave)', html:`<p class="ct">LinTp Reception — Slave node</p>
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.75;">
+  1. Master sends MRF → LinIf_RxIndication(channel, data) fires<br>
+  2. LinIf Diagnostic Frame Dispatcher evaluates NAD, PCI, SID:<br>
+  &nbsp;&nbsp;• If valid NC request (matching NAD, supported SID) → Node Config Handler processes<br>
+  &nbsp;&nbsp;• If not NC → check if TP message (SF or FF)<br>
+  3. On SF or FF detection: <span class="fn">PduR_LinTpStartOfReception()</span> called. NAD→NSDU mapping<br>
+  4. <span class="fn">PduR_LinTpCopyRxData()</span> copies received data<br>
+  5. Channel→LINTP_CHANNEL_BUSY. N_Cr timer starts (waiting for next MRF)<br>
+  6. Each subsequent MRF CF: LinIf_RxIndication → check sequence number → CopyRxData<br>
+  7. After last CF: <span class="fn">PduR_LinTpRxIndication(E_OK)</span>. Channel→LINTP_CHANNEL_IDLE<br>
+  If new physical SF/FF arrives during ongoing reception → old message lost, new one accepted (if NAD matches). Functional request during physical reception → IGNORED.
+  </div>`},
+];
+function buildTpBtns() {
+  document.getElementById('tp-btns').innerHTML=TP_TABS.map((t,i)=>`<button class="sb${i===0?' sel':''}" onclick="showTp(${i})">${t.name}</button>`).join('');
+  document.getElementById('tp-display').innerHTML=TP_TABS[0].html;
+}
+function showTp(i) {
+  document.querySelectorAll('#tp-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('tp-display').innerHTML=TP_TABS[i].html;
+}
+
+const APIS = [
+  {fn:'LinIf_Init(ConfigPtr)',sid:'0x01',mode:'SYNC',node:'BOTH',d:'Initialize LinIf. Sets NULL_SCHEDULE per channel (master). All channels→LINIF_CHANNEL_SLEEP. Non-reentrant. void return.'},
+  {fn:'LinIf_GetVersionInfo(*versioninfo)',sid:'0x03',mode:'SYNC',node:'BOTH',d:'Read version info. Reentrant. Reports LINIF_E_PARAM_POINTER if null.'},
+  {fn:'LinIf_Transmit(TxPduId, PduInfoPtr)',sid:'0x49',mode:'SYNC',node:'BOTH',d:'Request Tx. For MASTER: marks Sporadic frame as pending. For SLAVE: marks Event-triggered frame response as pending. Other frame types: returns E_OK but takes no action. Reentrant for different PduIds. Returns E_NOT_OK if NULL_SCHEDULE active (master).'},
+  {fn:'LinIf_ScheduleRequest(Channel, ScheduleTableIdx)',sid:'0x05',mode:'ASYNC',node:'MASTER',d:'Request schedule table switch. ASYNC — confirmation via <User>_ScheduleRequestConfirmation. Returns E_NOT_OK in SLEEP or if already requested max depth. 0=NULL_SCHEDULE. Reentrant. Reports LINIF_E_SCHEDULE_REQUEST_ERROR in SLEEP.'},
+  {fn:'LinIf_GotoSleep(Channel)',sid:'0x06',mode:'ASYNC',node:'BOTH',d:'Request sleep transition. MASTER: ASYNC — sends go-to-sleep frame in next MainFunction. SLAVE: calls Lin_GoToSleepInternal immediately (not async). No-op if already in SLEEP. Non-reentrant.'},
+  {fn:'LinIf_Wakeup(Channel)',sid:'0x07',mode:'ASYNC',node:'BOTH',d:'Request wakeup. If not in SLEEP: simulates success (returns E_OK, no Lin_Wakeup call). If in SLEEP and wakeup flag not set: calls Lin_Wakeup (transmit wakeup pulse). If wakeup flag set: calls Lin_WakeupInternal. Reentrant.'},
+  {fn:'LinIf_SetTrcvMode(Channel, Mode)',sid:'0x08',mode:'SYNC',node:'BOTH',d:'Set transceiver mode. Calls LinTrcv_SetOpMode(). Only if LinIfTrcvDriverSupported=TRUE. Reentrant.'},
+  {fn:'LinIf_GetTrcvMode(Channel, *ModePtr)',sid:'0x09',mode:'SYNC',node:'BOTH',d:'Read transceiver mode via LinTrcv_GetOpMode(). Only if LinIfTrcvDriverSupported=TRUE. Reentrant.'},
+  {fn:'LinIf_GetTrcvWakeupReason(Channel, *ReasonPtr)',sid:'0x0a',mode:'SYNC',node:'BOTH',d:'Read wakeup reason from LinTrcv. Per-channel — no voting across buses. Reports E_TRCV_NOT_NORMAL if not in NORMAL mode. Reentrant.'},
+  {fn:'LinIf_SetTrcvWakeupMode(Channel, WakeupMode)',sid:'0x0b',mode:'SYNC',node:'BOTH',d:'Enable/disable/clear wakeup notification for this network. Calls LinTrcv_SetWakeupMode(). Reentrant.'},
+  {fn:'LinIf_GetPIDTable(Channel, *PidBuffer, *Len)',sid:'0x72',mode:'SYNC',node:'SLAVE',d:'Get current PID table for slave. PIDs exclude MRF and SRF. PidBufferLength=0 → returns count without copying. Reentrant.'},
+  {fn:'LinIf_SetPIDTable(Channel, *PidBuffer, Len)',sid:'0x73',mode:'SYNC',node:'SLAVE',d:'Update slave PID table (e.g. from NvM after power-on). Excludes MRF/SRF. Reentrant.'},
+  {fn:'LinIf_GetConfiguredNAD(Channel, *Nad)',sid:'0x70',mode:'SYNC',node:'SLAVE',d:'Read current configured NAD. Reentrant.'},
+  {fn:'LinIf_SetConfiguredNAD(Channel, Nad)',sid:'0x71',mode:'SYNC',node:'SLAVE',d:'Update configured NAD at runtime. NAD must not be 0 (raises LINIF_E_PARAMETER). Reentrant.'},
+  {fn:'LinIf_CheckWakeup(WakeupSource)',sid:'0x60',mode:'SYNC',node:'BOTH',d:'Called by EcuM after wakeup detected. Queries Lin_CheckWakeup or LinTrcv_CheckWakeup depending on WakeupSource. Reentrant.'},
+  {fn:'LinIf_EnableBusMirroring(Channel, active)',sid:'0x7f',mode:'SYNC',node:'BOTH',d:'Enable/disable Mirror_ReportLinFrame() calls for this channel. Only if LinIfBusMirroringSupported=TRUE. Reentrant.'},
+  {fn:'LinTp_Init(ConfigPtr)',sid:'0x40',mode:'SYNC',node:'BOTH',d:'Initialize LinTp. Sets LINTP_INIT + LINTP_CHANNEL_IDLE per channel. Must be called after LinIf_Init. Non-reentrant. Only if LinIfTpSupported=TRUE.'},
+  {fn:'LinTp_Transmit(TxPduId, PduInfoPtr)',sid:'0x53',mode:'SYNC',node:'BOTH',d:'Request TP message transmission. Channel→LINTP_CHANNEL_BUSY. For master: triggers BswM diagnostic schedule request. Accepts functional request even during ongoing physical. Returns E_NOT_OK if schedule switch fails.'},
+  {fn:'LinTp_Shutdown()',sid:'0x43',mode:'SYNC',node:'BOTH',d:'Close all TP connections. All channels→LINTP_UNINIT. Frees resources. Non-reentrant.'},
+  {fn:'LinTp_ChangeParameter(id, param, value)',sid:'0x4b',mode:'SYNC',node:'BOTH',d:'Always returns E_NOT_OK (empty implementation for upper layer API compliance). LIN TP does not support parameter changes at runtime.'},
+  {fn:'LinTp_GetVersionInfo(*versioninfo)',sid:'0x42',mode:'SYNC',node:'BOTH',d:'Read LinTp version. Non-reentrant.'},
+];
+function buildApi() {
+  document.getElementById('api-body').innerHTML=APIS.map(a=>`<tr>
+    <td class="fn">${a.fn}</td>
+    <td style="font-family:var(--font-mono);font-size:11px">${a.sid}</td>
+    <td><span class="badge ${a.mode==='SYNC'?'bs':'ba'}">${a.mode}</span></td>
+    <td><span class="${a.node==='MASTER'?'master-tag':a.node==='SLAVE'?'slave-tag':'both-tag'}">${a.node}</span></td>
+    <td>${a.d}</td>
+  </tr>`).join('');
+}
+function filterApi(q) {
+  document.querySelectorAll('#api-body tr').forEach(r=>{
+    r.style.display=!q||r.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+
+function showTab(t, btn) {
+  document.querySelectorAll('.pn').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pn-'+t).classList.add('active');
+  btn.classList.add('active');
+  if(t==='api') buildApi();
+  if(t==='frames') buildFrameBtns();
+  if(t==='lintp') buildTpBtns();
+}
+buildApi(); buildFrameBtns(); buildTpBtns();
+</script>

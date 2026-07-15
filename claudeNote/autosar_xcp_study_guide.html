@@ -1,0 +1,725 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.tabs{display:flex;gap:4px;padding:0 0 12px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);font-size:13px;cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.section{display:none}.section.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500;margin:2px}
+.badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mini-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:13px}
+.mini-card .label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.mini-card .val{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:10px 12px;line-height:1.6;overflow-x:auto;white-space:pre}
+.tag{font-size:11px;padding:2px 6px;border-radius:4px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.hl{color:var(--color-text-info)}
+.h3{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.muted{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.sep{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:12px 0}
+.row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;border:0.5px solid var(--color-border-tertiary)}
+.btn-sm{padding:5px 12px;border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+.btn-sm:hover{background:var(--color-background-secondary)}
+.state-box{border-radius:var(--border-radius-md);padding:10px 14px;border:0.5px solid var(--color-border-tertiary);font-size:13px;cursor:pointer;transition:all .2s}
+.state-box.active-state{border-color:var(--color-border-info);background:var(--color-background-info)}
+.err-row{display:flex;gap:8px;padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;align-items:center}
+.err-row:last-child{border-bottom:none}
+select{padding:5px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px}
+</style>
+
+<h2 class="sr-only">AUTOSAR XCP module comprehensive study guide covering state machine, functional specification, API, sequence diagrams, and DaVinci configuration</h2>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="show('overview')">Overview & concepts</button>
+  <button class="tab" onclick="show('state')">State machine</button>
+  <button class="tab" onclick="show('functional')">Functional spec</button>
+  <button class="tab" onclick="show('api')">API reference</button>
+  <button class="tab" onclick="show('sequence')">Sequence diagrams</button>
+  <button class="tab" onclick="show('config')">DaVinci config</button>
+  <button class="tab" onclick="show('errors')">Errors & debug</button>
+  <button class="tab" onclick="show('exam')">Exam checklist</button>
+</div>
+
+<div id="overview" class="section active">
+<div class="card">
+  <div class="h3">What is XCP?</div>
+  <p class="muted">XCP (Universal Calibration Protocol) is an ASAM standard protocol for communication between a <strong>master</strong> (calibration tool like CANalyzer/INCA) and a <strong>slave</strong> (ECU). In AUTOSAR CP, the XCP module lives above PduR and communicates via CAN, FlexRay, or Ethernet.</p>
+  <div class="sep"></div>
+  <div class="grid3" style="margin-top:8px">
+    <div class="mini-card"><div class="label">Standard</div><div class="val">ASAM XCP v1.1 / v1.2 (CAN)</div></div>
+    <div class="mini-card"><div class="label">AUTOSAR release</div><div class="val">R24-11 (latest)</div></div>
+    <div class="mini-card"><div class="label">Document ID</div><div class="val">412</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">Core features (each is optional)</div>
+  <div class="row" style="margin-top:4px">
+    <span class="pill badge-blue"><i class="ti ti-chart-line" aria-hidden="true" style="font-size:13px"></i> DAQ — synchronous data acquisition</span>
+    <span class="pill badge-blue"><i class="ti ti-adjustments" aria-hidden="true" style="font-size:13px"></i> STIM — data stimulation</span>
+    <span class="pill badge-green"><i class="ti ti-pencil" aria-hidden="true" style="font-size:13px"></i> CAL — online memory calibration</span>
+    <span class="pill badge-amber"><i class="ti ti-files" aria-hidden="true" style="font-size:13px"></i> PGM — flash programming</span>
+    <span class="pill badge-amber"><i class="ti ti-refresh" aria-hidden="true" style="font-size:13px"></i> Page switching</span>
+    <span class="pill"><i class="ti ti-clock" aria-hidden="true" style="font-size:13px"></i> Timestamped data transfer</span>
+    <span class="pill"><i class="ti ti-key" aria-hidden="true" style="font-size:13px"></i> Seed & Key protection</span>
+    <span class="pill"><i class="ti ti-arrows-exchange" aria-hidden="true" style="font-size:13px"></i> Bypassing (DAQ+STIM)</span>
+    <span class="pill"><i class="ti ti-database" aria-hidden="true" style="font-size:13px"></i> RESUME mode</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">Architecture: where XCP sits in the AUTOSAR stack</div>
+  <svg width="100%" viewBox="0 0 640 340" role="img"><title>AUTOSAR XCP stack position</title><desc>XCP sits above PduR. PduR routes to LSduR then to CAN/FlexRay/Ethernet bus interfaces.</desc>
+    <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <g class="c-purple"><rect x="220" y="20" width="200" height="44" rx="8" stroke-width="0.5"/><text class="th" x="320" y="42" text-anchor="middle" dominant-baseline="central">XCP module</text></g>
+    <text class="ts" x="60" y="42" text-anchor="middle" dominant-baseline="central" fill="var(--s)">RTE / BSW Scheduler</text>
+    <line x1="320" y1="64" x2="320" y2="90" stroke="var(--t)" stroke-width="1" marker-end="url(#a2)" fill="none"/>
+    <text class="ts" x="340" y="80" fill="var(--s)">PduR_XcpTransmit</text>
+    <g class="c-teal"><rect x="200" y="90" width="240" height="44" rx="8" stroke-width="0.5"/><text class="th" x="320" y="112" text-anchor="middle" dominant-baseline="central">PduR (PDU Router)</text></g>
+    <line x1="320" y1="134" x2="320" y2="160" stroke="var(--t)" stroke-width="1" marker-end="url(#a2)" fill="none"/>
+    <g class="c-teal"><rect x="200" y="160" width="240" height="44" rx="8" stroke-width="0.5"/><text class="th" x="320" y="182" text-anchor="middle" dominant-baseline="central">LSduR (Link-layer SDU Router)</text></g>
+    <line x1="220" y1="204" x2="80" y2="250" stroke="var(--t)" stroke-width="1" marker-end="url(#a2)" fill="none"/>
+    <line x1="320" y1="204" x2="320" y2="250" stroke="var(--t)" stroke-width="1" marker-end="url(#a2)" fill="none"/>
+    <line x1="420" y1="204" x2="560" y2="250" stroke="var(--t)" stroke-width="1" marker-end="url(#a2)" fill="none"/>
+    <g class="c-gray"><rect x="20" y="250" width="120" height="44" rx="8" stroke-width="0.5"/><text class="th" x="80" y="272" text-anchor="middle" dominant-baseline="central">CanIf</text></g>
+    <g class="c-gray"><rect x="260" y="250" width="120" height="44" rx="8" stroke-width="0.5"/><text class="th" x="320" y="272" text-anchor="middle" dominant-baseline="central">FrIf</text></g>
+    <g class="c-gray"><rect x="500" y="250" width="120" height="44" rx="8" stroke-width="0.5"/><text class="th" x="560" y="272" text-anchor="middle" dominant-baseline="central">SoAd (Ethernet)</text></g>
+    <text class="ts" x="80" y="312" text-anchor="middle" fill="var(--s)">CAN / CAN FD</text>
+    <text class="ts" x="320" y="312" text-anchor="middle" fill="var(--s)">FlexRay</text>
+    <text class="ts" x="560" y="312" text-anchor="middle" fill="var(--s)">TCP/IP · UDP/IP</text>
+  </svg>
+  <p class="muted" style="margin-top:8px">Key R24-11 change: XCP now uses <code>PduR_XcpTransmit</code> instead of directly calling bus interfaces. The old direct bus-interface calls (SWS_Xcp_00712/00714/00720/00734) are now OBSOLETE.</p>
+</div>
+
+<div class="card">
+  <div class="h3">Key terminology for exams</div>
+  <div class="grid2">
+    <div class="mini-card"><div class="label">CTO — Command Transfer Object</div><div class="val" style="font-weight:400;font-size:12px">Commands from master to slave (e.g. CONNECT, GET_STATUS, SET_DAQ_LIST_MODE). Max size = XcpMaxCto (8–255 bytes)</div></div>
+    <div class="mini-card"><div class="label">DTO — Data Transfer Object</div><div class="val" style="font-weight:400;font-size:12px">DAQ/STIM data packets. Max size = XcpMaxDto (8–65535 bytes)</div></div>
+    <div class="mini-card"><div class="label">ODT — Object Descriptor Table</div><div class="val" style="font-weight:400;font-size:12px">Describes which memory elements are measured. Each DAQ list has multiple ODTs</div></div>
+    <div class="mini-card"><div class="label">DAQ list</div><div class="val" style="font-weight:400;font-size:12px">Collection of ODTs defining what to measure. Static (pre-configured) or Dynamic</div></div>
+    <div class="mini-card"><div class="label">Event channel</div><div class="val" style="font-weight:400;font-size:12px">Sampling trigger for DAQ lists. Has time cycle, consistency (ODT/DAQ/EVENT), and priority</div></div>
+    <div class="mini-card"><div class="label">PDU-ID</div><div class="val" style="font-weight:400;font-size:12px">Unique identifier for each XCP message direction. Configured via XcpRxPduId/XcpTxPduId</div></div>
+  </div>
+</div>
+</div>
+
+<div id="state" class="section">
+<div class="card">
+  <div class="h3">XCP slave state machine — interactive</div>
+  <p class="muted" style="margin-bottom:12px">Click any state to see what happens there and which transitions are possible. This is critical for integration testing.</p>
+  <div id="state-detail" class="mini-card" style="margin-bottom:12px;min-height:80px">
+    <div class="label">Selected state</div>
+    <div id="sd-name" class="val" style="font-size:15px">DISCONNECTED (initial state)</div>
+    <div id="sd-desc" class="muted" style="margin-top:6px;font-size:12px">Slave starts here on power-up or after a disconnect. Only CONNECT command is accepted. All DAQ/CAL/PGM activity stopped.</div>
+    <div style="margin-top:8px" id="sd-trans"></div>
+  </div>
+  <svg width="100%" viewBox="0 0 640 380" role="img"><title>XCP state machine</title><desc>Five states: Disconnected, Connected, DAQ running, CAL/PAG, PGM</desc>
+    <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+    <g class="node c-gray" id="st-disc" onclick="selState('disc')"><rect x="240" y="20" width="160" height="50" rx="8" stroke-width="0.5"/><text class="th" x="320" y="41" text-anchor="middle" dominant-baseline="central">DISCONNECTED</text><text class="ts" x="320" y="58" text-anchor="middle">Power-up / disconnect</text></g>
+    <line x1="320" y1="70" x2="320" y2="110" stroke="var(--t)" stroke-width="1" marker-end="url(#a3)" fill="none"/>
+    <text class="ts" x="335" y="92" fill="var(--s)">CONNECT</text>
+    <g class="node c-teal" id="st-conn" onclick="selState('conn')"><rect x="220" y="110" width="200" height="50" rx="8" stroke-width="0.5"/><text class="th" x="320" y="131" text-anchor="middle" dominant-baseline="central">CONNECTED</text><text class="ts" x="320" y="148" text-anchor="middle">Ready, session active</text></g>
+    <line x1="250" y1="160" x2="100" y2="210" stroke="var(--t)" stroke-width="1" marker-end="url(#a3)" fill="none"/>
+    <text class="ts" x="130" y="185" text-anchor="middle" fill="var(--s)">START_DAQ</text>
+    <line x1="320" y1="160" x2="320" y2="210" stroke="var(--t)" stroke-width="1" marker-end="url(#a3)" fill="none"/>
+    <text class="ts" x="360" y="185" text-anchor="middle" fill="var(--s)">CAL/PAG cmd</text>
+    <line x1="390" y1="160" x2="540" y2="210" stroke="var(--t)" stroke-width="1" marker-end="url(#a3)" fill="none"/>
+    <text class="ts" x="500" y="185" text-anchor="middle" fill="var(--s)">PROGRAM_START</text>
+    <g class="node c-blue" id="st-daq" onclick="selState('daq')"><rect x="20" y="210" width="160" height="50" rx="8" stroke-width="0.5"/><text class="th" x="100" y="231" text-anchor="middle" dominant-baseline="central">DAQ RUNNING</text><text class="ts" x="100" y="248" text-anchor="middle">Periodic data upload</text></g>
+    <g class="node c-amber" id="st-cal" onclick="selState('cal')"><rect x="240" y="210" width="160" height="50" rx="8" stroke-width="0.5"/><text class="th" x="320" y="231" text-anchor="middle" dominant-baseline="central">CAL / PAG</text><text class="ts" x="320" y="248" text-anchor="middle">Calibration active</text></g>
+    <g class="node c-coral" id="st-pgm" onclick="selState('pgm')"><rect x="460" y="210" width="160" height="50" rx="8" stroke-width="0.5"/><text class="th" x="540" y="231" text-anchor="middle" dominant-baseline="central">PGM</text><text class="ts" x="540" y="248" text-anchor="middle">Flash programming</text></g>
+    <path d="M100 260 Q100 320 280 320 Q320 320 320 270" fill="none" stroke="var(--t)" stroke-width="1" marker-end="url(#a3)"/>
+    <text class="ts" x="170" y="335" fill="var(--s)">STOP_DAQ</text>
+    <path d="M320 260 Q320 290 320 270" fill="none" stroke="var(--t)" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#a3)"/>
+    <path d="M540 260 Q540 340 360 340 Q320 340 320 270" fill="none" stroke="var(--t)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#a3)"/>
+    <text class="ts" x="470" y="355" fill="var(--s)">PROGRAM_RESET / disconnect</text>
+    <path d="M180 235 Q210 235 220 175 Q220 135 220 135" fill="none" stroke="var(--t)" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#a3)"/>
+    <path d="M240 235 Q230 235 230 175 Q230 135 230 135" fill="none" stroke="var(--t)" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#a3)"/>
+  </svg>
+  <p class="muted" style="margin-top:6px;font-size:12px">Dashed arrows = return transitions. In any state, a socket close (Ethernet) or bus timeout triggers DISCONNECT → DISCONNECTED.</p>
+</div>
+
+<div class="card">
+  <div class="h3">DAQ list state machine (within DAQ RUNNING)</div>
+  <div class="grid2">
+    <div class="mini-card"><div class="label">UNDEFINED → SELECTED</div><div class="val" style="font-weight:400;font-size:12px">SET_DAQ_LIST_MODE issued by master</div></div>
+    <div class="mini-card"><div class="label">SELECTED → RUNNING</div><div class="val" style="font-weight:400;font-size:12px">START_STOP_DAQ_LIST(START) or START_STOP_SYNCH</div></div>
+    <div class="mini-card"><div class="label">RUNNING → STOPPED</div><div class="val" style="font-weight:400;font-size:12px">START_STOP_DAQ_LIST(STOP) or START_STOP_SYNCH(STOP_ALL)</div></div>
+    <div class="mini-card"><div class="label">RESUME mode</div><div class="val" style="font-weight:400;font-size:12px">DAQ config stored in NvRAM (XcpNvRamBlockIdRef). Continues after power cycle without master intervention</div></div>
+  </div>
+</div>
+</div>
+
+<div id="functional" class="section">
+<div class="card">
+  <div class="h3">DAQ — synchronous data acquisition (measurement)</div>
+  <p class="muted">The slave periodically reads ECU RAM variables and sends them to the master tool. Key SWS item: <span class="tag">SWS_Xcp_00705</span></p>
+  <div class="sep"></div>
+  <div class="grid2">
+    <div>
+      <div class="h3" style="font-size:13px;margin-bottom:6px">Static DAQ (XcpDaqConfigType = DAQ_STATIC)</div>
+      <p class="muted" style="font-size:12px">ODTs pre-configured at compile time. Addresses defined in XcpOdtEntryAddress. Fast but inflexible. MAX_DAQ = MIN_DAQ (XcpMinDaq). XcpMaxOdt and XcpMaxOdtEntries defined per list.</p>
+    </div>
+    <div>
+      <div class="h3" style="font-size:13px;margin-bottom:6px">Dynamic DAQ (XcpDaqConfigType = DAQ_DYNAMIC)</div>
+      <p class="muted" style="font-size:12px">Master allocates DAQ lists at runtime using ALLOC_DAQ / ALLOC_ODT / ALLOC_ODT_ENTRY commands. MAX_DAQ = MIN_DAQ + DAQ_COUNT. Requires XcpDaqCount, XcpOdtCount, XcpOdtEntriesCount in config.</p>
+    </div>
+  </div>
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;margin-bottom:6px">DAQ setup sequence (master tool perspective)</div>
+  <div class="code">1. CONNECT
+2. GET_DAQ_PROCESSOR_INFO  → check DAQ capabilities
+3. GET_DAQ_RESOLUTION_INFO → timestamp resolution
+4. FREE_DAQ                → clear all dynamic DAQ lists
+5. ALLOC_DAQ(count)        → allocate DAQ lists
+6. ALLOC_ODT(daq, count)   → allocate ODTs per list
+7. ALLOC_ODT_ENTRY(daq, odt, count) → allocate ODT entries
+8. SET_DAQ_PTR(daq, odt, entry)
+9. WRITE_DAQ(bit_offset, size, addr_ext, addr) → per entry
+10. SET_DAQ_LIST_MODE(mode, daq, event, prescaler, priority)
+11. START_STOP_SYNCH(START_SELECTED) → begin measurement</div>
+</div>
+
+<div class="card">
+  <div class="h3">STIM — synchronous data stimulation</div>
+  <p class="muted">Inverse of DAQ. Master writes data into ECU RAM at the rate defined by the event channel. Used for bypassing (model-in-the-loop). <span class="tag">SWS_Xcp_00707</span> <span class="tag">SWS_Xcp_00761</span></p>
+  <div class="sep"></div>
+  <p class="muted" style="font-size:12px">Bypassing = running DAQ and STIM simultaneously on the same signal path. The master reads a signal (DAQ), processes it in a model, then writes the result back (STIM), overriding the ECU calculation.</p>
+  <div class="grid2" style="margin-top:8px">
+    <div class="mini-card"><div class="label">XcpDaqListType = STIM</div><div class="val" style="font-weight:400;font-size:12px">DAQ list is write-only from slave perspective (master sends data in)</div></div>
+    <div class="mini-card"><div class="label">XcpDaqListType = DAQ_STIM</div><div class="val" style="font-weight:400;font-size:12px">Same list can be used for either direction (bypassing scenario)</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">Identification field types (XcpIdentificationFieldType)</div>
+  <div class="grid2">
+    <div class="mini-card"><div class="label">ABSOLUTE</div><div class="val" style="font-weight:400;font-size:12px">Absolute ODT number — each ODT globally unique. Simple but uses more bits.</div></div>
+    <div class="mini-card"><div class="label">RELATIVE_BYTE</div><div class="val" style="font-weight:400;font-size:12px">Relative ODT number + absolute DAQ list number (BYTE). Saves 1 byte in header.</div></div>
+    <div class="mini-card"><div class="label">RELATIVE_WORD</div><div class="val" style="font-weight:400;font-size:12px">Relative ODT + DAQ list number as WORD. Supports large DAQ lists (&gt;255).</div></div>
+    <div class="mini-card"><div class="label">RELATIVE_WORD_ALIGNED</div><div class="val" style="font-weight:400;font-size:12px">Same as WORD but aligned to 2-byte boundary. Required for some platforms.</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">XCP on CAN specifics <span class="badge badge-blue">Integration critical</span></div>
+  <div class="grid2">
+    <div><p class="muted" style="font-size:12px">• At least <strong>two CAN identifiers</strong> must be configured (one for CTO/response, one for DAQ) — <span class="tag">SWS_Xcp_00715</span><br><br>• XCP on CAN uses ASAM v1.2 (not v1.1) — <span class="tag">SWS_Xcp_00703</span><br><br>• CAN FD supported from AUTOSAR 4.4.0 onwards<br><br>• GET_SLAVE_ID command must be supported — <span class="tag">SWS_Xcp_00718</span><br><br>• SET_DAQ_ID is NOT part of the AUTOSAR XCP module (known limitation)</p></div>
+    <div><p class="muted" style="font-size:12px">• XCP on Ethernet: slave accepts only ONE connection at a time — <span class="tag">SWS_Xcp_00736</span><br><br>• Socket close while connected → XCP disconnect, all DAQ stops — <span class="tag">SWS_Xcp_00737</span><br><br>• XCP on FlexRay: all LPDUs are event-driven — <span class="tag">SWS_Xcp_00721</span><br><br>• FlexRay buffers assigned EXCLUSIVELY to XCP — <span class="tag">SWS_Xcp_00722</span><br><br>• FlexRay can pack multiple XCP messages into one frame — <span class="tag">SWS_Xcp_00732</span></p></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">Timestamp configuration</div>
+  <div class="grid3">
+    <div class="mini-card"><div class="label">XcpTimestampType</div><div class="val" style="font-weight:400;font-size:12px">NO_TIME_STAMP, ONE_BYTE, TWO_BYTE, FOUR_BYTE</div></div>
+    <div class="mini-card"><div class="label">XcpTimestampUnit</div><div class="val" style="font-weight:400;font-size:12px">1PS to 1S (13 options). ECU time from AUTOSAR OS counter (XcpCounterRef)</div></div>
+    <div class="mini-card"><div class="label">XcpTimestampTicks</div><div class="val" style="font-weight:400;font-size:12px">Ticks per unit. 0–65535. Wraps on overflow.</div></div>
+  </div>
+</div>
+</div>
+
+<div id="api" class="section">
+<div class="card">
+  <div class="h3">API functions — complete reference</div>
+  <div style="margin-bottom:8px">
+    <select id="api-sel" onchange="showApi(this.value)">
+      <option value="init">Xcp_Init</option>
+      <option value="ver">Xcp_GetVersionInfo</option>
+      <option value="tx">Xcp_SetTransmissionMode</option>
+      <option value="rx">Xcp_RxIndication (callback)</option>
+      <option value="txc">Xcp_TxConfirmation (callback)</option>
+      <option value="trig">Xcp_TriggerTransmit (callback)</option>
+      <option value="main">Xcp_MainFunction (scheduled)</option>
+    </select>
+  </div>
+  <div id="api-detail"></div>
+</div>
+
+<div class="card">
+  <div class="h3">Transmission path: R24-11 (important for exams — this changed!)</div>
+  <div class="code">XCP on CAN:     XCP → PduR_XcpTransmit() → LSduR → CanIf → CAN driver
+XCP on FlexRay: XCP → PduR_XcpTransmit() → LSduR → FrIf  → Fr  driver  
+XCP on Ethernet:XCP → PduR_XcpTransmit() → SoAd  → TcpIp → LSduR → EthIf
+
+OLD (obsolete): XCP → CanIf_Transmit() [direct, bypassing PduR — SWS_Xcp_00714 OBSOLETE]
+NEW (R24-11):   XCP → PduR_XcpTransmit() [always via PduR — SWS_Xcp_00864/865/866]</div>
+  <p class="muted" style="margin-top:8px;font-size:12px">After calling PduR_XcpTransmit(), the module WAITS for Xcp_TxConfirmation() before sending the next PDU to avoid overwriting the transmit buffer. <span class="tag">SWS_Xcp_00863</span></p>
+</div>
+
+<div class="card">
+  <div class="h3">Imported types (for header file knowledge)</div>
+  <div class="code">From ComStack_Types.h:  NetworkHandleType, PduIdType, PduInfoType, PduLengthType
+From Fr_GeneralTypes.h: Fr_ChannelType
+From Os.h:              StatusType, TickRefType, TickType
+From Rte_Os_Type.h:     CounterType
+From Std_Types.h:       Std_ReturnType, Std_VersionInfoType
+
+Type defined by XCP:
+  Xcp_ConfigType         — implementation-specific init data structure (Xcp.h)
+  Xcp_TransmissionModeType — enum: XCP_TX_OFF (0x00), XCP_TX_ON (0x01)</div>
+</div>
+
+<div class="card">
+  <div class="h3">Service IDs (hex) — memorize these</div>
+  <div class="grid3">
+    <div class="mini-card"><div class="label">Xcp_Init</div><div class="val">0x00</div></div>
+    <div class="mini-card"><div class="label">Xcp_GetVersionInfo</div><div class="val">0x01</div></div>
+    <div class="mini-card"><div class="label">Xcp_MainFunction</div><div class="val">0x04</div></div>
+    <div class="mini-card"><div class="label">Xcp_SetTransmissionMode</div><div class="val">0x05</div></div>
+    <div class="mini-card"><div class="label">Xcp_TriggerTransmit</div><div class="val">0x41</div></div>
+    <div class="mini-card"><div class="label">Xcp_TxConfirmation</div><div class="val">0x40</div></div>
+    <div class="mini-card"><div class="label">Xcp_RxIndication</div><div class="val">0x42</div></div>
+  </div>
+</div>
+</div>
+
+<div id="sequence" class="section">
+<div class="card">
+  <div class="h3">Sequence diagrams — interactive viewer</div>
+  <div class="tabs" style="padding:0 0 10px">
+    <button class="tab active" onclick="showSeq('can-tx')">CAN transmit</button>
+    <button class="tab" onclick="showSeq('can-rx')">CAN receive</button>
+    <button class="tab" onclick="showSeq('fr-tx')">FlexRay transmit</button>
+    <button class="tab" onclick="showSeq('fr-rx')">FlexRay receive</button>
+    <button class="tab" onclick="showSeq('eth-tx')">Ethernet transmit</button>
+    <button class="tab" onclick="showSeq('eth-rx')">Ethernet receive</button>
+  </div>
+  <div id="seq-view"></div>
+</div>
+
+<div class="card">
+  <div class="h3">Key timing insight: TxConfirmation gating</div>
+  <p class="muted">XCP must NOT call PduR_XcpTransmit() again until Xcp_TxConfirmation() (positive or negative) has been received for the previous transmission. This prevents buffer overwrite. Both callbacks (TxConfirmation and TriggerTransmit) can be called from interrupt context or task level.</p>
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px">Xcp_MainFunction() scheduling rules</div>
+  <div class="mini-card"><p class="muted" style="font-size:12px">• Called cyclically by BSW Scheduler (SchM) — <span class="tag">SWS_Xcp_00824</span><br>• Must NOT enter wait state — <span class="tag">SRS_BSW_00424</span><br>• Only called from task bodies, never from ISR — <span class="tag">SRS_BSW_00433</span><br>• Period configured via XcpMainFunctionPeriod (float, seconds, pre-compile)</p></div>
+</div>
+</div>
+
+<div id="config" class="section">
+<div class="card">
+  <div class="h3">Vector DaVinci Configurator — step by step for XCP</div>
+  <p class="muted" style="margin-bottom:10px">In DaVinci, XCP configuration is under the XCP module. Here is the complete workflow for a CAN-based project.</p>
+
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 1: XcpGeneral — basic settings</div>
+  <div class="code">XcpGeneral
+  ├── XcpOnCanEnabled        = TRUE
+  ├── XcpOnFlexRayEnabled    = FALSE
+  ├── XcpOnEthernetEnabled   = FALSE
+  ├── XcpDevErrorDetect      = TRUE       ← always TRUE for development
+  ├── XcpVersionInfoApi      = TRUE
+  ├── XcpDaqConfigType       = DAQ_STATIC or DAQ_DYNAMIC
+  ├── XcpMaxCto              = 8          ← CAN max frame = 8, CAN FD = 64
+  ├── XcpMaxDto              = 8
+  ├── XcpMinDaq              = 0          ← predefined DAQ lists
+  ├── XcpDaqCount            = 2          ← (if DYNAMIC) number of dynamic DAQ lists
+  ├── XcpMaxEventChannel     = 4
+  ├── XcpTimestampType       = NO_TIME_STAMP (or ONE_BYTE/TWO_BYTE/FOUR_BYTE)
+  ├── XcpTimestampUnit       = TIMESTAMP_UNIT_1MS
+  ├── XcpTimestampTicks      = 1
+  ├── XcpMainFunctionPeriod  = 0.01       ← 10ms
+  ├── XcpSuppressTxSupport   = FALSE
+  ├── XcpIdentificationFieldType = ABSOLUTE
+  └── XcpCounterRef          → OsCounter (reference to OS counter for timestamps)</div>
+
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 2: XcpConfig → XcpPdu (RX and TX PDUs)</div>
+  <div class="code">XcpConfig
+  └── XcpPdu[0]: XcpRxPdu         ← command PDU (master → slave)
+      ├── XcpRxPduId = 0           ← must match CanIf Rx PDU configuration
+      └── XcpRxPduRef → Pdu        ← reference to global PDU in EcucValueCollection
+
+  └── XcpPdu[1]: XcpTxPdu         ← response/DAQ PDU (slave → master)
+      ├── XcpTxPduId = 0           ← used in TxConfirmation/TriggerTransmit
+      └── XcpTxPduRef → Pdu        ← reference to global PDU
+
+NOTE: XcpRxPdu and XcpTxPdu must reference PDUs where KeepLocalPduBuffer = FALSE
+(SWS_Xcp_CONSTR_00861 — new constraint in R24-11)</div>
+
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 3: XcpConfig → XcpDaqList (static DAQ only)</div>
+  <div class="code">XcpDaqList[0]
+  ├── XcpDaqListNumber = 0
+  ├── XcpDaqListType   = DAQ        ← DAQ | STIM | DAQ_STIM
+  ├── XcpMaxOdt        = 1
+  ├── XcpMaxOdtEntries = 4
+  └── XcpOdt[0]
+      ├── XcpOdtNumber       = 0
+      ├── XcpOdtEntryMaxSize = 4
+      └── XcpOdtEntry[0]
+          ├── XcpOdtEntryNumber  = 0
+          ├── XcpOdtEntryAddress = &EngineSpeed_rpm   ← linker symbol
+          └── XcpOdtEntryLength  = 2                  ← uint16</div>
+
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 4: XcpConfig → XcpEventChannel</div>
+  <div class="code">XcpEventChannel[0]
+  ├── XcpEventChannelNumber      = 0         ← referenced from DAQ list mode
+  ├── XcpEventChannelType        = DAQ       ← DAQ | STIM | DAQ_STIM
+  ├── XcpEventChannelConsistency = ODT       ← ODT | DAQ | EVENT
+  ├── XcpEventChannelTimeCycle   = 10        ← 10 ticks (= 10ms if unit is 1ms)
+  ├── XcpEventChannelTimeUnit    = TIMESTAMP_UNIT_1MS
+  ├── XcpEventChannelMaxDaqList  = 1
+  ├── XcpEventChannelPriority    = 0
+  └── XcpEventChannelTriggeredDaqListRef → XcpDaqList[0]</div>
+
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 5: XcpConfig → XcpCommunicationChannel (new in R24-11 era)</div>
+  <div class="code">XcpCommunicationChannel[0]
+  ├── XcpComMChannelRef    → ComMChannel[0]   ← which ComM channel this belongs to
+  ├── XcpChannelTxPduRef   → XcpTxPdu[0]     ← mandatory
+  └── XcpChannelRxPduRef   → XcpRxPdu[0]     ← optional (0..1)
+  
+  Used by Xcp_SetTransmissionMode(Channel, XCP_TX_OFF/ON)
+  to suppress/enable TX per communication channel</div>
+
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 6: PduR routing configuration (critical!)</div>
+  <div class="code">In PduR configuration:
+  PduRRoutingTable
+  └── PduRRoutingPath (XCP_RX)
+      ├── Source:      PduRSrcPdu → XcpRxPdu (from CanIf via LSduR)
+      └── Destination: PduRDestPdu → Xcp_RxIndication callback
+
+  PduRRoutingPath (XCP_TX)
+      ├── Source:      PduRSrcPdu → PduR_XcpTransmit (from XCP module)
+      └── Destination: PduRDestPdu → CanIf (via LSduR)
+
+TIP in DaVinci: Use the "PDU" view to connect XCP PDUs. The tool usually
+auto-generates routing paths when you link XcpRxPduRef/XcpTxPduRef to
+corresponding CanIf PDUs.</div>
+
+  <div class="sep"></div>
+  <div class="h3" style="font-size:13px;color:var(--color-text-info)">Step 7: SchM integration for Xcp_MainFunction</div>
+  <div class="code">In OS/SchM configuration:
+  OsTask[BSW_10ms_Task]
+    OsTaskActivation = 1
+    OsTaskPeriod     = 0.01
+    SchMExclusiveArea: Xcp_MainFunction_ExclusiveArea
+    
+  In BSW_MainFunctions_10ms:
+    Xcp_MainFunction()    ← period must match XcpMainFunctionPeriod</div>
+</div>
+
+<div class="card">
+  <div class="h3">Common DaVinci mistakes to avoid</div>
+  <div class="grid2">
+    <div class="mini-card"><div class="label" style="color:var(--color-text-danger)">Wrong PDU buffer config</div><div class="val" style="font-weight:400;font-size:12px">XcpRxPdu/TxPdu must reference PDUs with KeepLocalPduBuffer=FALSE. DaVinci will not always warn you.</div></div>
+    <div class="mini-card"><div class="label" style="color:var(--color-text-danger)">Missing PduR routing</div><div class="val" style="font-weight:400;font-size:12px">XCP PDU IDs in XcpRxPduId must match what PduR passes to Xcp_RxIndication. Mismatch → XCP_E_INVALID_PDUID.</div></div>
+    <div class="mini-card"><div class="label" style="color:var(--color-text-danger)">XcpCounterRef not set</div><div class="val" style="font-weight:400;font-size:12px">If timestamp enabled but OsCounter not referenced, GetCounterValue() fails at runtime.</div></div>
+    <div class="mini-card"><div class="label" style="color:var(--color-text-danger)">DAQ_DYNAMIC but no sizes</div><div class="val" style="font-weight:400;font-size:12px">XcpDaqCount, XcpOdtCount, XcpOdtEntriesCount must be set when DAQ_DYNAMIC selected.</div></div>
+    <div class="mini-card"><div class="label" style="color:var(--color-text-danger)">Wrong MainFunction period</div><div class="val" style="font-weight:400;font-size:12px">XcpMainFunctionPeriod must exactly match OS task period. Inconsistency causes timestamp drift.</div></div>
+    <div class="mini-card"><div class="label" style="color:var(--color-text-danger)">Old API in code</div><div class="val" style="font-weight:400;font-size:12px">Do not call CanIf_Transmit() directly. Use PduR_XcpTransmit(). R24-11 made old approach obsolete.</div></div>
+  </div>
+</div>
+</div>
+
+<div id="errors" class="section">
+<div class="card">
+  <div class="h3">Development errors — <span class="tag">SWS_Xcp_00857</span></div>
+  <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden">
+    <div class="err-row" style="background:var(--color-background-secondary);font-weight:500;font-size:12px">
+      <span style="width:180px">Error code</span><span style="width:60px">Value</span><span>Trigger condition</span>
+    </div>
+    <div class="err-row"><span style="width:180px;font-family:var(--font-mono);font-size:12px">XCP_E_UNINIT</span><span style="width:60px" class="badge badge-red">0x02</span><span class="muted" style="font-size:12px">Any API called before Xcp_Init() completes</span></div>
+    <div class="err-row"><span style="width:180px;font-family:var(--font-mono);font-size:12px">XCP_E_INVALID_PDUID</span><span style="width:60px" class="badge badge-red">0x03</span><span class="muted" style="font-size:12px">RxIndication/TxConfirmation called with unknown PDU ID</span></div>
+    <div class="err-row"><span style="width:180px;font-family:var(--font-mono);font-size:12px">XCP_E_INIT_FAILED</span><span style="width:60px" class="badge badge-red">0x04</span><span class="muted" style="font-size:12px">Xcp_Init() fails internally (development error class)</span></div>
+    <div class="err-row"><span style="width:180px;font-family:var(--font-mono);font-size:12px">XCP_E_PARAM_POINTER</span><span style="width:60px" class="badge badge-red">0x12</span><span class="muted" style="font-size:12px">NULL pointer passed: PduInfoPtr in RxIndication, VersioninfoPtr in GetVersionInfo</span></div>
+  </div>
+  <p class="muted" style="margin-top:8px;font-size:12px">All reported via Det_ReportError() when XcpDevErrorDetect = TRUE. No runtime errors, no transient faults, no production errors defined.</p>
+</div>
+
+<div class="card">
+  <div class="h3">Debugging scenarios — integration testing</div>
+  <div class="grid2">
+    <div class="mini-card">
+      <div class="label" style="color:var(--color-text-warning)">No response to CONNECT</div>
+      <div class="val" style="font-weight:400;font-size:12px;margin-top:4px">Check: PduR routing path for RX. Verify XcpRxPduId matches CanIf config. Check Xcp_Init() called before OS starts. XcpDevErrorDetect errors in DET log.</div>
+    </div>
+    <div class="mini-card">
+      <div class="label" style="color:var(--color-text-warning)">DAQ data not arriving</div>
+      <div class="val" style="font-weight:400;font-size:12px;margin-top:4px">Check: XcpEventChannelTriggeredDaqListRef set correctly. Verify event channel triggers (called from correct OS task). XcpOdtEntryAddress points to valid RAM. Xcp_MainFunction() period matches event cycle.</div>
+    </div>
+    <div class="mini-card">
+      <div class="label" style="color:var(--color-text-warning)">Timestamp incorrect/drifting</div>
+      <div class="val" style="font-weight:400;font-size:12px;margin-top:4px">Check: XcpCounterRef → correct OsCounter. XcpTimestampUnit and XcpTimestampTicks match actual OS counter resolution. GetCounterValue() calls from correct context.</div>
+    </div>
+    <div class="mini-card">
+      <div class="label" style="color:var(--color-text-warning)">XCP_E_INVALID_PDUID in DET</div>
+      <div class="val" style="font-weight:400;font-size:12px;margin-top:4px">XcpRxPduId configured in XCP must match PduIdType passed by PduR to Xcp_RxIndication(). Cross-check PduR and XCP configuration tables in DaVinci.</div>
+    </div>
+    <div class="mini-card">
+      <div class="label" style="color:var(--color-text-warning)">Ethernet: master connects then immediately disconnects</div>
+      <div class="val" style="font-weight:400;font-size:12px;margin-top:4px">Check: only ONE master can connect at a time (SWS_Xcp_00736). Second master attempt triggers disconnect. Verify SoAd socket configuration and TcpIp stack initialization order.</div>
+    </div>
+    <div class="mini-card">
+      <div class="label" style="color:var(--color-text-warning)">Flash programming fails</div>
+      <div class="val" style="font-weight:400;font-size:12px;margin-top:4px">Check: XcpFlashProgrammingEnabled = TRUE. Seed&Key configured if protection active. PROGRAM_RESET command: slave goes disconnected but does NOT force device reset (SWS_Xcp_00856).</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">Interface testing checklist</div>
+  <div class="muted" style="font-size:12px;line-height:2">
+    ☐ Verify Xcp_Init() called once before any bus activity<br>
+    ☐ Verify RxIndication called from correct interrupt context<br>
+    ☐ Verify TxConfirmation arrives before next Transmit call<br>
+    ☐ Test XCP_E_UNINIT: call Xcp_RxIndication before Xcp_Init → DET log should show error<br>
+    ☐ Test NULL pointer: call Xcp_GetVersionInfo(NULL) → XCP_E_PARAM_POINTER in DET<br>
+    ☐ Verify Xcp_MainFunction() called at correct period (measure with oscilloscope or trace tool)<br>
+    ☐ Test dynamic DAQ allocation via ALLOC_DAQ/ODT/ODT_ENTRY commands<br>
+    ☐ Verify bypassing: DAQ read and STIM write on same signal, check timing consistency<br>
+    ☐ Test RESUME mode: power cycle with DAQ running, verify DAQ restarts automatically<br>
+    ☐ Test Xcp_SetTransmissionMode(XCP_TX_OFF) → no more TX PDUs until XCP_TX_ON<br>
+    ☐ Verify Seed&Key rejection: wrong key → slave does not unlock protected resource<br>
+    ☐ For CAN FD: MaxCto/MaxDto must be set to CAN FD payload sizes (up to 64)
+  </div>
+</div>
+</div>
+
+<div id="exam" class="section">
+<div class="card">
+  <div class="h3">Exam quick-fire facts — memorize these</div>
+  <div class="grid2">
+    <div class="mini-card"><div class="label">XCP specification version</div><div class="val">v1.1 (all buses), v1.2 for CAN specifically</div></div>
+    <div class="mini-card"><div class="label">XcpMaxCto range</div><div class="val">8 to 255 bytes</div></div>
+    <div class="mini-card"><div class="label">XcpMaxDto range</div><div class="val">8 to 65535 bytes</div></div>
+    <div class="mini-card"><div class="label">XcpMinDaq range</div><div class="val">0 to 255 (predefined DAQ lists)</div></div>
+    <div class="mini-card"><div class="label">XcpMaxOdt range</div><div class="val">0 to 252 per DAQ list</div></div>
+    <div class="mini-card"><div class="label">XcpMaxOdtEntries range</div><div class="val">0 to 255 per ODT</div></div>
+    <div class="mini-card"><div class="label">XcpEventChannelNumber range</div><div class="val">0 to 65534</div></div>
+    <div class="mini-card"><div class="label">Min CAN identifiers</div><div class="val">At least 2 (SWS_Xcp_00715)</div></div>
+    <div class="mini-card"><div class="label">Configuration variants</div><div class="val">Pre-compile, link-time, post-build all supported</div></div>
+    <div class="mini-card"><div class="label">LIN bus support</div><div class="val">NOT supported (no ASAM XCP for LIN)</div></div>
+    <div class="mini-card"><div class="label">Security events</div><div class="val">Module does NOT report security events</div></div>
+    <div class="mini-card"><div class="label">Production errors</div><div class="val">None defined</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">R24-11 changes — exam favorite topic</div>
+  <div class="mini-card" style="margin-bottom:8px">
+    <div class="label">What changed in R24-11</div>
+    <p class="muted" style="font-size:12px;margin-top:4px;line-height:1.8">
+      1. <strong>SWS_Xcp_00860</strong> (DRAFT replaces 00701): XCP now sits ABOVE PduR, not just above bus interfaces directly<br>
+      2. <strong>SWS_Xcp_00862</strong> (DRAFT replaces 00712): Calibration data sent/received via PduR APIs, not bus APIs directly<br>
+      3. <strong>SWS_Xcp_00863</strong> (DRAFT replaces 00859): Wait for Xcp_TxConfirmation after PduR_XcpTransmit (was Lo_Transmit)<br>
+      4. <strong>SWS_Xcp_00864/865/866</strong>: Use PduR APIs for CAN/FlexRay/Ethernet (old direct bus calls obsolete)<br>
+      5. <strong>SWS_Xcp_00867/868/869/870/871</strong>: Callback function names without <Lo> prefix (no longer bus-specific)<br>
+      6. <strong>SWS_Xcp_CONSTR_00861</strong>: XcpRxPdu and XcpTxPdu must have KeepLocalPduBuffer = FALSE (NEW constraint)
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h3">Limitations (commonly examined)</div>
+  <p class="muted" style="font-size:12px;line-height:1.8">
+    • SET_DAQ_ID command (from XCP CAN Transport Layer Spec) is NOT part of AUTOSAR XCP<br>
+    • AUTOSAR RTE does not offer APIs for direct communication with XCP<br>
+    • NAX (node address extension) only configurable through A2L file, not via AUTOSAR config<br>
+    • LIN bus: no ASAM XCP specified (no XCP on LIN)<br>
+    • Ethernet: only ONE connection accepted at a time (SWS_Xcp_00736)<br>
+    • A2L IF_DATA section generated by code generator based on XCP configuration (SWS_Xcp_00853)
+  </p>
+</div>
+
+<div class="card">
+  <div class="h3">Code file structure (SWS_Xcp_00501)</div>
+  <div class="code">Xcp.c        ← general source code
+Xcp_Cfg.c    ← pre-compile time configurable parameters  
+Xcp_Lcfg.c   ← link time configurable parameters
+Xcp_PBcfg.c  ← post build time configurable parameters
+Xcp.h        ← public API header (all functions declared here)
+SchM_Xcp.h   ← Xcp_MainFunction declared here (BSW Scheduler interface)</div>
+</div>
+</div>
+
+<script>
+const stateData = {
+  disc: {name:'DISCONNECTED (initial)', desc:'Slave starts here on power-up or after any disconnect. No session active. All DAQ/CAL/PGM stopped. Only the CONNECT command is accepted from the master.', trans:'→ CONNECTED on CONNECT command'},
+  conn: {name:'CONNECTED', desc:'Session active. Master identified. Full command set available. Resource protection (Seed&Key) may restrict access to CAL/DAQ/PGM/PGM. Supports GET_STATUS, GET_COMM_MODE_INFO, SET_MTA, etc.', trans:'→ DAQ RUNNING on START_STOP_DAQ_LIST / START_STOP_SYNCH | → CAL/PAG on calibration commands | → PGM on PROGRAM_START | → DISCONNECTED on DISCONNECT or socket close'},
+  daq: {name:'DAQ RUNNING', desc:'One or more DAQ lists are active. Slave periodically reads configured memory elements and sends them as DTO packets. Master can still send CTO commands. STIM can run simultaneously for bypassing.', trans:'→ CONNECTED on STOP (all DAQ lists stopped) | → DISCONNECTED on DISCONNECT'},
+  cal: {name:'CAL / PAG', desc:'Calibration (write to RAM variables) and page switching active. DOWNLOAD, DOWNLOAD_NEXT, MODIFY_BITS commands used. Page switching: SET_CAL_PAGE switches between reference page (ROM) and working page (RAM).', trans:'→ CONNECTED when done | → DISCONNECTED on DISCONNECT'},
+  pgm: {name:'PGM (Flash programming)', desc:'Flash programming sequence active. PROGRAM_START entered this state. Master sends PROGRAM/PROGRAM_NEXT commands. PROGRAM_RESET ends programming — slave goes to DISCONNECTED without device reset.', trans:'→ DISCONNECTED on PROGRAM_RESET (no device reset forced, SWS_Xcp_00856)'}
+};
+
+function selState(id) {
+  const d = stateData[id];
+  document.getElementById('sd-name').textContent = d.name;
+  document.getElementById('sd-desc').textContent = d.desc;
+  document.getElementById('sd-trans').innerHTML = '<span class="tag">Transitions</span> <span class="muted" style="font-size:12px">' + d.trans + '</span>';
+}
+
+const apiData = {
+  init: {
+    sig:'void Xcp_Init(const Xcp_ConfigType* Xcp_ConfigPtr)',
+    id:'0x00', sync:'Synchronous', reen:'Non-reentrant',
+    desc:'Initializes all internal variables and interfaces of the AUTOSAR XCP layer. Must be called once during ECU initialization before any other XCP API. The config pointer is stored internally for subsequent use (SWS_Xcp_00802).',
+    notes:['Return type is void (SRS_BSW_00358)', 'Single parameter: pointer to config struct (SRS_BSW_00414)', 'Must be called before bus activity starts', 'Configures PDU routing table internally']
+  },
+  ver: {
+    sig:'void Xcp_GetVersionInfo(Std_VersionInfoType* versioninfo)',
+    id:'0x01', sync:'Synchronous', reen:'Reentrant',
+    desc:'Returns vendor ID, module ID, and software version (major.minor.patch). Only available when XcpVersionInfoApi = TRUE.',
+    notes:['NULL pointer check: if versioninfo == NULL → XCP_E_PARAM_POINTER in DET (SWS_Xcp_00825)', 'Reentrant — safe to call from multiple tasks', 'Available via Xcp.h']
+  },
+  tx: {
+    sig:'void Xcp_SetTransmissionMode(NetworkHandleType Channel, Xcp_TransmissionModeType Mode)',
+    id:'0x05', sync:'Synchronous', reen:'Non-reentrant',
+    desc:'Enables or disables TX for all TxPDUs assigned to the given communication channel. Used for bus sleep/wake scenarios. Only available when XcpSuppressTxSupport = TRUE (SWS_Xcp_00848).',
+    notes:['Mode = XCP_TX_OFF (0x00): no PDUs transmitted on Channel', 'Mode = XCP_TX_ON (0x01): PDUs can be transmitted again', 'Channel derived from XcpCommunicationChannel configuration', 'XcpComMChannelRef maps the channel to a ComM channel']
+  },
+  rx: {
+    sig:'void Xcp_RxIndication(PduIdType RxPduId, const PduInfoType* PduInfoPtr)',
+    id:'0x42', sync:'Synchronous', reen:'Reentrant for different PduIds',
+    desc:'Callback called by PduR (via LSduR) when an XCP PDU is received. PduInfoPtr contains SduLength, SduDataPtr, and MetaData. Must be called from interrupt context.',
+    notes:['DET checks (when XcpDevErrorDetect=TRUE): XCP_E_UNINIT if not initialized, XCP_E_PARAM_POINTER if PduInfoPtr==NULL, XCP_E_INVALID_PDUID if RxPduId unknown', 'Old name was Xcp_<Lo>RxIndication — removed in R24-11', 'Called by bus-specific interface via PduR']
+  },
+  txc: {
+    sig:'void Xcp_TxConfirmation(PduIdType TxPduId, Std_ReturnType result)',
+    id:'0x40', sync:'Synchronous', reen:'Reentrant for different PduIds',
+    desc:'Called by PduR after a transmission attempt. result = E_OK (success) or E_NOT_OK (failure). XCP module MUST wait for this before calling PduR_XcpTransmit() again (SWS_Xcp_00863).',
+    notes:['DET check: XCP_E_UNINIT if called before Xcp_Init()', 'Can be called from interrupt or task level', 'Old name was Xcp_<Lo>TxConfirmation — generic now', 'result E_NOT_OK: XCP should handle gracefully (retry or abort)']
+  },
+  trig: {
+    sig:'Std_ReturnType Xcp_TriggerTransmit(PduIdType TxPduId, PduInfoType* PduInfoPtr)',
+    id:'0x41', sync:'Synchronous', reen:'Reentrant for different PduIds',
+    desc:'Called by lower layer to request SDU data for transmission. XCP copies data into PduInfoPtr->SduDataPtr if it fits in SduLength. Returns E_OK on success, E_NOT_OK if no data or buffer too small.',
+    notes:['DET check: XCP_E_UNINIT → return E_NOT_OK', 'PduInfoPtr is inout: check SduLength before copying, update SduLength with actual bytes copied', 'Can be called from interrupt or task level', 'Do NOT use PduInfoPtr if return is E_NOT_OK']
+  },
+  main: {
+    sig:'void Xcp_MainFunction(void)',
+    id:'0x04', sync:'Scheduled (BSW Scheduler)', reen:'Non-reentrant',
+    desc:'Cyclic processing function. Handles DAQ transmission timing, timeout management, and other periodic tasks. Must be called at period matching XcpMainFunctionPeriod. Available via SchM_Xcp.h.',
+    notes:['Must NOT enter wait state (SRS_BSW_00424)', 'Only called from task bodies, never from ISR (SRS_BSW_00433)', 'No parameters, void return', 'Period = XcpMainFunctionPeriod (float, seconds)']
+  }
+};
+
+function showApi(key) {
+  const d = apiData[key];
+  document.getElementById('api-detail').innerHTML = `
+    <div class="code">${d.sig}</div>
+    <div class="grid3" style="margin:10px 0">
+      <div class="mini-card"><div class="label">Service ID</div><div class="val">${d.id}</div></div>
+      <div class="mini-card"><div class="label">Sync/Async</div><div class="val">${d.sync}</div></div>
+      <div class="mini-card"><div class="label">Reentrancy</div><div class="val">${d.reen}</div></div>
+    </div>
+    <p class="muted" style="font-size:13px;margin-bottom:8px">${d.desc}</p>
+    <div class="mini-card"><div class="label">Key notes for integration/testing</div><ul style="margin:6px 0 0 16px;font-size:12px;color:var(--color-text-secondary);line-height:1.8">${d.notes.map(n=>'<li>'+n+'</li>').join('')}</ul></div>`;
+}
+showApi('init');
+
+const seqData = {
+  'can-tx': {
+    title:'XCP on CAN — transmit path (R24-11)',
+    actors:['XCP module','PduR + LSduR','CanIf','CAN driver'],
+    steps:[
+      {from:0,to:1,label:'PduR_XcpTransmit(TxPduId, PduInfoPtr)',note:'XCP initiates TX via PduR'},
+      {from:1,to:2,label:'CanIf_Transmit()',note:'PduR routes to CanIf via LSduR'},
+      {from:2,to:3,label:'Can_Write()',note:'CanIf calls CAN driver'},
+      {from:3,to:2,label:'CanIf_TxConfirmation()',note:'Driver confirms TX complete',ret:true},
+      {from:2,to:1,label:'LSduR_CanIfTxConfirmation()',note:'LSduR propagates confirmation',ret:true},
+      {from:1,to:0,label:'Xcp_TxConfirmation(TxPduId, E_OK)',note:'XCP can now send next PDU',ret:true}
+    ]
+  },
+  'can-rx': {
+    title:'XCP on CAN — receive path',
+    actors:['XCP module','PduR + LSduR','CanIf','CAN driver'],
+    steps:[
+      {from:3,to:2,label:'CanIf_RxIndication()',note:'Frame received from bus',ret:false},
+      {from:2,to:1,label:'LSduR_CanIfRxIndication()',note:'LSduR dispatches to PduR',ret:false},
+      {from:1,to:0,label:'Xcp_RxIndication(RxPduId, PduInfoPtr)',note:'XCP processes command (CTO)',ret:false}
+    ]
+  },
+  'fr-tx': {
+    title:'XCP on FlexRay — transmit path',
+    actors:['XCP module','PduR + LSduR','FrIf','Fr driver'],
+    steps:[
+      {from:0,to:1,label:'PduR_XcpTransmit()',note:'XCP initiates TX via PduR'},
+      {from:1,to:2,label:'FrIf_Transmit()',note:'LSduR routes to FrIf'},
+      {from:2,to:1,label:'LSduR_FrIfTriggerTransmit()',note:'FrIf requests data from LSduR',ret:true},
+      {from:1,to:0,label:'Xcp_TriggerTransmit()',note:'XCP copies data into buffer',ret:true},
+      {from:2,to:3,label:'Fr_TransmitTxLPdu()',note:'FrIf transmits via driver'},
+      {from:3,to:2,label:'Fr_CheckTxLPduStatus()',note:'Driver checks TX status',ret:true},
+      {from:2,to:1,label:'LSduR_FrIfTxConfirmation()',note:'FrIf confirms TX',ret:true},
+      {from:1,to:0,label:'Xcp_TxConfirmation()',note:'XCP can send next',ret:true}
+    ]
+  },
+  'fr-rx': {
+    title:'XCP on FlexRay — receive path',
+    actors:['XCP module','PduR + LSduR','FrIf'],
+    steps:[
+      {from:2,to:1,label:'LSduR_FrIfRxIndication()',note:'FrIf receives frame',ret:false},
+      {from:1,to:0,label:'Xcp_RxIndication(RxPduId, PduInfoPtr)',note:'XCP processes CTO',ret:false}
+    ]
+  },
+  'eth-tx': {
+    title:'XCP on Ethernet — transmit path',
+    actors:['XCP module','PduR','SoAd'],
+    steps:[
+      {from:0,to:1,label:'PduR_XcpTransmit()',note:'XCP initiates via PduR'},
+      {from:1,to:2,label:'SoAd_IfTransmit()',note:'PduR routes to SoAd'},
+      {from:2,to:1,label:'PduR_SoAdIfTxConfirmation()',note:'SoAd confirms TX',ret:true},
+      {from:1,to:0,label:'Xcp_TxConfirmation()',note:'XCP can send next',ret:true}
+    ]
+  },
+  'eth-rx': {
+    title:'XCP on Ethernet — receive path',
+    actors:['XCP module','PduR','SoAd'],
+    steps:[
+      {from:2,to:1,label:'PduR_SoAdIfRxIndication()',note:'SoAd receives UDP/TCP frame',ret:false},
+      {from:1,to:0,label:'Xcp_RxIndication(RxPduId, PduInfoPtr)',note:'XCP processes command',ret:false}
+    ]
+  }
+};
+
+function showSeq(key) {
+  const seq = seqData[key];
+  const n = seq.actors.length;
+  const w = 600, actW = Math.floor((w-40)/n);
+  const startY = 60, stepH = 52;
+  const totalH = startY + seq.steps.length * stepH + 40;
+  const actX = i => 40 + i * actW + actW/2;
+
+  let svg = `<svg width="100%" viewBox="0 0 640 ${totalH}" role="img"><title>${seq.title}</title><desc>Sequence diagram showing message flow</desc>
+    <defs><marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>`;
+
+  seq.actors.forEach((a,i) => {
+    const x = actX(i);
+    svg += `<g class="c-teal"><rect x="${x-actW/2+4}" y="10" width="${actW-8}" height="36" rx="6" stroke-width="0.5"/><text class="th" x="${x}" y="28" text-anchor="middle" dominant-baseline="central" style="font-size:11px">${a}</text></g>`;
+    svg += `<line x1="${x}" y1="46" x2="${x}" y2="${totalH-10}" stroke="var(--t)" stroke-width="0.5" stroke-dasharray="4 3" fill="none"/>`;
+  });
+
+  seq.steps.forEach((s, idx) => {
+    const y = startY + idx * stepH + 20;
+    const x1 = actX(s.from), x2 = actX(s.to);
+    const mx = (x1+x2)/2;
+    const dash = s.ret ? '4 3' : 'none';
+    svg += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--t)" stroke-width="1" stroke-dasharray="${dash}" marker-end="url(#as)" fill="none"/>`;
+    svg += `<text class="ts" x="${mx}" y="${y-5}" text-anchor="middle" style="font-size:10px">${s.label.length > 38 ? s.label.substring(0,36)+'…' : s.label}</text>`;
+    if(s.note) svg += `<text class="ts" x="${mx}" y="${y+14}" text-anchor="middle" style="font-size:9px;fill:var(--s)">${s.note}</text>`;
+  });
+
+  svg += '</svg>';
+  document.getElementById('seq-view').innerHTML = `<p class="muted" style="font-size:12px;margin-bottom:8px"><strong>${seq.title}</strong> — solid lines = calls, dashed = return/confirmation</p>` + svg;
+}
+showSeq('can-tx');
+
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>

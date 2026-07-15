@@ -1,0 +1,602 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.wrap{padding:1rem 0;max-width:900px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:10px}
+.tab{padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;font-size:13px;cursor:pointer;color:var(--color-text-secondary);transition:all .15s}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.active{background:var(--color-background-primary);border-color:var(--color-border-primary);color:var(--color-text-primary);font-weight:500}
+.panel{display:none}.panel.active{display:block}
+.section-title{font-size:15px;font-weight:500;margin-bottom:1rem;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.test-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.test-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer;user-select:none}
+.test-id{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge-if{background:var(--color-background-info);color:var(--color-text-info)}
+.badge-int{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-func{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-sec{background:#EEEDFE;color:#3C3489}
+.test-name{font-size:14px;font-weight:500;flex:1}
+.chevron{font-size:10px;color:var(--color-text-tertiary);transition:transform .2s;margin-left:auto}
+.expanded .chevron{transform:rotate(180deg)}
+.test-body{display:none;margin-top:10px}
+.expanded .test-body{display:block}
+.row-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-bottom:1rem}
+@media(max-width:600px){.row-grid{grid-template-columns:1fr}}
+.sub-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.step-list{padding-left:1.1rem;font-size:13px;line-height:1.8;color:var(--color-text-secondary)}
+.step-list li{margin-bottom:2px}
+.step-list li strong{color:var(--color-text-primary);font-weight:500}
+.result-box{background:var(--color-background-success);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;font-size:13px;color:var(--color-text-success);margin-bottom:8px}
+.fail-box{background:var(--color-background-danger);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;font-size:13px;color:var(--color-text-danger);margin-bottom:8px}
+.tool-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);margin-right:4px;margin-bottom:4px}
+.conclusion{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-secondary);margin-top:8px;border-left:2px solid var(--color-border-primary)}
+.vmodel-wrap{overflow-x:auto;margin-bottom:1.5rem}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;font-size:12px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+.ld-if{background:#185FA5}.ld-int{background:#0F6E56}.ld-func{background:#854F0B}.ld-sec{background:#534AB7}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.filter-btn{padding:4px 12px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);font-size:12px;cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s}
+.filter-btn:hover{background:var(--color-background-secondary)}
+.filter-btn.sel{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.count-badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-tertiary);margin-left:5px}
+.tx-indicator{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+.tx-tx{background:#185FA5}.tx-rx{background:#0F6E56}.tx-both{background:#534AB7}
+.side-tag{font-size:11px;padding:1px 7px;border-radius:20px;background:var(--color-background-info);color:var(--color-text-info);margin-left:8px}
+</style>
+
+<div class="wrap">
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('overview')">V-Model Map</button>
+  <button class="tab" onclick="showTab('interface')">Interface Tests</button>
+  <button class="tab" onclick="showTab('integration')">Integration Tests</button>
+  <button class="tab" onclick="showTab('functional')">Functional Tests</button>
+  <button class="tab" onclick="showTab('tools')">Tool Reference</button>
+</div>
+
+<!-- OVERVIEW / V-MODEL -->
+<div id="panel-overview" class="panel active">
+  <div class="section-title">SecOC Testing — AUTOSAR V-Model Alignment</div>
+  <div class="legend">
+    <span style="font-size:12px;color:var(--color-text-secondary);margin-right:4px">Test types:</span>
+    <div class="legend-item"><div class="legend-dot ld-if"></div><span>Interface (Component level)</span></div>
+    <div class="legend-item"><div class="legend-dot ld-int"></div><span>Integration</span></div>
+    <div class="legend-item"><div class="legend-dot ld-func"></div><span>Functional / System</span></div>
+    <div class="legend-item"><div class="legend-dot ld-sec"></div><span>Security-specific</span></div>
+  </div>
+
+  <svg width="100%" viewBox="0 0 680 400" role="img">
+    <title>SecOC AUTOSAR V-Model</title>
+    <desc>V-Model mapping of SecOC testing levels from requirements to system tests</desc>
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- V-shape lines -->
+    <line x1="60" y1="50" x2="340" y2="330" stroke="var(--color-border-secondary)" stroke-width="1" stroke-dasharray="4 3"/>
+    <line x1="340" y1="330" x2="620" y2="50" stroke="var(--color-border-secondary)" stroke-width="1" stroke-dasharray="4 3"/>
+
+    <!-- Left side: Spec / Design levels -->
+    <!-- L1: System Requirements -->
+    <g>
+      <rect x="10" y="30" width="190" height="42" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+      <text x="105" y="48" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">System Requirements</text>
+      <text x="105" y="62" text-anchor="middle" font-size="11" fill="#185FA5">SecOC Spec / AUTOSAR SWS</text>
+    </g>
+    <!-- L2: Architecture -->
+    <g>
+      <rect x="30" y="90" width="190" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+      <text x="125" y="108" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">Architecture Design</text>
+      <text x="125" y="122" text-anchor="middle" font-size="11" fill="#0F6E56">BSW config, CDD, ARXML</text>
+    </g>
+    <!-- L3: Detailed Design -->
+    <g>
+      <rect x="55" y="150" width="190" height="42" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+      <text x="150" y="168" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">Detailed Design</text>
+      <text x="150" y="182" text-anchor="middle" font-size="11" fill="#854F0B">SecOC PDU, FV, MAC params</text>
+    </g>
+    <!-- L4: Implementation -->
+    <g>
+      <rect x="80" y="210" width="190" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+      <text x="175" y="228" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">Implementation</text>
+      <text x="175" y="242" text-anchor="middle" font-size="11" fill="#534AB7">RTE, Com, SecOC BSW code</text>
+    </g>
+
+    <!-- Bottom: Unit / Encode-Decode -->
+    <g>
+      <rect x="245" y="305" width="190" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+      <text x="340" y="323" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">Unit / Module Test</text>
+      <text x="340" y="337" text-anchor="middle" font-size="11" fill="#534AB7">SecOC Tx/Rx encode/decode</text>
+    </g>
+
+    <!-- Right side: Test levels -->
+    <!-- R1: System Test -->
+    <g>
+      <rect x="480" y="30" width="190" height="42" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+      <text x="575" y="48" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">System / E2E Test</text>
+      <text x="575" y="62" text-anchor="middle" font-size="11" fill="#185FA5">CANoe network tests</text>
+    </g>
+    <!-- R2: Integration Test -->
+    <g>
+      <rect x="460" y="90" width="190" height="42" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+      <text x="555" y="108" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">Integration Test</text>
+      <text x="555" y="122" text-anchor="middle" font-size="11" fill="#0F6E56">BSW stack, COM↔SecOC</text>
+    </g>
+    <!-- R3: Component/Interface Test -->
+    <g>
+      <rect x="435" y="150" width="190" height="42" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+      <text x="530" y="168" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">Interface Test</text>
+      <text x="530" y="182" text-anchor="middle" font-size="11" fill="#854F0B">API, PDU I/O, CRO probing</text>
+    </g>
+    <!-- R4: Module/unit verification -->
+    <g>
+      <rect x="410" y="210" width="190" height="42" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+      <text x="505" y="228" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">Module Verification</text>
+      <text x="505" y="242" text-anchor="middle" font-size="11" fill="#534AB7">winIDEA debugger, mem checks</text>
+    </g>
+
+    <!-- Horizontal correlation arrows -->
+    <line x1="200" y1="51" x2="480" y2="51" stroke="#185FA5" stroke-width="0.8" stroke-dasharray="3 3" marker-end="url(#arrow)" opacity="0.7"/>
+    <line x1="220" y1="111" x2="460" y2="111" stroke="#0F6E56" stroke-width="0.8" stroke-dasharray="3 3" marker-end="url(#arrow)" opacity="0.7"/>
+    <line x1="245" y1="171" x2="435" y2="171" stroke="#854F0B" stroke-width="0.8" stroke-dasharray="3 3" marker-end="url(#arrow)" opacity="0.7"/>
+    <line x1="270" y1="231" x2="410" y2="231" stroke="#534AB7" stroke-width="0.8" stroke-dasharray="3 3" marker-end="url(#arrow)" opacity="0.7"/>
+
+    <!-- Verifies labels -->
+    <text x="340" y="46" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">verifies</text>
+    <text x="340" y="106" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">verifies</text>
+    <text x="340" y="166" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">verifies</text>
+    <text x="340" y="226" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">verifies</text>
+
+    <!-- Tools row -->
+    <text x="340" y="385" text-anchor="middle" font-size="11" fill="var(--color-text-tertiary)">Tools: CANoe / CANalyzer · winIDEA · CDD · CRO</text>
+  </svg>
+
+  <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-top:0.5rem">
+    The V-Model maps left-side <strong style="color:var(--color-text-primary)">specification and design</strong> artifacts to right-side <strong style="color:var(--color-text-primary)">test levels</strong>. In SecOC testing, each level targets a specific concern: interface tests verify API contracts and PDU structure, integration tests verify BSW stack interactions (COM ↔ SecOC ↔ Crypto), and functional/system tests verify end-to-end secure communication on the real bus with real ECUs.
+  </div>
+</div>
+
+<!-- INTERFACE TESTS -->
+<div id="panel-interface" class="panel">
+  <div class="section-title">Interface Tests — Component Level (V-Model: Detailed Design ↔ Interface Test)</div>
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7">
+    Interface tests validate the <strong style="color:var(--color-text-primary)">API contracts</strong> and PDU I/O boundaries of the SecOC module in isolation — i.e., the CDD-configured parameters, RTE port connections, and PDU header/footer fields visible at the module interface.
+  </div>
+
+  <div id="if-tests"></div>
+</div>
+
+<!-- INTEGRATION TESTS -->
+<div id="panel-integration" class="panel">
+  <div class="section-title">Integration Tests — BSW Stack Level (V-Model: Architecture ↔ Integration Test)</div>
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7">
+    Integration tests verify that <strong style="color:var(--color-text-primary)">SecOC cooperates correctly</strong> with adjacent BSW modules: COM, PduR, Crypto, KeyM, and the OS/SchM scheduler. Both transmit and receive paths are exercised together.
+  </div>
+  <div id="int-tests"></div>
+</div>
+
+<!-- FUNCTIONAL TESTS -->
+<div id="panel-functional" class="panel">
+  <div class="section-title">Functional / System Tests — E2E on Bus (V-Model: System Requirements ↔ System Test)</div>
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.7">
+    Functional tests exercise the <strong style="color:var(--color-text-primary)">complete SecOC chain on real hardware</strong> with CANoe/CANalyzer observing the bus. These tests cover correct MAC generation, freshness counter behaviour, and security-relevant fault injection.
+  </div>
+  <div id="func-tests"></div>
+</div>
+
+<!-- TOOLS -->
+<div id="panel-tools" class="panel">
+  <div class="section-title">Tool Reference — SecOC Test Setup</div>
+
+  <div class="row-grid">
+    <div class="test-card">
+      <div class="sub-label">CANoe / CANalyzer</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">Primary bus-level analysis and stimulation platform. Used for all functional and system tests.</div>
+      <ul class="step-list">
+        <li>CAPL scripting for PDU injection and MAC manipulation</li>
+        <li>Trace window — byte-level PDU inspection (SecOC header, FV, MAC)</li>
+        <li>Symbol editor — map CAN IDs to SecOC PDUs</li>
+        <li>Bus statistics — detect missing/repeated frames (freshness)</li>
+        <li>Diagnostic interface — trigger DTC checks on SecOC failures</li>
+        <li>Test module (XML/CAPL) — automated pass/fail logging</li>
+      </ul>
+    </div>
+    <div class="test-card">
+      <div class="sub-label">winIDEA iSystem Debugger</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">JTAG/SWD-connected ECU debugger. Essential for interface and integration-level tests where internal SecOC state must be observed.</div>
+      <ul class="step-list">
+        <li>Breakpoints on SecOC_MainFunctionTx / Rx</li>
+        <li>Memory watch — FreshnessValue array, MAC buffer, VerificationStatus</li>
+        <li>Variable monitoring — AttemptCounter, VerificationStatusPropagationMode</li>
+        <li>Stack trace — SecOC → CsmJob → Crypto interaction</li>
+        <li>Scripting (Python/isystem API) — automated register reads</li>
+      </ul>
+    </div>
+    <div class="test-card">
+      <div class="sub-label">CDD (Component Description Designer)</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">Configuration authoring tool. Used to verify correct parameter instantiation before flashing.</div>
+      <ul class="step-list">
+        <li>Check SecOCFreshnessCounterStartValue, SecOCFreshnessValueLength</li>
+        <li>Verify SecOCMsgLinkLen, SecOCAuthDataFreshnessLen</li>
+        <li>Confirm Crypto job linkage (CsmJobReference)</li>
+        <li>Review SecOCReceptionOverrideStatus default values</li>
+        <li>Cross-check PDU IDs vs ARXML Com signal mapping</li>
+      </ul>
+    </div>
+    <div class="test-card">
+      <div class="sub-label">CRO (CAN Remote Object / XCP on CAN)</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">Used to read/write ECU memory and calibration variables at runtime without halting the CPU — ideal for non-intrusive interface probing.</div>
+      <ul class="step-list">
+        <li>Live-read FreshnessValue counter during bus activity</li>
+        <li>Override SecOC verification status for negative testing</li>
+        <li>Inject MAC override to test VERIFICATION_FAILED path</li>
+        <li>DAQ mode — log SecOC internal buffers at high rate</li>
+        <li>Combine with CANoe XCP transport for synchronised capture</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-card">
+    <div class="sub-label">Recommended Test Setup Topology</div>
+    <svg width="100%" viewBox="0 0 680 160" role="img">
+      <title>SecOC test bench topology</title>
+      <desc>PC running CANoe connected via CAN bus to ECU under test, winIDEA connected via JTAG, CRO over CAN</desc>
+      <defs>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <g>
+        <rect x="20" y="50" width="130" height="60" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+        <text x="85" y="75" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">Test PC</text>
+        <text x="85" y="91" text-anchor="middle" font-size="11" fill="#185FA5">CANoe / CANalyzer</text>
+        <text x="85" y="104" text-anchor="middle" font-size="10" fill="#185FA5">CRO (XCP master)</text>
+      </g>
+      <line x1="150" y1="80" x2="270" y2="80" stroke="#185FA5" stroke-width="1.2" marker-end="url(#arrow2)" marker-start="url(#arrow2)"/>
+      <text x="210" y="72" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">CAN Bus</text>
+      <g>
+        <rect x="270" y="30" width="140" height="100" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="340" y="55" text-anchor="middle" font-size="12" font-weight="500" fill="#085041">ECU Under Test</text>
+        <text x="340" y="71" text-anchor="middle" font-size="11" fill="#0F6E56">SecOC BSW</text>
+        <text x="340" y="85" text-anchor="middle" font-size="11" fill="#0F6E56">COM / PduR</text>
+        <text x="340" y="99" text-anchor="middle" font-size="11" fill="#0F6E56">Crypto / KeyM</text>
+        <text x="340" y="113" text-anchor="middle" font-size="11" fill="#0F6E56">SWC (App)</text>
+      </g>
+      <line x1="410" y1="80" x2="520" y2="80" stroke="#534AB7" stroke-width="1.2" marker-end="url(#arrow2)" marker-start="url(#arrow2)"/>
+      <text x="465" y="72" text-anchor="middle" font-size="11" fill="var(--color-text-secondary)">JTAG / SWD</text>
+      <g>
+        <rect x="520" y="50" width="140" height="60" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+        <text x="590" y="75" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">Debug PC</text>
+        <text x="590" y="91" text-anchor="middle" font-size="11" fill="#534AB7">winIDEA + iSystem</text>
+        <text x="590" y="106" text-anchor="middle" font-size="10" fill="#534AB7">JTAG probe</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+</div>
+
+<script>
+const IF_TESTS = [
+  {
+    id:"IF-TX-01", name:"SecOC Tx PDU structure validation", side:"TX",
+    badge:"badge-if", type:"Interface",
+    tools:["CDD","CANoe Trace","winIDEA"],
+    objective:"Verify the transmitted Secured I-PDU byte layout: Authentic PDU bytes + FreshnessValue truncated bits + MAC truncated bits match CDD configuration.",
+    steps:[
+      ["Obtain", "CDD config: SecOCMsgLinkLen, SecOCAuthDataFreshnessLen, SecOCMsgLinkLen values for the PDU under test"],
+      ["Configure", "CANoe symbol mapping for the target CAN ID / PDU"],
+      ["Trigger", "ECU to transmit the secured PDU (e.g. via SWC write or CRO stimulus)"],
+      ["Capture", "Raw CAN frame bytes in CANoe trace window"],
+      ["Calculate", "Expected byte offsets: AuthPDU[0..N-1] | FV_trunc[bits] | MAC_trunc[bits]"],
+      ["Cross-check", "Actual captured bytes against computed offsets"],
+      ["winIDEA", "Set breakpoint at SecOC_MainFunctionTx; inspect SecOC_TxPduInfoType buffer in memory watch"],
+    ],
+    pass:"Captured PDU bytes match computed layout; FV field increments per-frame; MAC field is non-zero and length matches SecOCAuthDataFreshnessLen + SecOCMsgLinkLen",
+    fail:"PDU byte lengths mismatched, MAC field all-zero, or FV field static",
+    conclusion:"Ensures CDD parameter translation into the BSW results in correct PDU framing before any cryptographic correctness is evaluated."
+  },
+  {
+    id:"IF-TX-02", name:"FreshnessValue counter interface — Tx side", side:"TX",
+    badge:"badge-if", type:"Interface",
+    tools:["winIDEA","CRO","CANoe"],
+    objective:"Verify that the SecOC Tx module calls the configured FreshnessManager (FM) via the SecOC_GetTxFreshness() interface and that the returned value is correctly embedded.",
+    steps:[
+      ["CDD", "Confirm SecOCFreshnessValueProvidedViaSecOCModule = TRUE/FALSE and the configured FM CsmJobReference"],
+      ["winIDEA", "Breakpoint at SecOC_GetTxFreshness() entry; read output parameter FreshnessValue[]"],
+      ["CRO DAQ", "Map the FreshnessValue array address for live logging at 10 ms rate"],
+      ["CANoe CAPL", "Script to read FV from each transmitted frame and verify monotonic increment"],
+      ["Stress", "Trigger 100 consecutive transmissions and check CRO DAQ log for sequential FV values"],
+    ],
+    pass:"FV increments monotonically for every transmitted PDU; SecOC_GetTxFreshness returns E_OK; CRO log matches captured PDU FV bytes",
+    fail:"FV wraps unexpectedly, stays static, or E_NOT_OK returned causing PDU suppression",
+    conclusion:"Validates the Tx freshness interface contract — critical for replay protection correctness."
+  },
+  {
+    id:"IF-RX-01", name:"SecOC Rx PDU parse interface validation", side:"RX",
+    badge:"badge-if", type:"Interface",
+    tools:["CANoe CAPL","winIDEA","CRO"],
+    objective:"Verify that the SecOC Rx module correctly parses incoming Secured I-PDU fields and passes the Authentic PDU payload to the upper layer only after successful verification.",
+    steps:[
+      ["CANoe CAPL", "Craft and transmit a correctly signed test PDU with known MAC and FV"],
+      ["winIDEA", "Breakpoint at SecOC_MainFunctionRx; inspect SecOC_RxPduInfoType after parsing"],
+      ["CRO", "Read VerificationStatus variable in real-time"],
+      ["CANoe", "Observe upper-layer PDU reception (PduR routing) and confirm payload content"],
+      ["Negative", "Send PDU with Auth PDU bytes byte-flipped; confirm VerificationStatus = FAILED"],
+      ["Negative", "Send PDU with MAC all-zeros; confirm no payload forwarded to upper layer"],
+    ],
+    pass:"Correctly signed PDU: VerificationStatus = VERFICATION_SUCCESS, authentic payload delivered. Corrupted PDU: VerificationStatus = VERIFICATION_FAILED, payload not forwarded.",
+    fail:"Corrupted payload forwarded despite verification failure; VerificationStatus not updated; upper layer receives garbage",
+    conclusion:"Validates the RTE/COM interface boundary: SecOC must act as a security gate — only verified payloads pass through."
+  },
+  {
+    id:"IF-RX-02", name:"Rx verification status propagation interface", side:"RX",
+    badge:"badge-if", type:"Interface",
+    tools:["winIDEA","CRO","CDD"],
+    objective:"Verify SecOCVerificationStatusPropagationMode and the callout SecOC_VerificationStatusCallout interface behaviour for different PDUs.",
+    steps:[
+      ["CDD", "Check SecOCVerificationStatusPropagationMode (NONE / SECURITY_EVENTS / ALL)"],
+      ["CDD", "Confirm SecOCVerificationStatusCallout function mapping"],
+      ["winIDEA", "Set watchpoint on VerificationStatusCallout function; observe parameters"],
+      ["CANoe CAPL", "Inject PDU with invalid MAC; observe DEM event logged via DET callback"],
+      ["CRO", "Poll SecOCVerificationStatusPropagateToBsw flag per PDU"],
+      ["Repeat", "For all configured SecOC PDU IDs on Rx side"],
+    ],
+    pass:"Callout invoked with correct PduId and VERIFICATION_FAILED for injected bad MAC; DEM event raised if configured; propagation mode respected",
+    fail:"Callout not triggered; incorrect PduId passed; DEM event missing for security violation",
+    conclusion:"Validates the diagnostic and security event interface — essential for vehicle-level incident logging."
+  },
+];
+
+const INT_TESTS = [
+  {
+    id:"INT-01", name:"COM → SecOC → PduR Tx data flow", side:"TX",
+    badge:"badge-int", type:"Integration",
+    tools:["CANoe","winIDEA","CRO"],
+    objective:"Verify that a signal written by the SWC via COM triggers COM_SendSignal → PduR_ComTransmit → SecOC_IfTransmit → CanIf_Transmit with correct secured PDU on bus.",
+    steps:[
+      ["SWC stimulus", "Write test value to COM signal via CRO or SWC trigger"],
+      ["CANoe Trace", "Capture the resulting CAN frame and timestamp"],
+      ["winIDEA", "Trace call stack: COM_MainFunctionTx → PduR → SecOC_IfTransmit → CanIf"],
+      ["Compare", "COM TX period (ComIPduSignalProcessing) vs actual CAN frame interval"],
+      ["CRO", "Simultaneously log SecOC internal MAC buffer and FreshnessValue"],
+      ["Verify", "CAN frame payload = Authentic PDU from COM signal | FV | MAC"],
+    ],
+    pass:"Signal value appears in correct byte position in authenticated PDU on bus; frame interval matches COM period; MAC field non-zero and matches expected length",
+    fail:"Signal value not in PDU, frame missing, MAC field zero, or period drift > 5%",
+    conclusion:"Validates the full Tx BSW stack integration from SWC interface to bus frame — confirms no PDU routing misconfiguration."
+  },
+  {
+    id:"INT-02", name:"SecOC ↔ CsmJob ↔ Crypto integration (MAC generation)", side:"TX",
+    badge:"badge-int", type:"Integration",
+    tools:["winIDEA","CRO","CANoe"],
+    objective:"Verify that SecOC correctly triggers the Csm/Crypto job for MAC generation and that the resulting MAC is placed in the PDU.",
+    steps:[
+      ["CDD", "Confirm CsmJobReference for SecOC Tx PDU and algorithm (e.g. AES-CMAC-128)"],
+      ["winIDEA", "Breakpoint at Csm_MacGenerate() entry — inspect input data (Authentic PDU + FV) and output MAC buffer"],
+      ["winIDEA", "Verify key handle passed to Crypto driver matches KeyM provisioned key ID"],
+      ["CRO", "Read MAC output buffer post-Csm completion"],
+      ["CANoe", "Capture transmitted MAC field and compare with CRO-captured MAC buffer"],
+      ["Negative", "Revoke key via KeyM API; confirm E_NOT_OK from Csm; confirm PDU suppressed on bus"],
+    ],
+    pass:"MAC generated by Crypto matches 1:1 with MAC field in bus frame; key handle correct; PDU suppressed when key unavailable",
+    fail:"MAC mismatch between Crypto output and PDU; key handle wrong; PDU still transmitted with invalid MAC when key revoked",
+    conclusion:"Validates the cryptographic integration — the most security-critical path in the SecOC stack."
+  },
+  {
+    id:"INT-03", name:"SecOC ↔ CsmJob ↔ Crypto integration (MAC verification)", side:"RX",
+    badge:"badge-int", type:"Integration",
+    tools:["CANoe CAPL","winIDEA","CRO"],
+    objective:"Verify that received Secured I-PDUs trigger correct Csm_MacVerify job and that result determines payload forwarding.",
+    steps:[
+      ["CANoe CAPL", "Transmit a PDU with known key and correct MAC (pre-computed offline)"],
+      ["winIDEA", "Breakpoint at Csm_MacVerify() — inspect input data, FV, MAC, key handle"],
+      ["winIDEA", "Observe return value and trace to SecOC verification result update"],
+      ["CRO", "Live-read VerificationStatus variable transition (IDLE → VERIFICATION_SUCCESS)"],
+      ["CANoe", "Confirm authentic PDU forwarded to upper layer with correct signal values"],
+      ["Negative", "Flip one bit in transmitted MAC; confirm VerificationStatus = VERIFICATION_FAILED"],
+    ],
+    pass:"Correct MAC: E_OK from Csm, payload forwarded. Corrupt MAC: VERIFICATION_FAILED, payload blocked.",
+    fail:"VERIFICATION_SUCCESS returned for corrupt MAC; payload forwarded despite failure; Csm job not triggered",
+    conclusion:"Validates MAC verification integration — the receive-side security gate must function correctly end-to-end."
+  },
+  {
+    id:"INT-04", name:"FreshnessManager integration (Tx + Rx counter sync)", side:"Both",
+    badge:"badge-int", type:"Integration",
+    tools:["CANoe CAPL","CRO","winIDEA"],
+    objective:"Verify that FreshnessValue is synchronised between Tx ECU counter and Rx ECU acceptance window, and that replay detection works.",
+    steps:[
+      ["Setup", "Two ECUs: Tx ECU sending secured PDU, Rx ECU receiving"],
+      ["CANoe", "Capture 20 consecutive frames; extract FV bits from each"],
+      ["Verify", "FV increments per configured SecOCFreshnessValueTxLength"],
+      ["Replay", "Capture a valid frame; replay it 10 seconds later via CANoe CAPL"],
+      ["CRO", "Monitor Rx ECU VerificationStatus during replay"],
+      ["winIDEA", "Inspect Rx FV acceptance window / AttemptCounter after replay"],
+    ],
+    pass:"FV monotonically increases; replayed frame triggers VERIFICATION_FAILED; AttemptCounter increments on repeated replay",
+    fail:"Replayed frame accepted; FV static; AttemptCounter not incremented; replay triggers no error",
+    conclusion:"Validates replay protection — a core SecOC security requirement. Failure here means the vehicle is vulnerable to replay attacks."
+  },
+  {
+    id:"INT-05", name:"OS scheduler integration — SecOC MainFunction timing", side:"Both",
+    badge:"badge-int", type:"Integration",
+    tools:["CANoe","winIDEA","CRO"],
+    objective:"Verify SecOC_MainFunctionTx and SecOC_MainFunctionRx are called at the correct OS task periods and do not cause deadline misses.",
+    steps:[
+      ["CDD", "Confirm task mapping for SecOC_MainFunctionTx/Rx and their call periods"],
+      ["winIDEA", "Software trace / timestamped breakpoints on both MainFunctions"],
+      ["CANoe", "Measure transmitted frame jitter vs expected period"],
+      ["CRO", "Log task execution timestamps at high rate"],
+      ["Load test", "Enable maximum PDU load; check for deadline miss flags in OS error hook"],
+    ],
+    pass:"MainFunction called within ±5% of configured period; no OS deadline misses under full PDU load; frame jitter < 1 ms",
+    fail:"MainFunction skipped; deadline misses in OS; frame jitter > 5 ms; Tx frames missing under high load",
+    conclusion:"Validates real-time integration — SecOC MAC computation latency must fit within OS task budget."
+  },
+];
+
+const FUNC_TESTS = [
+  {
+    id:"FT-01", name:"End-to-end secure message transmission — happy path", side:"TX",
+    badge:"badge-func", type:"Functional",
+    tools:["CANoe","CRO"],
+    objective:"Verify that the DUT transmits correctly secured PDUs with valid MAC and incrementing FreshnessValue under normal operating conditions.",
+    steps:[
+      ["Power-on", "ECU; allow SecOC initialisation (KeyM key load complete)"],
+      ["CANoe", "Start measurement; enable trace logging for target PDU CAN ID"],
+      ["Observe", "Minimum 50 consecutive frames of the secured PDU"],
+      ["CANoe CAPL", "Script: parse FV field from each frame; assert monotonic increment"],
+      ["CANoe CAPL", "Script: compute expected MAC offline using same key; compare with each frame"],
+      ["CRO", "Log VerificationStatus = N/A (Tx side); confirm no DEM events raised"],
+      ["Report", "Generate CANoe test module pass/fail HTML report"],
+    ],
+    pass:"All 50 frames: FV increments by 1 each frame; MAC matches expected; no SECOC_E_FRESHNESS_FAILURE DEM event; test module 100% pass",
+    fail:"Any frame with static FV, zero MAC, MAC mismatch, or DEM event raised",
+    conclusion:"Baseline functional validation — must pass before any negative testing proceeds."
+  },
+  {
+    id:"FT-02", name:"MAC verification failure — corrupted MAC injection", side:"RX",
+    badge:"badge-func", type:"Functional",
+    tools:["CANoe CAPL","CRO","winIDEA"],
+    objective:"Verify that the Rx ECU rejects secured PDUs with invalid MAC and raises the configured DEM event.",
+    steps:[
+      ["CANoe CAPL", "Transmit 10 valid frames to establish FV sync"],
+      ["CANoe CAPL", "Transmit frame with last byte of MAC field flipped (XOR 0xFF)"],
+      ["CRO", "Read VerificationStatus: expect VERIFICATION_FAILED"],
+      ["CANoe", "Confirm authentic PDU payload NOT forwarded to application (COM signal unchanged)"],
+      ["CANoe Diagnostics", "Read DEM event SECOC_E_AUTHENTICATION_VERIFY_FAILED — expect PENDING/CONFIRMED"],
+      ["winIDEA", "Inspect AttemptCounter value increment"],
+      ["Repeat", "10 consecutive corrupt frames; observe AttemptCounter saturation"],
+    ],
+    pass:"VerificationStatus = VERIFICATION_FAILED; payload not forwarded; DEM event set; AttemptCounter increments up to configured maximum",
+    fail:"Corrupt PDU accepted; payload forwarded; DEM event not set; AttemptCounter stays at 0",
+    conclusion:"Critical security test — validates that MAC verification is enforced and security violations are logged."
+  },
+  {
+    id:"FT-03", name:"Freshness value overflow / wrap-around handling", side:"TX",
+    badge:"badge-func", type:"Functional",
+    tools:["CRO","CANoe","winIDEA"],
+    objective:"Verify SecOC Tx behaviour when the FreshnessValue counter reaches its maximum value (2^SecOCFreshnessValueTxLength - 1).",
+    steps:[
+      ["CDD", "Read SecOCFreshnessValueTxLength; compute max counter value"],
+      ["CRO write", "Force FreshnessValue counter to (maxVal - 5) to fast-approach boundary"],
+      ["CANoe", "Observe next 10 frames: FV should increment to maxVal then wrap or halt"],
+      ["winIDEA", "Capture return code of SecOC_GetTxFreshness at wrap point"],
+      ["CANoe", "Check: PDU transmission continues / halts per implementation strategy"],
+      ["DEM", "Read for SECOC_E_FRESHNESS_COUNTER_OVERFLOW if configured"],
+    ],
+    pass:"PDU transmission halts or triggers key renegotiation at overflow; no silent wrap-around causing replay vulnerability; DEM event raised",
+    fail:"Counter silently wraps to 0 allowing replay window; PDU continues with FV=0 without any notification",
+    conclusion:"Counter overflow is a security-critical edge case — silent wrap allows replay attacks. Must be handled explicitly."
+  },
+  {
+    id:"FT-04", name:"Replay attack detection", side:"RX",
+    badge:"badge-func", type:"Functional",
+    tools:["CANoe CAPL","CRO"],
+    objective:"Verify the Rx ECU detects and rejects replayed valid PDUs (captured and re-transmitted after FV has advanced).",
+    steps:[
+      ["CANoe CAPL", "Capture and store 1 valid secured PDU frame (Frame A) with FV=N"],
+      ["Allow", "20 more frames to transmit; Rx ECU FV expectation now > N"],
+      ["CANoe CAPL", "Re-inject stored Frame A (FV=N) on the bus"],
+      ["CRO", "Read VerificationStatus: expect VERIFICATION_FAILED (FV stale)"],
+      ["CANoe", "Confirm no signal update in upper layer from replayed frame"],
+      ["Repeat", "Test with FV = N-1, N-5, N-100"],
+    ],
+    pass:"All replayed frames (FV < current acceptance window) rejected; VerificationStatus = VERIFICATION_FAILED; no signal update",
+    fail:"Replayed frame accepted; signal updated from stale data; VerificationStatus = SUCCESS for replayed frame",
+    conclusion:"Core replay protection test — validates the fundamental SecOC security guarantee."
+  },
+  {
+    id:"FT-05", name:"Key update / re-keying functional test", side:"Both",
+    badge:"badge-func", type:"Functional",
+    tools:["CANoe","CRO","winIDEA"],
+    objective:"Verify that after a key update via KeyM, the Tx ECU uses the new key for MAC generation and the Rx ECU successfully verifies with the new key.",
+    steps:[
+      ["Baseline", "Confirm normal PDU exchange with Key_v1 (FT-01 passing)"],
+      ["CRO / Diag", "Trigger KeyM key update to Key_v2 on both Tx and Rx ECU (simultaneously or with sync protocol)"],
+      ["CANoe", "Observe Tx PDU immediately after key update — MAC must be computed with Key_v2"],
+      ["CANoe", "Verify Rx ECU accepts PDU (VerificationStatus = SUCCESS) with Key_v2"],
+      ["Negative", "Revert Rx ECU key to Key_v1; confirm subsequent frames rejected (MAC mismatch)"],
+      ["DEM", "Check no spurious DEM events during successful key transition"],
+    ],
+    pass:"Post-key-update PDUs verified successfully; old key rejection confirmed; no spurious DEM events during valid transition",
+    fail:"PDU rejected after valid key update; old key still accepted after revocation; DEM events during valid operation",
+    conclusion:"Key lifecycle test — validates that re-keying (e.g. after workshop or periodic update) does not break secure communication."
+  },
+  {
+    id:"FT-06", name:"SecOC PDU loss and timeout handling (Rx)", side:"RX",
+    badge:"badge-func", type:"Functional",
+    tools:["CANoe CAPL","CRO","winIDEA"],
+    objective:"Verify Rx ECU behaviour when secured PDUs stop arriving (bus-off, ECU failure) — timeout handling, signal invalidation, and DEM events.",
+    steps:[
+      ["CANoe CAPL", "Suppress Tx PDU transmission for 3× configured timeout period"],
+      ["CRO", "Monitor COM timeout counter and signal replacement value"],
+      ["CANoe", "Check COM_ReceiveSignal returns COM_SERVICE_NOT_AVAILABLE or replacement value"],
+      ["DEM", "Read for COM/NM timeout DEM event"],
+      ["Resume", "Re-enable PDU transmission; confirm normal operation resumes"],
+      ["winIDEA", "Inspect SecOC Rx state machine after resume"],
+    ],
+    pass:"Signal replacement value applied on timeout; COM_SERVICE_NOT_AVAILABLE returned; DEM event raised; normal operation resumes within 1 cycle",
+    fail:"Stale signal value retained without indication; no DEM event; SecOC Rx stuck after resume",
+    conclusion:"Validates graceful degradation — safety-relevant signals must not appear valid when their source is silent."
+  },
+];
+
+function renderTests(containerId, tests) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = '';
+  tests.forEach((t, i) => {
+    const sideColor = t.side==='TX' ? 'background:#E6F1FB;color:#185FA5' : t.side==='RX' ? 'background:#E1F5EE;color:#0F6E56' : 'background:#EEEDFE;color:#534AB7';
+    const div = document.createElement('div');
+    div.className = 'test-card';
+    div.innerHTML = `
+      <div class="test-header" onclick="toggleCard(this)">
+        <span class="test-id ${t.badge}">${t.id}</span>
+        <span class="test-name">${t.name}</span>
+        <span style="font-size:11px;padding:1px 8px;border-radius:20px;${sideColor}">${t.side}</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="test-body">
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.7"><strong style="color:var(--color-text-primary)">Objective:</strong> ${t.objective}</div>
+        <div class="row-grid">
+          <div>
+            <div class="sub-label">Test steps</div>
+            <ol class="step-list">
+              ${t.steps.map(s=>`<li><strong>${s[0]}</strong> — ${s[1]}</li>`).join('')}
+            </ol>
+          </div>
+          <div>
+            <div class="sub-label">Tools</div>
+            <div style="margin-bottom:12px">${t.tools.map(tool=>`<span class="tool-tag">${tool}</span>`).join('')}</div>
+            <div class="sub-label">Expected result</div>
+            <div class="result-box"><strong>Pass:</strong> ${t.pass}</div>
+            <div class="fail-box"><strong>Fail:</strong> ${t.fail}</div>
+            <div class="sub-label" style="margin-top:10px">Conclusion</div>
+            <div class="conclusion">${t.conclusion}</div>
+          </div>
+        </div>
+      </div>`;
+    c.appendChild(div);
+  });
+}
+
+function toggleCard(header) {
+  header.parentElement.classList.toggle('expanded');
+}
+
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+renderTests('if-tests', IF_TESTS);
+renderTests('int-tests', INT_TESTS);
+renderTests('func-tests', FUNC_TESTS);
+</script>

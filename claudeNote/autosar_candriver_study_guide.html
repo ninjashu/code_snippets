@@ -1,0 +1,544 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .tab-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:12px;border-bottom:.5px solid var(--color-border-tertiary)}
+  .tab-btn{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .15s}
+  .tab-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+  .tab-btn:hover:not(.active){background:var(--color-background-secondary)}
+  .panel{display:none}.panel.active{display:block}
+  .card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .card-title{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 8px}
+  .card-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+  .sec-hdr{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin:1.2rem 0 .5rem}
+  .fn{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info)}
+  .badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:500;white-space:nowrap}
+  .badge-sync{background:var(--color-background-success);color:var(--color-text-success)}
+  .badge-async{background:var(--color-background-warning);color:var(--color-text-warning)}
+  .err-code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-danger);color:var(--color-text-danger);border-radius:4px;padding:1px 4px}
+  .api-table{width:100%;border-collapse:collapse;font-size:12px}
+  .api-table th{text-align:left;padding:6px 8px;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em}
+  .api-table td{padding:8px 8px;border-bottom:.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5}
+  .api-table tr:last-child td{border-bottom:none}
+  .api-table tr:hover td{background:var(--color-background-secondary)}
+  .detail-box{background:var(--color-background-secondary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-top:8px;font-size:13px;line-height:1.6}
+  .seq-btn{font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+  .seq-btn.sel{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+  .cfg-row{display:grid;grid-template-columns:220px 1fr;gap:8px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:12px}
+  .cfg-row:last-child{border-bottom:none}
+  .cfg-key{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);word-break:break-all}
+  .cfg-val{color:var(--color-text-secondary);line-height:1.5}
+  .err-row{display:grid;grid-template-columns:50px 180px 1fr;gap:8px;padding:8px 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:12px;align-items:start}
+  .err-row:last-child{border-bottom:none}
+  .err-num{font-weight:500;color:var(--color-text-primary);font-family:var(--font-mono)}
+  .search-input{width:100%;box-sizing:border-box;font-family:var(--font-sans);font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:12px}
+  .search-input:focus{outline:none;border-color:var(--color-border-info)}
+  .layer{display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
+  .layer:hover{opacity:.8}
+  .layer-label{flex:1}
+  .layer-sub{font-size:11px;font-weight:400;opacity:.75;margin-top:2px}
+  .pdu-pill{border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;display:inline-block;margin:4px}
+  .step-content{font-size:13px;line-height:1.7}
+  .highlight-box{background:var(--color-background-warning);border-left:3px solid var(--color-text-warning);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:10px 14px;margin:8px 0;font-size:12px;color:var(--color-text-secondary)}
+</style>
+
+<h2 class="sr-only">AUTOSAR CAN Driver (CanDrv) complete study guide — R24-11</h2>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('overview')">Overview & Architecture</button>
+  <button class="tab-btn" onclick="showTab('state')">State Machines</button>
+  <button class="tab-btn" onclick="showTab('functional')">Functional Spec</button>
+  <button class="tab-btn" onclick="showTab('api')">API Reference</button>
+  <button class="tab-btn" onclick="showTab('scheduled')">Scheduled Functions</button>
+  <button class="tab-btn" onclick="showTab('errors')">Errors & Debug</button>
+  <button class="tab-btn" onclick="showTab('config')">DaVinci Config</button>
+</div>
+
+<!-- ====== OVERVIEW ====== -->
+<div id="panel-overview" class="panel active">
+  <div class="card">
+    <p class="card-title">What is the CAN Driver (CanDrv)?</p>
+    <p class="card-body">CanDrv (Can module) is the lowest layer in the AUTOSAR CAN stack. It owns the hardware — directly reading/writing CAN controller registers, firing ISRs, and implementing all hardware-specific logic. Its ONLY upper-layer client is CanIf. Everything above CanIf never touches CanDrv directly.</p>
+  </div>
+
+  <p class="sec-hdr">Position in AUTOSAR Stack — click each layer</p>
+  <div id="layer-detail-drv" class="detail-box" style="display:none"></div>
+
+  <div onclick="showLayerDrv('ecum')" class="layer" style="background:var(--color-background-warning);color:var(--color-text-warning)">
+    <div class="layer-label">EcuM / CanSm / ComM / Application<div class="layer-sub">Only EcuM calls Can_Init() directly — all others go via CanIf</div></div><span style="font-size:11px;opacity:.5;margin-left:8px">▼</span>
+  </div>
+  <div onclick="showLayerDrv('canif')" class="layer" style="background:#EEEDFE;color:#3C3489">
+    <div class="layer-label">CanIf — CAN Interface (the only client of CanDrv)<div class="layer-sub">Calls Can_Write(), Can_SetControllerMode(), Can_DisableControllerInterrupts()...</div></div><span style="font-size:11px;opacity:.5;margin-left:8px">▼</span>
+  </div>
+  <div onclick="showLayerDrv('candrv')" class="layer" style="background:var(--color-background-info);color:var(--color-text-info);border:2px solid var(--color-border-info)">
+    <div class="layer-label">⭐ CanDrv — CAN Driver (this module)<div class="layer-sub">Can_Init, Can_Write, Can_SetControllerMode, ISRs, MainFunctions...</div></div><span style="font-size:11px;opacity:.5;margin-left:8px">▼</span>
+  </div>
+  <div onclick="showLayerDrv('hw')" class="layer" style="background:var(--color-background-success);color:var(--color-text-success)">
+    <div class="layer-label">CAN Hardware Unit (on-chip or external SPI-based)<div class="layer-sub">CAN controllers, HW mailboxes (HTH/HRH), SFRs, CAN RAM</div></div><span style="font-size:11px;opacity:.5;margin-left:8px">▼</span>
+  </div>
+  <div class="layer" style="background:var(--color-background-danger);color:var(--color-text-danger);opacity:.7;cursor:default">
+    <div class="layer-label">Physical CAN Bus — ISO 11898<div class="layer-sub">CAN 2.0 (≤8 bytes) | CAN FD (≤64 bytes) | CAN XL (≤2048 bytes)</div></div>
+  </div>
+
+  <p class="sec-hdr">Core concepts — know these cold</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="card"><p class="card-title">CAN Hardware Unit</p><p class="card-body">One or more CAN controllers of the SAME type sharing HW resources (RAM, etc). Represented by ONE CanDrv instance. Multiple HW Units of different types → multiple CanDrv modules with unique prefixes.</p></div>
+    <div class="card"><p class="card-title">HTH — Hardware Transmit Handle</p><p class="card-body">Identifies a CAN Tx mailbox in HW RAM. Passed by CanIf to Can_Write(HTH,...). One HTH can map to one or multiple HW objects (multiplexed Tx). HTH numbers are unique within one HW unit, start at 0.</p></div>
+    <div class="card"><p class="card-title">HRH — Hardware Receive Handle</p><p class="card-body">Identifies a CAN Rx mailbox. CanDrv passes it back to CanIf via CanIf_RxIndication(Mailbox→HRH,...). CanIf uses HRH to apply software filtering. One HRH can cover a FIFO of multiple HW objects.</p></div>
+    <div class="card"><p class="card-title">Priority Inversion</p><p class="card-body"><strong>Inner:</strong> Low-priority msg in only Tx buffer blocks higher-priority msg from the same node. Fix: use multiple Tx objects (FullCAN or multiplexed). <strong>Outer:</strong> gap between consecutive Tx allows another node to insert lower-priority frame. Fix: very fast internal HW copy to fill gap.</p></div>
+  </div>
+
+  <p class="sec-hdr">Two driver state levels (important for exams)</p>
+  <div class="card">
+    <p class="card-body"><strong>Driver-level:</strong> CAN_UNINIT ↔ CAN_READY — one state for the whole module (all controllers in HW unit). Controlled by Can_Init() and Can_DeInit().<br><br><strong>Controller-level:</strong> UNINIT → STOPPED → STARTED ↔ SLEEP — one state per CAN controller. Controlled by Can_SetControllerMode(). These are independent from each other.</p>
+  </div>
+
+  <p class="sec-hdr">Processing modes — interrupt vs polling</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card"><p class="card-title">Interrupt mode</p><p class="card-body">ISR fires on Tx done / Rx received / BusOff / Wakeup. ISR calls CanIf_TxConfirmation / CanIf_RxIndication directly. Fastest response.</p></div>
+    <div class="card"><p class="card-title">Polling mode</p><p class="card-body">SchM calls Can_MainFunction_Write/Read/BusOff/Wakeup periodically. These scan HW status bits and call the same callbacks as ISR mode. No interrupts used.</p></div>
+    <div class="card"><p class="card-title">Mixed mode</p><p class="card-body">Some HW objects use interrupt, others use polling. Configured per HW object via CanHardwareObjectUsesPolling. Most flexible but requires careful timing.</p></div>
+  </div>
+</div>
+
+<!-- ====== STATE MACHINES ====== -->
+<div id="panel-state" class="panel">
+  <p class="sec-hdr">Level 1: Driver State Machine (entire HW unit)</p>
+  <div class="card">
+    <svg width="100%" viewBox="0 0 640 160" role="img"><title>CAN Driver state machine</title>
+      <defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="40" y="56" width="150" height="48" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width=".5"/>
+      <text x="115" y="76" text-anchor="middle" font-size="13" font-weight="500" fill="#444441">CAN_UNINIT</text>
+      <text x="115" y="94" text-anchor="middle" font-size="11" fill="#5F5E5A">Power-up / after DeInit</text>
+      <rect x="340" y="56" width="150" height="48" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width=".5"/>
+      <text x="415" y="76" text-anchor="middle" font-size="13" font-weight="500" fill="#27500A">CAN_READY</text>
+      <text x="415" y="94" text-anchor="middle" font-size="11" fill="#3B6D11">All APIs callable</text>
+      <line x1="190" y1="74" x2="338" y2="74" stroke="#3B6D11" stroke-width="1" marker-end="url(#a1)"/>
+      <text x="264" y="66" text-anchor="middle" font-size="11" fill="#3B6D11">Can_Init(ConfigPtr)</text>
+      <line x1="338" y1="90" x2="190" y2="90" stroke="#A32D2D" stroke-width="1" marker-end="url(#a1)"/>
+      <text x="264" y="106" text-anchor="middle" font-size="11" fill="#A32D2D">Can_DeInit() [no STARTED ctrl]</text>
+      <text x="320" y="130" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">Can_Init raises CAN_E_TRANSITION if already CAN_READY. Can_DeInit raises CAN_E_TRANSITION if any controller is STARTED.</text>
+    </svg>
+  </div>
+
+  <p class="sec-hdr">Level 2: CAN Controller State Machine (per controller)</p>
+  <div class="card">
+    <p class="card-body" style="margin-bottom:12px">State transitions are <strong>asynchronous</strong> — Can_SetControllerMode() initiates the transition; CanIf_ControllerModeIndication() callback confirms it. Monitoring is the upper layer's job, not CanDrv's.</p>
+    <svg width="100%" viewBox="0 0 640 320" role="img"><title>CAN Controller state machine</title>
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <!-- UNINIT -->
+      <rect x="20" y="20" width="120" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width=".5"/>
+      <text x="80" y="46" text-anchor="middle" font-size="13" font-weight="500" fill="#444441" dominant-baseline="central">UNINIT (0x00)</text>
+      <!-- STOPPED -->
+      <rect x="240" y="20" width="140" height="44" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width=".5"/>
+      <text x="310" y="46" text-anchor="middle" font-size="13" font-weight="500" fill="#3C3489" dominant-baseline="central">STOPPED (0x02)</text>
+      <!-- STARTED -->
+      <rect x="240" y="140" width="140" height="44" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width=".5"/>
+      <text x="310" y="166" text-anchor="middle" font-size="13" font-weight="500" fill="#27500A" dominant-baseline="central">STARTED (0x01)</text>
+      <!-- SLEEP -->
+      <rect x="460" y="80" width="130" height="44" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width=".5"/>
+      <text x="525" y="106" text-anchor="middle" font-size="13" font-weight="500" fill="#633806" dominant-baseline="central">SLEEP (0x03)</text>
+
+      <!-- Can_Init: UNINIT→STOPPED -->
+      <line x1="140" y1="42" x2="238" y2="42" stroke="#534AB7" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="189" y="34" text-anchor="middle" font-size="10" fill="#534AB7">Can_Init()</text>
+
+      <!-- STOPPED↔STARTED -->
+      <path d="M300 64 L300 138" fill="none" stroke="#3B6D11" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="258" y="106" text-anchor="middle" font-size="10" fill="#3B6D11">CS_STARTED</text>
+      <path d="M320 138 L320 64" fill="none" stroke="#888780" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="362" y="106" text-anchor="middle" font-size="10" fill="#5F5E5A">CS_STOPPED</text>
+
+      <!-- STOPPED→SLEEP -->
+      <line x1="380" y1="32" x2="458" y2="80" stroke="#BA7517" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="430" y="48" text-anchor="middle" font-size="10" fill="#BA7517">CS_SLEEP</text>
+      <!-- SLEEP→STOPPED -->
+      <line x1="458" y1="112" x2="380" y2="60" stroke="#5F5E5A" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="415" y="100" text-anchor="middle" font-size="10" fill="#5F5E5A">CS_STOPPED</text>
+
+      <!-- BusOff: STARTED→STOPPED (HW event) -->
+      <path d="M240 162 L80 162 L80 64" fill="none" stroke="#A32D2D" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="40" y="120" font-size="10" fill="#A32D2D" transform="rotate(-90,40,120)">BusOff (HW)</text>
+
+      <!-- HW Wakeup: SLEEP→STOPPED -->
+      <path d="M525 124 L525 200 L380 200 L380 164" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#a2)"/>
+      <text x="490" y="208" font-size="10" fill="#888780">HW Wakeup</text>
+
+      <!-- Can_DeInit: STOPPED/SLEEP→UNINIT -->
+      <line x1="240" y1="30" x2="140" y2="30" stroke="#A32D2D" stroke-width=".8" stroke-dasharray="4 2" marker-end="url(#a2)"/>
+      <text x="190" y="22" text-anchor="middle" font-size="9" fill="#A32D2D">Can_DeInit()</text>
+
+      <!-- Notes -->
+      <text x="320" y="240" text-anchor="middle" font-size="11" fill="var(--color-text-tertiary)">SLEEP with no HW support: controller stays STOPPED (logical sleep)</text>
+      <text x="320" y="258" text-anchor="middle" font-size="11" fill="var(--color-text-tertiary)">CS_STARTED re-initializes controller with same config. Automatic BusOff recovery DISABLED.</text>
+      <text x="320" y="276" text-anchor="middle" font-size="11" fill="#A32D2D">Can_SetControllerMode(CS_SLEEP) during wakeup transition → returns E_NOT_OK</text>
+    </svg>
+  </div>
+
+  <p class="sec-hdr">Key transition rules (exam traps)</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="card"><p class="card-title">CS_STARTED re-initializes</p><p class="card-body">Every transition to STARTED calls Can_SetControllerMode(CS_STARTED) which re-initializes with the SAME baud rate config last used. Tx requests before fully operational may be lost — only Tx confirmation proves operability.</p></div>
+    <div class="card"><p class="card-title">CS_STOPPED cancels pending Tx</p><p class="card-body">Can_SetControllerMode(CS_STOPPED) shall cancel still-pending transmit requests. BusOff also cancels them. CanIf will call LSduR_CanIfTxConfirmation(E_NOT_OK) for each.</p></div>
+    <div class="card"><p class="card-title">BusOff: no auto-recovery</p><p class="card-body">CanDrv SHALL disable automatic BusOff recovery. Recovery is exclusively driven by CanSm via CanIf → Can_SetControllerMode(CS_STOPPED) then CS_STARTED.</p></div>
+    <div class="card"><p class="card-title">SetBaudrate constraints</p><p class="card-body">Can_SetBaudrate() requires CS_STOPPED if re-init is needed. It changes only the addressed controller's registers. Leaves controller in STOPPED after re-init.</p></div>
+  </div>
+</div>
+
+<!-- ====== FUNCTIONAL SPEC ====== -->
+<div id="panel-functional" class="panel">
+  <p class="sec-hdr">L-PDU Transmission — click each step</p>
+  <div class="card">
+    <div id="tx-step-drv" class="step-content"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap" id="tx-btns-drv">
+      <button class="seq-btn sel" onclick="setTxDrv(0)">1. CanIf calls Can_Write</button>
+      <button class="seq-btn" onclick="setTxDrv(1)">2. HW free?</button>
+      <button class="seq-btn" onclick="setTxDrv(2)">3. Trigger Transmit path</button>
+      <button class="seq-btn" onclick="setTxDrv(3)">4. Confirmation</button>
+      <button class="seq-btn" onclick="setTxDrv(4)">5. CAN FD / XL handling</button>
+    </div>
+  </div>
+
+  <p class="sec-hdr">L-PDU Reception — click each step</p>
+  <div class="card">
+    <div id="rx-step-drv" class="step-content"></div>
+    <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap" id="rx-btns-drv">
+      <button class="seq-btn sel" onclick="setRxDrv(0)">1. Frame arrives</button>
+      <button class="seq-btn" onclick="setRxDrv(1)">2. Data consistency</button>
+      <button class="seq-btn" onclick="setRxDrv(2)">3. CanIf_RxIndication</button>
+      <button class="seq-btn" onclick="setRxDrv(3)">4. Extended CAN ID</button>
+      <button class="seq-btn" onclick="setRxDrv(4)">5. Overrun/Overwrite</button>
+    </div>
+  </div>
+
+  <p class="sec-hdr">Wakeup Concept</p>
+  <div class="card">
+    <p class="card-body">
+    <strong>Interrupt wakeup:</strong> CAN bus activity → HW wakeup ISR → CanDrv ISR calls EcuM_CheckWakeup(WakeupSource). EcuM then calls Can_CheckWakeup() via CanIf. If confirmed, Can_CheckWakeup() calls EcuM_SetWakeupEvent(). EcuM then drives CS_STARTED and wakeup validation.<br><br>
+    <strong>Polling wakeup:</strong> EcuM periodically calls Can_CheckWakeup() directly. Can_CheckWakeup() polls HW status bit. Same callback chain follows.<br><br>
+    <strong>During sleep transition:</strong> If wakeup event occurs while transitioning to SLEEP → Can_SetControllerMode(CS_SLEEP) returns E_NOT_OK. Controller goes STOPPED instead.<br><br>
+    <strong>CanDrv does NOT validate wakeup</strong> — that is EcuM + CanIf's job. CanDrv does not process the L-PDU that caused the wakeup (dropped).</p>
+  </div>
+
+  <p class="sec-hdr">Partial Networking — selective wakeup</p>
+  <div class="card">
+    <p class="card-body">When CanHwPnSupport=TRUE, controller can be woken by predefined frames only. Configured via CanPnFrameCanId, CanPnFrameCanIdMask, CanPnFrameDlc, and CanPnFrameDataMaskSpec. When CS_STARTED confirmed → CanDrv calls CanIf_ConfirmCtrlPnAvailability() to notify CanNm (via CanIf/CanSm) that selective wakeup is enabled.</p>
+  </div>
+
+  <p class="sec-hdr">Interrupt Enable/Disable — reentrancy mechanism</p>
+  <div class="card">
+    <p class="card-body">
+    <strong>Can_DisableControllerInterrupts():</strong> Uses an internal counter (incremental disable). Each call increments counter. Disables all HW interrupts for that controller IF not already disabled.<br><br>
+    <strong>Can_EnableControllerInterrupts():</strong> Decrements counter. Only re-enables interrupts when counter reaches 0. Does nothing if DisableInterrupts was never called. This prevents nested disable/enable from accidentally re-enabling mid-critical-section.<br><br>
+    <strong>CRITICAL:</strong> Can_SetControllerMode() also enables/disables interrupts internally. The driver must track the "should-be-enabled" state via software flags so that when EnableInterrupts is called, the correct set is restored — not all interrupts blindly.</p>
+  </div>
+
+  <p class="sec-hdr">Data mapping rule (byte order)</p>
+  <div class="card">
+    <p class="card-body">CAN data byte sent first = array[0]. CAN data byte sent last = array[7] (CAN 2.0) or array[63] (CAN FD). If HW buffer layout differs from this, CanDrv provides an adapted SDU buffer — upper layers always see this standardized format.</p>
+  </div>
+
+  <p class="sec-hdr">Hardware Timestamping (CanGlobalTimeSupport)</p>
+  <div class="card">
+    <p class="card-body">
+    Free-running counter, ≥1µs resolution, ≤1ns resolution. 32-bit counter recommended.<br>
+    <strong>Can_GetCurrentTime(ControllerId, *ts)</strong> — read current HW time.<br>
+    <strong>Can_EnableEgressTimeStamp(Hth)</strong> — arm timestamp capture on next Tx.<br>
+    <strong>Can_GetEgressTimeStamp(TxPduId, Hth, *ts)</strong> — call inside TxConfirmation to retrieve Tx timestamp.<br>
+    <strong>Can_GetIngressTimeStamp(Hrh, *ts)</strong> — call inside RxIndication to retrieve Rx timestamp.<br>
+    Used for CanTSyn (global time sync over CAN). Enable via CanGlobalTimeSupport=TRUE.</p>
+  </div>
+
+  <p class="sec-hdr">Remote frames</p>
+  <div class="card">
+    <p class="card-body">CanDrv SHALL NOT transmit messages triggered by remote frames and SHALL initialize HW to ignore remote transmission requests. Remote frames are completely unsupported by AUTOSAR CAN stack.</p>
+  </div>
+</div>
+
+<!-- ====== API REFERENCE ====== -->
+<div id="panel-api" class="panel">
+  <input class="search-input" type="text" placeholder="Filter functions... (e.g. Write, Controller, Baudrate)" oninput="filterDrvApi(this.value)">
+  <p class="sec-hdr">Service Functions</p>
+  <table class="api-table"><thead><tr><th>Function</th><th>SID</th><th>Sync?</th><th>Returns</th><th>Key behaviour</th></tr></thead>
+  <tbody id="drv-api-body"></tbody></table>
+
+  <p class="sec-hdr" style="margin-top:1.5rem">Callbacks CanDrv CALLS into CanIf (mandatory)</p>
+  <table class="api-table"><thead><tr><th>Callback</th><th>When called</th><th>Critical note</th></tr></thead>
+  <tbody>
+    <tr><td class="fn">CanIf_TxConfirmation(PduIdType swPduHandle)</td><td>Tx done (ISR or MainFunction_Write)</td><td>swPduHandle stored from Can_Write parameter, not from HW. Enables CanIf to drain its Tx buffer.</td></tr>
+    <tr><td class="fn">CanIf_RxIndication(Can_HwType* Mailbox, PduInfoType* PduInfoPtr)</td><td>Rx done (ISR or MainFunction_Read)</td><td>Mailbox has HRH, CanId (MSB set for extended), ControllerId. Must be reentrant across different controllers.</td></tr>
+    <tr><td class="fn">CanIf_ControllerBusOff(uint8 ControllerId)</td><td>BusOff detected (STARTED→STOPPED)</td><td>Called AFTER controller is stopped. ControllerId is abstract CanIf ID, NOT the HW controller index.</td></tr>
+    <tr><td class="fn">CanIf_ControllerModeIndication(uint8, Can_ControllerStateType)</td><td>Mode transition confirmed</td><td>Called by Can_MainFunction_Mode when flag settles. Upper layer tracks whether requested state was achieved.</td></tr>
+    <tr><td class="fn">EcuM_CheckWakeup(EcuM_WakeupSourceType)</td><td>Wakeup detected (ISR or MainFunction_Wakeup)</td><td>Passes the CanWakeupSourceRef configured for that controller.</td></tr>
+    <tr><td class="fn">EcuM_SetWakeupEvent(EcuM_WakeupSourceType)</td><td>From Can_CheckWakeup() if wakeup confirmed</td><td>Sets wakeup event in EcuM. EcuM then drives the full wakeup procedure.</td></tr>
+    <tr><td class="fn">CanIf_TriggerTransmit(PduIdType, PduInfoType*)</td><td>When null SDU passed to Can_Write (trigger Tx)</td><td>Upper layer fills PduInfoPtr with actual data. CanDrv then copies to HW. Data fetched just-in-time.</td></tr>
+    <tr><td class="fn">CanIf_ErrorNotification(uint8 ControllerId, Can_ErrorType CanError)</td><td>Error detected (bit, ACK, stuffing, CRC, etc.)</td><td>Only called if CanEnableSecurityEventReporting=TRUE. CanIf reports to IdsM as SEV_CAN_TX/RX_ERROR.</td></tr>
+    <tr><td class="fn">CanIf_ControllerErrorStatePassive(uint8, uint8 TxCnt, uint8 RxCnt)</td><td>TEC or REC exceeds 127</td><td>Only if CanEnableSecurityEventReporting=TRUE. CanIf reports SEV_CAN_ERRORSTATE_PASSIVE to IdsM.</td></tr>
+  </tbody></table>
+
+  <p class="sec-hdr" style="margin-top:1.5rem">Critical type definitions</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="card"><p class="card-title">Can_IdType (uint32)</p><p class="card-body">Bit 31 (MSB) = Extended ID flag. Bit 30 = CAN FD flag.<br><br>00 = Standard CAN 2.0 (11-bit ID in bits 0-10)<br>01 = CAN FD with Standard ID<br>10 = Extended CAN 2.0 (29-bit ID in bits 0-28)<br>11 = CAN FD with Extended ID<br><br>CanDrv sets MSB when calling CanIf_RxIndication for extended frames.</p></div>
+    <div class="card"><p class="card-title">Can_PduType</p><p class="card-body"><span class="fn">swPduHandle</span> (PduIdType) — stored by CanDrv, returned in TxConfirmation<br><span class="fn">length</span> (uint8) — SDU length in bytes<br><span class="fn">id</span> (Can_IdType) — CAN ID with type bits<br><span class="fn">sdu</span> (uint8*) — pointer to data (NULL for trigger Tx)</p></div>
+    <div class="card"><p class="card-title">Can_HwType (Mailbox)</p><p class="card-body"><span class="fn">CanId</span> — received CAN ID<br><span class="fn">Hoh</span> — HRH or HTH handle<br><span class="fn">ControllerId</span> — abstract CanIf controller ID<br><br>Passed to CanIf_RxIndication as *Mailbox. CanIf uses ControllerId to distinguish which CanDrv called (multi-driver support).</p></div>
+    <div class="card"><p class="card-title">Can_ErrorStateType</p><p class="card-body"><span class="fn">CAN_ERRORSTATE_ACTIVE</span> — full participation, sends active error frames<br><span class="fn">CAN_ERRORSTATE_PASSIVE</span> — participates but sends passive error frames only (TEC or REC > 127)<br><span class="fn">CAN_ERRORSTATE_BUSOFF</span> — off bus, no Tx or Rx (TEC > 255)</p></div>
+  </div>
+</div>
+
+<!-- ====== SCHEDULED FUNCTIONS ====== -->
+<div id="panel-scheduled" class="panel">
+  <p class="sec-hdr">Overview — why scheduled functions exist</p>
+  <div class="card">
+    <p class="card-body">When events are polled (not interrupt-driven), CanDrv cannot call callbacks from an ISR. Instead, the BSW Scheduler (SchM) calls these functions periodically. They scan HW status registers and fire the same callbacks as the ISR would. Upper layers cannot distinguish between interrupt vs polling mode — the API is identical.</p>
+  </div>
+
+  <p class="sec-hdr">All scheduled functions (called by SchM)</p>
+  <table class="api-table"><thead><tr><th>Function</th><th>SID</th><th>Purpose</th><th>When active</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="fn">Can_MainFunction_Write()</td><td>0x01</td>
+      <td>Poll Tx confirmation flags. Calls CanIf_TxConfirmation() for confirmed frames.</td>
+      <td>CanTxProcessing = POLLING or MIXED (only for HW objects with CanHardwareObjectUsesPolling=TRUE)</td>
+    </tr>
+    <tr>
+      <td class="fn">Can_MainFunction_Read()</td><td>0x08</td>
+      <td>Poll Rx indication flags. Calls CanIf_RxIndication() for received frames.</td>
+      <td>CanRxProcessing = POLLING or MIXED</td>
+    </tr>
+    <tr>
+      <td class="fn">Can_MainFunction_BusOff()</td><td>0x09</td>
+      <td>Poll BusOff status bit. Calls CanIf_ControllerBusOff() if detected.</td>
+      <td>CanBusOffProcessing = POLLING</td>
+    </tr>
+    <tr>
+      <td class="fn">Can_MainFunction_Wakeup()</td><td>0x0a</td>
+      <td>Poll wakeup status flags. Calls EcuM_CheckWakeup() if wakeup detected. Also confirms mode transitions after Can_SetControllerMode().</td>
+      <td>CanWakeupProcessing = POLLING or to confirm async mode transitions</td>
+    </tr>
+    <tr>
+      <td class="fn">Can_MainFunction_Mode()</td><td>0x0c</td>
+      <td>Poll CAN status register flags for mode transition completion. Calls CanIf_ControllerModeIndication() when transition confirmed.</td>
+      <td>Always needed for async mode transitions (Can_SetControllerMode is async)</td>
+    </tr>
+  </tbody></table>
+
+  <p class="sec-hdr">Multiple periods for Read/Write (exam detail)</p>
+  <div class="card">
+    <p class="card-body">If CanMainFunctionRWPeriods container defines multiple periods, the generated function names become:<br>
+    <span class="fn">Can_MainFunction_Write_&lt;ShortName&gt;()</span> — one per period group, for HW objects referencing that period<br>
+    <span class="fn">Can_MainFunction_Read_&lt;ShortName&gt;()</span> — same concept<br><br>
+    This allows different HW objects (e.g. high-speed CAN vs low-speed diagnostic) to be polled at different rates without missing fast frames. SchM configures each function at its own cycle.</p>
+  </div>
+
+  <p class="sec-hdr">Critical rules for scheduled functions</p>
+  <div class="card">
+    <p class="card-body">
+    • All MainFunction functions: <strong>void return, no parameters</strong> (BSW Scheduler requirement)<br>
+    • All MainFunction functions: <strong>non-reentrant</strong> — the scheduler must not call the same function again before it returns<br>
+    • <strong>No required execution order</strong> between MainFunction_Write, _Read, _BusOff, _Wakeup<br>
+    • Can_MainFunction_Read must not be interrupted by itself (guarantees consistent HW buffer reading)<br>
+    • MainFunction_Write and _Read may be implemented as empty macros/defines if no polling used (saves code size)<br>
+    • Timeout for mode transitions: CanTimeoutDuration parameter. Uses OS GetCounterValue() — not a blocking wait.</p>
+  </div>
+</div>
+
+<!-- ====== ERRORS & DEBUG ====== -->
+<div id="panel-errors" class="panel">
+  <p class="sec-hdr">Development Errors (DET — Det_ReportError)</p>
+  <div class="card">
+    <div class="err-row" style="font-weight:500;font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;border-bottom:.5px solid var(--color-border-secondary)">
+      <span>Value</span><span>Error Code</span><span>Cause / Debug tip</span>
+    </div>
+    <div class="err-row"><span class="err-num">0x01</span><span class="err-code">CAN_E_PARAM_POINTER</span><span style="color:var(--color-text-secondary)">Null pointer passed to versioninfo, ErrorStatePtr, ControllerModePtr, RxErrorCounterPtr, TxErrorCounterPtr, or timeStampPtr. Check all out-params before calling.</span></div>
+    <div class="err-row"><span class="err-num">0x02</span><span class="err-code">CAN_E_PARAM_HANDLE</span><span style="color:var(--color-text-secondary)">HTH or HRH ID is not configured. Verify CanObjectId matches the actual configured HW object handle. Common after wrong DaVinci generation.</span></div>
+    <div class="err-row"><span class="err-num">0x03</span><span class="err-code">CAN_E_PARAM_DATA_LENGTH</span><span style="color:var(--color-text-secondary)">Length &gt;8 on classic CAN (no FD config), length &gt;64 on FD, length &gt;64 but FD flag not set in Can_IdType. Check MSBs of Can_PduType.id.</span></div>
+    <div class="err-row"><span class="err-num">0x04</span><span class="err-code">CAN_E_PARAM_CONTROLLER</span><span style="color:var(--color-text-secondary)">Controller index out of range (must be 0..N-1 per HW unit). Most common integration error. Check CanController CanControllerId numbering.</span></div>
+    <div class="err-row"><span class="err-num">0x05</span><span class="err-code">CAN_E_UNINIT</span><span style="color:var(--color-text-secondary)">Any API called before Can_Init(). EcuM init sequence issue — MCU driver must init before Can. Check EcuM startup order.</span></div>
+    <div class="err-row"><span class="err-num">0x06</span><span class="err-code">CAN_E_TRANSITION</span><span style="color:var(--color-text-secondary)">Invalid state transition requested. Can_Init when already READY, Can_DeInit when any ctrl STARTED, SetControllerMode(STARTED) when not STOPPED, SetControllerMode(SLEEP) when not STOPPED/SLEEP.</span></div>
+    <div class="err-row"><span class="err-num">0x07</span><span class="err-code">CAN_E_PARAM_BAUDRATE</span><span style="color:var(--color-text-secondary)">BaudRateConfigID passed to Can_SetBaudrate does not exist in CanControllerBaudrateConfig. Verify CanControllerBaudRateConfigID values match.</span></div>
+    <div class="err-row"><span class="err-num">0x09</span><span class="err-code">CAN_E_INIT_FAILED</span><span style="color:var(--color-text-secondary)">Invalid configuration set. Config pointer corrupted or HW not responding during init. Check ConfigPtr and MCU clock setup before Can_Init.</span></div>
+    <div class="err-row"><span class="err-num">0x0A</span><span class="err-code">CAN_E_PARAM_LPDU</span><span style="color:var(--color-text-secondary)">TxPduId passed to Can_GetEgressTimeStamp is invalid. Only used for timestamp API. Check PduId mapping.</span></div>
+  </div>
+
+  <p class="sec-hdr">Runtime Error (Det_ReportRuntimeError)</p>
+  <div class="card">
+    <div class="err-row"><span class="err-num">0x01</span><span class="err-code">CAN_E_DATALOST</span><span style="color:var(--color-text-secondary)">HW overwrite (new frame overwrites unread buffer) or HW overrun (new frame dropped because buffer full). Configure larger HW FIFO (CanHwObjectCount) or increase polling/ISR frequency. Critical for real-time debugging — indicates receive processing too slow.</span></div>
+  </div>
+
+  <p class="sec-hdr">Can_Write return values (know all three)</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card"><p class="card-title" style="color:var(--color-text-success)">E_OK (0x00)</p><p class="card-body">HW object was free, data written to mailbox, transmission initiated. TxConfirmation will follow.</p></div>
+    <div class="card"><p class="card-title" style="color:var(--color-text-danger)">E_NOT_OK (0x01)</p><p class="card-body">Development error (invalid params). Module not initialized. Trigger-transmit API returned error. CanIf should NOT retry.</p></div>
+    <div class="card"><p class="card-title" style="color:var(--color-text-warning)">CAN_BUSY (0x02)</p><p class="card-body">HW mailbox occupied by ongoing Tx, OR preemptive call with same HTH. CanIf queues the PDU (if buffering enabled) and retries at TxConfirmation. Not an error — normal behavior under load.</p></div>
+  </div>
+
+  <p class="sec-hdr">Can_ErrorType — CAN error types reported to IdsM</p>
+  <div class="card">
+    <div class="err-row" style="font-weight:500;font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;border-bottom:.5px solid var(--color-border-secondary)"><span>Value</span><span>Error</span><span>Meaning</span></div>
+    <div class="err-row"><span class="err-num">0x01</span><span style="color:var(--color-text-secondary)">BIT_MONITORING1</span><span style="color:var(--color-text-secondary)">Sent 0, read back 1 — dominant bit not registered on bus. Usually lost arbitration or bus driver issue.</span></div>
+    <div class="err-row"><span class="err-num">0x02</span><span style="color:var(--color-text-secondary)">BIT_MONITORING0</span><span style="color:var(--color-text-secondary)">Sent 1, read back 0 — recessive bit dominated. Another node still transmitting.</span></div>
+    <div class="err-row"><span class="err-num">0x04</span><span style="color:var(--color-text-secondary)">CHECK_ACK_FAILED</span><span style="color:var(--color-text-secondary)">No node acknowledged the frame. Check: is any receiver powered? Is the baud rate matching?</span></div>
+    <div class="err-row"><span class="err-num">0x06</span><span style="color:var(--color-text-secondary)">ARBITRATION_LOST</span><span style="color:var(--color-text-secondary)">Lost arbitration — normal, not an error per se. High occurrence may indicate priority configuration issue.</span></div>
+    <div class="err-row"><span class="err-num">0x07</span><span style="color:var(--color-text-secondary)">OVERLOAD</span><span style="color:var(--color-text-secondary)">Receiver buffer full, overload frame sent. Indicates RX processing too slow system-wide.</span></div>
+    <div class="err-row"><span class="err-num">0x08</span><span style="color:var(--color-text-secondary)">CHECK_FORM_FAILED</span><span style="color:var(--color-text-secondary)">Fixed frame format violated — wrong SOF/EOF bit pattern. Check physical layer / baud rate.</span></div>
+    <div class="err-row"><span class="err-num">0x09</span><span style="color:var(--color-text-secondary)">CHECK_STUFFING_FAILED</span><span style="color:var(--color-text-secondary)">Bit stuffing violation — 6+ consecutive same-polarity bits. Almost always a physical layer problem.</span></div>
+    <div class="err-row"><span class="err-num">0x0A</span><span style="color:var(--color-text-secondary)">CHECK_CRC_FAILED</span><span style="color:var(--color-text-secondary)">CRC mismatch. Data corruption in transmission or different baud rate/sample point configuration.</span></div>
+    <div class="err-row"><span class="err-num">0x0B</span><span style="color:var(--color-text-secondary)">BUS_LOCK</span><span style="color:var(--color-text-secondary)">Bus stuck at dominant level. Check for short circuit to GND or faulty node holding bus dominant.</span></div>
+  </div>
+
+  <p class="sec-hdr">Debugging checklist — interface testing</p>
+  <div class="card">
+    <p class="card-body">
+    <strong>1. No TxConfirmation received</strong> — Is controller STARTED? Is PDU channel ONLINE (CanIf)? Is HTH correctly mapped (CanObjectId valid)? Is CanTxProcessing=INTERRUPT and ISR wired? Or is _MainFunction_Write() called in Polling mode? Check TEC counter — BusOff?<br><br>
+    <strong>2. No RxIndication received</strong> — Is HRH correctly configured (CanObjectType=RECEIVE, CanIdType, CanHwFilterCode/Mask)? Is BasicCAN software filter in CanIf accepting the CanId? Is CanRxProcessing=POLLING and _MainFunction_Read() called? Check REC counter.<br><br>
+    <strong>3. BusOff recovery not working</strong> — CanDrv must NOT auto-recover. CanSm must call SetControllerMode(STOPPED) then (STARTED). Is CanSM_ControllerBusOff() being called (check CanIf dispatch config)? Is BusOffProcessing=POLLING but MainFunction_BusOff not scheduled?<br><br>
+    <strong>4. CAN_E_DATALOST runtime errors</strong> — Increase CanHwObjectCount (FIFO depth). Increase polling frequency. Move to interrupt mode for that HRH.<br><br>
+    <strong>5. Baud rate mismatch</strong> — Verify CanControllerPropSeg + CanControllerSeg1 + CanControllerSeg2 sum gives correct sample point. Check CanControllerSyncJumpWidth. For FD: additionally check CanControllerSspOffset.<br><br>
+    <strong>6. CAN FD frames not working</strong> — CanControllerFdBaudrateConfig must exist for the controller. CanControllerTxBitRateSwitch=TRUE for BRS (bit rate switch). Check Can_IdType MSBs (bit 30 must be set for FD). CanFdPaddingValue for DLC padding.</p>
+  </div>
+</div>
+
+<!-- ====== DAVINCI CONFIG ====== -->
+<div id="panel-config" class="panel">
+  <div class="card">
+    <p class="card-title">Vector DaVinci Configurator — CanDrv setup workflow</p>
+    <p class="card-body">Navigate to: BSW → Can (or your vendor-specific Can module, e.g. Can_30_Mcan). The structure below covers standard AUTOSAR containers.</p>
+  </div>
+
+  <p class="sec-hdr">Container hierarchy</p>
+  <div class="card">
+    <div class="cfg-row"><span class="cfg-key">Can</span><span class="cfg-val">Top-level module container. Holds CanGeneral and CanConfigSet.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanGeneral</span><span class="cfg-val">Global driver settings: CanDevErrorDetect, CanMultiplexedTransmission, CanVersionInfoApi, CanGlobalTimeSupport, CanEnableSecurityEventReporting, CanTimeoutDuration, CanIndex, CanMainFunctionBusoffPeriod, CanMainFunctionModePeriod, CanMainFunctionWakeupPeriod, CanOsCounterRef, CanLPduReceiveCalloutFunction</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanMainFunctionRWPeriods</span><span class="cfg-val">0..* entries. Each has a ShortName and a period value. Referenced by CanHardwareObject via CanMainFunctionRWPeriodRef. Enables different polling frequencies for different HW objects.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanConfigSet</span><span class="cfg-val">Contains CanController(s) and CanHardwareObject(s). Can support post-build config sets (multiple configuration sets selectable via Can_Init ConfigPtr).</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanController</span><span class="cfg-val">One per physical CAN controller. Key params: CanControllerId (0-based abstract ID matching CanIf ControllerId), CanControllerActivation (enable/disable), CanWakeupSourceRef (EcuM wakeup source), CanHwPnSupport, CanRxProcessing, CanTxProcessing, CanBusOffProcessing, CanWakeupProcessing</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanControllerBaudrateConfig</span><span class="cfg-val">1..* per controller. CanControllerBaudRate (kbps), CanControllerBaudRateConfigID (unique ID for SetBaudrate), CanControllerPropSeg, CanControllerSeg1, CanControllerSeg2, CanControllerSyncJumpWidth. One entry = one baud rate profile.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanControllerFdBaudrateConfig</span><span class="cfg-val">0..1 per CanControllerBaudrateConfig. If present, FD mode is enabled for that baud rate. CanControllerFdBaudRate (data phase kbps), CanControllerTxBitRateSwitch (TRUE=send BRS bit), CanControllerSspOffset (secondary sample point). Adds PropSeg/Seg1/Seg2/SJW for data phase.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanPartialNetwork</span><span class="cfg-val">0..1 per controller. CanPnEnabled, CanPnFrameCanId, CanPnFrameCanIdMask, CanPnFrameDlc, CanPnFrameDataMaskSpec (up to 8 byte masks). Configures selective wakeup frame.</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanHardwareObject</span><span class="cfg-val">0..* per CanConfigSet. One per logical Tx/Rx mailbox group. Key params: CanObjectId (HTH/HRH handle — unique per HW unit, can use 'withAuto' for auto-assignment), CanObjectType (TRANSMIT/RECEIVE), CanHandleType (BASIC/FULL), CanIdType (STANDARD/EXTENDED/MIXED), CanHwObjectCount (FIFO depth or multiplexed buffer count), CanFdPaddingValue, CanTriggerTransmitEnable, CanHardwareObjectUsesPolling, CanObjectPayloadLength, CanControllerRef, CanMainFunctionRWPeriodRef</span></div>
+    <div class="cfg-row"><span class="cfg-key">CanHwFilter</span><span class="cfg-val">0..* per CanHardwareObject (only for RECEIVE BASIC objects). CanHwFilterCode + CanHwFilterMask define the HW acceptance filter range. Multiple filters can be added for one HRH.</span></div>
+  </div>
+
+  <p class="sec-hdr">Step-by-step DaVinci configuration for a new CAN controller</p>
+  <div class="card">
+    <p class="card-body">
+    <strong>Step 1: CanGeneral</strong> — Set CanDevErrorDetect=TRUE (during development). Set CanMultiplexedTransmission=TRUE if using multiple Tx objects per HTH. Set CanTimeoutDuration (e.g. 0.5ms, must be &lt; MainFunction period). Set CanOsCounterRef to your OS counter for timeout.<br>
+    <strong>Step 2: CanController</strong> — Add one per physical CAN peripheral. Assign CanControllerId=0 (must match CanIf CanIfCtrlCfg.CanIfCtrlId). Set CanRxProcessing=INTERRUPT or POLLING. Set CanWakeupSourceRef → EcuM wakeup source if wakeup needed.<br>
+    <strong>Step 3: CanControllerBaudrateConfig</strong> — Add at least one. Set CanControllerBaudRate=500 (kbps). Calculate PropSeg/Seg1/Seg2/SJW from your oscillator and desired sample point (typically 75-80% sample point). Set CanControllerBaudRateConfigID=0.<br>
+    <strong>Step 4: CanControllerFdBaudrateConfig</strong> — Add if CAN FD needed. Set FdBaudRate (e.g. 2000 kbps for 2 Mbit/s data phase). Set CanControllerTxBitRateSwitch=TRUE. Configure data phase timing segments separately from arbitration phase.<br>
+    <strong>Step 5: CanHardwareObject (Tx)</strong> — Add one per HTH. CanObjectType=TRANSMIT. CanHandleType=BASIC (for multiplexed) or FULL. CanHwObjectCount=1 (Full) or N (Basic/mux). CanObjectPayloadLength=CAN_OBJECT_PL_8 (classic) or CAN_OBJECT_PL_64 (FD). Reference CanControllerRef → your controller. CanObjectId is auto-assigned or manually set starting from 0.<br>
+    <strong>Step 6: CanHardwareObject (Rx)</strong> — CanObjectType=RECEIVE. Add CanHwFilter with CanHwFilterCode (base CanId to accept) + CanHwFilterMask (which bits must match, 0=don't care). Set CanHwObjectCount for FIFO depth. CanHardwareObjectUsesPolling=FALSE for interrupt.<br>
+    <strong>Step 7: Generate code</strong> — DaVinci generates Can_PBcfg.c/h with HOH tables, baud rate tables, controller configs. Verify EcuM_AL_DriverInitZero() calls Can_Init(&Can_Config). Verify ISR vectors are connected (port driver may configure TX/RX pins separately).<br>
+    <strong>Step 8: Connect to CanIf</strong> — In CanIf DaVinci, set CanIfHthCfg.CanIfHthIdSymRef → your HTH symbolic name. Set CanIfHrhCfg.CanIfHrhIdSymRef → your HRH symbolic name. Ensure ControllerId numbering is consistent.</p>
+  </div>
+
+  <p class="sec-hdr">Common DaVinci integration mistakes</p>
+  <div class="card">
+    <p class="card-body">
+    • CanControllerId in CanDrv ≠ CanIfCtrlId in CanIf → CAN_E_PARAM_CONTROLLER at runtime<br>
+    • HTH/HRH CanObjectId mismatch between CanDrv and CanIf → CAN_E_PARAM_HANDLE<br>
+    • CanHwFilter mask wrong → receives wrong frames or misses expected frames<br>
+    • CanControllerFdBaudrateConfig missing but CAN FD frames requested → length error (>8 bytes rejected)<br>
+    • CanHwObjectCount=1 on BasicCAN Rx → overrun when back-to-back frames arrive (increase to 2-4)<br>
+    • CanTxProcessing=POLLING but Can_MainFunction_Write not scheduled → Tx confirmations never fired<br>
+    • Multiple CanDrv instances with same function names → linker error (use CanIndex + naming prefix)<br>
+    • MCU driver not initialized before Can_Init() → SFR access fails silently or corrupts<br>
+    • CanTimeoutDuration too large → Can_SetControllerMode blocks too long, starving other tasks<br>
+    • CanControllerBaudRateConfigID collision → SetBaudrate picks wrong timing parameters</p>
+  </div>
+</div>
+
+<script>
+const DRV_APIS = [
+  {fn:'Can_Init(Config*)',sid:'0x00',sync:'SYNC',ret:'void',desc:'Initialize entire HW unit. Sets all controllers to STOPPED. Module goes CAN_READY. Called ONCE by EcuM. Raises CAN_E_TRANSITION if already CAN_READY.'},
+  {fn:'Can_DeInit()',sid:'0x10',sync:'SYNC',ret:'void',desc:'De-initialize HW unit. Module goes CAN_UNINIT. Raises CAN_E_TRANSITION if any controller is STARTED. Caller must stop all controllers first.'},
+  {fn:'Can_GetVersionInfo(*versioninfo)',sid:'0x07',sync:'SYNC',ret:'void',desc:'Read module version. Reentrant. Raises CAN_E_PARAM_POINTER if null. Standard BSW function.'},
+  {fn:'Can_SetBaudrate(Controller, BaudRateConfigID)',sid:'0x0f',sync:'SYNC',ret:'Std_ReturnType',desc:'Switch baud rate profile. Requires STOPPED if re-init needed. Changes only the addressed controller\'s timing registers. Returns E_NOT_OK if re-init needed but not STOPPED.'},
+  {fn:'Can_SetControllerMode(Controller, Transition)',sid:'0x03',sync:'ASYNC',ret:'Std_ReturnType',desc:'Trigger controller state transition. ASYNC — actual change confirmed via CanIf_ControllerModeIndication callback. Uses timeout (CanTimeoutDuration) to avoid blocking. Valid: STOPPED→STARTED, STARTED→STOPPED, SLEEP→STOPPED, STOPPED→SLEEP.'},
+  {fn:'Can_DisableControllerInterrupts(Controller)',sid:'0x04',sync:'SYNC',ret:'void',desc:'Disable all interrupts for this controller. Incremental counter — must be matched by equal calls to EnableControllerInterrupts. Reentrant across different controllers.'},
+  {fn:'Can_EnableControllerInterrupts(Controller)',sid:'0x05',sync:'SYNC',ret:'void',desc:'Re-enable interrupts (decrements counter). No action if DisableControllerInterrupts not called before. Restores correct interrupt state from software flags.'},
+  {fn:'Can_CheckWakeup(Controller)',sid:'0x0b',sync:'SYNC',ret:'Std_ReturnType',desc:'Check if wakeup event detected. If yes → calls EcuM_SetWakeupEvent(). Used by EcuM during wakeup polling. Also used internally in Can_MainFunction_Wakeup.'},
+  {fn:'Can_GetControllerErrorState(ControllerId, *ErrorStatePtr)',sid:'0x11',sync:'SYNC',ret:'Std_ReturnType',desc:'Read hardware error state: ACTIVE/PASSIVE/BUSOFF. Key diagnostic function. Non-reentrant for same controller. Returns state at time of call.'},
+  {fn:'Can_GetControllerMode(Controller, *ModePtr)',sid:'0x12',sync:'SYNC',ret:'Std_ReturnType',desc:'Read current controller state (UNINIT/STOPPED/STARTED/SLEEP). Fills *ModePtr. Reports CAN_E_UNINIT if not initialized.'},
+  {fn:'Can_GetControllerRxErrorCounter(ControllerId, *RxCntPtr)',sid:'0x30',sync:'SYNC',ret:'Std_ReturnType',desc:'Read REC (Receive Error Counter) from HW. Value may not be 100% accurate (async HW). Use for trend analysis, not exact state. >127 = error passive. Returns E_NOT_OK if not available.'},
+  {fn:'Can_GetControllerTxErrorCounter(ControllerId, *TxCntPtr)',sid:'0x31',sync:'SYNC',ret:'Std_ReturnType',desc:'Read TEC (Transmit Error Counter) from HW. TEC > 127 → error passive. TEC > 255 → BusOff. Critical for diagnosing bus contention and wiring problems.'},
+  {fn:'Can_Write(Hth, *PduInfo)',sid:'0x06',sync:'SYNC',ret:'E_OK/E_NOT_OK/CAN_BUSY',desc:'Write L-PDU to HW Tx mailbox and initiate transmission. Reentrant (thread-safe) for different HTHs. Returns CAN_BUSY if HTH occupied or pre-emptive call with same HTH. Non-blocking.'},
+  {fn:'Can_GetCurrentTime(ControllerId, *ts)',sid:'0x32',sync:'SYNC',ret:'Std_ReturnType',desc:'[DRAFT] Read HW free-running counter timestamp. Needs CanGlobalTimeSupport=TRUE. May be called in exclusive area.'},
+  {fn:'Can_EnableEgressTimeStamp(Hth)',sid:'0x33',sync:'SYNC',ret:'void',desc:'[DRAFT] Arm timestamp capture for next Tx on this HTH. No disable — design intent is all frames are timestamped. CanGlobalTimeSupport=TRUE required.'},
+  {fn:'Can_GetEgressTimeStamp(TxPduId, Hth, *ts)',sid:'0x34',sync:'SYNC',ret:'Std_ReturnType',desc:'[DRAFT] Read Tx timestamp. MUST be called within TxConfirmation callback. CanGlobalTimeSupport=TRUE.'},
+  {fn:'Can_GetIngressTimeStamp(Hrh, *ts)',sid:'0x35',sync:'SYNC',ret:'Std_ReturnType',desc:'[DRAFT] Read Rx timestamp. MUST be called within RxIndication callback. Reentrant for different HRHs. CanGlobalTimeSupport=TRUE.'},
+];
+
+function buildDrvApiTable() {
+  const tbody = document.getElementById('drv-api-body');
+  tbody.innerHTML = DRV_APIS.map(a=>`<tr>
+    <td class="fn">${a.fn}</td>
+    <td style="font-family:var(--font-mono);font-size:11px">${a.sid}</td>
+    <td><span class="badge ${a.sync==='SYNC'?'badge-sync':'badge-async'}">${a.sync}</span></td>
+    <td style="font-family:var(--font-mono);font-size:11px">${a.ret}</td>
+    <td>${a.desc}</td>
+  </tr>`).join('');
+}
+function filterDrvApi(q) {
+  const qq = q.toLowerCase();
+  document.querySelectorAll('#drv-api-body tr').forEach(r=>{
+    r.style.display = !q || r.textContent.toLowerCase().includes(qq) ? '' : 'none';
+  });
+}
+
+const TX_DRV = [
+  '<strong>CanIf calls Can_Write(Hth, PduInfo*)</strong><br>PduInfo contains: swPduHandle (PduIdType, stored by CanDrv until TxConfirmation), length (bytes), id (Can_IdType with type bits), sdu (uint8* data pointer or NULL for trigger-Tx).<br><br>CanDrv first checks if driver is initialized (CAN_E_UNINIT if not), Hth is valid (CAN_E_PARAM_HANDLE), PduInfo is not null (CAN_E_PARAM_POINTER), and data length is valid for frame type (CAN_E_PARAM_DATA_LENGTH if length > 8 without FD mode).',
+  '<strong>Is the HW transmit object free?</strong><br>CanDrv checks if the HTH mailbox is occupied by a pending Tx. If free:<br>1. Set mutex for HTH to "signaled" (critical section begin)<br>2. Format ID and data for HW (byte order, type bits)<br>3. Copy to HW registers/mailbox<br>4. Initiate transmission (set request bit)<br>5. Release mutex<br>6. Return E_OK<br><br>If busy (occupied by another Tx OR preemptive call with same HTH): return <strong>CAN_BUSY</strong> immediately without disturbing the ongoing Tx.',
+  '<strong>Trigger-Transmit path (CanTriggerTransmitEnable=TRUE, sdu=NULL)</strong><br>1. CanIf_Transmit passes NULL SduDataPtr to CanDrv Can_Write()<br>2. Can_Write accepts null SDU (requirement SWS_Can_00503)<br>3. If HW object is free, CanDrv calls CanIf_TriggerTransmit(swPduHandle, PduInfoPtr) with max buffer size<br>4. Upper layer fills PduInfoPtr with actual current data (just-in-time fetch)<br>5. CanDrv copies received data to HW mailbox and starts Tx<br>6. If TriggerTransmit returns E_NOT_OK → Can_Write returns E_NOT_OK<br><br>If trigger Tx is disabled and sdu=NULL: CAN_E_PARAM_POINTER raised.',
+  '<strong>TxConfirmation — after HW confirms successful transmission</strong><br>Interrupt mode: Tx ISR fires → CanDrv ISR calls CanIf_TxConfirmation(swPduHandle). swPduHandle was stored by CanDrv when Can_Write was called (SWS_Can_00276).<br><br>Polling mode: Can_MainFunction_Write() runs → scans HW status registers → detects completed Tx → calls CanIf_TxConfirmation(swPduHandle).<br><br>CanIf then drains its software Tx buffer (next queued PDU sent), notifies upper layer (LSduR_CanIfTxConfirmation), and updates notification status.',
+  '<strong>CAN FD and CAN XL frame handling in Can_Write</strong><br><strong>CAN FD:</strong> Bit 30 of Can_IdType must be set. CanControllerFdBaudrateConfig must exist for that controller. Max 64 bytes. If FD flag set but no FD config → sent as classic CAN (if ≤8 bytes) or rejected. DLC padding: if length is not a valid FD DLC (12,16,20,24,32,48,64), next higher valid DLC used, padding bytes filled with CanFdPaddingValue.<br><br><strong>CAN XL:</strong> Uses separate CanXL_Write() API (defined in AUTOSAR_CP_SWS_CANXLDriver). Max 2048 bytes. PriorityID, VCID, SDU Type, Acceptance Field handled separately. CanIf calls CanXL_Write() when CanIfTxPduXLParams configured.',
+];
+
+const RX_DRV = [
+  '<strong>CAN frame arrives at physical bus → HW acceptance filter → HW mailbox</strong><br>HW filter (CanHwFilterCode + CanHwFilterMask) pre-filters frames. Only frames passing HW filter are stored in CAN RAM mailbox. CanDrv is notified either via Rx ISR (interrupt mode) or detected in Can_MainFunction_Read() (polling mode).',
+  '<strong>Data consistency — preventing corrupt reads</strong><br>If HW supports locking the Rx object after reception: CanDrv reads data while object is locked, then releases. A newly arriving frame during read is detected as "overrun" and reported as CAN_E_DATALOST.<br><br>If HW does NOT support locking: CanDrv copies L-SDU to a shadow buffer before reading, preventing the HW from overwriting mid-read. A newly arriving frame before the previous one is read → "overwrite" event → CAN_E_DATALOST.<br><br>CanDrv guarantees: Can_MainFunction_Read (or ISR) is NEVER interrupted by itself. Buffer always consistent.',
+  '<strong>CanDrv calls CanIf_RxIndication(Mailbox*, PduInfoPtr*)</strong><br>Mailbox contains: CanId (received ID, MSB set for extended!), Hoh (HRH), ControllerId (abstract CanIf ID).<br>PduInfoPtr contains: SduDataPtr (pointer to data in HW or shadow buffer), SduLength.<br><br>Optional: if CanLPduReceiveCalloutFunction configured, CanDrv calls it with (HRH, CanId, length, data*). If callout returns FALSE → CanIf_RxIndication is NOT called (L-PDU dropped).<br><br>CanIf_RxIndication must complete before HW object is released (data must be copied inside the callback).',
+  '<strong>Extended CAN ID handling</strong><br>For received extended frames (29-bit ID), CanDrv sets bit 31 (MSB) of Can_IdType to 1 before calling CanIf_RxIndication. This is MANDATORY per SWS_Can_00423.<br><br>For FD frames, bit 30 is also set. CanIf uses these two MSBs to determine frame type and select the correct Rx L-SDU configuration (CanIfRxPduCanIdType). Without this, CanIf cannot distinguish standard vs extended IDs from the same numerical range.',
+  '<strong>Overrun and overwrite events (CAN_E_DATALOST)</strong><br><strong>Overwrite:</strong> HW does NOT lock mailbox. New frame overwrites the unread previous frame. Controller detects "overwrite" event. CanDrv reports CAN_E_DATALOST runtime error to DET.<br><br><strong>Overrun:</strong> HW locks mailbox. New frame cannot be stored — dropped. Controller detects "overrun" event. CanDrv reports CAN_E_DATALOST.<br><br><strong>Fix:</strong> Increase CanHwObjectCount for FIFO depth on that HRH, or switch to interrupt mode, or increase MainFunction_Read call frequency. System designer must ensure processing speed ≥ maximum bus reception rate.',
+];
+
+function setTxDrv(i) {
+  document.getElementById('tx-step-drv').innerHTML = TX_DRV[i];
+  document.querySelectorAll('#tx-btns-drv .seq-btn').forEach((b,j)=>b.classList.toggle('sel',i===j));
+}
+function setRxDrv(i) {
+  document.getElementById('rx-step-drv').innerHTML = RX_DRV[i];
+  document.querySelectorAll('#rx-btns-drv .seq-btn').forEach((b,j)=>b.classList.toggle('sel',i===j));
+}
+
+const LAYER_DRV = {
+  ecum:'<strong>EcuM:</strong> Calls Can_Init() during startup (DriverInitZero). Calls Can_CheckWakeup() via CanIf during wakeup. MCU driver must be initialized before CanDrv.',
+  canif:'<strong>CanIf:</strong> The ONLY caller of CanDrv service functions. Calls Can_Write(), Can_SetControllerMode(), Can_DisableControllerInterrupts(), Can_EnableControllerInterrupts(). Receives callbacks: CanIf_TxConfirmation, CanIf_RxIndication, CanIf_ControllerBusOff, CanIf_ControllerModeIndication.',
+  candrv:'<strong>CanDrv:</strong> This module. Implements ISRs, HW access, mailbox management, state machine, all timing. Hardware-specific — generated by DaVinci for each µC/CAN controller type. Naming convention: Can_<vendorID>_<API><driverAbbr>() for multiple instances.',
+  hw:'<strong>CAN Hardware Unit:</strong> On-chip MCAN, FLEXCAN, TTCAN, or external CAN controller via SPI. Contains CAN RAM (mailboxes), SFRs for timing/control, optional FIFOs. CanDrv directly accesses these registers. Port driver configures TX/RX pins before CanDrv init.',
+};
+function showLayerDrv(id) {
+  const d = document.getElementById('layer-detail-drv');
+  d.innerHTML = LAYER_DRV[id]||'';
+  d.style.display='block';
+}
+
+function showTab(t) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const names=['overview','state','functional','api','scheduled','errors','config'];
+    if(names[i]===t) b.classList.add('active');
+  });
+  if(t==='api') buildDrvApiTable();
+}
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+setTxDrv(0);
+setRxDrv(0);
+buildDrvApiTable();
+</script>

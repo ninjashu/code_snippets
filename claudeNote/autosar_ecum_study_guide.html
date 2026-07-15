@@ -1,0 +1,859 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:1rem}
+.nav button{font-size:11px;padding:4px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font-sans)}
+.nav button.active,.nav button:hover{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.section{display:none}.section.active{display:block}
+h2{font-size:18px;font-weight:500;margin-bottom:1rem}
+h3{font-size:15px;font-weight:500;margin:1.25rem 0 .6rem}
+h4{font-size:12px;font-weight:500;margin:.75rem 0 .4rem;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+p{font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:.75rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:1rem}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+pre{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:.75rem 1rem;border-radius:var(--border-radius-md);overflow-x:auto;line-height:1.65;margin:.5rem 0 .75rem;border:0.5px solid var(--color-border-tertiary)}
+.api-row{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.api-name{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);min-width:230px;flex-shrink:0;line-height:1.5}
+.api-desc{color:var(--color-text-secondary);line-height:1.5}
+.info-box{background:var(--color-background-info);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-info);line-height:1.6}
+.warn-box{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-warning);line-height:1.6}
+.danger-box{background:var(--color-background-danger);border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-danger);line-height:1.6}
+.success-box{background:var(--color-background-success);border:0.5px solid var(--color-border-success);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-success);line-height:1.6}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:.5rem 0}
+th{text-align:left;font-weight:500;padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-secondary);font-size:11px;color:var(--color-text-secondary)}
+td{padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.5}
+.seq-step{display:flex;gap:.75rem;margin-bottom:.6rem;align-items:flex-start}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.seq-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.phase-box{border-radius:var(--border-radius-md);padding:.5rem .75rem;margin:3px 0;font-size:12px;cursor:pointer;transition:all .15s;border:0.5px solid}
+.clickable{cursor:pointer;display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--font-mono);margin:2px;border:0.5px solid var(--color-border-secondary);transition:all .15s}
+.clickable:hover{background:var(--color-background-secondary)}
+#detail-box{margin-top:.75rem;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;min-height:50px;color:var(--color-text-secondary);line-height:1.7}
+.wk-state{display:flex;align-items:center;gap:8px;padding:.4rem .6rem;border-radius:var(--border-radius-md);margin:3px 0;border:0.5px solid var(--color-border-tertiary);cursor:pointer;font-size:12px;transition:background .15s}
+.wk-state:hover{background:var(--color-background-secondary)}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.flow-row{display:flex;align-items:center;gap:4px;margin:3px 0;flex-wrap:wrap}
+.flow-box{padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap}
+.flow-arr{color:var(--color-text-secondary);font-size:13px}
+</style>
+
+<div style="padding:1rem 0">
+<h2 style="margin-bottom:.4rem">AUTOSAR CP ECU State Manager (EcuM) — Complete Study Guide</h2>
+<p style="margin-bottom:1rem;font-size:13px">R24-11 · Document ID 78 · Classic Platform · Flexible EcuM variant · Exam, integration, testing & DaVinci config</p>
+
+<div class="nav">
+  <button class="active" onclick="show('overview')">Overview</button>
+  <button onclick="show('phases')">Phase State Machine</button>
+  <button onclick="show('startup')">STARTUP Phase</button>
+  <button onclick="show('shutdown')">SHUTDOWN Phase</button>
+  <button onclick="show('sleep')">SLEEP Phase</button>
+  <button onclick="show('wakeup')">Wakeup Handling</button>
+  <button onclick="show('upphase')">UP Phase & RUN Protocol</button>
+  <button onclick="show('api')">API Reference</button>
+  <button onclick="show('callouts')">Callouts & Callbacks</button>
+  <button onclick="show('multicore')">Multicore</button>
+  <button onclick="show('sequences')">Sequence Diagrams</button>
+  <button onclick="show('errors')">Errors & Error Hook</button>
+  <button onclick="show('config')">Config & DaVinci</button>
+  <button onclick="show('debug')">Testing & Debug</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="section-overview" class="section active">
+<h2>What is the AUTOSAR ECU State Manager?</h2>
+<p>The ECU Manager (EcuM) is a Basic Software module that manages the <b>lifecycle of the entire ECU</b>. It takes control of the ECU during phases where generic mode management is unavailable — early startup, late shutdown, and sleep. During the UP phase, control is delegated to the BSW Mode Manager (BswM).</p>
+
+<div class="card-grid">
+  <div class="card"><h4>Primary responsibilities</h4><p>• Initialize and de-initialize OS, SchM, BswM<br>• Manage wakeup events and validation<br>• Configure ECU for SLEEP and SHUTDOWN<br>• Coordinate multi-core lifecycle<br>• Arbitrate RUN/POST_RUN state requests</p></div>
+  <div class="card"><h4>Flexible EcuM concept</h4><p>The "Flexible EcuM" delegates ECU state management to BswM during the UP phase. There is no fixed state machine inside EcuM — integrators configure BswM rules to implement their ECU state machine.</p></div>
+  <div class="card"><h4>Key relationship</h4><p>EcuM owns the ECU during STARTUP, SHUTDOWN, and SLEEP. BswM owns it during UP. They hand control back and forth via mode switches and the <code>EcuM_GoDownHaltPoll</code> API.</p></div>
+  <div class="card"><h4>Document ID 78</h4><p>Part of AUTOSAR CP. Key companion documents: BswM SWS (mode management), RTE SWS (scheduling), MCU Driver SWS (reset/sleep hw control).</p></div>
+</div>
+
+<h3>The five phases — at a glance</h3>
+<table>
+  <tr><th>Phase</th><th>Who controls</th><th>Entry point</th><th>Exit</th></tr>
+  <tr><td><b>STARTUP</b></td><td>EcuM</td><td>Reset vector → <code>EcuM_Init()</code></td><td>BswM_Init + SchM operational</td></tr>
+  <tr><td><b>UP</b></td><td>BswM</td><td>After SchM_Start + BswM_Init</td><td>BswM calls <code>EcuM_GoDownHaltPoll</code></td></tr>
+  <tr><td><b>SHUTDOWN</b></td><td>EcuM</td><td><code>EcuM_GoDownHaltPoll</code> (target OFF/RESET)</td><td>Power off or MCU reset (does not return)</td></tr>
+  <tr><td><b>SLEEP</b></td><td>EcuM</td><td><code>EcuM_GoDownHaltPoll</code> (target SLEEP)</td><td>Wakeup event → returns to UP</td></tr>
+  <tr><td><b>OFF</b></td><td>Hardware</td><td>Power off / deepest sleep</td><td>Power-on reset → STARTUP</td></tr>
+</table>
+
+<h3>Key design decisions (exam critical)</h3>
+<div class="info-box">💡 EcuM does NOT have its own state machine in the Flexible version. All ECU modes (RUN, POST_RUN, SLEEP, SHUTDOWN) are AUTOSAR modes managed by BswM. EcuM only arbitrates RUN/POST_RUN requests and notifies BswM — BswM decides when transitions happen.</div>
+<div class="info-box">💡 When a wakeup event occurs during SHUTDOWN, EcuM <b>completes the shutdown and restarts immediately</b> [SWS_EcuM_02756]. It does not abort shutdown. The pending wakeup event causes the target to switch to RESET so the ECU restarts.</div>
+</div>
+
+<!-- ===== PHASES ===== -->
+<div id="section-phases" class="section">
+<h2>Phase state machine — the big picture</h2>
+
+<svg width="100%" viewBox="0 0 680 520" role="img"><title>EcuM phase state diagram</title><desc>Five phases of the AUTOSAR ECU Manager: STARTUP, UP, SLEEP, SHUTDOWN, OFF</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<!-- STARTUP -->
+<rect x="240" y="20" width="200" height="100" rx="10" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1.5"/>
+<text class="th" x="340" y="45" text-anchor="middle" fill="#0C447C">STARTUP</text>
+<rect x="258" y="55" width="164" height="22" rx="4" fill="#B5D4F4" stroke="none"/>
+<text class="ts" x="340" y="70" text-anchor="middle" fill="#0C447C">StartPreOS sequence</text>
+<rect x="258" y="83" width="164" height="22" rx="4" fill="#B5D4F4" stroke="none"/>
+<text class="ts" x="340" y="98" text-anchor="middle" fill="#0C447C">StartPostOS sequence</text>
+
+<!-- UP -->
+<rect x="200" y="175" width="280" height="80" rx="10" fill="#EAF3DE" stroke="#C0DD97" stroke-width="1.5"/>
+<text class="th" x="340" y="200" text-anchor="middle" fill="#27500A">UP Phase</text>
+<text class="ts" x="340" y="218" text-anchor="middle" fill="#3B6D11">BswM controls ECU • RTE running</text>
+<text class="ts" x="340" y="234" text-anchor="middle" fill="#3B6D11">EcuM_MainFunction runs • RUN/POST_RUN arbitration</text>
+
+<!-- SLEEP (right) -->
+<rect x="495" y="160" width="170" height="130" rx="10" fill="#FAEEDA" stroke="#FAC775" stroke-width="1.5"/>
+<text class="th" x="580" y="183" text-anchor="middle" fill="#633806">SLEEP</text>
+<rect x="510" y="192" width="140" height="22" rx="4" fill="#FAC775" stroke="none"/>
+<text class="ts" x="580" y="207" text-anchor="middle" fill="#633806">GoSleep sequence</text>
+<rect x="510" y="220" width="60" height="22" rx="4" fill="#FAC775" stroke="none"/>
+<text class="ts" x="540" y="235" text-anchor="middle" fill="#633806">Halt</text>
+<rect x="580" y="220" width="60" height="22" rx="4" fill="#FAC775" stroke="none"/>
+<text class="ts" x="610" y="235" text-anchor="middle" fill="#633806">Poll</text>
+<rect x="510" y="250" width="140" height="22" rx="4" fill="#FAC775" stroke="none"/>
+<text class="ts" x="580" y="265" text-anchor="middle" fill="#633806">WakeupRestart sequence</text>
+
+<!-- SHUTDOWN -->
+<rect x="170" y="330" width="200" height="80" rx="10" fill="#FAECE7" stroke="#F5C4B3" stroke-width="1.5"/>
+<text class="th" x="270" y="355" text-anchor="middle" fill="#712B13">SHUTDOWN</text>
+<rect x="185" y="363" width="170" height="20" rx="4" fill="#F5C4B3" stroke="none"/>
+<text class="ts" x="270" y="377" text-anchor="middle" fill="#712B13">OffPreOS sequence</text>
+<rect x="185" y="386" width="170" height="20" rx="4" fill="#F5C4B3" stroke="none"/>
+<text class="ts" x="270" y="400" text-anchor="middle" fill="#712B13">OffPostOS sequence</text>
+
+<!-- OFF -->
+<rect x="250" y="455" width="180" height="50" rx="10" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="1"/>
+<text class="th" x="340" y="475" text-anchor="middle" fill="#444441">OFF</text>
+<text class="ts" x="340" y="492" text-anchor="middle" fill="#5F5E5A">Power off / zero code execution</text>
+
+<!-- Arrows -->
+<!-- Reset → STARTUP -->
+<line x1="340" y1="10" x2="340" y2="18" stroke="#0C447C" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="340" y="8" text-anchor="middle" fill="#5F5E5A">Reset / Power-on</text>
+
+<!-- STARTUP → UP -->
+<line x1="340" y1="120" x2="340" y2="174" stroke="#27500A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="400" y="155" fill="#5F5E5A">BswM_Init done</text>
+
+<!-- UP → SLEEP -->
+<line x1="480" y1="210" x2="494" y2="210" stroke="#633806" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="420" y="195" fill="#633806">EcuM_GoDownHaltPoll</text>
+<text class="ts" x="420" y="207" fill="#633806">(target=SLEEP)</text>
+
+<!-- SLEEP → UP (wakeup) -->
+<line x1="495" y1="270" x2="480" y2="240" stroke="#27500A" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+<text class="ts" x="445" y="285" fill="#27500A">Wakeup validated → returns</text>
+
+<!-- UP → SHUTDOWN -->
+<line x1="270" y1="255" x2="270" y2="329" stroke="#712B13" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="165" y="295" fill="#712B13">EcuM_GoDownHaltPoll</text>
+<text class="ts" x="165" y="307" fill="#712B13">(target=RESET/OFF)</text>
+
+<!-- SHUTDOWN → OFF -->
+<line x1="310" y1="410" x2="340" y2="454" stroke="#444441" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="290" y="440" fill="#444441">AL_SwitchOff</text>
+
+<!-- SHUTDOWN → RESET → STARTUP -->
+<path d="M 370 410 Q 440 430 440 20" fill="none" stroke="#0C447C" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+<text class="ts" x="452" y="60" fill="#0C447C">AL_Reset →</text>
+<text class="ts" x="452" y="72" fill="#0C447C">restart</text>
+
+<!-- Legend -->
+<rect x="30" y="455" width="12" height="12" fill="#E6F1FB" stroke="#B5D4F4"/>
+<text class="ts" x="47" y="465" fill="#5F5E5A">EcuM controls</text>
+<rect x="30" y="475" width="12" height="12" fill="#EAF3DE" stroke="#C0DD97"/>
+<text class="ts" x="47" y="485" fill="#5F5E5A">BswM controls</text>
+</svg>
+
+<h3>Phase definitions (from spec)</h3>
+<table>
+  <tr><th>Phase</th><th>Formal definition</th><th>Sub-sequences</th></tr>
+  <tr><td><code>STARTUP</code></td><td>Lasts until Generic Mode Management (SchM+BswM) is operational. EcuM takes control via EcuM_Init().</td><td>StartPreOS → (StartOS) → StartPostOS</td></tr>
+  <tr><td><code>UP</code></td><td>From SchM_Start+BswM_Init until BswM calls EcuM_GoDownHaltPoll. EcuM_MainFunction runs periodically.</td><td>No fixed sub-sequences — BswM-controlled</td></tr>
+  <tr><td><code>SHUTDOWN</code></td><td>From EcuM_GoDownHaltPoll (target RESET/OFF) until power off or MCU reset. Does not return.</td><td>OffPreOS → (ShutdownOS) → OffPostOS</td></tr>
+  <tr><td><code>SLEEP</code></td><td>From EcuM_GoDownHaltPoll (target SLEEP) until a validated wakeup event. OS stays running but scheduler locked.</td><td>GoSleep → (Halt or Poll) → WakeupRestart</td></tr>
+  <tr><td><code>OFF</code></td><td>ECU is powered off. Wakeup only via external power or wakeup sources with integrated power control.</td><td>—</td></tr>
+</table>
+</div>
+
+<!-- ===== STARTUP ===== -->
+<div id="section-startup" class="section">
+<h2>STARTUP Phase — detailed</h2>
+
+<h3>Activities before EcuM_Init()</h3>
+<p>Before EcuM_Init is called from the C startup code (after reset vector), only minimal MCU initialization has taken place: stack is set up, C init of variables performed. No BSW is initialized yet.</p>
+
+<h3>StartPreOS sequence (inside EcuM_Init)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b>Callout <code>EcuM_AL_SetProgrammableInterrupts()</code></b> (optional) — Set interrupt priorities before OS starts. Only category I interrupts allowed here.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b>Callout <code>EcuM_AL_DriverInitZero()</code></b> (optional, Init Block 0) — Initialize drivers that don't need post-build config. Typically: DET, DEM pre-init, and any drivers needed to read post-build config. Interrupts must NOT be used here.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><b>Callout <code>EcuM_DeterminePbConfiguration()</code></b> (mandatory) — Returns pointer to the fully initialized <code>EcuM_ConfigType</code> structure containing all post-build config for EcuM and all BSW modules.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><b>Check configuration consistency</b> — Compares hash in EcuM_ConfigType against compiled <code>ECUM_CONFIGCONSISTENCY_HASH</code>. Mismatch → calls <code>EcuM_ErrorHook(ECUM_E_CONFIGURATION_DATA_INCONSISTENT)</code> [SWS_EcuM_02796, 02798].</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><b>Callout <code>EcuM_AL_DriverInitOne()</code></b> (optional, Init Block I) — Initialize MCU Driver, Port, GPT, WDG (internal), WdgM, ADC, ICU, PWM, OCU. See recommended order in Table 7.2.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><b>Get reset reason</b> — Calls <code>Mcu_GetResetReason()</code> and maps reset reason to a wakeup source via EcuMWakeupSource config. Remembered for later validation [SWS_EcuM_02623].</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><b>Select default shutdown target</b> — Calls <code>EcuM_SelectShutdownTarget()</code> with the configured <code>EcuMDefaultShutdownTarget</code> value [SWS_EcuM_02181].</div></div>
+<div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><b>Callout <code>EcuM_LoopDetection()</code></b> (optional) — If reset loop detection is enabled, this callout checks for rapid successive resets and takes preventive action.</div></div>
+<div class="seq-step"><div class="seq-num">9</div><div class="seq-text"><b><code>StartOS(ECUM_DEFAULT_APP_MODE)</code></b> — EcuM_Init() never returns. OS takes over. This is the last action in StartPreOS.</div></div>
+
+<h3>StartPostOS sequence (inside EcuM_StartupTwo)</h3>
+<p><code>EcuM_StartupTwo()</code> must be called from an OS autostart task as its very first action [SWS_EcuM_02806]. This implements the "STARTUP II" state.</p>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b><code>SchM_Start()</code></b> — Start BSW Scheduler.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b><code>BswM_Init()</code></b> — Initialize BSW Mode Manager. From this point, BswM can start arbitrating modes.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><b><code>SchM_Init()</code></b> — Initialize semaphores for BSW module critical sections.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><b><code>SchM_StartTiming()</code></b> — Start periodic events for BSW and SWC scheduling. Control now passes to BswM → UP phase begins.</div></div>
+
+<h3>Driver initialization order (recommended)</h3>
+<div class="two-col">
+  <div class="card"><h4>Init Block 0 (EcuMDriverInitListZero)</h4><p>• Default Error Tracer (DET) — always first<br>• DEM pre-initialization<br>• Drivers needed to access post-build config</p></div>
+  <div class="card"><h4>Init Block I (EcuMDriverInitListOne)</h4><p>• MCU Driver<br>• Port Driver<br>• GPT Driver<br>• Watchdog Driver (internal only)<br>• WdgM, ADC, ICU, PWM, OCU</p></div>
+</div>
+
+<div class="warn-box">⚠️ EcuM MUST check configuration consistency of ALL BSW modules, not just its own, before initializing the first BSW module [SWS_EcuM_02796]. This is the only place this check is done ECU-wide.</div>
+
+<h3>Configuration consistency hash</h3>
+<p>At compile time, the EcuM configuration tool computes a hash over all pre-compile and link-time parameters of all BSW modules. This hash is stored in <code>ECUM_CONFIGCONSISTENCY_HASH</code> (link-time constant) AND in the <code>EcuM_ConfigType</code> structure (post-build). At runtime EcuM_Init compares them — they must match. A mismatch means post-build config was compiled with different pre-compile settings.</p>
+</div>
+
+<!-- ===== SHUTDOWN ===== -->
+<div id="section-shutdown" class="section">
+<h2>SHUTDOWN Phase — detailed</h2>
+<p>Initiated by BswM calling <code>EcuM_GoDownHaltPoll(UserID)</code> with shutdown target set to RESET or OFF. This call does <b>not return</b>.</p>
+
+<h3>OffPreOS sequence (inside EcuM_GoDownHaltPoll)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b>Callout <code>EcuM_OnGoOffOne()</code></b> — OEM-specific shutdown preparation. Called before BswM de-init.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b><code>BswM_Deinit()</code></b> — De-initialize BSW Mode Manager.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><b><code>SchM_Deinit()</code></b> — De-initialize BSW Scheduler. After this, no more scheduled functions run.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><b>Check for wakeup events</b> — Depending on <code>EcuMIgnoreWakeupEvValOffPreOS</code>: if TRUE → check only validated events; if FALSE → check all pending events too. If wakeup events found → change shutdown target to RESET (using default reset mode) so ECU restarts immediately [SWS_EcuM_04151, 04152].</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><b><code>ShutdownOS()</code></b> — Last operation. OS calls ShutdownHook, which must call <code>EcuM_Shutdown()</code> [SWS_EcuM_02952, 02953].</div></div>
+
+<h3>OffPostOS sequence (inside EcuM_Shutdown, called from ShutdownHook)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b>Callout <code>EcuM_OnGoOffTwo()</code></b> — Final OEM-specific actions after OS shutdown.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b>Branch on shutdown target:</b><br>• RESET → Callout <code>EcuM_AL_Reset(EcuM_ResetType)</code><br>• OFF → Callout <code>EcuM_AL_SwitchOff()</code><br>Neither callout returns [SWS_EcuM_04074, 04075].</div></div>
+
+<div class="warn-box">⚠️ Critical: <code>EcuM_Shutdown()</code> is called from the OS <b>ShutdownHook</b>, not directly by EcuM. The integrator MUST configure the ShutdownHook to call EcuM_Shutdown. Without this, the shutdown sequence is never completed.</div>
+
+<h3>Shutdown targets and modes</h3>
+<table>
+  <tr><th>Target type</th><th>Enum value</th><th>Mode parameter used for</th></tr>
+  <tr><td>OFF</td><td><code>ECUM_SHUTDOWN_TARGET_OFF</code></td><td>Ignored — hardware power off</td></tr>
+  <tr><td>SLEEP</td><td><code>ECUM_SHUTDOWN_TARGET_SLEEP</code></td><td>Identifies which EcuMSleepMode to use (MCU sleep mode mapping)</td></tr>
+  <tr><td>RESET</td><td><code>ECUM_SHUTDOWN_TARGET_RESET</code></td><td>Identifies reset mechanism: ECUM_RESET_MCU, ECUM_RESET_WDG, ECUM_RESET_IO</td></tr>
+</table>
+
+<div class="info-box">💡 <code>EcuM_SelectShutdownTarget()</code> does NOT initiate shutdown. It only stores the target for later use [SWS_EcuM_02585]. The last caller wins — there is no conflict resolution. BswM must ensure the correct target is set before calling EcuM_GoDownHaltPoll.</div>
+</div>
+
+<!-- ===== SLEEP ===== -->
+<div id="section-sleep" class="section">
+<h2>SLEEP Phase — detailed</h2>
+<p>Initiated by BswM calling <code>EcuM_GoDownHaltPoll(UserID)</code> with shutdown target = SLEEP. Unlike SHUTDOWN, this function <b>returns</b> when a valid wakeup occurs. The OS is NOT shut down during SLEEP [SWS_EcuM_02951].</p>
+
+<h3>GoSleep sequence</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">EcuM notifies BswM: <code>BswM_EcuM_CurrentWakeup(sources, ECUM_WKSTATUS_NONE)</code> — clearing all wakeup status.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Callout <code>EcuM_EnableWakeupSources(EcuM_WakeupSourceType)</code> — arm all wakeup sources configured for the target sleep mode (from <code>EcuMWakeupSourceMask</code>) [SWS_EcuM_02389].</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">On multicore: GetResource(RES_AUTOSAR_ECUM) — reserve core resource [SWS_EcuM_03010].</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Branch to <b>Halt</b> or <b>Poll</b> based on <code>EcuMSleepModeSuspend</code> configuration. If a wakeup event already occurred during GoSleep, NEITHER Halt nor Poll is entered [SWS_EcuM_02188].</div></div>
+
+<h3>Halt sequence (EcuMSleepModeSuspend = HALT)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Disable interrupt sources for non-wakeup ISRs.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Callout <code>EcuM_GenerateRamHash()</code> — compute RAM checksum before halting [SWS_EcuM_02863]. On multicore: only master core.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><code>Mcu_SetMode()</code> — put MCU into halt/sleep mode. <b>CPU stops here.</b></div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Wakeup interrupt fires → CPU resumes from Mcu_SetMode. <code>EcuM_CheckWakeup()</code> called → <code>EcuM_CheckWakeupHook()</code> → driver's CheckWakeup → if wakeup detected: <code>EcuM_SetWakeupEvent()</code>.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Callout <code>EcuM_CheckRamHash()</code> — verify RAM integrity after wakeup [SWS_EcuM_02863]. Failure → <code>EcuM_ErrorHook(ECUM_E_RAM_CHECK_FAILED)</code>.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">→ WakeupRestart sequence.</div></div>
+
+<h3>Poll sequence (EcuMSleepModeSuspend = POLL)</h3>
+<p>Used for sleep modes where the CPU continues running at reduced speed. EcuM loops until a pending/validated wakeup event is reported.</p>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">DisableAllInterrupts → Mcu_SetMode(reduced clock) → EnableAllInterrupts.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Loop: Callout <code>EcuM_SleepActivity()</code> — OEM code runs here during poll (e.g. update EcuM clock).</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Loop: For each polling wakeup source: <code>EcuM_CheckWakeupHook()</code> → driver's CheckWakeup → if detected: <code>EcuM_SetWakeupEvent()</code>.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Check for pending events. If validation needed → <code>BswM_EcuM_CurrentWakeup(PENDING)</code>, else → <code>BswM_EcuM_CurrentWakeup(VALIDATED)</code>.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Exit loop when pending OR validated wakeup event found → WakeupRestart sequence [SWS_EcuM_03020].</div></div>
+
+<h3>WakeupRestart sequence</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">DisableAllInterrupts → <code>Mcu_SetMode()</code> restore normal MCU mode → EnableAllInterrupts.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><code>EcuM_GetPendingWakeupEvents()</code> — get list of wakeup candidates.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Callout <code>EcuM_DisableWakeupSources()</code> — disable currently pending sources but keep others armed [SWS_EcuM_02963].</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Callout <code>EcuM_AL_DriverRestart()</code> — re-initialize drivers that need restarting. Drivers in <code>EcuMDriverRestartList</code> are re-initialized in same order as combined Init Block 0+I [SWS_EcuM_02561]. Drivers re-arm their wakeup callbacks here.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">ReleaseResource(RES_AUTOSAR_ECUM) — unlock scheduler on multicore. All tasks can run again. EcuM_GoDownHaltPoll returns control to BswM → UP phase resumes. Wakeup validation proceeds in EcuM_MainFunction.</div></div>
+
+<div class="warn-box">⚠️ If all CheckWakeupTimers expire without a validated wakeup event, EcuM re-enters GoSleep [SWS_EcuM_04149]. If a wakeup was signaled but no event set before timer expiry, runtime error ECUM_E_WAKEUP_TIMEOUT is reported [SWS_EcuM_04150].</div>
+</div>
+
+<!-- ===== WAKEUP ===== -->
+<div id="section-wakeup" class="section">
+<h2>Wakeup source handling — state machine</h2>
+
+<h3>Wakeup source states (click to see details)</h3>
+<div class="wk-state" onclick="showWk('none')"><div class="dot" style="background:#888780"></div><span style="font-weight:500;color:var(--color-text-primary)">ECUM_WKSTATUS_NONE (0)</span><span style="margin-left:auto;font-size:11px">No event / cleared</span></div>
+<div class="wk-state" onclick="showWk('pending')"><div class="dot" style="background:#BA7517"></div><span style="font-weight:500;color:var(--color-text-primary)">ECUM_WKSTATUS_PENDING (1)</span><span style="margin-left:auto;font-size:11px">Detected, not yet validated</span></div>
+<div class="wk-state" onclick="showWk('validated')"><div class="dot" style="background:#27500A"></div><span style="font-weight:500;color:var(--color-text-primary)">ECUM_WKSTATUS_VALIDATED (2)</span><span style="margin-left:auto;font-size:11px">Valid wakeup confirmed</span></div>
+<div class="wk-state" onclick="showWk('expired')"><div class="dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">ECUM_WKSTATUS_EXPIRED (3)</span><span style="margin-left:auto;font-size:11px">Validation failed / timeout</span></div>
+<div id="wk-detail" style="padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-top:.5rem;font-size:13px;min-height:40px;color:var(--color-text-secondary);line-height:1.7">Click a state above to see transition details.</div>
+
+<h3>Wakeup validation protocol</h3>
+<p>Wakeup events can be spurious (EMV spikes, CAN line glitches). The validation protocol distinguishes real events from noise:</p>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b>Wakeup detected:</b> Driver calls <code>EcuM_SetWakeupEvent(sources)</code> — sets source to PENDING. If no validation needed, immediately calls <code>EcuM_ValidateWakeupEvent()</code> implicitly [SWS_EcuM_02566].</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b>EcuM notifies BswM:</b> <code>BswM_EcuM_CurrentWakeup(sources, ECUM_WKSTATUS_PENDING)</code> and calls <code>EcuM_StartWakeupSources()</code>.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><b>Validation timeout starts</b> [SWS_EcuM_02565] (per-source or global timer). Timeout value from <code>EcuMValidationTimeout</code>.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><b>EcuM_MainFunction</b> calls <code>EcuM_CheckValidation()</code> → driver's CheckValidation → if validated: driver calls <code>EcuM_ValidateWakeupEvent(sources)</code>.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><b>If validated:</b> <code>ComM_EcuM_WakeUpIndication()</code> + <code>ComM_EcuM_PNCWakeUpIndication()</code> + <code>BswM_EcuM_CurrentWakeup(VALIDATED)</code>. BswM returns ECU to RUN state.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><b>If timeout:</b> Source moves to EXPIRED. <code>BswM_EcuM_CurrentWakeup(EXPIRED)</code> + <code>EcuM_StopWakeupSources()</code>. BswM may put ECU back to sleep.</div></div>
+
+<h3>Pre-defined wakeup sources (32-bit bitmask)</h3>
+<table>
+  <tr><th>Bit position</th><th>Name</th><th>Meaning</th><th>Validation?</th></tr>
+  <tr><td>Bit 0 (0x01)</td><td><code>ECUM_WKSOURCE_POWER</code></td><td>Power cycle / battery connect</td><td>Never [SWS_EcuM_02625]</td></tr>
+  <tr><td>Bit 1 (0x02)</td><td><code>ECUM_WKSOURCE_RESET</code></td><td>Hardware reset (default if unknown)</td><td>Never</td></tr>
+  <tr><td>Bit 2 (0x04)</td><td><code>ECUM_WKSOURCE_INTERNAL_RESET</code></td><td>µC core reset (may indicate exception)</td><td>Never</td></tr>
+  <tr><td>Bit 3 (0x08)</td><td><code>ECUM_WKSOURCE_INTERNAL_WDG</code></td><td>Internal watchdog reset</td><td>Never</td></tr>
+  <tr><td>Bit 4 (0x10)</td><td><code>ECUM_WKSOURCE_EXTERNAL_WDG</code></td><td>External watchdog reset</td><td>Never</td></tr>
+  <tr><td>Bits 5-31</td><td>Configured (EcuMWakeupSourceId)</td><td>CAN, LIN, GPT, ICU, Ethernet, etc.</td><td>Configured (EcuMValidationTimeout)</td></tr>
+</table>
+
+<h3>Wakeup sources with integrated power control</h3>
+<p>Some CAN transceivers have integrated power supplies — they switch ECU power ON when CAN activity is detected. From EcuM's perspective, this wakeup looks like a power-on reset (STARTUP, not SLEEP wakeup). The CAN transceiver driver must check during its initialization if it caused the ECU startup and call <code>EcuM_SetWakeupEvent()</code> accordingly. The integrator must configure <code>EcuM_StartCheckWakeup()</code> to prevent shutdown before this check completes.</p>
+</div>
+
+<!-- ===== UP PHASE ===== -->
+<div id="section-upphase" class="section">
+<h2>UP Phase — EcuM_MainFunction & RUN Protocol</h2>
+
+<h3>EcuM_MainFunction responsibilities</h3>
+<p>The <code>EcuM_MainFunction()</code> runs periodically (scheduled by SchM) and has exactly three responsibilities during the UP phase:</p>
+<div class="card-grid">
+  <div class="card"><h4>1. Wakeup validation</h4><p>For each pending wakeup source: call <code>EcuM_CheckValidation()</code>, handle timeout, update BswM via mode switch requests.</p></div>
+  <div class="card"><h4>2. Alarm clock update</h4><p>Increment EcuM clock using OS counter/alarm mechanism. Time in seconds since battery connect [SWS_EcuM_04002].</p></div>
+  <div class="card"><h4>3. RUN/POST_RUN arbitration</h4><p>Track all user RequestRUN/ReleaseRUN/RequestPOST_RUN/ReleasePOST_RUN calls and notify BswM of state changes.</p></div>
+</div>
+
+<h3>RUN/POST_RUN request protocol</h3>
+<p>SW-Cs and BSW modules indicate they need the ECU to stay operational by requesting the RUN state. EcuM arbitrates all requests and tells BswM the aggregate result:</p>
+
+<div class="flow-row">
+  <div class="flow-box" style="background:var(--color-background-info);color:var(--color-text-info)">SWC calls EcuM_RequestRUN(user)</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box" style="background:var(--color-background-info);color:var(--color-text-info)">EcuM tracks per-user</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box" style="background:var(--color-background-success);color:var(--color-text-success)">BswM_EcuM_RequestedState(RUN, REQUESTED)</div>
+</div>
+<div class="flow-row" style="margin-top:.25rem">
+  <div class="flow-box" style="background:var(--color-background-warning);color:var(--color-text-warning)">All SWCs release RUN</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box" style="background:var(--color-background-warning);color:var(--color-text-warning)">Last release detected</div>
+  <div class="flow-arr">→</div>
+  <div class="flow-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">BswM_EcuM_RequestedState(RUN, RELEASED)</div>
+</div>
+
+<h3>State machine for EcuM modes</h3>
+<table>
+  <tr><th>Mode</th><th>EcuM_StateType value</th><th>When entered</th></tr>
+  <tr><td><code>ECUM_STATE_STARTUP</code></td><td>0x10</td><td>Initial — set when Rte_Start() called</td></tr>
+  <tr><td><code>ECUM_STATE_RUN</code></td><td>0x32</td><td>BswM calls EcuM_SetState(RUN) when all BSW ready</td></tr>
+  <tr><td><code>ECUM_STATE_POST_RUN</code></td><td>0x33</td><td>When RUN released but POST_RUN still requested</td></tr>
+  <tr><td><code>ECUM_STATE_SLEEP</code></td><td>0x50</td><td>BswM sets when going to sleep</td></tr>
+  <tr><td><code>ECUM_STATE_SHUTDOWN</code></td><td>0x40</td><td>BswM sets when shutting down</td></tr>
+</table>
+
+<h3>RUN Request Protocol rules</h3>
+<div class="two-col">
+  <div class="card"><h4>Rules for RequestRUN</h4><p>• Each user can only have ONE active RUN request at a time<br>• Multiple requests from same user → DET error <code>ECUM_E_MULTIPLE_RUN_REQUESTS</code><br>• Returns E_OK if accepted, E_NOT_OK if not</p></div>
+  <div class="card"><h4>Rules for ReleaseRUN</h4><p>• Release without prior request → DET error <code>ECUM_E_MISMATCHED_RUN_RELEASE</code><br>• When last RUN release: EcuM notifies BswM → BswM may switch to POST_RUN<br>• SWC needing POST_RUN must request it BEFORE releasing RUN</p></div>
+</div>
+
+<h3>Alarm clock</h3>
+<p>Optional feature (enabled by <code>EcuMAlarmClockPresent</code>). Maintains an EcuM clock (seconds since battery connect) that persists across resets. Each user can have one alarm. EcuM tracks the earliest user alarm as the master alarm — wakeup triggered at master alarm time.</p>
+<table>
+  <tr><th>Function</th><th>Description</th><th>Return if already earlier alarm</th></tr>
+  <tr><td><code>EcuM_SetRelWakeupAlarm(user, time)</code></td><td>Set alarm relative to now (seconds)</td><td><code>ECUM_E_EARLIER_ACTIVE</code></td></tr>
+  <tr><td><code>EcuM_SetAbsWakeupAlarm(user, time)</code></td><td>Set alarm at absolute time</td><td><code>ECUM_E_EARLIER_ACTIVE</code> or <code>ECUM_E_PAST</code></td></tr>
+  <tr><td><code>EcuM_AbortWakeupAlarm(user)</code></td><td>Cancel user's alarm</td><td>—</td></tr>
+  <tr><td><code>EcuM_GetCurrentTime(user, time)</code></td><td>Get current EcuM clock time</td><td>—</td></tr>
+  <tr><td><code>EcuM_GetWakeupTime(user, time)</code></td><td>Get user's alarm time</td><td>—</td></tr>
+  <tr><td><code>EcuM_SetClock(user, time)</code></td><td>Set EcuM clock (only authorized users)</td><td>—</td></tr>
+</table>
+</div>
+
+<!-- ===== API ===== -->
+<div id="section-api" class="section">
+<h2>API reference — interactive</h2>
+<p>Click any function to see full signature, service ID, and details.</p>
+
+<h4>Lifecycle</h4>
+<span class="clickable" onclick="showApi('EcuM_Init')">EcuM_Init</span>
+<span class="clickable" onclick="showApi('EcuM_StartupTwo')">EcuM_StartupTwo</span>
+<span class="clickable" onclick="showApi('EcuM_GoDownHaltPoll')">EcuM_GoDownHaltPoll</span>
+<span class="clickable" onclick="showApi('EcuM_Shutdown')">EcuM_Shutdown</span>
+<span class="clickable" onclick="showApi('EcuM_MainFunction')">EcuM_MainFunction</span>
+
+<h4>State management</h4>
+<span class="clickable" onclick="showApi('EcuM_SetState')">EcuM_SetState</span>
+<span class="clickable" onclick="showApi('EcuM_RequestRUN')">EcuM_RequestRUN</span>
+<span class="clickable" onclick="showApi('EcuM_ReleaseRUN')">EcuM_ReleaseRUN</span>
+<span class="clickable" onclick="showApi('EcuM_RequestPOST_RUN')">EcuM_RequestPOST_RUN</span>
+<span class="clickable" onclick="showApi('EcuM_ReleasePOST_RUN')">EcuM_ReleasePOST_RUN</span>
+
+<h4>Shutdown management</h4>
+<span class="clickable" onclick="showApi('EcuM_SelectShutdownTarget')">EcuM_SelectShutdownTarget</span>
+<span class="clickable" onclick="showApi('EcuM_GetShutdownTarget')">EcuM_GetShutdownTarget</span>
+<span class="clickable" onclick="showApi('EcuM_GetLastShutdownTarget')">EcuM_GetLastShutdownTarget</span>
+<span class="clickable" onclick="showApi('EcuM_SelectShutdownCause')">EcuM_SelectShutdownCause</span>
+<span class="clickable" onclick="showApi('EcuM_GetShutdownCause')">EcuM_GetShutdownCause</span>
+<span class="clickable" onclick="showApi('EcuM_SelectBootTarget')">EcuM_SelectBootTarget</span>
+<span class="clickable" onclick="showApi('EcuM_GetBootTarget')">EcuM_GetBootTarget</span>
+
+<h4>Wakeup handling</h4>
+<span class="clickable" onclick="showApi('EcuM_SetWakeupEvent')">EcuM_SetWakeupEvent</span>
+<span class="clickable" onclick="showApi('EcuM_ValidateWakeupEvent')">EcuM_ValidateWakeupEvent</span>
+<span class="clickable" onclick="showApi('EcuM_CheckWakeup')">EcuM_CheckWakeup</span>
+<span class="clickable" onclick="showApi('EcuM_GetPendingWakeupEvents')">EcuM_GetPendingWakeupEvents</span>
+<span class="clickable" onclick="showApi('EcuM_GetValidatedWakeupEvents')">EcuM_GetValidatedWakeupEvents</span>
+<span class="clickable" onclick="showApi('EcuM_GetExpiredWakeupEvents')">EcuM_GetExpiredWakeupEvents</span>
+<span class="clickable" onclick="showApi('EcuM_ClearWakeupEvent')">EcuM_ClearWakeupEvent</span>
+
+<div id="api-detail">Click any function above to see details.</div>
+
+<h3>Key data types</h3>
+<table>
+  <tr><th>Type</th><th>Derived from</th><th>Key values</th></tr>
+  <tr><td><code>EcuM_WakeupSourceType</code></td><td>uint32 bitmask</td><td>5 predefined bits (POWER, RESET, INT_RESET, INT_WDG, EXT_WDG) + bits 5-31 configurable</td></tr>
+  <tr><td><code>EcuM_WakeupStatusType</code></td><td>uint8</td><td>NONE=0, PENDING=1, VALIDATED=2, EXPIRED=3</td></tr>
+  <tr><td><code>EcuM_StateType</code></td><td>uint8</td><td>STARTUP=0x10, RUN=0x32, POST_RUN=0x33, SHUTDOWN=0x40, SLEEP=0x50</td></tr>
+  <tr><td><code>EcuM_RunStatusType</code></td><td>uint8</td><td>UNKNOWN=0, REQUESTED=1, RELEASED=2</td></tr>
+  <tr><td><code>EcuM_ResetType</code></td><td>uint8</td><td>MCU=0 (Mcu_PerformReset), WDG=1 (WdgM_PerformReset), IO=2 (toggle pin)</td></tr>
+</table>
+</div>
+
+<!-- ===== CALLOUTS ===== -->
+<div id="section-callouts" class="section">
+<h2>Callouts & callbacks</h2>
+<p>Callouts are function stubs the system integrator fills with OEM-specific or hardware-specific code. They are part of <code>EcuM_Callout_Stubs.c</code>.</p>
+
+<h3>STARTUP phase callouts</h3>
+<div class="api-row"><span class="api-name">EcuM_AL_SetProgrammableInterrupts()</span><span class="api-desc">Set interrupt priorities before OS starts. Optional. Category I interrupts only allowed after this.</span></div>
+<div class="api-row"><span class="api-name">EcuM_AL_DriverInitZero()</span><span class="api-desc">Init Block 0. Initialize DET, DEM pre-init, and drivers needed for post-build config access. No OS, no interrupts.</span></div>
+<div class="api-row"><span class="api-name">EcuM_DeterminePbConfiguration(const EcuM_ConfigType*)</span><span class="api-desc">Return pointer to fully initialized post-build config. Must select the correct PB config variant based on some criteria (e.g. DIO pin, NvM value). MANDATORY.</span></div>
+<div class="api-row"><span class="api-name">EcuM_AL_DriverInitOne()</span><span class="api-desc">Init Block I. Initialize MCU, Port, GPT, WDG, WdgM, ADC, ICU, PWM, OCU etc. Typical main hardware init.</span></div>
+<div class="api-row"><span class="api-name">EcuM_LoopDetection()</span><span class="api-desc">Called on every startup if loop detection enabled. Integrator checks reset counter and may trigger safe state.</span></div>
+
+<h3>SHUTDOWN phase callouts</h3>
+<div class="api-row"><span class="api-name">EcuM_OnGoOffOne()</span><span class="api-desc">Called at start of OffPreOS sequence. OEM-specific pre-shutdown actions (e.g. flush buffers, signal peripherals).</span></div>
+<div class="api-row"><span class="api-name">EcuM_OnGoOffTwo()</span><span class="api-desc">Called at start of OffPostOS sequence, after OS shutdown. Last chance for OEM-specific actions before power/reset.</span></div>
+<div class="api-row"><span class="api-name">EcuM_AL_SwitchOff()</span><span class="api-desc">Called when shutdown target is OFF. Integrator pulls the power hold pin low (or calls DIO/SPI to external power controller). Must not return.</span></div>
+<div class="api-row"><span class="api-name">EcuM_AL_Reset(EcuM_ResetType)</span><span class="api-desc">Called when shutdown target is RESET. Calls Mcu_PerformReset or WdgM_PerformReset or toggles IO pin depending on reset type parameter. Must not return.</span></div>
+
+<h3>SLEEP phase callouts</h3>
+<div class="api-row"><span class="api-name">EcuM_EnableWakeupSources(EcuM_WakeupSourceType)</span><span class="api-desc">Called in GoSleep. Arm all wakeup sources for the target sleep mode. Enable interrupt/transceiver wakeup mechanisms.</span></div>
+<div class="api-row"><span class="api-name">EcuM_DisableWakeupSources(EcuM_WakeupSourceType)</span><span class="api-desc">Called in WakeupRestart. Disable wakeup sources that caused wakeup (others remain armed for next wakeup).</span></div>
+<div class="api-row"><span class="api-name">EcuM_GenerateRamHash()</span><span class="api-desc">Called before Halt. Compute and store a RAM checksum for integrity verification after wakeup.</span></div>
+<div class="api-row"><span class="api-name">EcuM_CheckRamHash()</span><span class="api-desc">Called after Halt wakeup. Verify RAM against stored checksum. Failure → EcuM_ErrorHook(ECUM_E_RAM_CHECK_FAILED).</span></div>
+<div class="api-row"><span class="api-name">EcuM_SleepActivity()</span><span class="api-desc">Called in each Poll loop iteration. Integrator can update EcuM clock, check hardware status, or perform minimal processing during reduced-clock sleep.</span></div>
+<div class="api-row"><span class="api-name">EcuM_AL_DriverRestart()</span><span class="api-desc">Called in WakeupRestart. Re-initialize drivers in EcuMDriverRestartList. These drivers detect if they caused the wakeup and call EcuM_SetWakeupEvent() accordingly.</span></div>
+
+<h3>SLEEP phase callouts (wakeup checking)</h3>
+<div class="api-row"><span class="api-name">EcuM_StartCheckWakeup(EcuM_WakeupSourceType)</span><span class="api-desc">Called to start asynchronous wakeup checking for sources that cannot be synchronously polled (e.g. CAN transceiver via SPI).</span></div>
+<div class="api-row"><span class="api-name">EcuM_CheckWakeupHook(EcuM_WakeupSourceType)</span><span class="api-desc">Called for each wakeup source that needs polling during Halt or Poll. Integrator calls driver's CheckWakeup function.</span></div>
+
+<h3>UP phase callouts</h3>
+<div class="api-row"><span class="api-name">EcuM_StartWakeupSources(EcuM_WakeupSourceType)</span><span class="api-desc">Called when wakeup source moves to PENDING in the UP phase. Start the network stack/transceiver to allow validation (e.g. start CAN bus to wait for frame).</span></div>
+<div class="api-row"><span class="api-name">EcuM_CheckValidation(EcuM_WakeupSourceType)</span><span class="api-desc">Called periodically in EcuM_MainFunction to check if a pending wakeup source has been validated by its driver.</span></div>
+<div class="api-row"><span class="api-name">EcuM_StopWakeupSources(EcuM_WakeupSourceType)</span><span class="api-desc">Called when wakeup source moves to EXPIRED. Stop the network stack/transceiver — validation failed.</span></div>
+
+<h3>Generic callout</h3>
+<div class="api-row"><span class="api-name">EcuM_ErrorHook(uint16 reason)</span><span class="api-desc">Called for unrecoverable errors. Integrator must NOT return from this. Handles: ECUM_E_RAM_CHECK_FAILED, ECUM_E_CONFIGURATION_DATA_INCONSISTENT, ECUM_E_OS_CALL_FAILED. Typically triggers safe state or reset.</span></div>
+
+<h3>Callbacks (called BY EcuM → other modules)</h3>
+<div class="api-row"><span class="api-name">EcuM_SetWakeupEvent(EcuM_WakeupSourceType)</span><span class="api-desc">CALLBACK — called by drivers when they detect a wakeup event. Must be callable from ISR context. Sets source to PENDING. Starts validation timeout.</span></div>
+<div class="api-row"><span class="api-name">EcuM_ValidateWakeupEvent(EcuM_WakeupSourceType)</span><span class="api-desc">CALLBACK — called by drivers/stacks when they confirm a valid wakeup. Sets source to VALIDATED. Stops timeout. Triggers ComM notification.</span></div>
+</div>
+
+<!-- ===== MULTICORE ===== -->
+<div id="section-multicore" class="section">
+<h2>Multicore ECU — EcuM coordination</h2>
+<p>In multicore ECUs, one core is designated the <b>master core</b>; all others are <b>slave cores</b>. EcuM runs on every core. All cores must be synchronized for STARTUP, SHUTDOWN, and SLEEP.</p>
+
+<h3>Master vs slave responsibilities</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>Master core</h4>
+    <p>• Runs the main EcuM_Init() sequence<br>• Initiates ShutdownAllCores (not ShutdownOS individually)<br>• Computes RAM hash for halt/sleep<br>• Verifies RAM hash before releasing slaves from halt<br>• Signals all slaves to continue after wakeup<br>• Waits for all slave signals before calling ShutdownAllCores</p>
+  </div>
+  <div class="card">
+    <h4>Slave cores</h4>
+    <p>• Runs its own EcuM_Init() (per-core MCAL init)<br>• Runs its own StartOS → EcuM_StartupTwo<br>• Initializes only MCAL modules on its core<br>• Sends ready signal to master before sleep/shutdown<br>• Waits for master signal before continuing after halt<br>• Has its own BswM instance</p>
+  </div>
+</div>
+
+<h3>Core synchronization mechanism</h3>
+<p>Cores signal each other using <b>OS Events</b> (SetEvent/WaitEvent) or dedicated shared memory flags. The mechanism is implementation-specific but must guarantee:</p>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b>SLEEP:</b> All slave cores signal "ready to halt" → master waits for all signals → master generates RAM hash → master halts → wakeup → master verifies hash → master signals slaves to continue → slaves exit halt.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b>SHUTDOWN:</b> BswM on each core de-initializes its BSW → slave cores signal "ready for shutdown" → master waits for all signals → master calls ShutdownAllCores → global shutdown hook → all cores stop.</div></div>
+
+<h3>Multicore OS resources</h3>
+<p>For SLEEP, EcuM reserves a dedicated OS resource <code>RES_AUTOSAR_ECUM_&lt;core#&gt;</code> for each core during GoSleep. This resource is released during WakeupRestart [SWS_EcuM_03010]. This prevents tasks from running on a core while it is in the sleep preparation/wakeup phase.</p>
+
+<div class="warn-box">⚠️ Known limitation from spec: EcuM module interfaces must be specified as reentrant in the multicore context. Individual MCAL module re-initialization in EcuM_AL_DriverInitZero/One must only initialize modules assigned to the currently active core [SWS_EcuM_04145].</div>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div id="section-sequences" class="section">
+<h2>Key sequence diagrams</h2>
+<div class="nav" style="border:none;padding:0;margin-bottom:1rem">
+  <button class="active" id="sq1btn" onclick="showSeq('sq1')">Full startup</button>
+  <button id="sq2btn" onclick="showSeq('sq2')">Normal shutdown</button>
+  <button id="sq3btn" onclick="showSeq('sq3')">Sleep &amp; wakeup</button>
+  <button id="sq4btn" onclick="showSeq('sq4')">CAN wakeup validation</button>
+  <button id="sq5btn" onclick="showSeq('sq5')">RUN/POST_RUN protocol</button>
+</div>
+
+<div id="seq-sq1">
+<h3>Full startup sequence (single core)</h3>
+<pre style="line-height:1.9">Reset Vector         C Init Code            EcuM                OS               SchM        BswM
+     |                    |                    |                   |                 |             |
+     |--- jump() -------->|                    |                   |                 |             |
+     |                    |-- EcuM_Init() ---> |                   |                 |             |
+     |                    |               [StartPreOS Sequence]    |                 |             |
+     |                    |     EcuM_AL_SetProgrammableInterrupts()|                 |             |
+     |                    |     EcuM_AL_DriverInitZero()           |                 |             |
+     |                    |     EcuM_DeterminePbConfiguration()    |                 |             |
+     |                    |     [check config hash]                |                 |             |
+     |                    |     EcuM_AL_DriverInitOne()            |                 |             |
+     |                    |     Mcu_GetResetReason()               |                 |             |
+     |                    |     EcuM_SelectShutdownTarget(DEFAULT) |                 |             |
+     |                    |     EcuM_LoopDetection()               |                 |             |
+     |                    |------------ StartOS() --------------> |                 |             |
+     |                    |                                        |--StartupHook()  |             |
+     |                    |                                        |--ActivateTask() |             |
+     |                    |                              [OS task: EcuM_StartupTwo()]|             |
+     |                    |               [StartPostOS Sequence]  |                 |             |
+     |                    |<---- SchM_Start() ------------------- |                 |             |
+     |                    |                   BswM_Init() ------>  |                |------------>|
+     |                    |<---- SchM_Init() ------------------- |                  |             |
+     |                    |<---- SchM_StartTiming() ------------ |                  |             |
+     |                    |                                        |                 |             |
+     |  [UP Phase begins — BswM controls from here]               |                 |             |
+     |  BswM initializes NvM, COM, DEM, RTE etc. via action lists |                 |             |</pre>
+</div>
+
+<div id="seq-sq2" style="display:none">
+<h3>Normal shutdown sequence</h3>
+<pre style="line-height:1.9">BswM                 EcuM                 BswM               SchM                OS
+  |                    |                    |                   |                   |
+  |-- EcuM_SelectShutdownTarget(RESET/OFF) |                   |                   |
+  |                    |                    |                   |                   |
+  |-- EcuM_GoDownHaltPoll(UserID) -------> |                   |                   |
+  |                    |     [OffPreOS Sequence]                |                   |
+  |                    |-- EcuM_OnGoOffOne()                   |                   |
+  |                    |-- BswM_Deinit() -------------------> |                   |
+  |                    |-- SchM_Deinit() -------------------------------------->  |
+  |                    |-- [check wakeup events - if any: set target to RESET]    |
+  |                    |-- ShutdownOS() ---------------------------------------->|
+  |                    |                                        |-- ShutdownHook() |
+  |                    |<------- EcuM_Shutdown() (from ShutdownHook) ------------ |
+  |                    |     [OffPostOS Sequence]               |                   |
+  |                    |-- EcuM_OnGoOffTwo()                   |                   |
+  |                    |-- EcuM_AL_Reset() or EcuM_AL_SwitchOff()  [does not return]</pre>
+</div>
+
+<div id="seq-sq3" style="display:none">
+<h3>Sleep → wakeup sequence (Halt mode)</h3>
+<pre style="line-height:1.9">BswM                EcuM                  OS                 MCU          WakeupSrc
+  |                   |                    |                   |                |
+  |-- EcuM_SelectShutdownTarget(SLEEP, sleepMode)             |                |
+  |-- EcuM_GoDownHaltPoll(UserID) ----> |                     |                |
+  |                   |   [GoSleep Sequence]                   |                |
+  |                   |-- BswM_EcuM_CurrentWakeup(NONE)       |                |
+  |                   |-- EcuM_EnableWakeupSources()           |                |
+  |                   |-- GetResource(RES_AUTOSAR_ECUM)        |                |
+  |                   |   [Halt Sequence]                      |                |
+  |                   |-- EcuM_GenerateRamHash()               |                |
+  |                   |-- Mcu_SetMode(HALT) -----------------> |                |
+  |                   |   [CPU STOPS]                          |-- HALTED       |
+  |                   |                                        |           Interrupt()
+  |                   |<-- EcuM_CheckWakeup() (ISR fires)     |                |
+  |                   |-- EcuM_CheckWakeupHook()               |                |
+  |                   |   <Module>_CheckWakeup()               |                |
+  |                   |-- EcuM_SetWakeupEvent(source) (pending)|                |
+  |                   |-- EcuM_CheckRamHash()                  |                |
+  |                   |   [WakeupRestart Sequence]              |                |
+  |                   |-- EcuM_DisableWakeupSources()          |                |
+  |                   |-- EcuM_AL_DriverRestart()              |                |
+  |                   |-- ReleaseResource()                     |                |
+  |                   |   [EcuM_GoDownHaltPoll returns]        |                |
+  |<-- returned --    |                                        |                |
+  | [BswM now handles wakeup validation via EcuM_MainFunction]|                |</pre>
+</div>
+
+<div id="seq-sq4" style="display:none">
+<h3>CAN wakeup validation sequence</h3>
+<pre style="line-height:1.9">EcuM_MainFunction     Integration Code     CanSM/CanTrcv       BswM         ComM
+  |                         |                    |                  |              |
+  |-- EcuM_GetPendingWakeupEvents()              |                  |              |
+  |-- EcuM_StartWakeupSources(CAN_source) ----> |                  |              |
+  |                   CanSM_StartWakeupSource(network) ---------> |              |
+  |-- [start validation timeout (EcuMValidationTimeout)]          |              |
+  |                                                                |              |
+  loop [while not validated AND timeout not expired]              |              |
+    |-- EcuM_CheckValidation(CAN_source) -----> |                 |              |
+    |                   CanTrcv_CheckWakeup() or frame received   |              |
+    |                   EcuM_ValidateWakeupEvent(CAN_source) ---> |              |
+    |-- [wakeup validated!]                      |                 |              |
+    |-- ComM_EcuM_WakeUpIndication(network) ----------------------------------> |
+    |-- ComM_EcuM_PNCWakeUpIndication(PNC)  ----------------------------------> |
+    |-- BswM_EcuM_CurrentWakeup(CAN_source, VALIDATED) ---------> |              |
+    |   [BswM returns ECU to RUN state]          |                 |              |
+  
+  [if timeout expires without validation:]
+    |-- BswM_EcuM_CurrentWakeup(CAN_source, EXPIRED) -----------> |
+    |-- EcuM_StopWakeupSources(CAN_source) -------> |             |
+    |                   CanSM_StopWakeupSource(network) --------> |</pre>
+</div>
+
+<div id="seq-sq5" style="display:none">
+<h3>RUN / POST_RUN request protocol</h3>
+<pre style="line-height:1.9">SWC_A              SWC_B               EcuM              BswM             RTE
+  |                   |                   |                  |                |
+  | EcuM_RequestRUN(A)|                   |                  |                |
+  |-----------------> |-- EcuM_RequestRUN(B)                 |                |
+  |                   |------------------------------------> |                |
+  |                   |                   |-- BswM_EcuM_RequestedState(RUN, REQUESTED) ->|
+  |                   |                   |                  |                |
+  | [ECU in RUN state, BswM switches to RUN mode]           |                |
+  |                   |                   |<-- EcuM_SetState(ECUM_STATE_RUN) (from BswM)
+  |                   |                   |-- [notifies RTE of mode switch]  |
+  |                   |                   |                  |                |
+  | [SWC_A wants POST_RUN before releasing RUN]             |                |
+  | EcuM_RequestPOST_RUN(A) -----------------------------> |                |
+  | EcuM_ReleaseRUN(A) ---------------------------------> |                 |
+  |                   |                   |-- [still RUN: SWC_B has RUN]     |
+  |                   | EcuM_ReleaseRUN(B)|                  |                |
+  |                   |------------------------------------> |                |
+  |                   |                   |-- BswM_EcuM_RequestedState(RUN, RELEASED)  ->|
+  |                   |                   |-- [POST_RUN active: SWC_A]       |
+  |                   |                   |-- BswM_EcuM_RequestedState(POST_RUN, REQUESTED)->|
+  |                   |                   |                  |-- [BswM switches to POST_RUN mode]
+  | EcuM_ReleasePOST_RUN(A) -----------------------------> |                |
+  |                   |                   |-- BswM_EcuM_RequestedState(POST_RUN, RELEASED)->|
+  |                   |                   |                  |-- [BswM initiates shutdown/sleep]</pre>
+</div>
+</div>
+
+<!-- ===== ERRORS ===== -->
+<div id="section-errors" class="section">
+<h2>Error classification</h2>
+
+<h3>Development errors (reported to DET)</h3>
+<table>
+  <tr><th>Error code</th><th>Trigger condition</th></tr>
+  <tr><td><code>ECUM_E_MULTIPLE_RUN_REQUESTS</code></td><td>Same user called EcuM_RequestRUN or EcuM_RequestPOST_RUN more than once without releasing</td></tr>
+  <tr><td><code>ECUM_E_MISMATCHED_RUN_RELEASE</code></td><td>EcuM_ReleaseRUN or EcuM_ReleasePOST_RUN called without prior matching request from that user</td></tr>
+  <tr><td><code>ECUM_E_SERVICE_DISABLED</code></td><td>Function called that was disabled by configuration</td></tr>
+  <tr><td><code>ECUM_E_UNINIT</code></td><td>API called before EcuM initialization completed</td></tr>
+  <tr><td><code>ECUM_E_UNKNOWN_WAKEUP_SOURCE</code></td><td>Unknown wakeup source ID passed to an API</td></tr>
+  <tr><td><code>ECUM_E_INIT_FAILED</code></td><td>Initialization failure detected</td></tr>
+  <tr><td><code>ECUM_E_STATE_PAR_OUT_OF_RANGE</code></td><td>State parameter to EcuM_SetState is out of valid range</td></tr>
+  <tr><td><code>ECUM_E_INVALID_PAR</code></td><td>Invalid parameter (unspecific)</td></tr>
+  <tr><td><code>ECUM_E_PARAM_POINTER</code></td><td>NULL pointer passed where a valid pointer is required</td></tr>
+</table>
+
+<h3>Runtime errors (reported to DEM)</h3>
+<table>
+  <tr><th>Error code</th><th>Trigger condition</th></tr>
+  <tr><td><code>ECUM_E_WAKEUP_TIMEOUT</code></td><td>Wakeup was signaled (SetWakeupEvent called) but no validation occurred before CheckWakeupTimer expired [SWS_EcuM_04150]</td></tr>
+</table>
+
+<h3>ErrorHook errors (call EcuM_ErrorHook, does not return)</h3>
+<table>
+  <tr><th>Error code</th><th>Trigger condition</th></tr>
+  <tr><td><code>ECUM_E_RAM_CHECK_FAILED</code></td><td>EcuM_CheckRamHash() detected RAM corruption after wakeup from Halt</td></tr>
+  <tr><td><code>ECUM_E_CONFIGURATION_DATA_INCONSISTENT</code></td><td>Configuration hash mismatch in EcuM_Init — post-build config compiled against different pre-compile settings</td></tr>
+  <tr><td><code>ECUM_E_OS_CALL_FAILED</code></td><td>An OS function call (StartOS, ShutdownOS, GetResource, etc.) returned an error other than E_OK</td></tr>
+</table>
+
+<div class="danger-box">🔴 EcuM assumes EcuM_ErrorHook will NOT return. If it does return, behavior is undefined. The integrator MUST implement this function to take a safe action (e.g., infinite loop, DIO pin toggle for debug, then force reset).</div>
+
+<h3>Error handling during startup and shutdown</h3>
+<div class="info-box">💡 EcuM deliberately ignores return values from BSW init functions [SWS_EcuM_02980]. BSW modules are responsible for reporting their own init errors to DET/DEM. EcuM's philosophy: "keep going during startup, individual modules handle their own errors."</div>
+</div>
+
+<!-- ===== CONFIG & DAVINCI ===== -->
+<div id="section-config" class="section">
+<h2>Configuration & DaVinci Configurator Pro setup</h2>
+
+<h3>EcuM configuration containers overview</h3>
+<table>
+  <tr><th>Container</th><th>Purpose</th><th>Key parameters</th></tr>
+  <tr><td><code>EcuMGeneral</code></td><td>General module settings</td><td>EcuMDevErrorDetect, EcuMModeHandling, EcuMAlarmClockPresent</td></tr>
+  <tr><td><code>EcuMCommonConfiguration</code></td><td>Shared config for all cores</td><td>EcuMNormalMcuModeRef, EcuMIgnoreWakeupEvValOffPreOS, EcuMConfigConsistencyHash</td></tr>
+  <tr><td><code>EcuMDefaultShutdownTarget</code></td><td>Default target used at startup</td><td>EcuMDefaultShutdownTarget (OFF/SLEEP/RESET), EcuMDefaultResetModeRef, EcuMDefaultSleepModeRef</td></tr>
+  <tr><td><code>EcuMDriverInitListZero</code></td><td>Init Block 0 driver list</td><td>Ordered list of EcuMDriverInitItem entries</td></tr>
+  <tr><td><code>EcuMDriverInitListOne</code></td><td>Init Block I driver list</td><td>Ordered list of EcuMDriverInitItem entries</td></tr>
+  <tr><td><code>EcuMDriverRestartList</code></td><td>Drivers restarted after sleep</td><td>Subset of Init Block 0+I drivers; same order as combined list</td></tr>
+  <tr><td><code>EcuMDriverInitListBswM</code></td><td>BSW modules initialized by BswM</td><td>COM, DEM, FIM, NvM, etc. — initialized during UP phase</td></tr>
+  <tr><td><code>EcuMSleepMode</code></td><td>Sleep mode definitions</td><td>EcuMSleepModeSuspend (HALT/POLL), EcuMNormalMcuModeRef, EcuMWakeupSourceMask</td></tr>
+  <tr><td><code>EcuMWakeupSource</code></td><td>Wakeup source definitions</td><td>EcuMWakeupSourceId (bit position), EcuMValidationTimeout, EcuMWakeupSourcePolling</td></tr>
+  <tr><td><code>EcuMAlarmClock</code></td><td>Alarm clock user definitions</td><td>EcuMAlarmClockUser, EcuMAlarmWakeupSource</td></tr>
+  <tr><td><code>EcuMGoDownAllowedUsers</code></td><td>Users allowed to call EcuM_GoDownHaltPoll</td><td>UserType references</td></tr>
+  <tr><td><code>EcuMResetMode</code></td><td>Reset mechanism definitions</td><td>EcuMResetModeId, maps to Mcu/WdgM/IO reset</td></tr>
+</table>
+
+<h3>Step-by-step DaVinci configuration</h3>
+
+<h4>Step 1 — EcuMGeneral settings</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Set <code>EcuMDevErrorDetect = TRUE</code> for development builds (enables DET reporting for all development errors).</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Set <code>EcuMModeHandling = TRUE</code> if using RUN/POST_RUN request protocol (recommended for all projects).</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Set <code>EcuMAlarmClockPresent</code> if the project needs timed wakeup from sleep across resets.</div></div>
+
+<h4>Step 2 — Driver init lists</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Add entries to <code>EcuMDriverInitListZero</code> for DET and DEM pre-init. Each entry: module name, init function pointer, config pointer. Order matters — DET must be first.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Add entries to <code>EcuMDriverInitListOne</code> for MCU, Port, GPT, WDG, etc. These run after EcuM_DeterminePbConfiguration returns post-build config.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Add entries to <code>EcuMDriverRestartList</code> for drivers that need re-initialization after sleep wakeup. Typically: CAN transceiver, LIN transceiver, GPT (if used for sleep timing).</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Add entries to <code>EcuMDriverInitListBswM</code> for BSW modules initialized by BswM during UP phase: COM, CanSM, NvM, DEM, FIM, DCM, etc.</div></div>
+
+<h4>Step 3 — Wakeup sources</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">For each wakeup source, create an <code>EcuMWakeupSource</code> container. Set <code>EcuMWakeupSourceId</code> (0..31, bits 0-4 reserved for predefined sources → use 5-31 for custom). Must be unique.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Set <code>EcuMValidationTimeout</code> in seconds (0 = no validation needed, auto-validated). For CAN: typically 100ms-1s. For GPT timer alarm: 0 (no validation).</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Set <code>EcuMWakeupSourcePolling = TRUE</code> if this source requires polling during the Poll sleep sequence.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Map Mcu reset reasons to wakeup sources via <code>EcuMWakeupSourceMcuResetReason</code> reference in the container.</div></div>
+
+<h4>Step 4 — Sleep modes</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Create <code>EcuMSleepMode</code> containers. Set <code>EcuMSleepModeSuspend</code>: HALT (MCU halts, lowest power) or POLL (MCU keeps running at reduced speed).</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Set <code>EcuMNormalMcuModeRef</code> — MCU mode to restore after wakeup restart.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Set <code>EcuMWakeupSourceMask</code> — bitmask of wakeup sources that should be armed for this sleep mode. Must include at least one wakeup source, otherwise ECU can never wake up.</div></div>
+
+<h4>Step 5 — Shutdown targets and causes</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Configure <code>EcuMDefaultShutdownTarget</code> — what EcuM selects during StartPreOS. Typically RESET or OFF. References a specific reset or sleep mode.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Configure <code>EcuMResetMode</code> containers — define reset types (MCU, WDG, IO). Set <code>EcuMDefaultResetModeRef</code> for the mode used when wakeup-during-shutdown forces a restart.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Configure <code>EcuMShutdownCause</code> values — at least: ECU state machine shutdown, WdgM failure, DCM request.</div></div>
+
+<h4>Step 6 — GoDownAllowedUsers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Add BswM as an allowed user in <code>EcuMGoDownAllowedUsers</code>. Only configured users can call EcuM_GoDownHaltPoll. Returns E_NOT_OK for non-configured callers.</div></div>
+
+<h3>Common DaVinci configuration mistakes</h3>
+<div class="danger-box">🔴 <b>EcuMWakeupSourceMask = 0</b> for a sleep mode: ECU enters sleep but can never wake up from that mode. Always verify at least one wakeup source is armed per sleep mode.</div>
+<div class="danger-box">🔴 <b>Missing ShutdownHook implementation:</b> If EcuM_Shutdown() is not called from ShutdownHook, OffPostOS never executes — ECU does not actually power off or reset after ShutdownOS.</div>
+<div class="danger-box">🔴 <b>EcuMDriverRestartList order:</b> Must maintain same relative order as the combined Init Block 0+I list [SWS_EcuM_02561]. Incorrect order can cause hardware to be in wrong state during wakeup.</div>
+<div class="warn-box">⚠️ <b>EcuMValidationTimeout too short:</b> If shorter than the time it takes for the CAN stack to validate a frame, wakeups will constantly expire. Common debug issue: ECU wakes up, immediately goes back to sleep.</div>
+<div class="warn-box">⚠️ <b>EcuMIgnoreWakeupEvValOffPreOS setting:</b> TRUE means only validated events are checked during shutdown — unvalidated (spurious) wakeup events are ignored. FALSE means even pending (unvalidated) events trigger a RESET instead of OFF. Set based on project safety requirements.</div>
+<div class="info-box">💡 <b>Config consistency hash:</b> After any pre-compile parameter change, the EcuMConfigConsistencyHash in EcuMCommonConfiguration MUST be regenerated by running DaVinci Configurator. Otherwise EcuM_Init fails the hash check at next startup.</div>
+</div>
+
+<!-- ===== TESTING & DEBUG ===== -->
+<div id="section-debug" class="section">
+<h2>Integration testing & debugging</h2>
+
+<h3>Common integration bugs</h3>
+<div class="card"><h4>Bug: ECU does not start (hangs in StartPreOS)</h4><p>Root cause: Configuration hash mismatch triggers EcuM_ErrorHook with ECUM_E_CONFIGURATION_DATA_INCONSISTENT. Or driver in Init Block 0/I crashes. Debug: check if EcuM_ErrorHook is reached → if yes, reason = hash mismatch or driver crash. Add GPIO toggle to EcuM_AL_DriverInitZero entry/exit to locate hanging driver.</p></div>
+<div class="card"><h4>Bug: EcuM_StartupTwo never called</h4><p>Root cause: No autostart OS task configured to call EcuM_StartupTwo, or autostart task has wrong priority. The OS started successfully (no hang in StartOS) but StartupTwo task never activates. Debug: check OS configuration — verify autostart task exists in default application mode.</p></div>
+<div class="card"><h4>Bug: ECU wakes from sleep but immediately sleeps again</h4><p>Root causes: (1) EcuMValidationTimeout too short — wakeup expires before stack validates. (2) EcuM_ValidateWakeupEvent never called by driver. (3) BswM rules not configured to hold ECU awake after validation. Debug: trace EcuM_SetWakeupEvent → EcuM_ValidateWakeupEvent → BswM_EcuM_CurrentWakeup calls using DET/trace hooks.</p></div>
+<div class="card"><h4>Bug: ECU doesn't power off (stays in OffPostOS)</h4><p>Root cause: EcuM_AL_SwitchOff() implementation doesn't actually cut power (power hold circuit not correctly controlled), or ShutdownHook is not configured to call EcuM_Shutdown(). Debug: verify ShutdownHook calls EcuM_Shutdown. Check power hold GPIO in EcuM_AL_SwitchOff callout.</p></div>
+<div class="card"><h4>Bug: ECUM_E_MULTIPLE_RUN_REQUESTS on startup</h4><p>Root cause: A SWC is calling EcuM_RequestRUN twice for the same user ID. Usually happens if a BSW mode switch action list triggers RequestRUN multiple times, or if the user ID is shared between multiple callers. Debug: enable DET and check which user ID triggers the error. Verify EcuMGoDownAllowedUsers and user ID assignments.</p></div>
+<div class="card"><h4>Bug: RAM check fails after sleep (ECUM_E_RAM_CHECK_FAILED)</h4><p>Root cause: RAM corruption during halt (power droop, EMC), or EcuM_GenerateRamHash algorithm covers a RAM region that is legitimately modified by interrupt handlers between hash generation and halt. Debug: exclude interrupt-modified regions from hash. Check power supply stability during sleep. Verify RAM retention voltage meets spec.</p></div>
+
+<h3>Interface testing checklist</h3>
+<table>
+  <tr><th>Test</th><th>What to verify</th><th>Method</th></tr>
+  <tr><td>Startup sequence</td><td>Init Block 0 → 1 → OS → StartupTwo order; no missed init calls</td><td>GPIO/oscilloscope trace on each init boundary</td></tr>
+  <tr><td>Config hash</td><td>Deliberate mismatch → EcuM_ErrorHook called with correct code</td><td>Modify hash in linker config, verify hook reached</td></tr>
+  <tr><td>Shutdown target</td><td>SelectShutdownTarget(RESET) → ECU resets; (OFF) → power off</td><td>Power supply current measurement + reset detection</td></tr>
+  <tr><td>Sleep/wakeup (CAN)</td><td>ECU enters sleep → CAN frame received → ECU wakes → VALIDATED state</td><td>CAN trace + EcuM trace (BswM_EcuM_CurrentWakeup calls)</td></tr>
+  <tr><td>Sleep/wakeup (timer)</td><td>Set EcuM alarm → ECU sleeps → wakes at correct time → resleeps if no other activity</td><td>Timing measurement, alarm clock API test</td></tr>
+  <tr><td>Spurious wakeup</td><td>Short CAN glitch → PENDING → timeout → EXPIRED → ECU re-enters sleep</td><td>CAN bus error injection</td></tr>
+  <tr><td>Wakeup during shutdown</td><td>Start shutdown → valid wakeup → shutdown completes → ECU resets immediately</td><td>Inject wakeup event between BswM_Deinit and ShutdownOS</td></tr>
+  <tr><td>RUN protocol</td><td>RequestRUN from 2 users → release both → EcuM notifies BswM RELEASED</td><td>Mode trace + DET monitoring</td></tr>
+  <tr><td>POST_RUN protocol</td><td>RequestPOST_RUN before ReleaseRUN → POST_RUN active after RUN released</td><td>BswM_EcuM_RequestedState call trace</td></tr>
+  <tr><td>RAM hash (halt sleep)</td><td>RAM hash generated before halt, verified after wakeup, match</td><td>Add DET/trace to EcuM_GenerateRamHash/CheckRamHash callouts</td></tr>
+  <tr><td>Multicore startup</td><td>All cores reach StartupTwo before BswM_Init called on master</td><td>Per-core GPIO toggle at EcuM_StartupTwo entry</td></tr>
+  <tr><td>Multicore shutdown</td><td>Slave cores signal ready before master calls ShutdownAllCores</td><td>OS event trace on all cores</td></tr>
+</table>
+
+<h3>Key trace points to add for debugging</h3>
+<p>In each callout stub, add one GPIO toggle or DET trace call to make startup/shutdown visible on an oscilloscope or logic analyzer:</p>
+<pre>/* In EcuM_Callout_Stubs.c */
+void EcuM_AL_DriverInitZero(void) {
+  Dio_WriteChannel(DEBUG_PIN_INIT0, STD_HIGH);  /* toggle for scope */
+  Det_Init(NULL_PTR);
+  Dem_PreInit(NULL_PTR);
+  Dio_WriteChannel(DEBUG_PIN_INIT0, STD_LOW);
+}
+
+void EcuM_ErrorHook(uint16 reason) {
+  /* Make this visible on scope and log reason */
+  Dio_WriteChannel(DEBUG_PIN_ERROR, STD_HIGH);
+  while(1) { /* infinite loop or force reset after logging */ }
+}</pre>
+</div>
+
+</div><!-- end widget -->
+
+<script>
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const wkStates={
+  none:'<b>ECUM_WKSTATUS_NONE (0)</b> — No wakeup event detected, or event has been cleared. Initial state on power-on. EcuM notifies BswM: BswM_EcuM_CurrentWakeup(sources, NONE). Entered via: initial state, or EcuM_ClearWakeupEvent(), or end of GoSleep sequence.',
+  pending:'<b>ECUM_WKSTATUS_PENDING (1)</b> — Wakeup event was detected (driver called EcuM_SetWakeupEvent) but not yet validated. EcuM notifies BswM: BswM_EcuM_CurrentWakeup(sources, PENDING). Also: EcuM_StartWakeupSources() called to allow validation. Validation timeout starts. Transition to: VALIDATED (EcuM_ValidateWakeupEvent called) or EXPIRED (timeout).',
+  validated:'<b>ECUM_WKSTATUS_VALIDATED (2)</b> — Wakeup event confirmed as real. Driver/stack called EcuM_ValidateWakeupEvent(). EcuM notifies: BswM_EcuM_CurrentWakeup(VALIDATED) + ComM_EcuM_WakeUpIndication() + ComM_EcuM_PNCWakeUpIndication(). BswM then returns ECU to RUN state. Cleared by: EcuM_ClearWakeupEvent().',
+  expired:'<b>ECUM_WKSTATUS_EXPIRED (3)</b> — Wakeup detected but validation timed out. The event was spurious (EMV spike, noise). EcuM notifies: BswM_EcuM_CurrentWakeup(EXPIRED) + EcuM_StopWakeupSources(). Runtime error ECUM_E_WAKEUP_TIMEOUT reported to DEM. If all pending events expire, BswM may put ECU back to sleep.'
+};
+
+function showWk(id){
+  document.getElementById('wk-detail').innerHTML=wkStates[id]||'';
+}
+
+const apiData={
+  EcuM_Init:'<b>void EcuM_Init(void)</b> — Service ID: 0x01 | Sync | Reentrant<br>Initializes EcuM and executes StartPreOS sequence. Never returns (calls StartOS). Called from C startup code after reset vector. Performs: SetProgrammableInterrupts → DriverInitZero → DeterminePbConfiguration → config hash check → DriverInitOne → GetResetReason → SelectShutdownTarget(default) → LoopDetection → StartOS().',
+  EcuM_StartupTwo:'<b>void EcuM_StartupTwo(void)</b> — Service ID: 0x1A | Sync | Non-Reentrant<br>Implements STARTUP II (StartPostOS sequence). Must be called from an OS autostart task as its FIRST action. Calls SchM_Start() → BswM_Init() → SchM_Init() → SchM_StartTiming(). After this, BswM controls the ECU (UP phase begins).',
+  EcuM_GoDownHaltPoll:'<b>Std_ReturnType EcuM_GoDownHaltPoll(EcuM_UserType UserID)</b> — Service ID: 0x2C | Sync | Reentrant<br>The central shutdown/sleep entry point. Called by BswM. For RESET/OFF target: does not return (ECU powers off or resets). For SLEEP target: returns E_OK after wakeup event causes ECU to leave sleep. Returns E_NOT_OK if caller not in EcuMGoDownAllowedUsers.',
+  EcuM_Shutdown:'<b>void EcuM_Shutdown(void)</b> — Service ID: 0x02 | Sync | Reentrant<br>Called from the OS ShutdownHook. Executes OffPostOS sequence: EcuM_OnGoOffTwo() → EcuM_AL_Reset() or EcuM_AL_SwitchOff(). Does not return.',
+  EcuM_MainFunction:'<b>void EcuM_MainFunction(void)</b> — Scheduled function | No params, no return<br>Called periodically by SchM. Three duties: (1) wakeup validation — calls EcuM_CheckValidation, handles timeouts, notifies BswM; (2) EcuM clock update; (3) RUN/POST_RUN arbitration — tracks all user requests and notifies BswM of aggregate status.',
+  EcuM_SetState:'<b>void EcuM_SetState(EcuM_StateType state)</b> — Service ID: 0x2B | Sync | Reentrant<br>Called by BswM to notify EcuM of state switch. EcuM then indicates corresponding mode to RTE. Valid states: STARTUP(0x10), RUN(0x32), POST_RUN(0x33), SHUTDOWN(0x40), SLEEP(0x50). Invalid state → ECUM_E_STATE_PAR_OUT_OF_RANGE to DET.',
+  EcuM_RequestRUN:'<b>Std_ReturnType EcuM_RequestRUN(EcuM_UserType user)</b> — Service ID: 0x03 | Sync | Reentrant for different users<br>SWC/BSW requests ECU stay in RUN. Each user can have only ONE active request. Duplicate → ECUM_E_MULTIPLE_RUN_REQUESTS to DET. When first request arrives, EcuM notifies BswM: BswM_EcuM_RequestedState(RUN, REQUESTED).',
+  EcuM_ReleaseRUN:'<b>Std_ReturnType EcuM_ReleaseRUN(EcuM_UserType user)</b> — Service ID: 0x04 | Sync | Reentrant<br>Release RUN request. Release without prior request → ECUM_E_MISMATCHED_RUN_RELEASE to DET. When LAST user releases: BswM_EcuM_RequestedState(RUN, RELEASED). BswM then decides next action (POST_RUN, SLEEP, or SHUTDOWN).',
+  EcuM_RequestPOST_RUN:'<b>Std_ReturnType EcuM_RequestPOST_RUN(EcuM_UserType user)</b> — Service ID: 0x0A | Sync | Reentrant<br>Request POST_RUN state for shutdown cleanup activities. Must be called BEFORE ReleaseRUN if SWC needs POST_RUN. Tracked independently from RUN requests. Same rules as RequestRUN apply.',
+  EcuM_ReleasePOST_RUN:'<b>Std_ReturnType EcuM_ReleasePOST_RUN(EcuM_UserType user)</b> — Service ID: 0x0B | Sync | Reentrant<br>Release POST_RUN request. When last POST_RUN released: BswM_EcuM_RequestedState(POST_RUN, RELEASED). BswM then initiates SLEEP or SHUTDOWN.',
+  EcuM_SelectShutdownTarget:'<b>Std_ReturnType EcuM_SelectShutdownTarget(EcuM_ShutdownTargetType target, EcuM_ShutdownModeType mode)</b> — Service ID: 0x06 | Sync | Reentrant<br>Stores shutdown target for later use. Does NOT initiate shutdown [SWS_EcuM_02585]. Last caller wins — no conflict resolution. mode parameter: sleep mode ID (if target=SLEEP) or reset mode ID (if target=RESET); ignored for OFF.',
+  EcuM_GetShutdownTarget:'<b>Std_ReturnType EcuM_GetShutdownTarget(EcuM_ShutdownTargetType*, EcuM_ShutdownModeType*)</b> — Service ID: 0x09 | Sync | Reentrant<br>Returns currently selected shutdown target. NULL shutdownMode pointer → ignored + ECUM_E_PARAM_POINTER to DET if DevErrorDetect on.',
+  EcuM_GetLastShutdownTarget:'<b>Std_ReturnType EcuM_GetLastShutdownTarget(EcuM_ShutdownTargetType*, EcuM_ShutdownModeType*)</b> — Service ID: 0x08 | Sync | Reentrant<br>Returns shutdown target from the PREVIOUS shutdown cycle. Always same value until next shutdown. Used during STARTUP to determine why ECU started (was it from SLEEP, RESET, or OFF?).',
+  EcuM_SelectShutdownCause:'<b>Std_ReturnType EcuM_SelectShutdownCause(EcuM_ShutdownCauseType target)</b> — Service ID: 0x1B | Sync | Reentrant<br>Record a shutdown cause for post-mortem analysis. Standard causes: ECU state machine shutdown, WdgM failure, DCM request. Custom causes can be added by configuration.',
+  EcuM_GetShutdownCause:'<b>Std_ReturnType EcuM_GetShutdownCause(EcuM_ShutdownCauseType* shutdownCause)</b> — Service ID: 0x1C | Sync | Reentrant<br>Returns the currently selected shutdown cause as set by EcuM_SelectShutdownCause.',
+  EcuM_SelectBootTarget:'<b>Std_ReturnType EcuM_SelectBootTarget(EcuM_BootTargetType target)</b> — Service ID: 0x1F | Sync | Reentrant<br>Select which program image to boot after next reset: APPLICATION, BOOTLOADER, or OEM_BOOT_LOADER. The boot menu reads this value after reset and branches accordingly.',
+  EcuM_GetBootTarget:'<b>Std_ReturnType EcuM_GetBootTarget(EcuM_BootTargetType* target)</b> — Service ID: 0x20 | Sync | Reentrant<br>Returns the currently selected boot target.',
+  EcuM_SetWakeupEvent:'<b>void EcuM_SetWakeupEvent(EcuM_WakeupSourceType sources)</b> — CALLBACK | Sync | Callable from ISR<br>Called by drivers when they detect a wakeup event. Sets source to PENDING. Starts validation timeout. If no validation required, automatically sets to VALIDATED. MUST be callable from interrupt context, OS context, and OS-free context [SWS_EcuM_02826].',
+  EcuM_ValidateWakeupEvent:'<b>void EcuM_ValidateWakeupEvent(EcuM_WakeupSourceType sources)</b> — CALLBACK | Sync | Callable from ISR<br>Called by driver/stack when wakeup is confirmed as genuine. Sets source to VALIDATED. Stops validation timeout. Triggers ComM_EcuM_WakeUpIndication and BswM_EcuM_CurrentWakeup(VALIDATED). Only one module per wakeup source must call this.',
+  EcuM_CheckWakeup:'<b>void EcuM_CheckWakeup(EcuM_WakeupSourceType wakeupSource)</b> — Service ID: 0x49 | Sync | Non-Reentrant<br>Passes argument to EcuM_CheckWakeupHook integrator callout. Called from ISR of wakeup source to set up PLL and check other wakeup sources connected to same interrupt.',
+  EcuM_GetPendingWakeupEvents:'<b>EcuM_WakeupSourceType EcuM_GetPendingWakeupEvents(void)</b> — Service ID: 0x0D | Sync | Non-Reentrant/Non-Interruptible<br>Returns bitmask of all sources currently in PENDING state. Callable from ISR, OS, and OS-free context. Used in OffPreOS to check if wakeup occurred during shutdown.',
+  EcuM_GetValidatedWakeupEvents:'<b>EcuM_WakeupSourceType EcuM_GetValidatedWakeupEvents(void)</b> — Service ID: 0x15 | Sync | Non-Reentrant/Non-Interruptible<br>Returns bitmask of all sources currently in VALIDATED state. Callable from ISR, OS, and OS-free context.',
+  EcuM_GetExpiredWakeupEvents:'<b>EcuM_WakeupSourceType EcuM_GetExpiredWakeupEvents(void)</b> — Service ID: 0x19 | Sync | Non-Reentrant/Non-Interruptible<br>Returns bitmask of sources for which validation has FAILED (timed out). Events that never needed validation are never reported here.',
+  EcuM_ClearWakeupEvent:'<b>void EcuM_ClearWakeupEvent(EcuM_WakeupSourceType sources)</b> — Service ID: 0x16 | Sync | Non-Reentrant/Non-Interruptible<br>Clears sources from ALL internal wakeup variables (pending, validated, expired). Callable from ISR, OS, and OS-free context. Should be called during ECU shutdown before Dem_Shutdown and NvM_WriteAll.'
+};
+
+function showApi(name){
+  const d=document.getElementById('api-detail');
+  d.innerHTML=apiData[name]||'Not found';
+  document.querySelectorAll('.clickable').forEach(e=>{e.style.background='';e.style.color='';});
+  event.target.style.background='var(--color-background-info)';
+  event.target.style.color='var(--color-text-info)';
+}
+
+function showSeq(id){
+  ['sq1','sq2','sq3','sq4','sq5'].forEach(s=>{
+    const el=document.getElementById('seq-'+s);
+    if(el) el.style.display=s===id?'block':'none';
+  });
+  document.querySelectorAll('[id$="btn"]').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById(id+'btn');
+  if(btn) btn.classList.add('active');
+}
+</script>

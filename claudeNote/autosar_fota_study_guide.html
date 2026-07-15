@@ -1,0 +1,614 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.tab-bar{display:flex;gap:4px;flex-wrap:wrap;padding:8px 0 0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab{padding:7px 14px;font-size:13px;border-radius:6px 6px 0 0;border:0.5px solid transparent;cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-primary);border-color:var(--color-border-tertiary);border-bottom-color:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;margin-bottom:-0.5px}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.panel{display:none}.panel.active{display:block}
+.section{margin-bottom:22px}
+.section-title{font-size:15px;font-weight:500;margin-bottom:10px;color:var(--color-text-primary);border-left:3px solid #854F0B;padding-left:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.badge-amber{background:#FAEEDA;color:#633806}
+.badge-teal{background:#E1F5EE;color:#085041}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.badge-coral{background:#FAECE7;color:#712B13}
+.badge-blue{background:#E6F1FB;color:#0C447C}
+.badge-gray{background:#F1EFE8;color:#444441}
+.badge-red{background:#FCEBEB;color:#791F1F}
+.badge-green{background:#EAF3DE;color:#27500A}
+.api-table{width:100%;border-collapse:collapse;font-size:12px}
+.api-table th{text-align:left;padding:6px 10px;background:var(--color-background-secondary);font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.api-table td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;color:var(--color-text-primary)}
+.api-table tr:last-child td{border-bottom:none}
+.api-table tr:hover td{background:var(--color-background-secondary)}
+.fn{font-family:var(--font-mono);font-size:11px;color:#854F0B}
+.note{background:var(--color-background-secondary);border-left:3px solid #854F0B;padding:8px 12px;font-size:12px;color:var(--color-text-secondary);border-radius:0 6px 6px 0;margin:8px 0}
+.warn{background:#FAEEDA;border-left:3px solid #854F0B;padding:8px 12px;font-size:12px;color:#633806;border-radius:0 6px 6px 0;margin:8px 0}
+.danger{background:#FCEBEB;border-left:3px solid #A32D2D;padding:8px 12px;font-size:12px;color:#791F1F;border-radius:0 6px 6px 0;margin:8px 0}
+.seq-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:12px}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:#854F0B;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.seq-content{flex:1;background:var(--color-background-secondary);border-radius:6px;padding:6px 10px}
+.enum-row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.enum-row:last-child{border-bottom:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.tip-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--color-text-primary)}
+.tip-title{font-weight:500;font-size:12px;margin-bottom:4px;color:var(--color-text-primary)}
+</style>
+
+<h2 class="sr-only">AUTOSAR CP FOTA study guide covering architecture, state machine, sequences, Dcm interaction, and DaVinci configuration</h2>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('overview')">Architecture</button>
+  <button class="tab" onclick="showTab('terms')">Terminology</button>
+  <button class="tab" onclick="showTab('states')">State Machine</button>
+  <button class="tab" onclick="showTab('handler')">FOTA Handler</button>
+  <button class="tab" onclick="showTab('dcm')">Dcm Interaction</button>
+  <button class="tab" onclick="showTab('sequences')">Sequences</button>
+  <button class="tab" onclick="showTab('partitions')">Partitions & Memory</button>
+  <button class="tab" onclick="showTab('rollback')">Rollback & Security</button>
+  <button class="tab" onclick="showTab('config')">DaVinci Config</button>
+  <button class="tab" onclick="showTab('debug')">Debug & Testing</button>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="panel-overview" class="panel active">
+  <div class="section">
+    <div class="section-title">What FOTA is — the core problem it solves</div>
+    <div class="card">
+      <p style="font-size:13px;line-height:1.7;margin-bottom:10px">Traditional OTA: ECU goes offline, tester reprograms it, vehicle is down the entire time. Bricked ECU risk is high. FOTA solves this by installing new SW into an <strong>inactive partition in the background while the ECU keeps running</strong>, then switching partitions at a safe vehicle state.</p>
+      <div class="grid3">
+        <div class="tip-card"><div class="tip-title">Old OTA problem</div>ECU offline during update. Vehicle downtime = update time. Rollback = re-flash from scratch (more downtime). Brick risk.</div>
+        <div class="tip-card"><div class="tip-title">FOTA solution</div>Install into inactive partition while active runs. Interruptible over multiple driving cycles. Switch partition at vehicle safe state. Rollback = re-activate previous partition.</div>
+        <div class="tip-card"><div class="tip-title">Key constraint</div>Activation (partition switch) must NEVER happen while driving. Requires vehicle safe state: standstill, engine off, parking brake applied.</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">System actors — three entities</div>
+    <div class="card">
+      <svg width="100%" viewBox="0 0 640 200" role="img"><title>FOTA system architecture with Backend, FOTA Master ECU, and FOTA Target ECU</title><desc>Three actors: Backend cloud, FOTA Master (Adaptive AUTOSAR, UCM-Master), FOTA Target (Classic AUTOSAR, runs FOTA Handler CDD)</desc>
+        <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <!-- Backend -->
+        <rect x="10" y="60" width="140" height="80" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="80" y="92" text-anchor="middle" font-size="12" font-weight="500" fill="#085041" dominant-baseline="central">Backend</text>
+        <text x="80" y="110" text-anchor="middle" font-size="11" fill="#0F6E56" dominant-baseline="central">Cloud / OTA server</text>
+        <text x="80" y="126" text-anchor="middle" font-size="10" fill="#0F6E56">WiFi / LTE / 5G</text>
+        <!-- FOTA Master -->
+        <rect x="230" y="40" width="160" height="120" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+        <text x="310" y="72" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489" dominant-baseline="central">FOTA Master ECU</text>
+        <text x="310" y="90" text-anchor="middle" font-size="11" fill="#534AB7" dominant-baseline="central">(UCM-Master)</text>
+        <text x="310" y="108" text-anchor="middle" font-size="10" fill="#534AB7">Adaptive AUTOSAR</text>
+        <text x="310" y="124" text-anchor="middle" font-size="10" fill="#534AB7">Stores + orchestrates images</text>
+        <text x="310" y="140" text-anchor="middle" font-size="10" fill="#534AB7">Sends UDS to FOTA Targets</text>
+        <!-- FOTA Target -->
+        <rect x="468" y="40" width="162" height="120" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="549" y="72" text-anchor="middle" font-size="12" font-weight="500" fill="#633806" dominant-baseline="central">FOTA Target ECU</text>
+        <text x="549" y="90" text-anchor="middle" font-size="11" fill="#854F0B" dominant-baseline="central">Classic AUTOSAR</text>
+        <text x="549" y="108" text-anchor="middle" font-size="10" fill="#854F0B">Dcm + FOTA Handler (CDD)</text>
+        <text x="549" y="124" text-anchor="middle" font-size="10" fill="#854F0B">Mem Stack (Flash Driver)</text>
+        <text x="549" y="140" text-anchor="middle" font-size="10" fill="#854F0B">Active + Inactive partition</text>
+        <!-- Arrows -->
+        <line x1="150" y1="100" x2="228" y2="100" stroke="#0F6E56" stroke-width="1" marker-end="url(#a3)"/>
+        <text x="188" y="93" font-size="10" text-anchor="middle" fill="#0F6E56">Image</text>
+        <line x1="390" y1="100" x2="466" y2="100" stroke="#854F0B" stroke-width="1" marker-end="url(#a3)"/>
+        <text x="427" y="93" font-size="10" text-anchor="middle" fill="#854F0B">UDS chunks</text>
+        <!-- Vehicle bus label -->
+        <text x="427" y="175" font-size="10" text-anchor="middle" fill="var(--color-text-secondary)">Vehicle bus: CAN / CAN-FD / FlexRay / Automotive Ethernet</text>
+      </svg>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">FOTA Target internal architecture</div>
+    <div class="card">
+      <svg width="100%" viewBox="0 0 640 240" role="img"><title>FOTA Target ECU internal architecture</title><desc>Dcm receives UDS from bus, calls FOTA Handler CDD callout, FOTAHandlerMain writes to Memory Stack, NvM persists FOTA state</desc>
+        <defs><marker id="a4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <!-- COM/CSM -->
+        <rect x="10" y="90" width="100" height="60" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="60" y="118" text-anchor="middle" font-size="11" font-weight="500" fill="#085041" dominant-baseline="central">COM Services</text>
+        <text x="60" y="133" text-anchor="middle" font-size="10" fill="#0F6E56">+ Comm Drivers</text>
+        <!-- DCM -->
+        <rect x="150" y="70" width="120" height="100" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+        <text x="210" y="108" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489" dominant-baseline="central">Dcm</text>
+        <text x="210" y="126" text-anchor="middle" font-size="10" fill="#534AB7">UDS session ctrl</text>
+        <text x="210" y="142" text-anchor="middle" font-size="10" fill="#534AB7">Security access</text>
+        <text x="210" y="158" text-anchor="middle" font-size="10" fill="#534AB7">RAM buffer</text>
+        <!-- FOTA Handler -->
+        <rect x="320" y="60" width="140" height="120" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+        <text x="390" y="95" text-anchor="middle" font-size="12" font-weight="500" fill="#633806" dominant-baseline="central">FOTA Handler</text>
+        <text x="390" y="113" text-anchor="middle" font-size="11" fill="#854F0B" dominant-baseline="central">(CDD)</text>
+        <text x="390" y="131" text-anchor="middle" font-size="10" fill="#854F0B">ProcessTransferDataWrite</text>
+        <text x="390" y="147" text-anchor="middle" font-size="10" fill="#854F0B">FOTAHandlerMain (OS cyclic)</text>
+        <text x="390" y="163" text-anchor="middle" font-size="10" fill="#854F0B">State machine owner</text>
+        <!-- Memory Stack -->
+        <rect x="510" y="80" width="120" height="80" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+        <text x="570" y="112" text-anchor="middle" font-size="12" font-weight="500" fill="#712B13" dominant-baseline="central">Memory Stack</text>
+        <text x="570" y="130" text-anchor="middle" font-size="10" fill="#993C1D">Flash Driver + Fee</text>
+        <text x="570" y="146" text-anchor="middle" font-size="10" fill="#993C1D">Writes inactive partition</text>
+        <!-- NvM -->
+        <rect x="320" y="195" width="140" height="38" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="390" y="217" text-anchor="middle" font-size="11" font-weight="500" fill="#085041" dominant-baseline="central">NvM — persists FOTA state</text>
+        <!-- Arrows -->
+        <line x1="110" y1="120" x2="148" y2="120" stroke="#0F6E56" stroke-width="1" marker-end="url(#a4)"/>
+        <line x1="270" y1="120" x2="318" y2="120" stroke="#854F0B" stroke-width="1" marker-end="url(#a4)"/>
+        <text x="293" y="113" font-size="9" text-anchor="middle" fill="#854F0B">callout</text>
+        <line x1="460" y1="120" x2="508" y2="120" stroke="#993C1D" stroke-width="1" marker-end="url(#a4)"/>
+        <text x="483" y="113" font-size="9" text-anchor="middle" fill="#993C1D">write chunk</text>
+        <line x1="390" y1="180" x2="390" y2="193" stroke="#0F6E56" stroke-width="1" marker-end="url(#a4)"/>
+        <!-- Partitions -->
+        <rect x="510" y="178" width="56" height="38" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="538" y="200" text-anchor="middle" font-size="10" fill="#085041" dominant-baseline="central">Active</text>
+        <rect x="574" y="178" width="56" height="38" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+        <text x="602" y="200" text-anchor="middle" font-size="10" fill="#633806" dominant-baseline="central">Inactive</text>
+        <line x1="570" y1="160" x2="602" y2="176" stroke="#854F0B" stroke-width="1" marker-end="url(#a4)"/>
+        <text x="598" y="168" font-size="9" fill="#854F0B">write new SW</text>
+      </svg>
+    </div>
+    <div class="note">FOTA Handler is a <strong>CDD (Complex Device Driver)</strong> — not a full AUTOSAR BSW module yet. This is intentional: the read-while-write flash approach and program flash access at the MCAL level were still undecided when this was specified. CDD leaves architectural flexibility to connect through all BSW layers.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Why FOTA Master lives in Adaptive AUTOSAR</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">Classic Platform ECUs have limited memory, storage, and compute power. The FOTA Master must cache entire images for all target ECUs — potentially gigabytes. Adaptive ECUs (domain controllers, central compute platforms) have the resources. The FOTA Master = UCM-Master (Update and Configuration Management) on the Adaptive Platform. It speaks UDS to all FOTA Target ECUs on the vehicle bus.</p>
+    </div>
+    <div class="warn">The UCM-Master concept was still under development when this doc was written. Examiners expect you to know: FOTA Master = UCM-Master realization = Adaptive AUTOSAR. It orchestrates ALL targets, manages dependencies between multi-ECU updates, and controls activation timing.</div>
+  </div>
+</div>
+
+<!-- TERMINOLOGY -->
+<div id="panel-terms" class="panel">
+  <div class="section">
+    <div class="section-title">System component terms</div>
+    <div class="card">
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:110px;margin-right:10px">FOTA Target</span><span style="font-size:12px">Any ECU capable of being updated via FOTA. Runs FOTA Handler (CDD) + Dcm + Memory Stack. Classic AUTOSAR.</span></div>
+      <div class="enum-row"><span class="badge badge-purple" style="min-width:110px;margin-right:10px">FOTA Master</span><span style="font-size:12px">Instance that orchestrates all software updates. Stores images, sends UDS chunks, controls state transitions, manages dependencies. = UCM-Master on Adaptive AUTOSAR.</span></div>
+      <div class="enum-row"><span class="badge badge-teal" style="min-width:110px;margin-right:10px">FOTA Image</span><span style="font-size:12px">Full downloadable ECU software collection. Can be full, partial, or incremental update. Covers AppSW, BSW, or calibration data. After applying: ECU must be fully functional and system-compatible.</span></div>
+      <div class="enum-row"><span class="badge badge-blue" style="min-width:110px;margin-right:10px">Backend</span><span style="font-size:12px">Remote cloud/server that provides images to FOTA Master. Notifies vehicle of available updates (push) or waits to be polled (pull). Also receives progress/status reporting.</span></div>
+      <div class="enum-row"><span class="badge badge-gray" style="min-width:110px;margin-right:10px">Data Chunk</span><span style="font-size:12px">UDS TransferData (0x36) payload packet. Variable size. Image is split into chunks because transferring entire image at once is impractical. Chunk size bounded by DcmDslBufferSize.</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Process terms — know these precisely</div>
+    <div class="card">
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:110px;margin-right:10px">Update</span><span style="font-size:12px">Entire FOTA procedure: download + installation + verification + activation + (optionally rollback). Whole campaign across one or more ECUs.</span></div>
+      <div class="enum-row"><span class="badge badge-blue" style="min-width:110px;margin-right:10px">Download</span><span style="font-size:12px">Transfer of image from <strong>Backend → FOTA Master</strong> (not to the target). Over-the-air link (LTE/5G/WiFi). FOTA Master caches it.</span></div>
+      <div class="enum-row"><span class="badge badge-teal" style="min-width:110px;margin-right:10px">Installation</span><span style="font-size:12px">Transfer of chunks from <strong>FOTA Master → FOTA Target</strong> via UDS (0x34/0x36/0x37). Target writes chunks to inactive partition via memory stack. Can span multiple driving cycles. Finished when all chunks written successfully.</span></div>
+      <div class="enum-row"><span class="badge badge-purple" style="min-width:110px;margin-right:10px">Verification</span><span style="font-size:12px">Implementation specific. Master verifies authenticity/integrity of image package. Target verifies semantic/functional integrity of flashed SW. Second verification after copy from external to internal flash is recommended. Not specified in detail by AUTOSAR.</span></div>
+      <div class="enum-row"><span class="badge badge-coral" style="min-width:110px;margin-right:10px">Activation</span><span style="font-size:12px">Actual partition switch (or copy from temp→runtime + reboot). <strong>Must be in vehicle safe state.</strong> Integrator responsibility to ensure safe state. Previous SW kept until activation is confirmed. Done in bootloader context — out of AUTOSAR scope.</span></div>
+      <div class="enum-row"><span class="badge badge-red" style="min-width:110px;margin-right:10px">Rollback</span><span style="font-size:12px">Restore previous SW and user data. After rollback: ECU must be indistinguishable from pre-update state. Triggered by FOTA Master (master-triggered) or autonomously by ECU that cannot boot (self-triggered). All dependent ECUs must roll back too.</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Exam trap: Download ≠ Installation</div>
+    <div class="card">
+      <div class="grid2">
+        <div class="tip-card"><div class="tip-title">Download</div>Backend → FOTA Master. OTA radio link. FOTA Master stores the image. The target ECU is not involved yet.</div>
+        <div class="tip-card"><div class="tip-title">Installation</div>FOTA Master → FOTA Target. Over vehicle bus (CAN/Ethernet). Chunks via UDS 0x36. Target writes to inactive flash partition.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE MACHINE -->
+<div id="panel-states" class="panel">
+  <div class="section">
+    <div class="section-title">FOTA Handler state machine — all 7 states</div>
+    <div class="card">
+      <div class="enum-row"><span class="badge badge-gray" style="min-width:90px;margin-right:10px">IDLE</span><span style="font-size:12px">Initial state after ECU startup. No FOTA activity. FOTA Master reads this to know ECU is ready for a new FOTA campaign.</span></div>
+      <div class="enum-row"><span class="badge badge-blue" style="min-width:90px;margin-right:10px">INIT</span><span style="font-size:12px">FOTA Handler initialized. Dcm is in FOTA diagnostic session AND security access granted. Transition: RC_InitializeFOTA() called by FOTA Master. Handler checks availability, preempted procedures, preconditions.</span></div>
+      <div class="enum-row"><span class="badge badge-teal" style="min-width:90px;margin-right:10px">WAIT</span><span style="font-size:12px">After RequestDownload(0x34). Waiting for next TransferData(0x36) chunk. Handler successfully processed previous chunk and returned Dcm callout. Ready for more data.</span></div>
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:90px;margin-right:10px">PROCESSING</span><span style="font-size:12px">TransferData chunk received in Dcm RAM buffer. FOTAHandlerMain() actively writing chunk to flash via memory stack. Dcm callout returns DCM_WRITE_PENDING. FOTA Master kept alive by pending responses.</span></div>
+      <div class="enum-row"><span class="badge badge-purple" style="min-width:90px;margin-right:10px">READY</span><span style="font-size:12px">ALL chunks transferred and written successfully. RequestTransferExit(OpStatus=READY) received. Activation can be triggered. FOTA Master may now call RC_TriggerActivation().</span></div>
+      <div class="enum-row"><span class="badge badge-teal" style="min-width:90px;margin-right:10px">VERIFY</span><span style="font-size:12px">Optional, implementer specific. RC_VerifyInstallation() routine. AUTOSAR does not define verification details.</span></div>
+      <div class="enum-row"><span class="badge badge-coral" style="min-width:90px;margin-right:10px">ACTIVATE</span><span style="font-size:12px">RC_TriggerActivation() received. Handler sets partition switch flag accessible by bootloader. ECU resets. Bootloader executes actual partition switch. DcmResponseToEcuReset=AFTER_RESET sends positive response after reset.</span></div>
+      <div class="enum-row"><span class="badge badge-red" style="min-width:90px;margin-right:10px">ERROR</span><span style="font-size:12px">Optional, implementer specific. Can be entered from ANY state. OEM/implementer-specific recovery. FOTA Master controls recovery from here.</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">State transition diagram</div>
+    <svg width="100%" viewBox="0 0 640 420" role="img"><title>FOTA Target state machine</title><desc>States: IDLE, INIT, WAIT, PROCESSING, READY, VERIFY, ACTIVATE, ERROR with transitions</desc>
+      <defs><marker id="as" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <!-- ECU startup → IDLE -->
+      <rect x="265" y="10" width="110" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+      <text x="320" y="32" text-anchor="middle" font-size="12" font-weight="500" fill="#444441" dominant-baseline="central">IDLE</text>
+      <!-- INIT -->
+      <rect x="60" y="100" width="110" height="40" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="1"/>
+      <text x="115" y="120" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C" dominant-baseline="central">INIT</text>
+      <!-- WAIT -->
+      <rect x="60" y="200" width="110" height="40" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+      <text x="115" y="220" text-anchor="middle" font-size="12" font-weight="500" fill="#085041" dominant-baseline="central">WAIT</text>
+      <!-- PROCESSING -->
+      <rect x="60" y="300" width="110" height="40" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+      <text x="115" y="320" text-anchor="middle" font-size="11" font-weight="500" fill="#633806" dominant-baseline="central">PROCESSING</text>
+      <!-- READY -->
+      <rect x="265" y="300" width="110" height="40" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+      <text x="320" y="320" text-anchor="middle" font-size="12" font-weight="500" fill="#085041" dominant-baseline="central">READY</text>
+      <!-- VERIFY -->
+      <rect x="465" y="300" width="110" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+      <text x="520" y="320" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489" dominant-baseline="central">VERIFY (opt)</text>
+      <!-- ACTIVATE -->
+      <rect x="465" y="100" width="110" height="40" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+      <text x="520" y="120" text-anchor="middle" font-size="12" font-weight="500" fill="#712B13" dominant-baseline="central">ACTIVATE</text>
+      <!-- ERROR -->
+      <rect x="265" y="175" width="110" height="40" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1"/>
+      <text x="320" y="195" text-anchor="middle" font-size="12" font-weight="500" fill="#791F1F" dominant-baseline="central">ERROR (opt)</text>
+      <!-- Transitions -->
+      <!-- startup → IDLE -->
+      <text x="320" y="8" text-anchor="middle" font-size="9" fill="#444441">ECU startup</text>
+      <!-- IDLE → INIT -->
+      <path d="M265 30 L115 98" fill="none" stroke="#185FA5" stroke-width="1" marker-end="url(#as)"/>
+      <text x="168" y="58" font-size="9" fill="#185FA5">RC_InitializeFOTA()</text>
+      <!-- INIT → WAIT -->
+      <line x1="115" y1="140" x2="115" y2="198" stroke="#0F6E56" stroke-width="1" marker-end="url(#as)"/>
+      <text x="122" y="172" font-size="9" fill="#0F6E56">RequestDownload()</text>
+      <!-- WAIT → PROCESSING -->
+      <line x1="115" y1="240" x2="115" y2="298" stroke="#854F0B" stroke-width="1" marker-end="url(#as)"/>
+      <text x="122" y="272" font-size="9" fill="#854F0B">TransferData()</text>
+      <!-- PROCESSING → WAIT (chunk done) -->
+      <path d="M170 310 Q230 310 230 220 Q230 200 170 200" fill="none" stroke="#0F6E56" stroke-width="1" marker-end="url(#as)"/>
+      <text x="248" y="258" font-size="9" fill="#0F6E56">DCM_WRITE_OK</text>
+      <!-- PROCESSING → READY (last chunk) -->
+      <path d="M170 320 L263 320" fill="none" stroke="#0F6E56" stroke-width="1" marker-end="url(#as)"/>
+      <text x="216" y="313" font-size="9" fill="#0F6E56">TransferExit(READY)</text>
+      <!-- PROCESSING → IDLE (cancel) -->
+      <path d="M115 300 L115 152 L263 30" fill="none" stroke="#5F5E5A" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#as)"/>
+      <text x="42" y="200" font-size="9" fill="#5F5E5A">TransferExit(IDLE)</text>
+      <!-- READY → VERIFY -->
+      <line x1="375" y1="320" x2="463" y2="320" stroke="#534AB7" stroke-width="1" marker-end="url(#as)"/>
+      <text x="418" y="313" font-size="9" fill="#534AB7">RC_Verify(opt)</text>
+      <!-- READY → ACTIVATE -->
+      <path d="M370 308 L510 142" fill="none" stroke="#993C1D" stroke-width="1" marker-end="url(#as)"/>
+      <text x="468" y="225" font-size="9" fill="#993C1D">RC_TriggerActivation()</text>
+      <!-- VERIFY → ACTIVATE -->
+      <line x1="520" y1="300" x2="520" y2="142" stroke="#993C1D" stroke-width="1" marker-end="url(#as)"/>
+      <text x="527" y="225" font-size="9" fill="#993C1D">RC_TriggerActivation()</text>
+      <!-- ACTIVATE → IDLE (after reset) -->
+      <path d="M520 100 L375 30" fill="none" stroke="#444441" stroke-width="1" marker-end="url(#as)"/>
+      <text x="478" y="58" font-size="9" fill="#444441">ECU_Reset()</text>
+      <!-- ERROR → any state (dashed) -->
+      <path d="M265 195 L172 195" fill="none" stroke="#A32D2D" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#as)"/>
+      <text x="218" y="188" font-size="9" fill="#A32D2D">recovery</text>
+      <!-- ACTIVATE → IDLE rollback path note -->
+      <text x="320" y="390" text-anchor="middle" font-size="10" fill="var(--color-text-secondary)">FOTA Master-triggered rollback = transition from ANY state → ACTIVATE</text>
+      <text x="320" y="407" text-anchor="middle" font-size="10" fill="var(--color-text-secondary)">ERROR can be entered from any state (dashed arrows omitted for clarity)</text>
+    </svg>
+  </div>
+  <div class="section">
+    <div class="section-title">Critical state transition rules — exam targets</div>
+    <div class="grid2">
+      <div class="warn">IDLE vs READY distinction: both reached via RequestTransferExit(). Distinguished by <span class="fn" style="color:#633806">OpStatus parameter</span>. OpStatus=IDLE → cancel, go back to IDLE. OpStatus=READY → all chunks done, ready for activation.</div>
+      <div class="warn">FOTA Master rollback = transition from ANY state to ACTIVATE. Not a separate rollback state — rollback means activating the previous (now inactive) partition, which uses the same ACTIVATE state.</div>
+      <div class="danger">State must be persisted in NvM. If driving cycle ends during PROCESSING, NvM stores last successfully written address + chunk ID. On next startup: IDLE → INIT → WAIT and resume from last good position.</div>
+      <div class="note" style="margin:0">ERROR is optional and implementer-specific. The doc does not define how to recover from ERROR. OEM/supplier defines recovery. FOTA Master controls this via UDS services.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOTA HANDLER -->
+<div id="panel-handler" class="panel">
+  <div class="section">
+    <div class="section-title">Two functions inside FOTA Handler (CDD)</div>
+    <div class="card">
+      <div class="grid2">
+        <div class="tip-card">
+          <div class="tip-title">FOTA_ProcessTransferDataWrite(...)</div>
+          <p style="font-size:12px;line-height:1.7;margin-top:4px"><strong>Called by Dcm</strong> each time a chunk is received (0x36 TransferData callout). Sets OpStatus = DCM_PENDING until done. Returns DCM_WRITE_PENDING while chunk being processed. On finish: returns DCM_WRITE_OK → Dcm sends positive response → Master sends next chunk. Signals FOTAHandlerMain via InterRunnable Variable.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-title">FOTAHandlerMain(...)</div>
+          <p style="font-size:12px;line-height:1.7;margin-top:4px"><strong>Scheduled cyclically by OS.</strong> Independent of Dcm and comm stack. Does the actual memory write to flash via memory stack. On completion: signals ProcessTransferDataWrite via InterRunnable Variable. This decoupling allows flash writes to happen in a separate task without blocking the Dcm.</p>
+        </div>
+      </div>
+    </div>
+    <div class="note">The asynchronous design is mandatory. Flash write operations can take milliseconds to seconds. Blocking the Dcm task would freeze the entire diagnostic stack. The callout returns PENDING repeatedly, keeping the FOTA Master's UDS timeout from expiring.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Buffer flow — how a chunk moves through the system</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">FOTA Master sends UDS 0x36 TransferData with chunk payload over vehicle bus</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content">Comm stack delivers it to Dcm. Dcm stores chunk in its RAM buffer (DcmDslBufferSize controls max chunk size)</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">Dcm triggers <span class="fn">FOTA_ProcessTransferDataWrite()</span> callout. Callout signals FOTAHandlerMain via InterRunnableVariable. Returns DCM_WRITE_PENDING immediately.</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">Dcm polls callout cyclically → keeps getting DCM_WRITE_PENDING → keeps sending pending NRC to FOTA Master (prevents timeout)</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content"><span class="fn">FOTAHandlerMain()</span> runs in OS task → takes chunk pointer from Dcm buffer → calls memory stack write API → writes to inactive flash partition</div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content">FOTAHandlerMain signals completion via InterRunnableVariable. Buffer is exclusively owned by FOTA Handler until this point — no other module touches it.</div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content"><span class="fn">FOTA_ProcessTransferDataWrite()</span> sees completion → returns DCM_WRITE_OK → Dcm sends positive response to FOTA Master → Master sends next chunk</div></div>
+    </div>
+    <div class="warn">Dcm buffer is BLOCKED (exclusively owned by FOTA Handler) until chunk processing completes. Buffer payload is consistent even across diagnostic protocol changes during this window. Best practice: FOTA buffer size should not exceed the max size of other UDS protocol buffers in Dcm.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">NvM usage by FOTA Handler</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">FOTA Handler must persist its state through power cycles. Uses NvM (never direct flash access). Stored data includes: current FOTA state, last successfully written flash address, chunk ID. On next startup: Handler reads NvM → knows where to resume. Neither FOTA Master nor FOTA Target must access data flash directly — always via NvM module.</p>
+    </div>
+    <div class="danger">Direct data flash access bypassing NvM is forbidden. It can cause interference, blocking, or data corruption with normal NvData operation. Data model migrations (NvData changes between SW versions) must be handled by FOTA Handler or FOTA Master, never by directly touching flash.</div>
+  </div>
+</div>
+
+<!-- DCM INTERACTION -->
+<div id="panel-dcm" class="panel">
+  <div class="section">
+    <div class="section-title">UDS services used by FOTA — know all of these</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="api-table">
+        <tr><th>UDS Service</th><th>SID</th><th>FOTA purpose</th></tr>
+        <tr><td>DiagnosticSessionControl</td><td>0x10</td><td>Switch to FOTA diagnostic session (custom user session). Must be secured with SecurityAccess.</td></tr>
+        <tr><td>SecurityAccess</td><td>0x27</td><td>Authenticate FOTA Master before allowing installation. Prevents unauthorized flashing.</td></tr>
+        <tr><td>RoutineControl — RC_InitializeFOTA</td><td>0x31</td><td>Transition IDLE→INIT. Checks preconditions, preempted procedures, availability.</td></tr>
+        <tr><td>RequestDownload</td><td>0x34</td><td>Transition INIT→WAIT. Declares data transfer start, memory address, data size.</td></tr>
+        <tr><td>TransferData</td><td>0x36</td><td>Each chunk transfer WAIT→PROCESSING→WAIT. The callout-based mechanism described in FOTA Handler tab.</td></tr>
+        <tr><td>RequestTransferExit</td><td>0x37</td><td>End of transfer. OpStatus=IDLE → cancel/return to IDLE. OpStatus=READY → all chunks done, go to READY.</td></tr>
+        <tr><td>RoutineControl — RC_VerifyInstallation</td><td>0x31</td><td>Optional. Trigger verification step READY→VERIFY.</td></tr>
+        <tr><td>RoutineControl — RC_TriggerActivation</td><td>0x31</td><td>Trigger READY→ACTIVATE (or VERIFY→ACTIVATE). Handler sets bootloader flag. ECU resets.</td></tr>
+        <tr><td>RoutineControl — RC_Rollback</td><td>0x31</td><td>Trigger rollback → transition to ACTIVATE (previous partition). Any state → ACTIVATE.</td></tr>
+        <tr><td>ReadDataByIdentifier</td><td>0x22</td><td>FOTA Master reads current FOTA state, last written address, SW version, chunk ID, status info.</td></tr>
+        <tr><td>WriteDataByIdentifier</td><td>0x2E</td><td>FOTA Master writes control data to Target. State exchange during resume.</td></tr>
+        <tr><td>ECU Reset</td><td>0x11</td><td>Triggered as part of activation. DcmResponseToEcuReset=AFTER_RESET → positive response sent after boot to confirm ECU alive.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">FOTA diagnostic session — why it needs its own</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">FOTA runs at lowest Dcm priority (<span class="fn">DcmDslProtocolPriority</span> = lowest). It gets its own <span class="fn">DcmDslProtocolRow</span> entry with its own RAM buffer. This enables the Dcm <strong>protocol preemption</strong> feature — a higher priority diagnostic request (e.g. normal UDS tester) can preempt FOTA without corrupting it. FOTA session secured by SecurityAccess to prevent unauthorized flash.</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Protocol preemption — critical concept</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7;margin-bottom:8px">When a higher-priority diagnostic request arrives, FOTA is <strong>immediately stopped</strong>. The preemption callback (<span class="fn">DcmDslCallbackDCMRequestService</span>) fires — FOTA Handler must save consistent state here.</p>
+      <p style="font-size:12px;line-height:1.7;margin-bottom:8px">From FOTA Master's perspective: <strong>no notification is sent</strong>. FOTA Master sees a UDS timeout. After timeout, Master must reinitialize and resume. Master reads DIDs to find last successfully written address and chunk ID.</p>
+    </div>
+    <div class="warn">The implementer can optionally continue processing the already-received chunk in the background during preemption. But: the last successfully written address MUST always be reflected in a DID — this is mandatory for resume capability.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">DIDs and Routines exposed for FOTA — full list</div>
+    <div class="card">
+      <div class="grid2">
+        <div>
+          <p style="font-size:12px;font-weight:500;margin-bottom:6px">Routines (0x31)</p>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_InitializeFOTA</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_VerifyInstallation</span> (opt)</div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_TriggerActivation</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_Cancel</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_Rollback</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_PreconditionCheck</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_PostInstallCheck</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">RC_PostActivationCheck</span></div>
+        </div>
+        <div>
+          <p style="font-size:12px;font-weight:500;margin-bottom:6px">Data Identifiers (0x22/0x2E)</p>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">DID: FOTA status enum</span> (read/write)</div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">DID: Last written address</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">DID: Last chunk ID</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">DID: Installed SW version</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">DID: Programming state</span></div>
+          <div class="enum-row" style="padding:4px 0"><span class="fn">DID: impl-specific exchange</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEQUENCES -->
+<div id="panel-sequences" class="panel">
+  <div class="section">
+    <div class="section-title">Sequence 1: FOTA initialization (first start or resume)</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> UDS 0x22 GetFOTAStatus() → Target Dcm → Response: FOTAStatus=IDLE</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x10 DiagnosticSessionControl(FOTA_SESSION) → Positive response</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x27 SecurityAccess(FOTA) → seed/key challenge → Positive response (access granted)</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x31 RC_InitializeFOTA() → Target: checks availability, preempted state, preconditions → Response: FOTAStatus=INIT</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content">FOTA Target waits in FOTA session for 0x34 RequestDownload from FOTA Master. If interrupted/preempted: this whole sequence repeats (reinit = same as first init).</div></div>
+    </div>
+    <div class="note">If FOTA was previously preempted: RC_InitializeFOTA detects preempted state → FOTA Master reads DIDs for last written address/chunk → resume at that position after reinitialization.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 2: Data chunk transfer (installation loop)</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x34 RequestDownload(address, size) → Target enters WAIT state → Positive response</div></div>
+      <div class="seq-row"><div class="seq-num">L</div><div class="seq-content" style="background:#FAEEDA;color:#633806"><strong>Loop: for each chunk</strong></div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x36 TransferData(chunk_N) → Dcm stores in RAM buffer → State → PROCESSING</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">Dcm calls <span class="fn">FOTA_ProcessTransferDataWrite()</span> → signals FOTAHandlerMain → returns DCM_WRITE_PENDING</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">Dcm polls callout in main function → each poll → DCM_WRITE_PENDING → NRC 0x78 (ResponsePending) to FOTA Master</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content"><span class="fn">FOTAHandlerMain()</span> (OS task) → reads chunk from Dcm buffer → calls memory stack write → writes to inactive flash partition</div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content">FOTAHandlerMain signals completion → <span class="fn">FOTA_ProcessTransferDataWrite()</span> returns DCM_WRITE_OK → Dcm → positive response 0x76 to FOTA Master</div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content">State → WAIT. FOTA Master sends next chunk (goto step 2) OR sends 0x37 RequestTransferExit when done</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 3: Activation</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">State = READY (or VERIFY after optional verification). Vehicle must be in safe state (integrator responsibility).</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x31 RC_TriggerActivation() → Target: state → ACTIVATE</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">FOTA Handler sets partition switch flag in memory area accessible by BOTH bootloader AND application. This is the key handoff point.</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> 0x11 ECU Reset → ECU reboots. DcmSendRespPendOnRestart=TRUE informs Master about restart.</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content">Bootloader reads partition switch flag → executes partition switch (A/B swap or copy from external to internal). Bootloader context — out of AUTOSAR scope.</div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content">ECU boots new SW. DcmResponseToEcuReset=AFTER_RESET → sends positive response to FOTA Master after boot to confirm ECU alive.</div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content"><span style="color:#854F0B;font-weight:500">FOTA Master →</span> reads SW version DID → confirms new version running. If multiple ECUs: checks all before considering campaign complete.</div></div>
+    </div>
+    <div class="danger">The partition switch flag memory location MUST be accessible by both bootloader AND application. If only accessible in application RAM (lost on reset) the bootloader cannot find it. This is a common integration mistake.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 4: Preemption + Resume</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">During chunk PROCESSING: higher-priority diagnostic tester connects on same or higher-priority protocol</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content">Dcm preempts FOTA protocol. <span class="fn">DcmDslCallbackDCMRequestService</span> fires → FOTA Handler saves state to NvM</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">No notification to FOTA Master. Master experiences UDS timeout on its pending TransferData response.</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">After timeout: FOTA Master reinitializes (Sequence 1 again). Reads DIDs: last written address, chunk ID, FOTA status.</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content">FOTA Master resumes from last successfully written position. Re-sends missed/incomplete chunk. Procedure continues as Sequence 2.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTITIONS & MEMORY -->
+<div id="panel-partitions" class="panel">
+  <div class="section">
+    <div class="section-title">Two partition types — know the comparison table</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="api-table">
+        <tr><th>Attribute</th><th>Fixed Runtime Address Mapping</th><th>Flexible Runtime Address Mapping</th></tr>
+        <tr><td>Installation target</td><td>Temporary storage (external or internal)</td><td>Directly into any available partition</td></tr>
+        <tr><td>Activation method</td><td>Backup old SW, copy new SW to runtime partition, reboot</td><td>Switch (logical) partitions at boottime</td></tr>
+        <tr><td>Activation speed</td><td>SLOW — copy entire image to runtime partition</td><td>FAST — immediate partition switch</td></tr>
+        <tr><td>Image type supported</td><td>Relocatable AND non-relocatable images</td><td>Relocatable images only (non-relocatable only if HW supports)</td></tr>
+        <tr><td>Addressing method</td><td>Fixed</td><td>Logical (abstracted memory layout)</td></tr>
+        <tr><td>Min partitions needed</td><td>3 (active + temp + backup old)</td><td>2 (active + inactive)</td></tr>
+        <tr><td>Typical use case</td><td>Non-relocatable images; MCU extended with external memory (internal only fits one image)</td><td>ECUs where physical flash > 2× image size</td></tr>
+        <tr><td>Address adaptation</td><td>Not required (fixed addressing)</td><td>Required — implementer ensures address/offset conversion in image</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Memory stack prerequisites — what FOTA requires from MCAL</div>
+    <div class="card">
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:160px;margin-right:10px">Program flash access</span><span style="font-size:12px">AUTOSAR previously only allowed data flash access at runtime. FOTA requires READ and WRITE access to program flash sections at runtime. MCAL extension required (planned R20-11).</span></div>
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:160px;margin-right:10px">Read-while-write</span><span style="font-size:12px">Active partition is read-executed. Inactive partition is written simultaneously. HW vendor must provide this in MCAL. Not all MCUs support this — it depends on flash architecture (A/B banks).</span></div>
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:160px;margin-right:10px">Memory solution agnostic</span><span style="font-size:12px">Internal or external flash (e.g. SPI-connected). MCAL differences must be transparent to upper layers. All memory architectures supported without changing upper BSW.</span></div>
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:160px;margin-right:10px">NvData handling</span><span style="font-size:12px">User data changes during FOTA must go through NvM module. Data model migration must happen before partition switch. Direct flash access forbidden.</span></div>
+    </div>
+    <div class="note">External flash via SPI: if new SW is stored externally and needs copying to internal flash during activation, a SECOND verification step after copy is recommended to detect SPI transfer corruption.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Partition invalidation — security concept</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">After successful activation and boot confirmation: FOTA Master may trigger invalidation of old (now inactive) partition. Purpose: prevent unauthorized rollback to vulnerable previous SW. Implementer decides how: flag in flash, delete partition, invalidate checksum, etc.</p>
+      <p style="font-size:12px;line-height:1.7;margin-top:8px">Important: FOTA Master should NOT invalidate immediately after activation — it must wait until all ECUs in a multi-ECU campaign have confirmed successful update. A rollback may still be needed if another ECU fails.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ROLLBACK & SECURITY -->
+<div id="panel-rollback" class="panel">
+  <div class="section">
+    <div class="section-title">Two rollback triggers</div>
+    <div class="grid2">
+      <div class="card"><span class="badge badge-purple" style="margin-bottom:6px">Master-triggered rollback</span><p style="font-size:12px;line-height:1.7;margin-top:6px">FOTA Master detects error (version incompatibility, backend request, system check fail). Master sends RC_Rollback() to FOTA Target → Target → ACTIVATE state with previous partition flag → ECU resets → Bootloader activates old partition.</p></div>
+      <div class="card"><span class="badge badge-coral" style="margin-bottom:6px">Autonomous rollback</span><p style="font-size:12px;line-height:1.7;margin-top:6px">ECU cannot boot new SW successfully → bootloader detects boot failure → autonomously switches back to previous partition → ECU comes back up on old SW. FOTA Master then reads SW version via DID to confirm rollback occurred.</p></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Multi-ECU rollback rule</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">If any ECU in a multi-ECU update campaign requires rollback, ALL dependent ECUs must be rolled back. Dependency management is FOTA Master's responsibility. FOTA Target ECU has no visibility into other ECUs' update status.</p>
+    </div>
+    <div class="danger">DcmResponseToEcuReset=AFTER_RESET: set this to TRUE on all FOTA Target ECUs. Without it, FOTA Master has no way to know when each ECU has completed its reset after activation. Setting DcmSendRespPendOnRestart=TRUE additionally informs Master about restart-in-progress during activation.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Security features</div>
+    <div class="card">
+      <div class="enum-row"><span class="badge badge-red" style="min-width:140px;margin-right:10px">Encrypted transfer</span><span style="font-size:12px">FOTA Master → FOTA Target transfer can be encrypted. Target decrypts before writing to flash.</span></div>
+      <div class="enum-row"><span class="badge badge-red" style="min-width:140px;margin-right:10px">Encrypted at rest</span><span style="font-size:12px">New SW in flash can be encrypted. HSM (Hardware Security Module) can handle crypto operations.</span></div>
+      <div class="enum-row"><span class="badge badge-red" style="min-width:140px;margin-right:10px">Dcm→Memory Stack</span><span style="font-size:12px">Transfer from Dcm buffer to memory stack can also be encrypted.</span></div>
+      <div class="enum-row"><span class="badge badge-red" style="min-width:140px;margin-right:10px">E2E protection</span><span style="font-size:12px">AUTOSAR end-to-end protection on FOTA Master ↔ FOTA Target communication to detect communication errors.</span></div>
+    </div>
+    <div class="note">Verification strategy is explicitly out of scope of this document. Initial image authenticity/integrity check = FOTA Master's job. Semantic/functional integrity check on Target = implementer-specific. AUTOSAR only says it should happen.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Migration scenario — NvData model changes</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">When new SW ships with a changed NvData model (e.g. new DID layout, renamed blocks): old data model must be migrated to new model BEFORE partition switch. Migration uses NvM module features (create, delete, move NvDataBlocks). This migration must happen while old SW is still running — implemented by FOTA Handler or FOTA Master. Do NOT extend NvM module itself.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="panel-config" class="panel">
+  <div class="section">
+    <div class="section-title">Important context before configuring</div>
+    <div class="danger" style="margin-bottom:12px">FOTA Handler is a CDD — it is NOT a standard AUTOSAR BSW module with a generated configurator. You configure the surrounding modules (Dcm, NvM, OS) to support FOTA, and implement the CDD callouts yourself. There is no "FOTA" module dropdown in DaVinci like there is for CanNm.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Dcm configuration for FOTA</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><strong>Add FOTA protocol row:</strong> DcmDslProtocolRow for FOTA. Set DcmDslProtocolPriority = lowest (0 or lowest value). This ensures any other diagnostic request preempts FOTA.</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><strong>FOTA buffer:</strong> DcmDslBufferSize on the FOTA protocol row. This controls max chunk size. Best practice: do not exceed other protocol buffer sizes. Separate buffer from normal UDS buffer.</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content"><strong>FOTA diagnostic session:</strong> Add custom user session for FOTA (DcmDspSessionRow). Link SecurityAccess level to this session. FOTA can only run inside this session.</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content"><strong>TransferData callout:</strong> Configure 0x36 service with callout to FOTA_ProcessTransferDataWrite. This is the entry point from Dcm to FOTA Handler.</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content"><strong>Preemption callback:</strong> DcmDslCallbackDCMRequestService → point to FOTA Handler's preemption handler function. This fires when higher-priority protocol preempts FOTA.</div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content"><strong>RoutineControl services:</strong> Add RC entries for RC_InitializeFOTA, RC_TriggerActivation, RC_Rollback, RC_VerifyInstallation (opt), RC_Cancel. Each with callouts into FOTA Handler functions.</div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content"><strong>DIDs:</strong> Add DID entries for: FOTA status, last written address, SW version, chunk ID. Read callbacks → FOTA Handler getter functions. Write callbacks → FOTA Handler setter functions.</div></div>
+      <div class="seq-row"><div class="seq-num">8</div><div class="seq-content"><strong>ECU Reset behavior:</strong> DcmResponseToEcuReset = AFTER_RESET (send positive response after boot). DcmSendRespPendOnRestart = TRUE (inform Master ECU about in-progress restart).</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">OS configuration for FOTA</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><strong>Add FOTA main task:</strong> OS task (OsTask) for FOTAHandlerMain. Set priority LOWER than application tasks. FOTA must not interfere with normal operation. Cyclic scheduling (e.g. every 10ms).</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><strong>InterRunnableVariable:</strong> Shared variable between FOTA_ProcessTransferDataWrite (Dcm task context) and FOTAHandlerMain (FOTA task context). Needs proper access protection / OS spinlock if on multicore.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">NvM configuration for FOTA</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><strong>FOTA state block:</strong> NvMBlockDescriptor for FOTA process state. Stores: current state enum, last written address, last chunk ID. Must survive power cycles.</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><strong>Priority:</strong> Give FOTA NvM block appropriate write priority. State must be written before next OS cycle on preemption (use NvM immediate write if available).</div></div>
+    </div>
+    <div class="warn">Partition switch flag location: configure in a memory section accessible by bootloader (linker script + bootloader memory map). Not in RAM. Not in NvM-managed data flash that the bootloader cannot read. Often a dedicated flash sector shared between boot and app.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Common DaVinci config mistakes</div>
+    <div class="grid2">
+      <div class="warn">FOTA buffer same as normal UDS buffer → normal UDS sessions starved during FOTA → always give FOTA its own DcmDslProtocolRow with own buffer</div>
+      <div class="warn">DcmDslProtocolPriority not set to lowest → FOTA cannot be preempted by real diagnostic requests → violates FOTA non-interference requirement</div>
+      <div class="warn">DcmResponseToEcuReset not set to AFTER_RESET → FOTA Master never gets boot confirmation after activation → Master assumes ECU bricked</div>
+      <div class="warn">Partition flag in application RAM → bootloader cannot see it → partition switch never happens → ECU boots old SW → FOTA Master confused by mismatched version</div>
+    </div>
+  </div>
+</div>
+
+<!-- DEBUG & TESTING -->
+<div id="panel-debug" class="panel">
+  <div class="section">
+    <div class="section-title">Interface testing checklist</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify GetFOTAStatus DID returns IDLE at ECU startup. State must be persisted and reset to IDLE after successful activation + boot.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify DiagnosticSessionControl(FOTA_SESSION) is rejected without prior SecurityAccess. Unauthorized flashing prevention.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify DCM_WRITE_PENDING responses during chunk processing. Monitor CANoe trace: ResponsePending (0x78 NRC) must appear repeatedly while flash write is in progress.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Simulate driving cycle end during PROCESSING state. On next startup: verify FOTA status DID shows correct interrupted state and last written address is valid.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Test preemption: send normal UDS request during active chunk transfer. Verify: FOTA stops, normal UDS is served, FOTA Master sees timeout, resume works correctly after reinitialization.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify partition flag location: after RC_TriggerActivation, read the flag location directly in flash memory (via memory tool). Must be readable by bootloader before ECU reset.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Test autonomous rollback: corrupt activation (e.g. bad checksum in new partition). Verify ECU boots old SW. FOTA Master reads SW version DID → must show previous version.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Test RequestTransferExit with OpStatus=IDLE: verify state returns to IDLE, inactive partition is invalidated. Test with OpStatus=READY: verify state goes to READY, activation can be triggered.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify DcmResponseToEcuReset=AFTER_RESET: after activation ECU reset, FOTA Master must receive positive response after new SW boots (not before reset). Check timing in CANoe.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">NvData migration: if new image changes NvM block layout, verify migration runs before partition switch. Read NvM blocks after activation — must reflect new data model without data loss.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">CANoe / tool debugging for FOTA</div>
+    <div class="card">
+      <table class="api-table">
+        <tr><th>Tool / technique</th><th>What to look for</th></tr>
+        <tr><td>CANoe UDS trace</td><td>0x36 TransferData requests + 0x78 ResponsePending NRCs during PROCESSING. Count pending responses to estimate flash write time.</td></tr>
+        <tr><td>Symbol browser / XCP</td><td>Access FOTA Handler internal state variable. Monitor transitions in real time. Check InterRunnableVariable between callout and main function.</td></tr>
+        <tr><td>Memory view tool</td><td>Verify inactive partition is being written (addresses incrementing). Verify partition switch flag set correctly after RC_TriggerActivation.</td></tr>
+        <tr><td>DID readback via 0x22</td><td>Monitor last written address DID during installation. Should increment with each chunk. Useful to calculate install progress.</td></tr>
+        <tr><td>CAPL script</td><td>Simulate FOTA Master: send complete sequence (SessionControl, SecurityAccess, RC_Init, RequestDownload, TransferData loop, TransferExit, RC_TriggerActivation). Automate test runs.</td></tr>
+        <tr><td>DcmDslCallbackDCMRequestService trace</td><td>Verify preemption callback fires. Add log/trace in callback to confirm FOTA state is saved correctly before preemption completes.</td></tr>
+        <tr><td>Flash memory dump</td><td>After installation (before activation): dump inactive partition. Hash it. Compare with expected image. Verifies integrity of chunk transfer + write.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Key facts to memorize for industry exam</div>
+    <div class="grid2">
+      <div class="tip-card"><div class="tip-title">FOTA Handler = CDD, not BSW module</div>Not enough features defined to warrant a full BSW module. CDD allows flexible connection through all BSW layers. May become BSW module in future releases.</div>
+      <div class="tip-card"><div class="tip-title">Activation requires vehicle safe state</div>Integrator's responsibility. Standstill + engine off + parking brake. AUTOSAR does not enforce this — it is a system-level requirement.</div>
+      <div class="tip-card"><div class="tip-title">Activation + Rollback sequences = bootloader</div>Out of AUTOSAR scope. No sequence charts in AUTOSAR spec for these. Done in bootloader context. AUTOSAR only defines up to triggering the reset.</div>
+      <div class="tip-card"><div class="tip-title">FOTA Master = UCM-Master = Adaptive AUTOSAR</div>Classic ECUs too resource-constrained to act as master. Adaptive platform ECU (domain controller) runs UCM-Master. Speaks UDS over vehicle bus to Classic targets.</div>
+      <div class="tip-card"><div class="tip-title">Installation spans multiple driving cycles</div>No requirement to complete in one drive. NvM persists state. Resume is transparent — same init sequence regardless of first start or resume.</div>
+      <div class="tip-card"><div class="tip-title">Preemption = FOTA Master timeout</div>No notification to FOTA Master on preemption. Master detects via UDS timeout. After timeout: reinitialize, read DIDs, resume. This is by design — notification not in scope.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+</script>
