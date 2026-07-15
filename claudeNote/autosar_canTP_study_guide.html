@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR CanTp — Complete Study Guide R24-11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f4f0;line-height:1.6}
+.header{background:#1a1233;color:#fff;padding:20px 32px}
+.header h1{font-size:22px;font-weight:500}
+.header p{font-size:13px;color:#9b96c4;margin-top:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:12px 32px 0;background:#fff;border-bottom:1px solid #e0ddd5}
+.tab{padding:8px 14px;font-size:12px;border:1px solid #ddd;border-radius:6px 6px 0 0;cursor:pointer;background:#f5f4f0;color:#666;transition:all .15s;border-bottom:none}
+.tab.active{background:#fff;color:#1a1a1a;font-weight:600;border-bottom:1px solid #fff;margin-bottom:-1px}
+.content{padding:24px 32px;max-width:1100px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+h2{font-size:17px;font-weight:600;margin:20px 0 8px;color:#1a1233}
+h3{font-size:13px;font-weight:700;margin:12px 0 6px;color:#333;text-transform:uppercase;letter-spacing:.4px}
+p{margin-bottom:8px;font-size:13px;line-height:1.65}
+.card{background:#fff;border:1px solid #e0ddd5;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}
+th{text-align:left;padding:7px 10px;background:#f5f4f0;border-bottom:1px solid #e0ddd5;font-weight:700;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.4px}
+td{padding:7px 10px;border-bottom:1px solid #f0ede5;vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:'Courier New',monospace;font-size:11px;background:#f0ede5;padding:1px 5px;border-radius:4px;color:#c7254e}
+.tip{background:#e6f3ff;border-left:3px solid #185FA5;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.warn{background:#fff8e6;border-left:3px solid #cc8800;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.danger{background:#ffeeee;border-left:3px solid #cc3333;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.good{background:#edfaee;border-left:3px solid #2a8c3e;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.mini{background:#f5f4f0;border-radius:8px;padding:12px;font-size:12px;line-height:1.7}
+.mini strong{display:block;font-size:10px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.fnode{padding:5px 12px;border:1px solid #ccc;border-radius:6px;font-size:11px;background:#fff;text-align:center}
+.farrow{color:#888;font-size:14px;flex-shrink:0}
+details{margin:8px 0;border:1px solid #e0ddd5;border-radius:8px;overflow:hidden}
+summary{cursor:pointer;font-size:13px;font-weight:700;color:#1a1233;padding:10px 14px;background:#f8f7f3;list-style:none;display:flex;align-items:center;gap:8px}
+summary::before{content:"▶";font-size:10px;color:#888;transition:transform .2s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+.inner{padding:14px;background:#fff}
+.step{padding:8px 14px;border-left:2px solid #e0ddd5;margin:4px 0 4px 12px;font-size:12px;line-height:1.6}
+.step.hi{border-left-color:#185FA5;background:#e6f3ff;border-radius:0 6px 6px 0}
+.sws{font-size:10px;color:#999;font-family:'Courier New',monospace}
+/* frame byte layouts */
+.frame-byte{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:2px;text-align:center;min-width:48px}
+.fb-pci{background:#e6f3ff;color:#0c447c;border:1px solid #85b7eb}
+.fb-data{background:#edfaee;color:#1a6b2a;border:1px solid #97c459}
+.fb-addr{background:#faeeda;color:#7a5a00;border:1px solid #fac775}
+.fb-pad{background:#f5f4f0;color:#888;border:1px solid #ccc}
+/* timeline */
+.tline{display:flex;align-items:stretch;gap:0;margin:8px 0;font-size:11px;flex-wrap:wrap}
+.tl-node{padding:6px 10px;text-align:center;min-width:80px}
+.tl-arrow{display:flex;align-items:center;padding:6px 0;color:#888}
+/* state badge */
+.state-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:2px}
+.sp-on{background:#edfaee;color:#1a6b2a;border:1px solid #97c459}
+.sp-off{background:#f5f4f0;color:#888;border:1px solid #ccc}
+.sp-rx{background:#e6f3ff;color:#0c447c;border:1px solid #85b7eb}
+.sp-tx{background:#faeeda;color:#7a5a00;border:1px solid #fac775}
+.sp-proc{background:#ffeeee;color:#7a0000;border:1px solid #f09595}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>AUTOSAR CAN Transport Layer (CanTp) — Complete Study Guide</h1>
+  <p>Based on AUTOSAR CP R24-11 | Document ID 14 | ISO 15765-2 based | All SWS IDs | Industry + Exam Grade</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="T('overview')">Overview</div>
+  <div class="tab" onclick="T('frames')">Frame Types &amp; PDU</div>
+  <div class="tab" onclick="T('states')">State Machine</div>
+  <div class="tab" onclick="T('timers')">Timers N_Ax/N_Bx/N_Cx</div>
+  <div class="tab" onclick="T('api')">API Reference</div>
+  <div class="tab" onclick="T('sequences')">Sequences</div>
+  <div class="tab" onclick="T('addressing')">Addressing Formats</div>
+  <div class="tab" onclick="T('errors')">Errors &amp; Debug</div>
+  <div class="tab" onclick="T('davinci')">DaVinci Config</div>
+  <div class="tab" onclick="T('testing')">Interface Testing</div>
+</div>
+
+<div class="content">
+
+<!-- ===== OVERVIEW ===== -->
+<div class="section active" id="s-overview">
+<h2>What is CanTp? — "The postal service of CAN"</h2>
+<p>CanTp (CAN Transport Layer) segments large messages into CAN frames and reassembles them on the other side — exactly like a postal service breaks a big package into smaller boxes, numbers them, and reassembles at destination. Based on ISO 15765-2. Main use: UDS diagnostics (DCM layer uses CanTp to send/receive diagnostic messages that are too large for a single CAN frame).</p>
+
+<div class="tip"><strong>Mental model:</strong> DCM says "send 500 bytes of diagnostic data". CanTp chops it into 7-byte chunks, sends them in sequence with flow control handshaking, and the receiver CanTp reassembles back to 500 bytes before giving to DCM.</div>
+
+<h2>Stack Position</h2>
+<div class="flow">
+  <div class="fnode" style="background:#edfaee">DCM / COM (upper layer)</div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#e6f3ff"><strong>PduR</strong><br><small>router</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#faeeda;border:2px solid #cc8800"><strong>CanTp</strong><br><small>segmentation + reassembly</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#e6f3ff"><strong>LSduR</strong><br><small>link SDU router (R24-11)</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#f5f4f0">CanIf → CAN HW</div>
+</div>
+<div class="tip"><strong>R24-11 change:</strong> Lower layer changed from CanIf to LSduR (Linklayer SDU Router). Function <code>LSduR_CanTpTransmit()</code> replaces <code>CanIf_Transmit()</code>. Header changed to <code>LSduR_CanTp.h</code>. Critical for migration!</div>
+
+<h2>Core Capabilities</h2>
+<div class="grid3">
+  <div class="mini"><strong>Segmentation (TX)</strong>Breaks N-SDU into SF/FF/CF frames. CAN 2.0: up to 7 bytes per CF. CAN FD: up to 62 bytes per CF. Sends FF first, then CFs after FC(CTS) received.</div>
+  <div class="mini"><strong>Reassembly (RX)</strong>Receives SF/FF/CF frames. Copies data to upper layer buffer via PduR_CanTpCopyRxData(). Manages block size and flow control timing.</div>
+  <div class="mini"><strong>Flow Control</strong>Receiver controls sender speed using FC frames: FC(CTS)=continue, FC(WAIT)=pause, FC(OVFLW)=overflow. Block size (BS) limits how many CFs before next FC.</div>
+  <div class="mini"><strong>Multiple connections</strong>Handles simultaneous TX + RX sessions. Each N-SDU linked to a connection channel with its own state machine, timers, buffer.</div>
+  <div class="mini"><strong>Addressing formats</strong>5 modes: Normal, Extended, Mixed 11-bit, Normal Fixed, Mixed 29-bit. Determines how N_TA and N_AE are placed in frame bytes.</div>
+  <div class="mini"><strong>No internal buffering</strong>CanTp has NO internal data buffer. Copies data directly from upper layer (PduR_CanTpCopyTxData) or to upper layer (PduR_CanTpCopyRxData). Zero-copy design.</div>
+</div>
+
+<h2>Key Constraints (Exam: always asked)</h2>
+<div class="card">
+<p>1. <strong>Event-triggered only</strong> — no polling mode [SWS_CanTp_00027 note, section 4.1]</p>
+<p>2. <strong>Functional addressing = SF only</strong> — multi-frame with functional addressing is error [SWS_CanTp_00092, 00093]</p>
+<p>3. <strong>No data buffering</strong> — upper layer must keep buffer locked from request to confirmation</p>
+<p>4. <strong>One LSduR, one PduR</strong> — CanTp has single interface each way</p>
+<p>5. <strong>CAN only</strong> — not FlexRay, not LIN</p>
+<p>6. <strong>CANTP_OFF after power up</strong> — all services blocked until CanTp_Init() [SWS_CanTp_00168, 00031]</p>
+</div>
+
+<h2>R24-11 New Items</h2>
+<div class="tip">
+<strong>New in R24-11:</strong> Security Events (IdsM integration) — CanTp now reports security events (wrong SN, invalid FS, overflow, padding errors, unexpected PDU) to IdsM module. New config container <code>CanTpEnableSecurityEventRefs</code>. New bool <code>CanTpEnableSecurityEventReporting</code>. Also: Detection of header violations added. Extended Production Errors added in R23-11 (N_As, N_Ar, N_Bs, N_Br, N_Cs, N_Cr timeouts → DEM). LSduR replaces CanIf in lower interface.
+</div>
+</div>
+
+<!-- ===== FRAME TYPES ===== -->
+<div class="section" id="s-frames">
+<h2>ISO 15765-2 Frame Types — N-PDU Structure</h2>
+
+<h3>Single Frame (SF) — fits in one CAN frame</h3>
+<div class="card">
+<p>Used when data ≤ 7 bytes (CAN 2.0 Normal addressing) or ≤ 6 bytes (Extended) or larger with CAN FD.</p>
+<div style="margin:10px 0">
+  <strong>CAN 2.0, Normal addressing (8 bytes total):</strong><br>
+  <div class="frame-byte fb-pci">Byte 0<br>0x0X<br>PCI+SF_DL</div>
+  <div class="frame-byte fb-data">Byte 1</div>
+  <div class="frame-byte fb-data">Byte 2</div>
+  <div class="frame-byte fb-data">Byte 3</div>
+  <div class="frame-byte fb-data">Byte 4</div>
+  <div class="frame-byte fb-data">Byte 5</div>
+  <div class="frame-byte fb-data">Byte 6</div>
+  <div class="frame-byte fb-pad">Byte 7<br>(pad)</div>
+</div>
+<div style="margin:10px 0">
+  <strong>Extended addressing (N_TA in byte 0):</strong><br>
+  <div class="frame-byte fb-addr">Byte 0<br>N_TA</div>
+  <div class="frame-byte fb-pci">Byte 1<br>0x0X SF_DL</div>
+  <div class="frame-byte fb-data">Bytes 2-7<br>Data (≤6)</div>
+</div>
+<table>
+  <tr><th>Field</th><th>Bits</th><th>Value</th><th>Meaning</th></tr>
+  <tr><td>N_PCI type</td><td>7:4</td><td>0000</td><td>Single Frame identifier</td></tr>
+  <tr><td>SF_DL</td><td>3:0</td><td>1-7</td><td>Data length in this frame. If 0x00: escape — next byte is SF_DL for CAN FD (>7 bytes).</td></tr>
+</table>
+<div class="tip">SF_DL=0 escape: used for CAN FD SF with data &gt;7 bytes. Next byte contains actual SF_DL (8-62 bytes).</div>
+</div>
+
+<h3>First Frame (FF) — starts multi-frame sequence</h3>
+<div class="card">
+<div style="margin:10px 0">
+  <div class="frame-byte fb-pci">Byte 0<br>0x1Y FF_DL high</div>
+  <div class="frame-byte fb-pci">Byte 1<br>FF_DL low</div>
+  <div class="frame-byte fb-data">Bytes 2-7<br>First 6 bytes data</div>
+</div>
+<table>
+  <tr><th>Field</th><th>Value</th><th>Meaning</th></tr>
+  <tr><td>N_PCI type</td><td>0001 (high nibble of byte 0)</td><td>First Frame</td></tr>
+  <tr><td>FF_DL</td><td>12 bits (low nibble byte0 + byte1), value 0-4095</td><td>Total data length. If 0x000: escape — next 4 bytes (bytes 2-5) = FF_DL for very long messages (&gt;4095 bytes, CAN FD)</td></tr>
+  <tr><td>First data</td><td>Bytes 2-7 (6 bytes, normal addressing)</td><td>First 6 bytes of N-SDU payload</td></tr>
+</table>
+</div>
+
+<h3>Consecutive Frame (CF) — subsequent data chunks</h3>
+<div class="card">
+<div style="margin:10px 0">
+  <div class="frame-byte fb-pci">Byte 0<br>0x2N SN</div>
+  <div class="frame-byte fb-data">Bytes 1-7<br>Data (7 bytes)</div>
+</div>
+<table>
+  <tr><th>Field</th><th>Value</th><th>Meaning</th></tr>
+  <tr><td>N_PCI type</td><td>0010 (high nibble)</td><td>Consecutive Frame</td></tr>
+  <tr><td>SN (Sequence Number)</td><td>Low nibble, 0-15 (wraps)</td><td>Sequence number. First CF after FF = SN 1. Wraps 15→0. Wrong SN → error [SWS_CanTp_00314].</td></tr>
+  <tr><td>Data</td><td>Bytes 1-7 (7 bytes, normal addressing)</td><td>Payload data. Last CF may have fewer bytes.</td></tr>
+</table>
+</div>
+
+<h3>Flow Control (FC) — receiver controls sender</h3>
+<div class="card">
+<div style="margin:10px 0">
+  <div class="frame-byte fb-pci">Byte 0<br>0x3F FS</div>
+  <div class="frame-byte fb-pci">Byte 1<br>BS</div>
+  <div class="frame-byte fb-pci">Byte 2<br>STmin</div>
+  <div class="frame-byte fb-pad">Bytes 3-7<br>(padding)</div>
+</div>
+<table>
+  <tr><th>Field</th><th>Values</th><th>Meaning</th></tr>
+  <tr><td>FS (Flow Status)</td><td>0x00 = CTS, 0x01 = WAIT, 0x02 = OVFLW</td><td>CTS=Clear To Send, WAIT=wait for next FC, OVFLW=buffer overflow → abort</td></tr>
+  <tr><td>BS (Block Size)</td><td>0x00–0xFF</td><td>How many CFs to send before waiting for next FC. BS=0 means send all without waiting for more FCs.</td></tr>
+  <tr><td>STmin</td><td>0x00–0x7F=0-127ms, 0xF1-0xF9=100-900µs</td><td>Minimum inter-CF gap sender must observe. [SWS_CanTp_00067]</td></tr>
+</table>
+<div class="warn"><strong>FC(OVFLW):</strong> Receiver sends this if StartOfReception returns BUFREQ_E_OVFL for FF. Sender receives FC(OVFLW) → abort TX, call PduR_CanTpTxConfirmation(E_NOT_OK). [SWS_CanTp_00318, 00309]</div>
+<div class="danger"><strong>FC with invalid FS (not 0, 1, 2):</strong> Sender → abort TX, PduR_CanTpTxConfirmation(E_NOT_OK), DET CANTP_E_COM. [SWS_CanTp_00317]</div>
+</div>
+
+<h2>Frame Data Length Rules (CAN FD)</h2>
+<div class="card">
+<p>ISO 11898-1:2015 defines non-linear DLC values for CAN FD: 0-8, 12, 16, 20, 24, 32, 48, 64 bytes only. If CanTp data doesn't match these lengths → pad to next valid DLC with CanTpPaddingByte. [SWS_CanTp_00351]</p>
+<p><strong>RX_DL derivation [SWS_CanTp_00350]:</strong> If CAN_DL ≤ 8 → RX_DL = 8. If CAN_DL &gt; 8 → RX_DL = CAN_DL.</p>
+</div>
+
+<h2>Padding Rules</h2>
+<div class="card">
+<table>
+  <tr><th>Situation</th><th>Rule</th><th>SWS</th></tr>
+  <tr><td>RX: PaddingActivation=ON, receive SF with DL&lt;8</td><td>Reject SF → CANTP_E_PADDING to DET. Report security event SEV_CAN_ERROR_PADDING.</td><td class="sws">SWS_CanTp_00345</td></tr>
+  <tr><td>RX: PaddingActivation=ON, receive last CF with DL≠8</td><td>Abort reception, PduR_CanTpRxIndication(E_NOT_OK), CANTP_E_PADDING to DET</td><td class="sws">SWS_CanTp_00346</td></tr>
+  <tr><td>RX: PaddingActivation=ON, transmit FC</td><td>Send FC with length=8, pad unused bytes with CanTpPaddingByte</td><td class="sws">SWS_CanTp_00347</td></tr>
+  <tr><td>TX: PaddingActivation=ON, transmit SF or last CF</td><td>Transmit with length=8, pad with CanTpPaddingByte</td><td class="sws">SWS_CanTp_00348</td></tr>
+  <tr><td>TX: PaddingActivation=ON, receive FC with DL&lt;8</td><td>Abort TX, PduR_CanTpTxConfirmation(E_NOT_OK), CANTP_E_PADDING</td><td class="sws">SWS_CanTp_00349</td></tr>
+  <tr><td>CAN FD: data doesn't match valid DLC</td><td>Use next higher valid DLC, pad with CanTpPaddingByte</td><td class="sws">SWS_CanTp_00351</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== STATE MACHINE ===== -->
+<div class="section" id="s-states">
+<h2>CanTp State Machine</h2>
+
+<h3>Module-level states (global)</h3>
+<div class="card">
+<div class="flow">
+  <div class="fnode" style="background:#f5f4f0">PowerOn → CANTP_OFF</div>
+  <div class="farrow">→ CanTp_Init() →</div>
+  <div class="fnode" style="background:#edfaee">CANTP_ON (idle)</div>
+  <div class="farrow">→ CanTp_Shutdown() →</div>
+  <div class="fnode" style="background:#f5f4f0">CANTP_OFF</div>
+</div>
+<table>
+  <tr><th>State</th><th>Description</th><th>SWS</th></tr>
+  <tr><td><span class="state-pill sp-off">CANTP_OFF</span></td><td>After power-up. No service available (except GetVersionInfo). Post-build config can be updated here.</td><td class="sws">SWS_CanTp_00168, 00169</td></tr>
+  <tr><td><span class="state-pill sp-on">CANTP_ON (Idle)</span></td><td>Initialized. Rx thread = CANTP_RX_WAIT. Tx thread = CANTP_TX_WAIT. No active sessions.</td><td class="sws">SWS_CanTp_00030, 00170</td></tr>
+</table>
+<div class="warn"><strong>CanTp_Init() called while CANTP_ON:</strong> All current connections lost immediately! Returns to idle. [SWS_CanTp_00111, 00273]</div>
+<div class="tip"><strong>CanTp_Shutdown():</strong> Closes all pending connections, frees resources, → CANTP_OFF. Does NOT notify upper layer of pending TX/RX. [SWS_CanTp_00202, 00200]</div>
+</div>
+
+<h3>Per-connection channel states</h3>
+<div class="card">
+<h3>TX Channel States</h3>
+<div class="flow">
+  <div class="fnode"><span class="state-pill sp-tx">CANTP_TX_WAIT</span><br><small>idle</small></div>
+  <div class="farrow">→ CanTp_Transmit() accepted →</div>
+  <div class="fnode"><span class="state-pill sp-proc">CANTP_TX_PROCESSING</span><br><small>active session</small></div>
+  <div class="farrow">→ TxConfirm(OK) or error →</div>
+  <div class="fnode"><span class="state-pill sp-tx">CANTP_TX_WAIT</span></div>
+</div>
+<table style="margin-top:8px">
+  <tr><th>TX State</th><th>Sub-activity</th><th>Key rules</th></tr>
+  <tr><td><code>CANTP_TX_WAIT</code></td><td>No active TX</td><td>New CanTp_Transmit() accepted here. Channel free.</td></tr>
+  <tr><td><code>CANTP_TX_PROCESSING</code></td><td>SF TX: copy data → LSduR → wait TxConf</td><td>SF: one shot. Copy from PduR, send via LSduR, wait TxConf. [SWS_CanTp_00231]</td></tr>
+  <tr><td></td><td>Multi-frame TX: FF → wait FC → send CFs</td><td>FF sent first. Wait FC(CTS). Then send BS consecutive frames. After each block, wait new FC. [SWS_CanTp_00232]</td></tr>
+  <tr><td></td><td>Waiting for FC</td><td>N_Bs timer running. FC(WAIT) received → restart N_Bs. FC(CTS) → send next block. [SWS_CanTp_00315]</td></tr>
+</table>
+
+<h3 style="margin-top:12px">RX Channel States</h3>
+<div class="flow">
+  <div class="fnode"><span class="state-pill sp-rx">CANTP_RX_WAIT</span><br><small>idle</small></div>
+  <div class="farrow">→ RxIndication(SF or FF) →</div>
+  <div class="fnode"><span class="state-pill sp-proc">CANTP_RX_PROCESSING</span><br><small>receiving</small></div>
+  <div class="farrow">→ Last CF or error →</div>
+  <div class="fnode"><span class="state-pill sp-rx">CANTP_RX_WAIT</span></div>
+</div>
+<table style="margin-top:8px">
+  <tr><th>RX State</th><th>Sub-activity</th><th>Key rules</th></tr>
+  <tr><td><code>CANTP_RX_WAIT</code></td><td>Idle, waiting for new reception</td><td>SF or FF received → transition to RX_PROCESSING.</td></tr>
+  <tr><td><code>CANTP_RX_PROCESSING</code> (SF)</td><td>Single frame complete reception</td><td>Call PduR_StartOfReception → PduR_CopyRxData → PduR_RxIndication. All in one RxIndication call context.</td></tr>
+  <tr><td><code>CANTP_RX_PROCESSING</code> (FF)</td><td>Multi-frame: waiting for CFs</td><td>Send FC after StartOfReception. N_Cr timer running. Expect CFs, check SN order. Send FC after each block.</td></tr>
+</table>
+</div>
+
+<h3>Unexpected N-PDU Arrival Handling (Critical exam topic)</h3>
+<div class="card">
+<table>
+  <tr><th>CanTp Status</th><th>SF received</th><th>FF received</th><th>CF received</th><th>FC received</th></tr>
+  <tr><td><strong>TX in progress</strong></td><td>If reception active: terminate current RX, report E_NOT_OK, start new RX. Else start new RX.</td><td>Same as SF</td><td>If RX in progress, process it. Else ignore.</td><td>If awaited: process FC. Else ignore.</td></tr>
+  <tr><td><strong>RX in progress</strong></td><td>Terminate current RX (report E_NOT_OK), start new SF reception.</td><td>Terminate current RX (report E_NOT_OK), start new FF reception.</td><td>Process CF in ongoing reception (check SN).</td><td>If TX in progress: process FC. Else ignore.</td></tr>
+  <tr><td><strong>Idle</strong></td><td>Start new SF reception.</td><td>Start new FF reception.</td><td>Ignore.</td><td>Ignore.</td></tr>
+</table>
+<p style="font-size:11px;color:#666;margin-top:6px">Source: [SWS_CanTp_00057] Table 1. "Idle" = CANTP_ON with both RX_WAIT and TX_WAIT.</p>
+<div class="warn"><strong>SF/FF interrupts ongoing RX:</strong> New SF or FF ALWAYS terminates current multi-frame reception and reports E_NOT_OK to upper layer first. Then starts the new reception. [SWS_CanTp_00124]</div>
+<div class="warn"><strong>Generic connection (MetaData):</strong> SF or FF received while channel active → IGNORED (not restarted). [SWS_CanTp_00337]</div>
+</div>
+</div>
+
+<!-- ===== TIMERS ===== -->
+<div class="section" id="s-timers">
+<h2>ISO 15765-2 Timing Parameters — Complete Reference</h2>
+
+<div class="tip"><strong>Naming convention:</strong> N_ = Network layer timer. Suffix s = sender side, r = receiver side. N_As = sender TX time. N_Ar = receiver TX time. N_Bs = sender waits FC. N_Br = receiver delay before FC. N_Cs = sender CF data fetch. N_Cr = receiver waits next CF.</div>
+
+<div class="card">
+<h3>All Timers Reference Table</h3>
+<table>
+  <tr><th>Timer</th><th>Side</th><th>Starts when</th><th>Stops when</th><th>Expires → action</th><th>Config param</th><th>SWS</th></tr>
+  <tr>
+    <td><strong>N_As</strong></td><td>Sender</td>
+    <td>CanTp requests TX of any frame (SF/FF/CF) via LSduR</td>
+    <td>TxConfirmation(E_OK) received from LSduR</td>
+    <td>Abort TX. PduR_TxConfirmation(E_NOT_OK). DET CANTP_E_TX_COM. DEM CANTP_E_CANTPNAS_TIMEOUT.</td>
+    <td><code>CanTpNas</code></td><td class="sws">SWS_CanTp_00075, 00310</td>
+  </tr>
+  <tr>
+    <td><strong>N_Bs</strong></td><td>Sender</td>
+    <td>After FF TxConfirmation. After last CF of each block TxConfirmation.</td>
+    <td>FC received from receiver</td>
+    <td>Abort TX. PduR_TxConfirmation(E_NOT_OK). DET CANTP_E_TX_COM. DEM CANTP_E_CANTPNBS_TIMEOUT.</td>
+    <td><code>CanTpNbs</code></td><td class="sws">SWS_CanTp_00315, 00316</td>
+  </tr>
+  <tr>
+    <td><strong>N_Cs</strong></td><td>Sender</td>
+    <td>Before calling PduR_CopyTxData for each CF (after receiving FC(CTS))</td>
+    <td>PduR_CopyTxData returns BUFREQ_OK</td>
+    <td>Abort TX. PduR_TxConfirmation(E_NOT_OK). DET CANTP_E_TX_COM. DEM CANTP_E_CANTPNCS_TIMEOUT.</td>
+    <td><code>CanTpNcs</code></td><td class="sws">SWS_CanTp_00167, 00280</td>
+  </tr>
+  <tr>
+    <td><strong>N_Ar</strong></td><td>Receiver</td>
+    <td>When CanTp requests TX of any FC frame via LSduR</td>
+    <td>TxConfirmation(E_OK) for FC received</td>
+    <td>Abort RX. PduR_RxIndication(E_NOT_OK). DET CANTP_E_RX_COM. DEM CANTP_E_CANTPNAR_TIMEOUT.</td>
+    <td><code>CanTpNar</code></td><td class="sws">SWS_CanTp_00311</td>
+  </tr>
+  <tr>
+    <td><strong>N_Br</strong></td><td>Receiver</td>
+    <td>After FF or last CF of block RxIndication, before calling PduR_StartOfReception or PduR_CopyRxData (if buffer insufficient)</td>
+    <td>Buffer becomes sufficient for next block</td>
+    <td>N_Br expires → send FC(WAIT). Restart N_Br. If WFTmax reached → abort RX. DEM CANTP_E_CANTPNBR_TIMEOUT.</td>
+    <td><code>CanTpNbr</code></td><td class="sws">SWS_CanTp_00082, 00341</td>
+  </tr>
+  <tr>
+    <td><strong>N_Cr</strong></td><td>Receiver</td>
+    <td>After each CF RxIndication (except last in block). After FC(CTS) TxConfirmation (signaling to sender to start CFs).</td>
+    <td>Next CF received</td>
+    <td>Abort RX. PduR_RxIndication(E_NOT_OK). DET CANTP_E_RX_COM. DEM CANTP_E_CANTPNCR_TIMEOUT.</td>
+    <td><code>CanTpNcr</code></td><td class="sws">SWS_CanTp_00312, 00313</td>
+  </tr>
+</table>
+</div>
+
+<h2>Timer Relationship Rules (ISO 15765-2 performance requirements)</h2>
+<div class="card">
+<div class="grid2">
+  <div class="mini"><strong>N_Br + N_Ar &lt; 0.9 × N_Bs</strong>Receiver must send FC(WAIT) or FC(CTS) fast enough that sender's N_Bs doesn't expire. N_Br is the buffer wait time. N_Ar is the FC TX time. Both together must be &lt; 90% of sender's N_Bs timer.</div>
+  <div class="mini"><strong>N_Cs + N_As &lt; 0.9 × N_Cr</strong>Sender must fetch data and transmit CF fast enough that receiver's N_Cr doesn't expire. N_Cs = data copy time from PduR. N_As = CAN frame TX time. Both must be &lt; 90% of receiver's N_Cr timer.</div>
+</div>
+<div class="warn" style="margin-top:8px"><strong>Config tip:</strong> Set N_Bs &gt; (N_Br + N_Ar) / 0.9 and N_Cr &gt; (N_Cs + N_As) / 0.9. Typical values: N_As=N_Ar=25ms, N_Bs=75ms, N_Br=20ms, N_Cs=25ms, N_Cr=150ms for diagnostic on automotive CAN.</div>
+</div>
+
+<h2>N_Br + WFTmax (Flow Control Wait) behavior</h2>
+<div class="card">
+<p>When buffer insufficient after FF or CF block → CanTp starts N_Br timer and polls PduR with zero-length calls each MainFunction [SWS_CanTp_00222]. When N_Br expires → send FC(WAIT) [SWS_CanTp_00341]. Max consecutive FC(WAIT) = CanTpRxWftMax. If WFTmax exceeded → abort RX with E_NOT_OK [SWS_CanTp_00223].</p>
+<div class="flow">
+  <div class="fnode">FF received</div><div class="farrow">→</div>
+  <div class="fnode">StartOfReception → small buffer</div><div class="farrow">→</div>
+  <div class="fnode">Start N_Br, poll PduR</div><div class="farrow">→ N_Br expires →</div>
+  <div class="fnode">Send FC(WAIT) [count++]</div>
+</div>
+<div class="flow">
+  <div class="fnode">Buffer available</div><div class="farrow">→</div>
+  <div class="fnode">Send FC(CTS) → expect CFs</div>
+</div>
+<div class="flow">
+  <div class="fnode" style="background:#ffeeee">count ≥ WFTmax</div><div class="farrow">→</div>
+  <div class="fnode" style="background:#ffeeee">Abort RX, PduR_RxIndication(E_NOT_OK)</div>
+</div>
+</div>
+
+<h2>MainFunction Role in Timer Handling</h2>
+<div class="card">
+<p><code>CanTp_MainFunction()</code> handles: N_As, N_Bs, N_Cs, N_Ar, N_Br, N_Cr timers and STmin inter-CF delay. [SWS_CanTp_00164]</p>
+<p>Timer resolution = <code>CanTpMainFunctionPeriod</code>. Set this to match OS task period. Too large → timing accuracy loss → may violate ISO 15765-2 performance requirements.</p>
+<div class="warn">N_Br polling (zero-length CopyRxData) happens each MainFunction cycle while N_Br active. If MainFunction period is large → FC(WAIT) may be sent later than optimal → N_Bs may expire on sender side.</div>
+</div>
+</div>
+
+<!-- ===== API ===== -->
+<div class="section" id="s-api">
+<h2>Complete API Reference</h2>
+
+<h3>Service APIs (upper layer → CanTp)</h3>
+<div class="card">
+<table>
+  <tr><th>Function</th><th>ID</th><th>Sync</th><th>Reentrant</th><th>Key behavior</th></tr>
+  <tr><td><code>CanTp_Init(CfgPtr)</code></td><td>0x01</td><td>Sync</td><td>No</td><td>→ CANTP_ON. All channels WAIT state. If called while ON: lose all connections. [SWS_CanTp_00208, 00111]</td></tr>
+  <tr><td><code>CanTp_Shutdown()</code></td><td>0x02</td><td>Sync</td><td>No</td><td>→ CANTP_OFF. Closes all sessions silently (no PduR notifications). [SWS_CanTp_00211, 00202, 00200]</td></tr>
+  <tr><td><code>CanTp_GetVersionInfo(versioninfo)</code></td><td>0x07</td><td>Sync</td><td>Yes</td><td>Available even in CANTP_OFF. Returns vendor/module/SW version. CANTP_E_PARAM_POINTER if NULL. [SWS_CanTp_00210]</td></tr>
+  <tr><td><code>CanTp_Transmit(TxPduId, PduInfoPtr)</code></td><td>0x49</td><td>Sync</td><td>Yes (diff PDU IDs)</td><td>E_OK=accepted (async TX starts). E_NOT_OK=rejected (channel busy or wrong ID). Only SduLength used (no data copy at this point). [SWS_CanTp_00212, 00206, 00225]</td></tr>
+  <tr><td><code>CanTp_CancelTransmit(TxPduId)</code></td><td>0x4a</td><td>Sync</td><td>Yes (diff PDU)</td><td>Only available if CanTpTc=TRUE. Aborts TX. PduR_TxConfirmation(E_NOT_OK) called. E_NOT_OK if not in TX progress → DET CANTP_E_OPER_NOT_SUPPORTED. [SWS_CanTp_00246, 00254, 00255]</td></tr>
+  <tr><td><code>CanTp_CancelReceive(RxPduId)</code></td><td>0x4c</td><td>Sync</td><td>No</td><td>Aborts multi-frame RX. E_NOT_OK if: SF reception, last CF being received, or not in progress. PduR_RxIndication(E_NOT_OK) if successful. [SWS_CanTp_00257, 00261, 00262]</td></tr>
+  <tr><td><code>CanTp_ChangeParameter(id, parameter, value)</code></td><td>0x4b</td><td>Sync</td><td>No</td><td>Change BS or STmin for an Rx N-SDU at runtime. Only when NOT in reception process. E_NOT_OK if RX active. Requires CanTpChangeParameterApi=TRUE. [SWS_CanTp_00302, 00303, 00304]</td></tr>
+  <tr><td><code>CanTp_ReadParameter(id, parameter, value)</code></td><td>0x0b</td><td>Sync</td><td>No</td><td>Read current BS or STmin for an Rx N-SDU. Requires CanTpChangeParameterApi=TRUE. [SWS_CanTp_00323]</td></tr>
+  <tr><td><code>CanTp_MainFunction()</code></td><td>0x06</td><td>Scheduled</td><td>No</td><td>Called by SchM. Processes all timers. Returns immediately if not initialized. [SWS_CanTp_00213, 00164]</td></tr>
+</table>
+</div>
+
+<h3>Callback APIs (LSduR → CanTp, from lower layer)</h3>
+<div class="card">
+<table>
+  <tr><th>Callback</th><th>ID</th><th>Called by</th><th>Reentrant</th><th>Key behavior</th></tr>
+  <tr><td><code>CanTp_RxIndication(RxPduId, PduInfoPtr)</code></td><td>0x42</td><td>LSduR</td><td>Yes (diff PDU IDs)</td><td>Called when CAN frame received. Can be called from CAN ISR context! [SWS_CanTp_00235]. Processes SF/FF/CF/FC according to unexpected PDU table [SWS_CanTp_00057].</td></tr>
+  <tr><td><code>CanTp_TxConfirmation(TxPduId, result)</code></td><td>0x40</td><td>LSduR</td><td>Yes (diff PDU IDs)</td><td>Called after CAN frame TX. Can be from CAN TX ISR! [SWS_CanTp_00236]. E_OK → stop N_As/N_Ar. E_NOT_OK → abort session. [SWS_CanTp_00355]</td></tr>
+</table>
+</div>
+
+<h3>APIs CanTp calls upward (PduR callbacks)</h3>
+<div class="card">
+<table>
+  <tr><th>PduR function</th><th>When called by CanTp</th><th>Buffer return values</th></tr>
+  <tr><td><code>PduR_CanTpStartOfReception(id, TpSduInfoPtr, TpSduLength, &bufferSize)</code></td><td>On SF or FF reception. Passes full message length. Asks PduR to allocate buffer.</td><td>BUFREQ_OK=buffer allocated, BUFREQ_E_NOT_OK=abort (no FC for SF, no FC for FF), BUFREQ_E_OVFL=send FC(OVFLW) for FF, abort for SF. [SWS_CanTp_00079, 00081, 00318, 00353]</td></tr>
+  <tr><td><code>PduR_CanTpCopyRxData(id, PduInfoPtr, &remainingBuffer)</code></td><td>After each CF reception. Called with zero-length while N_Br active (polling for buffer).</td><td>BUFREQ_OK=data copied, BUFREQ_E_NOT_OK=abort RX. [SWS_CanTp_00269, 00271]</td></tr>
+  <tr><td><code>PduR_CanTpRxIndication(id, result)</code></td><td>End of RX session (success or failure). E_OK=all data received. E_NOT_OK=error/abort.</td><td>— (no return checked)</td></tr>
+  <tr><td><code>PduR_CanTpCopyTxData(id, PduInfoPtr, retry, &availableData)</code></td><td>Before each SF/FF/CF transmission to get data from upper layer. retry always NULL (no retry in ISO 15765-2).</td><td>BUFREQ_OK=data ready, BUFREQ_E_BUSY=retry later (N_Cs starts), BUFREQ_E_NOT_OK=abort TX. [SWS_CanTp_00086, 00087, 00184]</td></tr>
+  <tr><td><code>PduR_CanTpTxConfirmation(id, result)</code></td><td>End of TX session (success or failure). E_OK=all data transmitted. E_NOT_OK=error/cancel/timeout.</td><td>— (no return checked)</td></tr>
+</table>
+</div>
+
+<h3>DET Error Codes</h3>
+<div class="card">
+<div class="grid2">
+<div>
+<h3>Development Errors</h3>
+<table>
+  <tr><th>Code</th><th>Value</th><th>Condition</th></tr>
+  <tr><td><code>CANTP_E_PARAM_CONFIG</code></td><td>0x01</td><td>ChangeParameter called with invalid value</td></tr>
+  <tr><td><code>CANTP_E_PARAM_ID</code></td><td>0x02</td><td>ChangeParameter/ReadParameter with invalid parameter ID</td></tr>
+  <tr><td><code>CANTP_E_PARAM_POINTER</code></td><td>0x03</td><td>NULL pointer passed</td></tr>
+  <tr><td><code>CANTP_E_INIT_FAILED</code></td><td>0x04</td><td>Init with invalid config pointer (post-build)</td></tr>
+  <tr><td><code>CANTP_E_UNINIT</code></td><td>0x20</td><td>API called before Init() (in CANTP_OFF)</td></tr>
+  <tr><td><code>CANTP_E_INVALID_TX_ID</code></td><td>0x30</td><td>Invalid TX PDU ID</td></tr>
+  <tr><td><code>CANTP_E_INVALID_RX_ID</code></td><td>0x40</td><td>Invalid RX PDU ID</td></tr>
+</table>
+</div>
+<div>
+<h3>Runtime Errors</h3>
+<table>
+  <tr><th>Code</th><th>Value</th><th>Condition</th></tr>
+  <tr><td><code>CANTP_E_PADDING</code></td><td>0x70</td><td>Frame DL &lt; 8 bytes when padding=ON</td></tr>
+  <tr><td><code>CANTP_E_INVALID_TATYPE</code></td><td>0x90</td><td>Multi-frame attempt on functional address</td></tr>
+  <tr><td><code>CANTP_E_OPER_NOT_SUPPORTED</code></td><td>0xA0</td><td>Cancel TX/RX for N-SDU not in progress</td></tr>
+  <tr><td><code>CANTP_E_COM</code></td><td>0xB0</td><td>Implementation-specific non-timeout protocol error</td></tr>
+  <tr><td><code>CANTP_E_RX_COM</code></td><td>0xC0</td><td>N_Ar/N_Br/N_Cr timeout (receiver side)</td></tr>
+  <tr><td><code>CANTP_E_TX_COM</code></td><td>0xD0</td><td>N_As/N_Bs/N_Cs timeout (sender side)</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<h3>Extended Production Errors (→ DEM)</h3>
+<div class="card">
+<table>
+  <tr><th>Error Name</th><th>DEM Fail condition</th><th>DEM Pass condition</th><th>SWS</th></tr>
+  <tr><td><code>CANTP_E_CANTPNAS_TIMEOUT_OCCURRED</code></td><td>N_As timer expired</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00361</td></tr>
+  <tr><td><code>CANTP_E_CANTPNAR_TIMEOUT_OCCURRED</code></td><td>N_Ar timer expired</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00362</td></tr>
+  <tr><td><code>CANTP_E_CANTPNBS_TIMEOUT_OCCURRED</code></td><td>N_Bs timer expired</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00363</td></tr>
+  <tr><td><code>CANTP_E_CANTPNBR_TIMEOUT_OCCURRED</code></td><td>N_Br timer expired</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00364</td></tr>
+  <tr><td><code>CANTP_E_CANTPNCS_TIMEOUT_OCCURRED</code></td><td>N_Cs timer expired</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00365</td></tr>
+  <tr><td><code>CANTP_E_CANTPNCR_TIMEOUT_OCCURRED</code></td><td>N_Cr timer expired</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00366</td></tr>
+  <tr><td><code>CANTP_E_SWAPPED_CONSECUTIVE_FRAMES_RECEIVED</code></td><td>Wrong SN received</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00367</td></tr>
+  <tr><td><code>CANTP_E_DROPPED_CONSECUTIVE_FRAMES_DETECTED</code></td><td>Missing CF detected</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00368</td></tr>
+  <tr><td><code>CANTP_E_FC_OVERFLOW_RECEIVED</code></td><td>FC(OVFLW) received by sender</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00369</td></tr>
+  <tr><td><code>CANTP_E_FC_OVERFLOW_TRANSMITTED</code></td><td>FC(OVFLW) sent by receiver</td><td>CanTp_Init() called</td><td class="sws">SWS_CanTp_00370</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div class="section" id="s-sequences">
+<h2>Sequence Diagrams — Step by Step</h2>
+
+<details open>
+<summary>Sequence 1: Single Frame Reception (SUCCESS)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>CAN HW → CanIf → LSduR → </strong><code>CanTp_RxIndication(RxPduId, PduInfoPtr)</code> [can be ISR context]</div>
+  <div style="padding-left:20px">CanTp: parse N_PCI → SF (type=0). Extract SF_DL.</div>
+  <div style="padding-left:20px">CanTp → <code>PduR_CanTpStartOfReception(id, TpSduInfoPtr, SF_DL, &bufferSize)</code></div>
+  <div><strong>Case A: BUFREQ_OK, bufferSize ≥ SF_DL</strong></div>
+  <div style="padding-left:20px">CanTp → <code>PduR_CanTpCopyRxData(id, &data[SF_DL], &remainingBuffer)</code></div>
+  <div style="padding-left:20px">CanTp → <code>PduR_CanTpRxIndication(id, E_OK)</code></div>
+  <div><strong>Case B: BUFREQ_E_NOT_OK</strong></div>
+  <div style="padding-left:20px">CanTp: abort. No FC sent. No PduR_RxIndication. [SWS_CanTp_00081]</div>
+  <div><strong>Case C: BUFREQ_E_OVFL</strong></div>
+  <div style="padding-left:20px">CanTp: abort. No FC sent (SF, not FF). No PduR_RxIndication. [SWS_CanTp_00353]</div>
+  <div><strong>Case D: BUFREQ_OK but bufferSize &lt; SF_DL</strong></div>
+  <div style="padding-left:20px">CanTp: abort. PduR_CanTpRxIndication(E_NOT_OK). [SWS_CanTp_00339]</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 2: Multi-Frame Reception (FF + CFs)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>1. FF received → CanTp_RxIndication()</strong></div>
+  <div style="padding-left:20px">Parse FF. Extract total length (FF_DL).</div>
+  <div style="padding-left:20px">Start N_Br timer. Call <code>PduR_CanTpStartOfReception(id, TpSduInfoPtr, FF_DL, &bufSize)</code></div>
+  <div><strong>If BUFREQ_E_OVFL → Send FC(OVFLW), abort. [SWS_CanTp_00318]</strong></div>
+  <div><strong>If BUFREQ_E_NOT_OK → abort silently. [SWS_CanTp_00081]</strong></div>
+  <div><strong>If BUFREQ_OK, bufSize ≥ next block size:</strong></div>
+  <div style="padding-left:20px">Send <code>FC(CTS)</code> via LSduR. Start N_Ar. Start N_Cr. State = expecting CFs.</div>
+  <div><strong>If BUFREQ_OK, bufSize &lt; next block size:</strong></div>
+  <div style="padding-left:20px">N_Br active. Each MainFunction: call CopyRxData(0, NULL). When buffer sufficient → send FC(CTS). If WFTmax → abort. [SWS_CanTp_00082, 00341]</div>
+  <div style="margin-top:8px"><strong>2. Each CF received → CanTp_RxIndication()</strong></div>
+  <div style="padding-left:20px">Check SN. Wrong SN → abort, PduR_RxIndication(E_NOT_OK), DEM SWAPPED_CF. [SWS_CanTp_00314]</div>
+  <div style="padding-left:20px">Correct SN → <code>PduR_CanTpCopyRxData(id, &cfData, &remainingBuf)</code></div>
+  <div style="padding-left:20px">If BUFREQ_E_NOT_OK → abort, PduR_RxIndication(E_NOT_OK). [SWS_CanTp_00271]</div>
+  <div style="padding-left:20px">Restart N_Cr (if not last in block). Decrement block counter.</div>
+  <div><strong>3. Block complete (BS CFs received) → send next FC(CTS)</strong></div>
+  <div style="padding-left:20px">Check remaining buffer. If sufficient → FC(CTS). If not → FC(WAIT) loop.</div>
+  <div><strong>4. Last CF received</strong></div>
+  <div style="padding-left:20px"><code>PduR_CanTpRxIndication(id, E_OK)</code>. Session complete.</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 3: Single Frame Transmission (TX)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>PduR → </strong><code>CanTp_Transmit(TxPduId, PduInfoPtr)</code></div>
+  <div style="padding-left:20px">CanTp checks: valid ID, channel not busy. If busy → E_NOT_OK.</div>
+  <div style="padding-left:20px">SduLength ≤ max SF size → plan SF transmission. E_OK returned.</div>
+  <div style="padding-left:20px">Start N_Cs timer. Call <code>PduR_CanTpCopyTxData(id, PduInfoPtr, NULL, &available)</code></div>
+  <div style="padding-left:20px">BUFREQ_OK → build SF N-PDU (N_PCI + data). Start N_As timer.</div>
+  <div style="padding-left:20px"><code>LSduR_CanTpTransmit(LSduId, PduInfoPtr)</code></div>
+  <div><strong>LSduR → </strong><code>CanTp_TxConfirmation(PduId, E_OK)</code></div>
+  <div style="padding-left:20px">Stop N_As timer. Call <code>PduR_CanTpTxConfirmation(id, E_OK)</code>. Session done.</div>
+  <div><strong>If TxConfirmation(E_NOT_OK):</strong></div>
+  <div style="padding-left:20px">Abort. <code>PduR_CanTpTxConfirmation(id, E_NOT_OK)</code>. [SWS_CanTp_00355]</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 4: Multi-Frame Transmission (FF + CFs)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2">
+  <div><strong>PduR → CanTp_Transmit() → E_OK (SduLength &gt; max SF)</strong></div>
+  <div style="padding-left:20px">Copy first 6 bytes via PduR_CopyTxData. Build FF (N_PCI: type=1, FF_DL). Start N_As.</div>
+  <div style="padding-left:20px"><code>LSduR_CanTpTransmit(FF)</code> → CanTp_TxConfirmation(E_OK) → Stop N_As.</div>
+  <div style="padding-left:20px"><strong>Start N_Bs timer</strong> (waiting for FC from receiver).</div>
+  <div><strong>Receiver → FC(CTS) received → CanTp_RxIndication(FC)</strong></div>
+  <div style="padding-left:20px">Stop N_Bs. Read BS (block size) and STmin from FC.</div>
+  <div><strong>For each CF in block (BS count):</strong></div>
+  <div style="padding-left:20px">Wait STmin. Start N_Cs. Call PduR_CopyTxData (7 bytes). Build CF (SN++). Start N_As.</div>
+  <div style="padding-left:20px">LSduR_CanTpTransmit(CF) → TxConfirmation(E_OK) → Stop N_As.</div>
+  <div><strong>After last CF in block → restart N_Bs. Wait next FC.</strong></div>
+  <div><strong>FC(CTS) → continue next block. Last byte sent → PduR_TxConfirmation(E_OK).</strong></div>
+  <div style="margin-top:6px"><strong>Error scenarios:</strong></div>
+  <div style="padding-left:20px">FC(WAIT) received → stop N_Bs, restart N_Bs. [SWS_CanTp_00315]</div>
+  <div style="padding-left:20px">FC(OVFLW) → abort, PduR_TxConfirmation(E_NOT_OK). [SWS_CanTp_00309]</div>
+  <div style="padding-left:20px">N_Bs timeout → abort, PduR_TxConfirmation(E_NOT_OK). [SWS_CanTp_00316]</div>
+  <div style="padding-left:20px">PduR_CopyTxData → BUFREQ_E_BUSY → retry in next MainFunction (N_Cs still running). [SWS_CanTp_00184]</div>
+  <div style="padding-left:20px">N_Cs timeout → abort, PduR_TxConfirmation(E_NOT_OK). [SWS_CanTp_00280]</div>
+</div>
+</div>
+</details>
+</div>
+
+<!-- ===== ADDRESSING ===== -->
+<div class="section" id="s-addressing">
+<h2>Addressing Formats — Deep Dive</h2>
+
+<div class="card">
+<h3>Normal (Standard) Addressing — CANTP_STANDARD</h3>
+<p>CAN ID alone identifies the N-SDU connection. No address bytes consumed in data field. Maximum payload per frame.</p>
+<div class="flow">
+  <div class="fnode fb-pci" style="padding:8px">CAN ID → identifies N_SA + N_TA + N_TAtype</div>
+  <div class="farrow">|</div>
+  <div class="fnode fb-pci">Byte 0: N_PCI</div>
+  <div class="fnode fb-data">Bytes 1-7: Data (SF: up to 7)</div>
+</div>
+<p style="font-size:12px">No extra config needed (no CanTpNTa, CanTpNSa containers). Pure CAN ID mapping.</p>
+</div>
+
+<div class="card">
+<h3>Extended Addressing — CANTP_EXTENDED</h3>
+<p>CAN ID identifies N_SA + N_TAtype. First data byte = N_TA (target address). One data byte lost per frame.</p>
+<div class="flow">
+  <div class="fnode fb-addr">Byte 0: N_TA</div>
+  <div class="fnode fb-pci">Byte 1: N_PCI</div>
+  <div class="fnode fb-data">Bytes 2-7: Data (SF: up to 6)</div>
+</div>
+<p style="font-size:12px">Config: <code>CanTpNTa</code> container with N_TA value. Also <code>CanTpNSa</code> for physical RxNSDU.</p>
+<div class="tip">Same CAN ID can serve multiple ECUs — distinguished by N_TA byte. [SWS_CanTp_00095]</div>
+</div>
+
+<div class="card">
+<h3>Mixed 11-bit Addressing — CANTP_MIXED</h3>
+<p>CAN ID (11-bit) identifies N_SA + N_TA + N_TAtype. First data byte = N_AE (address extension). Used for sub-addressing.</p>
+<div class="flow">
+  <div class="fnode fb-addr">Byte 0: N_AE</div>
+  <div class="fnode fb-pci">Byte 1: N_PCI</div>
+  <div class="fnode fb-data">Bytes 2-7: Data (SF: up to 6)</div>
+</div>
+<p style="font-size:12px">Config: <code>CanTpNAe</code> container with N_AE value.</p>
+</div>
+
+<div class="card">
+<h3>Normal Fixed Addressing — CANTP_NORMALFIXED</h3>
+<p>Uses CAN 29-bit ID. N_SA and N_TA encoded directly in CAN ID bytes. No data byte consumed.</p>
+<div class="flow">
+  <div class="fnode">29-bit CAN ID encodes N_SA + N_TA</div>
+  <div class="farrow">|</div>
+  <div class="fnode fb-pci">Byte 0: N_PCI</div>
+  <div class="fnode fb-data">Bytes 1-7: Data (SF: up to 7)</div>
+</div>
+<p style="font-size:12px">Config: <code>CanTpNTa</code> + <code>CanTpNSa</code> containers. Used in OBD applications (ISO 15765-4). MetaData carries N_SA, N_TA at runtime for generic connections.</p>
+</div>
+
+<div class="card">
+<h3>Mixed 29-bit Addressing — CANTP_MIXED29BIT</h3>
+<p>29-bit CAN ID encodes N_SA + N_TA. First data byte = N_AE. Combines normal fixed with address extension.</p>
+<div class="flow">
+  <div class="fnode">29-bit CAN ID: N_SA + N_TA</div>
+  <div class="fnode fb-addr">Byte 0: N_AE</div>
+  <div class="fnode fb-pci">Byte 1: N_PCI</div>
+  <div class="fnode fb-data">Bytes 2-7: Data (SF: up to 6)</div>
+</div>
+<p style="font-size:12px">Config: <code>CanTpNTa</code> + <code>CanTpNSa</code> + <code>CanTpNAe</code>.</p>
+</div>
+
+<h2>Generic Connections (MetaData)</h2>
+<div class="card">
+<p>Enabled by <code>CanTpGenericConnectionSupport=TRUE</code> (requires <code>CanTpDynIdSupport=TRUE</code>). Allows one N-SDU to handle multiple peers dynamically at runtime — addressing info comes from MetaData of N-PDU.</p>
+<table>
+  <tr><th>Addressing Format</th><th>MetaData in RX</th><th>MetaData in StartOfReception</th><th>MetaData in FC TX</th></tr>
+  <tr><td>Normal, Extended, Mixed11</td><td>None</td><td>None</td><td>None</td></tr>
+  <tr><td>Normal Fixed, Mixed29</td><td>N_SA, N_TA from CAN ID</td><td>Forward N_SA, N_TA</td><td>N_SA=saved N_TA, N_TA=saved N_SA (swap)</td></tr>
+</table>
+<div class="warn"><strong>Generic connection RX rule:</strong> If SF/FF arrives while channel active → IGNORED (not restarted, unlike specific connections). [SWS_CanTp_00337]</div>
+</div>
+</div>
+
+<!-- ===== ERRORS & DEBUG ===== -->
+<div class="section" id="s-errors">
+<h2>Error Handling &amp; Debugging Guide</h2>
+
+<h2>Security Events (R24-11 new)</h2>
+<div class="card">
+<p>If <code>CanTpEnableSecurityEventReporting=TRUE</code>, CanTp reports to IdsM module. These mirror protocol attacks or integrity issues.</p>
+<table>
+  <tr><th>Security Event</th><th>ID</th><th>Trigger</th><th>SWS</th></tr>
+  <tr><td><code>SEV_CAN_ERROR_WFT_OVRN</code></td><td>77</td><td>FC(WAIT) counter exceeded WFTmax</td><td class="sws">SWS_CanTp_00373</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_TIMEOUT_A</code></td><td>78</td><td>N_Ar timeout (FC TX confirmation not received)</td><td class="sws">SWS_CanTp_00374</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_TIMEOUT_CR</code></td><td>79</td><td>N_Cr timeout (next CF not received)</td><td class="sws">SWS_CanTp_00375</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_WRONG_SN</code></td><td>80</td><td>Invalid sequence number in CF</td><td class="sws">SWS_CanTp_00376</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_NO_BUFFER</code></td><td>81</td><td>FC(OVFLW) received</td><td class="sws">SWS_CanTp_00377</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_INVALID_FS</code></td><td>82</td><td>FC with invalid FS value</td><td class="sws">SWS_CanTp_00378</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_TIMEOUT_BS</code></td><td>83</td><td>N_Bs timeout (FC not received from sender's view)</td><td class="sws">SWS_CanTp_00379</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_UNEXP_PDU</code></td><td>84</td><td>New SF/FF received during active segmented RX</td><td class="sws">SWS_CanTp_00380</td></tr>
+  <tr><td><code>SEV_CAN_ERROR_PADDING</code></td><td>86</td><td>SF or last CF with DL&lt;8 when padding=ON</td><td class="sws">SWS_CanTp_00381, 00382</td></tr>
+  <tr><td><code>SEV_CAN_INVALID_TATYPE</code></td><td>87</td><td>Multi-frame on functional address N-SDU</td><td class="sws">SWS_CanTp_00383</td></tr>
+</table>
+</div>
+
+<h2>Debugging Checklist</h2>
+
+<details open>
+<summary>Problem: N_Bs timeout — sender side (TX hangs waiting for FC)</summary>
+<div class="inner">
+<div class="step hi">Root cause: Receiver not sending FC within N_Bs time after FF or last CF of block.</div>
+<div class="step">1. Check receiver buffer situation: if PduR_StartOfReception returned small buffer → receiver sends FC(WAIT). If WFTmax exceeded → receiver aborts RX → no more FCs → N_Bs expires on sender.</div>
+<div class="step">2. Check N_Br + N_Ar &lt; 0.9 × N_Bs config constraint. If N_Bs too small → legitimate FC(WAIT) processing time causes timeout.</div>
+<div class="step">3. Check receiver N_Ar: if FC was requested but not confirmed by CAN driver → N_Ar expires on receiver → receiver aborts → no FC to sender → N_Bs expires.</div>
+<div class="step">4. CANoe: capture trace. Measure time from last FF or CF to FC. Compare to configured N_Bs.</div>
+<div class="step">5. Check if CanTp_MainFunction is called at configured period. Jitter can cause timer granularity issues.</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: N_Cr timeout — receiver side (expected CF not arriving)</summary>
+<div class="inner">
+<div class="step hi">Root cause: Sender stopped sending CFs. Could be sender-side N_Cs or N_As timeout.</div>
+<div class="step">1. Check sender's PduR_CopyTxData — if BUFREQ_E_BUSY returned repeatedly → N_Cs timer counts down → expires → sender aborts → no more CFs → receiver times out with N_Cr.</div>
+<div class="step">2. Check sender CAN bus — bus-off or buffer full → N_As timeout → sender aborts → no CF.</div>
+<div class="step">3. Check STmin from FC: sender must wait STmin between CFs. If STmin very large + N_Cr small → N_Cr expires during legal STmin wait. (N_Cr must be &gt; STmin + N_As).</div>
+<div class="step">4. Check SN continuity on CANoe trace — wrong SN → receiver aborts immediately (not N_Cr timeout but SN error).</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: Wrong SN received (dropped/swapped CFs)</summary>
+<div class="inner">
+<div class="step hi">CanTp checks SN on every CF. Expected = (last_SN + 1) mod 16. [SWS_CanTp_00314]</div>
+<div class="step">1. SN = 0 after FF, increments 1-2-3...15-0-1... If sequence breaks → abort RX.</div>
+<div class="step">2. Common cause: CAN frame loss on bus → CF missed → next CF has SN+2 instead of SN+1 → wrong SN. DEM: DROPPED_CONSECUTIVE_FRAMES_DETECTED. Security: SEV_CAN_ERROR_WRONG_SN.</div>
+<div class="step">3. Capture CAN trace. Verify SN byte (low nibble of CF byte 0) increments correctly.</div>
+<div class="step">4. Check bus error rate — electrical issues causing frame drops increase SN errors.</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: FC(OVFLW) sent or received</summary>
+<div class="inner">
+<div class="step hi">Receiver sends FC(OVFLW): PduR_StartOfReception returned BUFREQ_E_OVFL for FF. DEM: CANTP_E_FC_OVERFLOW_TRANSMITTED.</div>
+<div class="step">Sender receives FC(OVFLW): abort TX, PduR_TxConfirmation(E_NOT_OK). DEM: CANTP_E_FC_OVERFLOW_RECEIVED.</div>
+<div class="step">Fix: Check DCM/upper layer buffer allocation. DCM might be busy with another request. Check CanTpBs and buffer sizes. Ensure upper layer can allocate FF_DL bytes.</div>
+</div>
+</details>
+
+<details>
+<summary>Problem: CanTp_Transmit() returns E_NOT_OK</summary>
+<div class="inner">
+<div class="step">1. Channel already in TX_PROCESSING — another TX on same channel not finished. [SWS_CanTp_00123]</div>
+<div class="step">2. Module in CANTP_OFF — CanTp_Init() not called yet. DET: CANTP_E_UNINIT.</div>
+<div class="step">3. Invalid TxPduId. DET: CANTP_E_INVALID_TX_ID.</div>
+<div class="step">4. Functional addressing + multi-frame attempt. DET: CANTP_E_INVALID_TATYPE. [SWS_CanTp_00093]</div>
+</div>
+</details>
+
+<h2>Key Variables to Watch in Debugger</h2>
+<div class="card">
+<table>
+  <tr><th>Variable</th><th>What it shows</th></tr>
+  <tr><td><code>CanTp_ChannelState[ch]</code></td><td>TX/RX state of each channel (WAIT, PROCESSING)</td></tr>
+  <tr><td><code>CanTp_Timer_N_Bs[ch]</code></td><td>N_Bs countdown — if near 0 → sender about to timeout</td></tr>
+  <tr><td><code>CanTp_Timer_N_Cr[ch]</code></td><td>N_Cr countdown — if near 0 → receiver about to timeout</td></tr>
+  <tr><td><code>CanTp_WftCounter[ch]</code></td><td>Current FC(WAIT) count — approaching WFTmax is dangerous</td></tr>
+  <tr><td><code>CanTp_ExpectedSN[ch]</code></td><td>Next expected CF sequence number</td></tr>
+  <tr><td><code>CanTp_DataIndex[ch]</code></td><td>How many bytes of N-SDU processed so far</td></tr>
+  <tr><td><code>CanTp_BlockCounter[ch]</code></td><td>Remaining CFs in current block before FC needed</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== DAVINCI ===== -->
+<div class="section" id="s-davinci">
+<h2>Configuring CanTp in Vector DaVinci Developer / Configurator Pro</h2>
+
+<div class="tip"><strong>Config hierarchy:</strong> CanTp → {CanTpGeneral + CanTpConfig + CanTpDemEventParameterRefs} → CanTpConfig → CanTpChannel (1..*) → {CanTpRxNSdu (0..*) + CanTpTxNSdu (0..*)} → {CanTpRxNPdu + CanTpTxFcNPdu + CanTpNTa + CanTpNSa + CanTpNAe}</div>
+
+<h3>Step 1: CanTpGeneral — global feature switches</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanTp → CanTpGeneral</code></p>
+<table>
+  <tr><th>Parameter</th><th>Default</th><th>Set to</th><th>Impact</th></tr>
+  <tr><td><code>CanTpDevErrorDetect</code></td><td>false</td><td>TRUE (dev) / FALSE (prod)</td><td>Enables DET for UNINIT, PARAM_POINTER etc.</td></tr>
+  <tr><td><code>CanTpVersionInfoApi</code></td><td>false</td><td>FALSE usually</td><td>Adds CanTp_GetVersionInfo() API</td></tr>
+  <tr><td><code>CanTpChangeParameterApi</code></td><td>—</td><td>TRUE if runtime BS/STmin change needed</td><td>Enables CanTp_ChangeParameter() and CanTp_ReadParameter() APIs</td></tr>
+  <tr><td><code>CanTpFlexibleDataRateSupport</code></td><td>true</td><td>TRUE if CAN FD used</td><td>Enables CAN FD frame handling (&gt;8 bytes)</td></tr>
+  <tr><td><code>CanTpDynIdSupport</code></td><td>false</td><td>TRUE if MetaData/dynamic addressing needed</td><td>Enables generic connections via N-PDU MetaData</td></tr>
+  <tr><td><code>CanTpGenericConnectionSupport</code></td><td>false</td><td>TRUE if generic connections needed</td><td>Requires CanTpDynIdSupport=TRUE</td></tr>
+  <tr><td><code>CanTpPaddingByte</code></td><td>—</td><td>0x00 or 0xCC (OBD uses 0x00)</td><td>Value used to fill padding bytes in N-PDUs</td></tr>
+  <tr><td><code>CanTpEnableSecurityEventReporting</code></td><td>false</td><td>TRUE if IdsM integration needed (R24-11)</td><td>Enables security event reporting to IdsM module</td></tr>
+</table>
+</div>
+
+<h3>Step 2: CanTpConfig — timing and channel count</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanTp → CanTpConfig</code></p>
+<table>
+  <tr><th>Parameter</th><th>What to set</th><th>Notes</th></tr>
+  <tr><td><code>CanTpMainFunctionPeriod</code></td><td>Match SchM task period (e.g. 0.005 = 5ms)</td><td><strong>Critical:</strong> All timer resolution depends on this. Too large → poor timer accuracy. Must match OS task exactly.</td></tr>
+  <tr><td><code>CanTpMaxChannelCnt</code></td><td>Only needed for post-build with static allocation</td><td>Usually auto-determined by tool from N-SDU routing table.</td></tr>
+</table>
+</div>
+
+<h3>Step 3: CanTpChannel — one per simultaneous connection group</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanTpConfig → CanTpChannel</code> (add 1..*)</p>
+<p>A channel represents one concurrent connection slot. Multiple N-SDUs can share a channel, but they cannot be processed simultaneously. Add dedicated channels for performance-critical connections.</p>
+<div class="warn"><strong>Channel sharing:</strong> If two N-SDUs share a channel, new TX/RX rejected if channel busy. Size channels according to use case (diagnostic UDS = typically 1-2 channels).</div>
+</div>
+
+<h3>Step 4: CanTpRxNSdu — one per received N-SDU</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanTpChannel → CanTpRxNSdu</code></p>
+<table>
+  <tr><th>Parameter</th><th>What to set</th><th>Notes</th></tr>
+  <tr><td><code>CanTpRxNSduId</code></td><td>Auto-generated unique ID</td><td>Used by upper layer in CancelReceive, ChangeParameter calls.</td></tr>
+  <tr><td><code>CanTpRxNSduRef</code></td><td>Reference to PduR Rx I-PDU</td><td>Links this N-SDU to PduR routing path.</td></tr>
+  <tr><td><code>CanTpRxAddressingFormat</code></td><td>CANTP_STANDARD / CANTP_EXTENDED / CANTP_MIXED / CANTP_NORMALFIXED / CANTP_MIXED29BIT</td><td><strong>Must match sender config.</strong></td></tr>
+  <tr><td><code>CanTpRxTaType</code></td><td>CANTP_PHYSICAL (1:1) or CANTP_FUNCTIONAL (1:n)</td><td>Functional = SF only. Physical = all frame types.</td></tr>
+  <tr><td><code>CanTpRxPaddingActivation</code></td><td>CANTP_ON (OBD) or CANTP_OFF (UDS flexible)</td><td>OBD ISO 15765-4 requires padding ON.</td></tr>
+  <tr><td><code>CanTpBs</code></td><td>0–255. 0=unlimited blocks. Typical: 0 or 10</td><td>Block size for this receiver. 0 means sender sends all without intermediate FC. [SWS_CanTp_00067]</td></tr>
+  <tr><td><code>CanTpSTmin</code></td><td>Seconds. e.g. 0.000025 (25µs) or 0.0 (no min)</td><td>Minimum inter-CF gap sender must respect. Sent in FC frame. ISO 15765-2: 0x00-0x7F=0-127ms, 0xF1-0xF9=100-900µs.</td></tr>
+  <tr><td><code>CanTpRxWftMax</code></td><td>0–65535. 0=no WAIT allowed. Typical: 0 or 3</td><td>Max FC(WAIT) frames before abort. 0 = abort immediately if buffer not available.</td></tr>
+  <tr><td><code>CanTpNar</code></td><td>Seconds. e.g. 0.025 (25ms)</td><td>N_Ar timeout: time for FC TX confirmation. If CAN bus busy, increase this.</td></tr>
+  <tr><td><code>CanTpNbr</code></td><td>Seconds. e.g. 0.020</td><td>N_Br: buffer polling time before sending FC(WAIT). Must satisfy N_Br + N_Ar &lt; 0.9 × N_Bs(sender).</td></tr>
+  <tr><td><code>CanTpNcr</code></td><td>Seconds. e.g. 0.150 (150ms)</td><td>N_Cr: max wait for next CF. Must be &gt; STmin + N_As(sender).</td></tr>
+</table>
+
+<h3>Sub-container: CanTpRxNPdu (mandatory)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanTpRxNPduRef</code></td><td>Reference to PDU in EcuC — the CAN PDU carrying SF/FF/CF frames for this N-SDU</td></tr>
+  <tr><td><code>CanTpRxNPduId</code></td><td>Auto-generated — ID used by LSduR in CanTp_RxIndication()</td></tr>
+</table>
+
+<h3>Sub-container: CanTpTxFcNPdu (0..1, only for multi-frame)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanTpTxFcNPduRef</code></td><td>Reference to PDU in EcuC — the CAN PDU carrying FC frames from this receiver</td></tr>
+  <tr><td><code>CanTpTxFcNPduConfirmationPduId</code></td><td>Auto-generated — ID LSduR uses in TxConfirmation() for FC frames</td></tr>
+</table>
+<div class="warn">If CanTpRxTaType=CANTP_PHYSICAL: CanTpTxFcNPdu REQUIRED (multi-frame reception needs FC PDU).</div>
+</div>
+
+<h3>Step 5: CanTpTxNSdu — one per transmitted N-SDU</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanTpChannel → CanTpTxNSdu</code></p>
+<table>
+  <tr><th>Parameter</th><th>What to set</th><th>Notes</th></tr>
+  <tr><td><code>CanTpTxNSduId</code></td><td>Auto-generated unique ID</td><td>Used by PduR in CanTp_Transmit() and CanTp_CancelTransmit().</td></tr>
+  <tr><td><code>CanTpTxNSduRef</code></td><td>Reference to PduR Tx I-PDU</td><td>Links this N-SDU to PduR routing path.</td></tr>
+  <tr><td><code>CanTpTxAddressingFormat</code></td><td>Same options as RX</td><td>Must match what remote receiver expects.</td></tr>
+  <tr><td><code>CanTpTxTaType</code></td><td>CANTP_PHYSICAL or CANTP_FUNCTIONAL</td><td>FUNCTIONAL = SF only (runtime check enforced).</td></tr>
+  <tr><td><code>CanTpTxPaddingActivation</code></td><td>CANTP_ON / CANTP_OFF</td><td>Pad SF and last CF to 8 bytes (OBD) or send dynamic length (UDS).</td></tr>
+  <tr><td><code>CanTpTc</code></td><td>TRUE to enable transmit cancellation</td><td>Enables CanTp_CancelTransmit() for this N-SDU.</td></tr>
+  <tr><td><code>CanTpNas</code></td><td>Seconds. e.g. 0.025</td><td>N_As: wait for TxConfirmation after each frame TX. Must be &lt; (0.9 × N_Cr(receiver)) − N_Cs.</td></tr>
+  <tr><td><code>CanTpNbs</code></td><td>Seconds. e.g. 0.075</td><td>N_Bs: wait for FC after FF or block end. Must satisfy N_Bs &gt; (N_Br + N_Ar)(receiver) / 0.9.</td></tr>
+  <tr><td><code>CanTpNcs</code></td><td>Seconds. e.g. 0.025</td><td>N_Cs: time to fetch data from PduR before sending CF. Must be &lt; 0.9 × N_Cr(receiver) − N_As.</td></tr>
+</table>
+
+<h3>Sub-container: CanTpTxNPdu (mandatory)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanTpTxNPduRef</code></td><td>Reference to PDU in EcuC — the CAN PDU for SF/FF/CF TX</td></tr>
+  <tr><td><code>CanTpTxNPduConfirmationPduId</code></td><td>Auto-generated — ID LSduR uses in TxConfirmation() for data frames</td></tr>
+</table>
+
+<h3>Sub-container: CanTpRxFcNPdu (0..1, only for multi-frame TX)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanTpRxFcNPduRef</code></td><td>Reference to PDU in EcuC — the CAN PDU carrying FC frames from remote receiver</td></tr>
+  <tr><td><code>CanTpRxFcNPduId</code></td><td>Auto-generated — ID used in CanTp_RxIndication() for FC reception</td></tr>
+</table>
+<div class="tip">For multi-frame TX: Both CanTpTxNPdu AND CanTpRxFcNPdu are needed.</div>
+</div>
+
+<h3>Step 6: Address containers (conditional)</h3>
+<div class="card">
+<table>
+  <tr><th>Container</th><th>Required when</th><th>Parameter inside</th></tr>
+  <tr><td><code>CanTpNTa</code></td><td>AddressingFormat = CANTP_EXTENDED. Also for NORMALFIXED/MIXED29BIT with DynIdSupport and no GenericConnection.</td><td><code>CanTpNTa</code>: 0-255, the N_TA (Target Address) byte value</td></tr>
+  <tr><td><code>CanTpNSa</code></td><td>Physical RxNSDU with CANTP_EXTENDED. TxNSDU with NORMALFIXED/MIXED29BIT (DynIdSupport without generic).</td><td><code>CanTpNSa</code>: 0-255, the N_SA (Source Address) byte value</td></tr>
+  <tr><td><code>CanTpNAe</code></td><td>AddressingFormat = CANTP_MIXED or CANTP_MIXED29BIT</td><td><code>CanTpNAe</code>: 0-255, the N_AE (Address Extension) byte value</td></tr>
+</table>
+</div>
+
+<h3>Step 7: DEM Event Wiring (CanTpDemEventParameterRefs)</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanTp → CanTpDemEventParameterRefs</code></p>
+<p>Wire each Extended Production Error to a DemEventParameter for production monitoring:</p>
+<div style="font-size:12px;line-height:2">
+  CANTP_E_CANTPNAS_TIMEOUT_OCCURRED → DemEventParameter (N_As TX timeout)<br>
+  CANTP_E_CANTPNAR_TIMEOUT_OCCURRED → DemEventParameter (N_Ar FC TX timeout)<br>
+  CANTP_E_CANTPNBS_TIMEOUT_OCCURRED → DemEventParameter (N_Bs FC RX timeout)<br>
+  CANTP_E_CANTPNBR_TIMEOUT_OCCURRED → DemEventParameter (N_Br buffer wait)<br>
+  CANTP_E_CANTPNCS_TIMEOUT_OCCURRED → DemEventParameter (N_Cs data fetch timeout)<br>
+  CANTP_E_CANTPNCR_TIMEOUT_OCCURRED → DemEventParameter (N_Cr CF RX timeout)<br>
+  CANTP_E_SWAPPED_CONSECUTIVE_FRAMES_RECEIVED → DemEventParameter<br>
+  CANTP_E_DROPPED_CONSECUTIVE_FRAMES_DETECTED → DemEventParameter<br>
+  CANTP_E_FC_OVERFLOW_RECEIVED → DemEventParameter<br>
+  CANTP_E_FC_OVERFLOW_TRANSMITTED → DemEventParameter
+</div>
+</div>
+
+<h3>DaVinci Consistency Verification</h3>
+<div class="card">
+<div class="step">☐ CanTpMainFunctionPeriod matches SchM/OS task period exactly</div>
+<div class="step">☐ CanTpRxNPduRef resolves to valid PDU in EcuC</div>
+<div class="step">☐ CanTpTxNPduRef resolves to valid PDU in EcuC</div>
+<div class="step">☐ CanTpTxFcNPduRef resolves to valid PDU (if multi-frame RX configured)</div>
+<div class="step">☐ CanTpRxFcNPduRef resolves to valid PDU (if multi-frame TX configured)</div>
+<div class="step">☐ N_Br + N_Ar &lt; 0.9 × N_Bs (rx_Nbr + rx_Nar &lt; 0.9 × tx_Nbs)</div>
+<div class="step">☐ N_Cs + N_As &lt; 0.9 × N_Cr (tx_Ncs + tx_Nas &lt; 0.9 × rx_Ncr)</div>
+<div class="step">☐ Functional TaType N-SDUs: TX must be SF only (CanTp enforces at runtime)</div>
+<div class="step">☐ CanTpNTa/NSa/NAe containers present for addressing formats that require them</div>
+<div class="step">☐ CanTpGenericConnectionSupport=TRUE requires CanTpDynIdSupport=TRUE</div>
+<div class="step">☐ If CanTpTc=TRUE on any TxNSDU: CanTp_CancelTransmit() must be in interface list</div>
+<div class="step hi">☐ All PDU references in CanTp must also be present in LSduR routing config — verify cross-module consistency check passes</div>
+</div>
+
+<h3>Typical Automotive Timing Values</h3>
+<div class="card">
+<table>
+  <tr><th>Timer</th><th>Typical (UDS on CANbus)</th><th>Rationale</th></tr>
+  <tr><td>N_As (Tx)</td><td>25ms</td><td>CAN frame TX time including arbitration. ISO 15765-2 default 25ms.</td></tr>
+  <tr><td>N_Bs (Tx)</td><td>75ms</td><td>Wait for FC. Must be &gt; N_Br + N_Ar = 20 + 25 = 45ms. 75ms gives margin.</td></tr>
+  <tr><td>N_Cs (Tx)</td><td>25ms</td><td>Data copy from DCM. ISO 15765-2 default 25ms.</td></tr>
+  <tr><td>N_Ar (Rx)</td><td>25ms</td><td>FC TX confirmation time. Same as N_As.</td></tr>
+  <tr><td>N_Br (Rx)</td><td>20ms</td><td>Buffer polling time. Keep N_Br + N_Ar (20+25=45) &lt; 0.9×N_Bs (0.9×75=67.5).</td></tr>
+  <tr><td>N_Cr (Rx)</td><td>150ms</td><td>CF wait. Must be &gt; STmin + N_Cs + N_As. 0 + 25 + 25 = 50ms → 150ms safe.</td></tr>
+  <tr><td>CanTpBs</td><td>0 (unlimited) or 10</td><td>0 for simple UDS. 10 for large messages to control flow.</td></tr>
+  <tr><td>STmin</td><td>0 (0ms) to 0.0000250 (25µs)</td><td>0 = send CFs as fast as possible. Use 25µs for more robust systems.</td></tr>
+  <tr><td>WFTmax</td><td>0–3</td><td>0=no wait allowed (fast response), 3=allow 3 wait frames.</td></tr>
+  <tr><td>MainFunctionPeriod</td><td>5ms</td><td>Standard BSW cycle. Gives 5ms timer resolution.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== TESTING ===== -->
+<div class="section" id="s-testing">
+<h2>Interface Testing &amp; Automotive Integration</h2>
+
+<h3>Test Group 1: Initialization &amp; Module States</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th><th>SWS</th></tr>
+  <tr><td>TC_INIT_001</td><td>Power on → call CanTp_Init(validConfig)</td><td>State=CANTP_ON. All channels WAIT. All timers stopped.</td><td>SWS_CanTp_00170, 00030</td></tr>
+  <tr><td>TC_INIT_002</td><td>Any API before CanTp_Init()</td><td>DET CANTP_E_UNINIT (if DevErrorDetect=TRUE). Return E_NOT_OK.</td><td>SWS_CanTp_00031</td></tr>
+  <tr><td>TC_INIT_003</td><td>CanTp_Init() while TX in progress</td><td>Current connection lost (no PduR notification). Module returns to idle.</td><td>SWS_CanTp_00111, 00273</td></tr>
+  <tr><td>TC_INIT_004</td><td>CanTp_Shutdown()</td><td>State=CANTP_OFF. No PduR notifications for pending sessions.</td><td>SWS_CanTp_00202, 00200</td></tr>
+  <tr><td>TC_INIT_005</td><td>CanTp_GetVersionInfo(NULL)</td><td>DET CANTP_E_PARAM_POINTER. Works even in CANTP_OFF.</td><td>SWS_CanTp_00319, 00210</td></tr>
+</table>
+</div>
+
+<h3>Test Group 2: Single Frame (SF) Scenarios</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th><th>SWS</th></tr>
+  <tr><td>TC_SF_001</td><td>Receive valid SF, buffer available (BUFREQ_OK)</td><td>PduR_StartOfReception called → PduR_CopyRxData called → PduR_RxIndication(E_OK).</td><td>SWS_CanTp_00079, 00269, 00084</td></tr>
+  <tr><td>TC_SF_002</td><td>Receive SF, PduR returns BUFREQ_E_NOT_OK</td><td>Abort silently. No FC sent. No PduR_RxIndication.</td><td>SWS_CanTp_00081</td></tr>
+  <tr><td>TC_SF_003</td><td>Receive SF, PduR returns BUFREQ_E_OVFL</td><td>Abort. No FC(OVFLW) for SF! Different from FF. No PduR_RxIndication.</td><td>SWS_CanTp_00353</td></tr>
+  <tr><td>TC_SF_004</td><td>Receive SF with DL&lt;8, PaddingActivation=ON</td><td>DET CANTP_E_PADDING. Reject reception. DEM SEV_CAN_ERROR_PADDING.</td><td>SWS_CanTp_00345</td></tr>
+  <tr><td>TC_SF_005</td><td>Transmit SF: CanTp_Transmit(SduLength≤7)</td><td>E_OK → PduR_CopyTxData → LSduR_Transmit(SF) → TxConfirmation(E_OK) → PduR_TxConfirmation(E_OK).</td><td>SWS_CanTp_00231, 00212</td></tr>
+  <tr><td>TC_SF_006</td><td>Transmit SF with functional address, SduLength&gt;7</td><td>DET CANTP_E_INVALID_TATYPE. E_NOT_OK.</td><td>SWS_CanTp_00093</td></tr>
+</table>
+</div>
+
+<h3>Test Group 3: Multi-Frame (FF+CFs) Scenarios</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th></tr>
+  <tr><td>TC_MF_001</td><td>Receive FF, BUFREQ_E_OVFL from PduR</td><td>Send FC(OVFLW). Abort RX. DEM CANTP_E_FC_OVERFLOW_TRANSMITTED.</td></tr>
+  <tr><td>TC_MF_002</td><td>Receive FF, BUFREQ_OK, small buffer → FC(WAIT) needed</td><td>Send FC(WAIT). Poll PduR. When buffer grows → send FC(CTS). WFTmax check.</td></tr>
+  <tr><td>TC_MF_003</td><td>Wrong SN in CF (e.g. SN=3 expected SN=2)</td><td>Abort RX. PduR_RxIndication(E_NOT_OK). DET CANTP_E_RX_COM. DEM DROPPED_CF.</td></tr>
+  <tr><td>TC_MF_004</td><td>N_Cr timeout (no CF arrives)</td><td>Abort RX. PduR_RxIndication(E_NOT_OK). DET CANTP_E_RX_COM. DEM CANTP_E_CANTPNCR_TIMEOUT_OCCURRED. Security event SEV_CAN_ERROR_TIMEOUT_CR.</td></tr>
+  <tr><td>TC_MF_005</td><td>TX: Send large N-SDU, receiver sends FC(WAIT) then FC(CTS)</td><td>N_Bs stops on FC(WAIT), restarts. N_Bs stops on FC(CTS), send next block.</td></tr>
+  <tr><td>TC_MF_006</td><td>TX: N_Bs timeout (FC never arrives)</td><td>Abort TX. PduR_TxConfirmation(E_NOT_OK). DET CANTP_E_TX_COM. DEM CANTP_E_CANTPNBS_TIMEOUT_OCCURRED.</td></tr>
+  <tr><td>TC_MF_007</td><td>TX: Receive FC(OVFLW)</td><td>Abort TX. PduR_TxConfirmation(E_NOT_OK). DEM CANTP_E_FC_OVERFLOW_RECEIVED. Security: SEV_CAN_ERROR_NO_BUFFER.</td></tr>
+</table>
+</div>
+
+<h3>Test Group 4: Concurrent Connections</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Expected</th></tr>
+  <tr><td>CanTp_Transmit() while channel CANTP_TX_PROCESSING</td><td>E_NOT_OK returned. [SWS_CanTp_00123]</td></tr>
+  <tr><td>New FF received while CANTP_RX_PROCESSING (same connection)</td><td>Abort current RX, report E_NOT_OK, start new FF reception. [SWS_CanTp_00124]</td></tr>
+  <tr><td>New FF received while CANTP_RX_PROCESSING (different connection, same channel)</td><td>Ignore new FF. Channel busy. [SWS_CanTp_00124]</td></tr>
+  <tr><td>New SF while RX_PROCESSING</td><td>Terminate current RX (E_NOT_OK), process SF as new reception. Security: SEV_CAN_ERROR_UNEXP_PDU.</td></tr>
+  <tr><td>New SF/FF on generic connection while channel active</td><td>Ignore (do not restart). [SWS_CanTp_00337]</td></tr>
+</table>
+</div>
+
+<h3>Test Group 5: Cancellation</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Expected</th></tr>
+  <tr><td>CanTp_CancelTransmit() during multi-frame TX (CanTpTc=TRUE)</td><td>E_OK. TX aborted. PduR_TxConfirmation(E_NOT_OK) called. Receiver side gets N_Bs timeout eventually. [SWS_CanTp_00243, 00255]</td></tr>
+  <tr><td>CanTp_CancelTransmit() when not in TX progress</td><td>E_NOT_OK. DET CANTP_E_OPER_NOT_SUPPORTED. [SWS_CanTp_00254]</td></tr>
+  <tr><td>CanTp_CancelReceive() during multi-frame RX</td><td>E_OK. RX aborted. PduR_RxIndication(E_NOT_OK) called. [SWS_CanTp_00261, 00263]</td></tr>
+  <tr><td>CanTp_CancelReceive() during SF or last CF</td><td>E_NOT_OK. Cannot cancel single frame or reception of last CF. [SWS_CanTp_00262]</td></tr>
+</table>
+</div>
+
+<h3>CANoe / CANalyzer Integration Tips</h3>
+<div class="grid2">
+<div class="card">
+<h3>CANoe CAPL Scripting</h3>
+<ul style="font-size:12px;padding-left:16px;line-height:2">
+  <li>Use CANoe's UDS feature to send multi-frame diagnostic requests — generates TP frames automatically</li>
+  <li>Monitor FC frames: verify BS byte = configured CanTpBs, STmin byte = configured CanTpSTmin (hex value)</li>
+  <li>Inject wrong SN by modifying CF byte 0 low nibble — verify ECU sends E_NOT_OK and DEM DTC set</li>
+  <li>Simulate N_Bs timeout: send FF, don't send FC — verify sender aborts after N_Bs</li>
+  <li>Check padding: verify all frames = 8 bytes when OBD/padding mode (byte 7 = CanTpPaddingByte)</li>
+  <li>Trigger FC(OVFLW) by making receiver buffer full — check DTC CANTP_E_FC_OVERFLOW_TRANSMITTED</li>
+</ul>
+</div>
+<div class="card">
+<h3>TRACE32 Debug Tips</h3>
+<ul style="font-size:12px;padding-left:16px;line-height:2">
+  <li>Watch <code>CanTp_ChannelState[]</code> — verify transitions from WAIT to PROCESSING and back</li>
+  <li>Breakpoint on <code>PduR_CanTpRxIndication()</code> — check result parameter (E_OK vs E_NOT_OK)</li>
+  <li>Watch <code>CanTp_Timer_N_Bs[]</code> — decrement every MainFunction call. If stuck at max → FC not received</li>
+  <li>Watch <code>CanTp_ExpectedSN[]</code> — verify expected SN on each CF</li>
+  <li>Monitor <code>CanTp_WftCounter[]</code> → if approaching WFTmax → buffer starvation issue in upper layer</li>
+  <li>Check <code>CanTp_DataIndex[]</code> to verify progress of multi-frame session byte count</li>
+</ul>
+</div>
+</div>
+
+<h3>Common Integration Mistakes</h3>
+<div class="danger"><strong>1. LSduR_CanTpTransmit not linked (R24-11 migration)</strong> — Previously CanIf_Transmit was called. After R24-11, must use LSduR_CanTpTransmit. Check linker errors or check header includes for LSduR_CanTp.h.</div>
+<div class="danger"><strong>2. CanTpMainFunctionPeriod doesn't match OS task</strong> — N_Bs configured as 75ms but MainFunction runs every 10ms instead of 5ms → effective N_Bs becomes 150ms → double the timeout → sender may tolerate 15 extra WFT frames.</div>
+<div class="danger"><strong>3. Missing CanTpRxFcNPdu on TxNSDU for multi-frame</strong> — FC frames from remote receiver can't be routed to CanTp → CanTp never receives FC → N_Bs timeout on every multi-frame TX.</div>
+<div class="warn"><strong>4. CanTpBs=0 (unlimited) with slow upper layer</strong> — Sender floods with CFs. Receiver buffer may overflow mid-transfer. Set CanTpBs=10 and WFTmax=3 to pace flow and allow buffer management.</div>
+<div class="warn"><strong>5. Functional address N-SDU receiving multi-frame</strong> — Protocol violation. CanTp reports CANTP_E_INVALID_TATYPE and security event SEV_CAN_INVALID_TATYPE. Check OEM diagnostic spec — functional always must be 1-frame (SF).</div>
+</div>
+
+</div><!-- content -->
+
+<script>
+function T(id){
+  var ids=['overview','frames','states','timers','api','sequences','addressing','errors','davinci','testing'];
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',ids[i]===id);});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.toggle('active',s.id==='s-'+id);});
+}
+</script>
+</body>
+</html>

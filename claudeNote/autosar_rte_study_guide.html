@@ -1,0 +1,1020 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:1rem}
+.nav button{font-size:12px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font-sans)}
+.nav button.active,.nav button:hover{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.section{display:none}.section.active{display:block}
+h2{font-size:18px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary)}
+h3{font-size:15px;font-weight:500;margin:1.25rem 0 .6rem;color:var(--color-text-primary)}
+h4{font-size:13px;font-weight:500;margin:.75rem 0 .4rem;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+p{font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:.75rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin-bottom:1rem}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);font-weight:500;margin-right:4px}
+.badge-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.badge-green{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px}
+pre{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:.75rem 1rem;border-radius:var(--border-radius-md);overflow-x:auto;line-height:1.6;margin:.5rem 0 .75rem;border:0.5px solid var(--color-border-tertiary)}
+.api-row{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.api-name{font-family:var(--font-mono);font-size:12px;color:var(--color-text-info);min-width:200px;flex-shrink:0}
+.api-desc{color:var(--color-text-secondary);line-height:1.5}
+.state-box{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:.5rem .75rem;font-size:13px;text-align:center;cursor:pointer;transition:all .15s;margin:4px}
+.state-box:hover{background:var(--color-background-secondary)}
+.state-active{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.arrow-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px;color:var(--color-text-secondary)}
+.arrow-sym{color:var(--color-text-primary);font-weight:500}
+.info-box{background:var(--color-background-info);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-info)}
+.warn-box{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-warning)}
+.danger-box{background:var(--color-background-danger);border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-danger)}
+.success-box{background:var(--color-background-success);border:0.5px solid var(--color-border-success);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-success)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:.5rem 0}
+th{text-align:left;font-weight:500;padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-secondary);font-size:12px;color:var(--color-text-secondary)}
+td{padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+.seq-step{display:flex;gap:.75rem;margin-bottom:.6rem;align-items:flex-start}
+.seq-num{min-width:24px;height:24px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.seq-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.clickable-event{display:inline-block;padding:3px 8px;border-radius:4px;font-size:12px;font-family:var(--font-mono);cursor:pointer;margin:2px;border:0.5px solid var(--color-border-secondary);transition:all .15s}
+.clickable-event:hover{background:var(--color-background-secondary)}
+#event-detail{margin-top:.75rem;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;min-height:48px;color:var(--color-text-secondary);line-height:1.6}
+.rte-state-flow{margin:1rem 0}
+.flow-states{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:.5rem}
+.flow-state{padding:.4rem .8rem;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;border:0.5px solid}
+.s-init{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4}
+.s-start{background:#EAF3DE;color:#27500A;border-color:#C0DD97}
+.s-run{background:#E1F5EE;color:#085041;border-color:#9FE1CB}
+.s-stop{background:#FAEEDA;color:#633806;border-color:#FAC775}
+.s-deinit{background:#FCEBEB;color:#791F1F;border-color:#F7C1C1}
+.flow-arrow{text-align:center;color:var(--color-text-secondary);font-size:12px;margin:2px 0}
+@media(max-width:500px){.two-col{grid-template-columns:1fr}.api-name{min-width:140px}}
+</style>
+
+<div style="padding:1rem 0">
+<h2 style="margin-bottom:.5rem">AUTOSAR CP RTE — Complete Study Guide</h2>
+<p style="margin-bottom:1rem;font-size:13px">R24-11 · Document ID 84 · Classic Platform · For exam, integration, interface testing & DaVinci configuration</p>
+
+<div class="nav">
+  <button class="active" onclick="show('overview')">Overview</button>
+  <button onclick="show('architecture')">Architecture</button>
+  <button onclick="show('communication')">Communication</button>
+  <button onclick="show('modes')">Mode Machines</button>
+  <button onclick="show('runnables')">Runnables & Events</button>
+  <button onclick="show('lifecycle')">Lifecycle & State</button>
+  <button onclick="show('api')">API Reference</button>
+  <button onclick="show('schm')">SchM / BSW</button>
+  <button onclick="show('sequences')">Sequences</button>
+  <button onclick="show('davinci')">DaVinci Config</button>
+  <button onclick="show('debug')">Testing & Debug</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="section-overview" class="section active">
+<h2>What is the AUTOSAR RTE?</h2>
+<p>The Run-Time Environment (RTE) is the <b>central middleware</b> of an AUTOSAR Classic Platform ECU. It is the physical realization of the <b>Virtual Function Bus (VFB)</b> — the abstract communication bus defined at system design level. For every ECU in the system, one unique RTE is <b>generated</b> (not hand-coded) by an RTE generator tool.</p>
+
+<div class="card-grid">
+  <div class="card"><h4>Primary roles</h4><p>• Communication infrastructure between SWCs<br>• Scheduling SWC runnable entities via OS tasks<br>• Abstracting SWCs from OS, COM, hardware</p></div>
+  <div class="card"><h4>Key property</h4><p>Generated per-ECU from ARXML configuration. SWCs are location-independent — the same SWC code can run on different ECUs with no changes.</p></div>
+  <div class="card"><h4>Scope</h4><p>R24-11 covers: SWC API (Ch.5), BSW Scheduler API (Ch.6), Functional spec (Ch.4), Generation process (Ch.3), ECU config (Ch.8).</p></div>
+</div>
+
+<h3>The VFB → RTE mapping</h3>
+<p>During system design, SWCs communicate over the abstract VFB. When deployed to a specific ECU, the RTE generator reads the ECU Extract (ARXML) and produces concrete C code — the RTE — which physically routes all those VFB communications. The same SWC code compiles unchanged; only the generated RTE glue differs per ECU.</p>
+
+<div class="info-box">💡 Key exam point: The RTE provides <b>static communication only</b> [SWS_Rte_06026]. All communication paths are determined at code-generation time. There is no dynamic routing at runtime — this is a deliberate design decision for determinism and efficiency in embedded systems.</div>
+
+<h3>Two-phase generation model</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>1. Contract phase</h4>
+    <p>Uses only the SWC's port interface description. Generates the <b>application header file</b> (<code>Rte_&lt;SWC&gt;.h</code>) — the API "contract" between the SWC and the RTE. The SWC can be compiled against this header without full system knowledge.</p>
+    <div class="success-box">Output: <code>Rte_SWCName.h</code> with all API macros/prototypes</div>
+  </div>
+  <div class="card">
+    <h4>2. Generation phase</h4>
+    <p>Uses full ECU configuration: all SWCs, their port connections, task mappings, exclusive area configs. Generates the complete <b>RTE implementation</b> files.</p>
+    <div class="success-box">Output: <code>Rte.c</code>, <code>Rte.h</code>, <code>SchM.c</code>, <code>SchM.h</code></div>
+  </div>
+</div>
+
+<h3>Key AUTOSAR terms you must know</h3>
+<table>
+  <tr><th>Term</th><th>Meaning</th></tr>
+  <tr><td><code>SWC</code></td><td>Software Component — application code unit; communicates only via ports</td></tr>
+  <tr><td><code>Port</code></td><td>Interface point of a SWC. P-Port = provider, R-Port = requirer</td></tr>
+  <tr><td><code>PortInterface</code></td><td>Typed definition of what a port provides/requires (S/R or C/S)</td></tr>
+  <tr><td><code>Runnable</code></td><td>A callable C function entry point inside a SWC; scheduled by the RTE</td></tr>
+  <tr><td><code>RTEEvent</code></td><td>Trigger that causes a Runnable to activate (e.g. TimingEvent, DataReceivedEvent)</td></tr>
+  <tr><td><code>ExclusiveArea</code></td><td>Critical section protecting shared data — entered via SchM_Enter/SchM_Exit</td></tr>
+  <tr><td><code>PerInstanceMemory</code></td><td>Private memory per SWC instance — enables multiple instantiation</td></tr>
+  <tr><td><code>ComSpec</code></td><td>Communication specification on a port — defines init values, queue length, timeout, etc.</td></tr>
+  <tr><td><code>SwcInternalBehavior</code></td><td>The ARXML element containing runnables, events, data access points of a SWC</td></tr>
+  <tr><td><code>VFB</code></td><td>Virtual Function Bus — abstract bus realized by the RTE</td></tr>
+  <tr><td><code>IOC</code></td><td>Inter-OS-Application Communicator — OS mechanism for cross-partition comms</td></tr>
+</table>
+</div>
+
+<!-- ===== ARCHITECTURE ===== -->
+<div id="section-architecture" class="section">
+<h2>AUTOSAR ECU layered architecture</h2>
+
+<svg width="100%" viewBox="0 0 680 500" role="img"><title>AUTOSAR ECU layered architecture showing SWC, RTE, BSW and MCAL layers</title><desc>Diagram showing the layers of an AUTOSAR Classic Platform ECU from application SWCs down to hardware</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<!-- Layer backgrounds -->
+<rect x="30" y="30" width="620" height="75" rx="8" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+<rect x="30" y="115" width="620" height="40" rx="8" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="1.5"/>
+<rect x="30" y="165" width="620" height="160" rx="8" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="0.5"/>
+<rect x="30" y="335" width="620" height="40" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.5"/>
+<rect x="30" y="385" width="620" height="40" rx="8" fill="#EEEDFE" stroke="#CECBF6" stroke-width="0.5"/>
+<rect x="30" y="435" width="620" height="40" rx="8" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+
+<!-- Layer labels (left side) -->
+<text class="th" x="42" y="52" fill="#27500A">Application layer</text>
+<text class="th" x="42" y="138" fill="#085041">RTE</text>
+<text class="th" x="42" y="188" fill="#0C447C">Basic Software (BSW)</text>
+<text class="th" x="42" y="358" fill="#633806">ECU Abstraction</text>
+<text class="th" x="42" y="408" fill="#3C3489">MCAL</text>
+<text class="th" x="42" y="458" fill="#444441">Hardware</text>
+
+<!-- SWC boxes in application layer -->
+<g>
+  <rect x="150" y="38" width="120" height="58" rx="6" fill="white" stroke="#9FE1CB" stroke-width="1"/>
+  <text class="th" x="210" y="62" text-anchor="middle" fill="#085041">SWC A</text>
+  <text class="ts" x="210" y="80" text-anchor="middle" fill="#0F6E56">Engine Ctrl</text>
+</g>
+<g>
+  <rect x="290" y="38" width="120" height="58" rx="6" fill="white" stroke="#9FE1CB" stroke-width="1"/>
+  <text class="th" x="350" y="62" text-anchor="middle" fill="#085041">SWC B</text>
+  <text class="ts" x="350" y="80" text-anchor="middle" fill="#0F6E56">Sensor Fusion</text>
+</g>
+<g>
+  <rect x="430" y="38" width="120" height="58" rx="6" fill="white" stroke="#9FE1CB" stroke-width="1"/>
+  <text class="th" x="490" y="62" text-anchor="middle" fill="#085041">SWC C</text>
+  <text class="ts" x="490" y="80" text-anchor="middle" fill="#0F6E56">Diagnostics</text>
+</g>
+
+<!-- RTE label center -->
+<text class="th" x="340" y="140" text-anchor="middle" fill="#085041">RTE (generated per ECU) — realizes the VFB</text>
+
+<!-- BSW modules -->
+<rect x="50" y="175" width="100" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="100" y="199" text-anchor="middle" fill="#185FA5">OS (AUTOSAR)</text>
+<rect x="165" y="175" width="80" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="205" y="199" text-anchor="middle" fill="#185FA5">COM</text>
+<rect x="260" y="175" width="80" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="300" y="199" text-anchor="middle" fill="#185FA5">DCM</text>
+<rect x="355" y="175" width="80" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="395" y="199" text-anchor="middle" fill="#185FA5">NvM</text>
+<rect x="450" y="175" width="80" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="490" y="199" text-anchor="middle" fill="#185FA5">EcuM</text>
+<rect x="545" y="175" width="95" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="592" y="199" text-anchor="middle" fill="#185FA5">DEM/FIM</text>
+
+<!-- BSW row 2 -->
+<rect x="50" y="225" width="130" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="115" y="249" text-anchor="middle" fill="#185FA5">ComStack (CAN/LIN/Eth)</text>
+<rect x="195" y="225" width="130" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="260" y="249" text-anchor="middle" fill="#185FA5">CanIf / LinIf / EthIf</text>
+<rect x="340" y="225" width="130" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="405" y="249" text-anchor="middle" fill="#185FA5">WdgM / BswM</text>
+<rect x="485" y="225" width="155" height="40" rx="6" fill="white" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="562" y="249" text-anchor="middle" fill="#185FA5">Crypto / SecOC</text>
+
+<!-- BSW row 3 (Scheduler note) -->
+<rect x="50" y="275" width="590" height="35" rx="6" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="345" y="296" text-anchor="middle" fill="#0C447C">BSW Scheduler (SchM) — generated alongside RTE, schedules BSW module main functions</text>
+
+<!-- Arrows between layers -->
+<line x1="340" y1="113" x2="340" y2="116" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="340" y1="154" x2="340" y2="166" stroke="#185FA5" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="340" y1="325" x2="340" y2="336" stroke="#BA7517" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="340" y1="374" x2="340" y2="386" stroke="#534AB7" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="340" y1="424" x2="340" y2="436" stroke="#5F5E5A" stroke-width="1" marker-end="url(#arrow)"/>
+</svg>
+
+<h3>Key architectural rules (exam critical)</h3>
+<div class="card-grid">
+  <div class="card"><h4>SWC isolation</h4><p>An SWC <b>cannot</b> directly call OS services, COM functions, or other BSW APIs. All access is exclusively through the RTE API (<code>Rte_*</code> functions).</p></div>
+  <div class="card"><h4>Port-based comms</h4><p>All SWC communication happens through typed ports. A port is either a <b>P-Port</b> (provides) or <b>R-Port</b> (requires). Port interfaces define the data/operations exchanged.</p></div>
+  <div class="card"><h4>Generated, not handwritten</h4><p>The RTE is entirely generated from ARXML. DaVinci Developer/Configurator produce this ARXML; the RTE generator (built into DaVinci Configurator Pro) produces the C code.</p></div>
+  <div class="card"><h4>Static connections only</h4><p>Every sender→receiver and client→server connection is resolved at generation time. No dynamic routing. This enables deterministic worst-case execution time analysis.</p></div>
+</div>
+
+<h3>SWC types relevant to RTE</h3>
+<table>
+  <tr><th>Type</th><th>Description</th><th>Testing note</th></tr>
+  <tr><td><code>ApplicationSwComponentType</code></td><td>Standard application SWC; ECU-independent</td><td>Most common in integration testing</td></tr>
+  <tr><td><code>SensorActuatorSwComponentType</code></td><td>Hardware-dependent; accesses ECU abstraction</td><td>Needs MCAL stub in off-target tests</td></tr>
+  <tr><td><code>ServiceSwComponentType</code></td><td>Wraps a BSW service (e.g., NvM, DEM); has runnables and ports</td><td>Check service port connections</td></tr>
+  <tr><td><code>NvBlockSwComponentType</code></td><td>Special type for NvM block handling</td><td>Verify NvM callbacks in config</td></tr>
+  <tr><td><code>CompositionSwComponentType</code></td><td>Container of other SWCs; flattened during ECU extract generation</td><td>Check delegation connectors</td></tr>
+</table>
+</div>
+
+<!-- ===== COMMUNICATION ===== -->
+<div id="section-communication" class="section">
+<h2>Communication paradigms</h2>
+<p>The RTE supports four fundamental communication paradigms. Each maps to specific API calls, port interface types, and connector types in ARXML.</p>
+
+<div class="nav" style="margin-bottom:1rem;border:none;padding:0">
+  <button class="active" id="comm-tab-sr" onclick="showComm('sr')">Sender-Receiver</button>
+  <button id="comm-tab-cs" onclick="showComm('cs')">Client-Server</button>
+  <button id="comm-tab-mode" onclick="showComm('mode')">Mode Switch</button>
+  <button id="comm-tab-nv" onclick="showComm('nv')">NvBlock</button>
+</div>
+
+<div id="comm-sr">
+<h3>Sender-Receiver (S/R) communication</h3>
+<p>Signal/data passing between SWCs. One SWC sends data; one or more SWCs receive it. The port interface type is <code>SenderReceiverInterface</code> containing one or more <code>VariableDataPrototype</code> elements.</p>
+
+<div class="two-col">
+  <div>
+    <h4>Explicit mode</h4>
+    <p>The SWC explicitly calls Rte APIs to send/receive. Data is transferred at the moment of the API call.</p>
+    <pre>/* Sender */
+Rte_Write_PortName_DataName(&value);
+Rte_Send_PortName_DataName(&value); /* queued */
+
+/* Receiver */
+Rte_Read_PortName_DataName(&value);
+Rte_Receive_PortName_DataName(&value); /* queued */</pre>
+    <div class="info-box">Use <code>Rte_Write</code>/<code>Rte_Read</code> for non-queued (last-is-best). Use <code>Rte_Send</code>/<code>Rte_Receive</code> for queued (FIFO) data.</div>
+  </div>
+  <div>
+    <h4>Implicit mode</h4>
+    <p>RTE automatically copies data in/out of a local buffer before/after the runnable executes. The runnable accesses local variables — no explicit API call needed for data exchange.</p>
+    <pre>/* Receiver — RTE copies before runnable */
+Rte_IRead_RunName_PortName_DataName();
+
+/* Sender — RTE copies after runnable */
+Rte_IWrite_RunName_PortName_DataName(val);
+Rte_IWriteRef_RunName_PortName_DataName();</pre>
+    <div class="info-box">Implicit is used when runnable needs a <b>consistent snapshot</b> of data for its entire execution — no mid-run updates. Configured via <code>DataReadAccess</code>/<code>DataWriteAccess</code> in ARXML.</div>
+  </div>
+</div>
+
+<h4>Multiplicity</h4>
+<table>
+  <tr><th>Pattern</th><th>Senders</th><th>Receivers</th><th>Notes</th></tr>
+  <tr><td>1:1</td><td>1</td><td>1</td><td>Standard point-to-point</td></tr>
+  <tr><td>1:n</td><td>1</td><td>Many</td><td>Fan-out; each receiver gets same data</td></tr>
+  <tr><td>n:1</td><td>Many</td><td>1</td><td>Multiple writers; receiver gets last written (non-queued)</td></tr>
+</table>
+
+<h4>Key return values (must memorize for debugging)</h4>
+<table>
+  <tr><th>Return code</th><th>Meaning</th></tr>
+  <tr><td><code>RTE_E_OK (0)</code></td><td>Success</td></tr>
+  <tr><td><code>RTE_E_INVALID (10)</code></td><td>Data invalid (e.g. init value used, never written)</td></tr>
+  <tr><td><code>RTE_E_MAX_AGE_EXCEEDED (13)</code></td><td>Data older than configured alive timeout</td></tr>
+  <tr><td><code>RTE_E_NEVER_RECEIVED (13)</code></td><td>No data ever received on this port</td></tr>
+  <tr><td><code>RTE_E_NO_DATA (131)</code></td><td>Queue empty (Rte_Receive on empty queue)</td></tr>
+  <tr><td><code>RTE_E_LOST_DATA (64)</code></td><td>Queue overflow — data was lost</td></tr>
+  <tr><td><code>RTE_E_COM_STOPPED (128)</code></td><td>COM module stopped (inter-ECU connection down)</td></tr>
+  <tr><td><code>RTE_E_TIMEOUT (129)</code></td><td>Timeout on synchronous server call</td></tr>
+  <tr><td><code>RTE_E_TRANSMIT_ACK (5)</code></td><td>Data successfully transmitted (feedback)</td></tr>
+</table>
+
+<div class="warn-box">⚠️ Integration testing: always check the return value of every <code>Rte_Read</code>/<code>Rte_Receive</code>. <code>RTE_E_NEVER_RECEIVED</code> indicates the sender SWC has not run yet or the signal has not arrived — a very common integration bug on first bring-up.</div>
+</div>
+
+<div id="comm-cs" style="display:none">
+<h3>Client-Server (C/S) communication</h3>
+<p>Function call paradigm. A client SWC calls an operation provided by a server SWC/BSW module. Port interface type: <code>ClientServerInterface</code> with <code>ClientServerOperation</code> elements.</p>
+
+<div class="two-col">
+  <div>
+    <h4>Synchronous call</h4>
+    <p>Client blocks until server returns result. Server runnable runs in client's context or a different task (with OS event wait).</p>
+    <pre>Std_ReturnType ret;
+ret = Rte_Call_PortName_OperationName(
+        in_arg1, &out_arg2);
+/* client continues after server returns */</pre>
+    <div class="danger-box">Restriction: synchronous C/S across task boundaries requires a WaitPoint and an extended task. Category 1 runnables cannot use synchronous C/S.</div>
+  </div>
+  <div>
+    <h4>Asynchronous call</h4>
+    <p>Client fires the call and returns immediately. Later, a second runnable (triggered by <code>AsynchronousServerCallReturnsEvent</code>) collects the result.</p>
+    <pre>/* Fire-and-forget */
+ret = Rte_Call_PortName_OperationName(args);
+
+/* In ASCR runnable */
+ret = Rte_Result_PortName_OperationName(
+        &out_arg);  /* collect result */</pre>
+  </div>
+</div>
+
+<h4>Multiplicity rules for C/S</h4>
+<p>C/S supports <b>n:1</b> only — many clients, one server. The RTE serializes concurrent calls. <b>1:n</b> (one client, multiple servers) is NOT supported. Server runnables are triggered by <code>OperationInvokedEvent</code>.</p>
+
+<h4>Port-Defined Argument Values</h4>
+<p>The RTE can supply constant argument values from the port configuration — the SWC doesn't have to pass them. This allows port-level specialization of operations.</p>
+
+<h4>Direct function call optimization</h4>
+<p>When client and server runnables are in the same OS task and partition, the RTE may implement C/S as a direct C function call (no task activation, no OS event) — a key performance optimization visible in the generated code.</p>
+</div>
+
+<div id="comm-mode" style="display:none">
+<h3>Mode switch communication</h3>
+<p>Used to broadcast system modes (e.g., ECU state: STARTUP, RUN, SLEEP). Port interface type: <code>ModeSwitchInterface</code> with a <code>ModeDeclarationGroup</code>.</p>
+
+<div class="two-col">
+  <div>
+    <h4>Mode manager (P-Port side)</h4>
+    <pre>/* Switch to a new mode */
+ret = Rte_Switch_PortName_ModeGroupName(
+        RTE_MODE_ModeGroup_NEW_MODE);</pre>
+    <p>The SWC providing the mode switch port is the <b>mode manager</b>. Typically the EcuM service component manages the main ECU mode.</p>
+  </div>
+  <div>
+    <h4>Mode user (R-Port side)</h4>
+    <pre>/* Query current mode */
+mode = Rte_Mode_PortName_ModeGroupName();
+
+/* Optionally acknowledge mode switch */
+ret = Rte_SwitchAck_PortName_ModeGroupName();</pre>
+  </div>
+</div>
+
+<h4>Mode-dependent runnable activation</h4>
+<p>Runnables can be disabled in certain modes. A <code>SwcModeSwitchEvent</code> triggers runnables on entry, exit, or transition between modes. Three kinds of event:</p>
+<table>
+  <tr><th>Activation kind</th><th>When triggered</th></tr>
+  <tr><td><code>entry</code></td><td>When entering the specified mode — "on-entry ExecutableEntity"</td></tr>
+  <tr><td><code>exit</code></td><td>When leaving the specified mode — "on-exit ExecutableEntity"</td></tr>
+  <tr><td><code>transition</code></td><td>On a specific A→B mode transition — "on-transition ExecutableEntity"</td></tr>
+</table>
+
+<div class="info-box">The RTE maintains a <b>mode machine instance</b> per ModeDeclarationGroupPrototype. Since a mode switch is not instantaneous (all on-exit runnables must complete first), the mode machine instance tracks the in-progress state. For every mode manager, both the RTE and SchM share the same mode machine instance.</div>
+</div>
+
+<div id="comm-nv" style="display:none">
+<h3>NvBlock (Non-Volatile) communication</h3>
+<p>A special SWC type — <code>NvBlockSwComponentType</code> — manages persistent NvM data blocks. The RTE provides a dedicated API for NvM interactions.</p>
+
+<h4>Writing strategies</h4>
+<table>
+  <tr><th>Strategy</th><th>Behavior</th></tr>
+  <tr><td>Write on final</td><td>Data written to NvM only when SWC explicitly requests it</td></tr>
+  <tr><td>Write on change</td><td>RTE detects data change and triggers NvM write automatically</td></tr>
+  <tr><td>Write on shutdown</td><td>Data committed to NvM during ECU shutdown sequence</td></tr>
+</table>
+
+<h4>NvBlock API</h4>
+<pre>/* Trigger read from NvM */
+Rte_Call_NvMService_ReadBlock(&block_data);
+
+/* Trigger write to NvM */
+Rte_Call_NvMService_WriteBlock(&block_data);
+
+/* Callbacks (generated for NvBlock SWC) */
+Rte_NvMNotifyJobFinished_BlockName(ServiceId, JobResult);
+Rte_NvMNotifyInitBlock_BlockName();</pre>
+</div>
+</div>
+
+<!-- ===== MODE MACHINES ===== -->
+<div id="section-modes" class="section">
+<h2>Mode machine state diagram</h2>
+<p>Mode machines are a core RTE concept for ECU lifecycle and feature management. Understanding the state machine is critical for both debugging and DaVinci configuration.</p>
+
+<h3>Mode machine instance state flow</h3>
+<p>Each <code>ModeDeclarationGroupPrototype</code> has one mode machine instance. The instance tracks not just the current mode but the in-progress transition state, since on-exit runnables must complete before the new mode takes effect.</p>
+
+<svg width="100%" viewBox="0 0 680 320" role="img"><title>Mode machine instance state diagram</title><desc>State machine showing IDLE, TRANSITION_REQUESTED, ON_EXIT, TRANSITION, ON_ENTRY states</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<!-- States -->
+<g>
+  <rect x="40" y="130" width="120" height="48" rx="8" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1"/>
+  <text class="th" x="100" y="152" text-anchor="middle" fill="#0C447C">IDLE</text>
+  <text class="ts" x="100" y="168" text-anchor="middle" fill="#185FA5">stable in mode</text>
+</g>
+<g>
+  <rect x="210" y="40" width="140" height="48" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+  <text class="th" x="280" y="62" text-anchor="middle" fill="#633806">TRANSITION</text>
+  <text class="ts" x="280" y="78" text-anchor="middle" fill="#BA7517">REQUESTED</text>
+</g>
+<g>
+  <rect x="210" y="130" width="140" height="48" rx="8" fill="#FAECE7" stroke="#F5C4B3" stroke-width="1"/>
+  <text class="th" x="280" y="152" text-anchor="middle" fill="#712B13">ON_EXIT</text>
+  <text class="ts" x="280" y="168" text-anchor="middle" fill="#993C1D">exit runnables run</text>
+</g>
+<g>
+  <rect x="210" y="220" width="140" height="48" rx="8" fill="#EEEDFE" stroke="#CECBF6" stroke-width="1"/>
+  <text class="th" x="280" y="242" text-anchor="middle" fill="#3C3489">ON_ENTRY</text>
+  <text class="ts" x="280" y="258" text-anchor="middle" fill="#534AB7">entry runnables run</text>
+</g>
+<g>
+  <rect x="430" y="130" width="120" height="48" rx="8" fill="#EAF3DE" stroke="#C0DD97" stroke-width="1"/>
+  <text class="th" x="490" y="152" text-anchor="middle" fill="#27500A">IDLE</text>
+  <text class="ts" x="490" y="168" text-anchor="middle" fill="#3B6D11">new mode active</text>
+</g>
+
+<!-- Arrows -->
+<line x1="160" y1="154" x2="208" y2="154" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="184" y="148" text-anchor="middle" fill="#5F5E5A">Rte_Switch</text>
+<line x1="280" y1="88" x2="280" y2="128" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="320" y="112" text-anchor="start" fill="#5F5E5A">immediately</text>
+<line x1="280" y1="178" x2="280" y2="218" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="320" y="205" text-anchor="start" fill="#5F5E5A">exit done</text>
+<line x1="350" y1="244" x2="428" y2="180" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="400" y="228" text-anchor="middle" fill="#5F5E5A">entry done</text>
+
+<!-- Rte_Mode returns note -->
+<rect x="40" y="270" width="580" height="36" rx="6" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+<text class="ts" x="50" y="286" fill="#27500A">Rte_Mode() returns: current stable mode (IDLE) or RTE_TRANSITION_&lt;OldMode&gt;_&lt;NewMode&gt; during transition</text>
+<text class="ts" x="50" y="299" fill="#3B6D11">ModeSwitchedAckEvent fires when transition completes (mode manager gets acknowledgement)</text>
+</svg>
+
+<h3>Initialization of mode machine instances</h3>
+<p>At <code>Rte_Init()</code>, mode machine instances are initialized to the <b>initial mode</b> defined in the <code>ModeDeclarationGroup</code>. All mode users start in this initial mode — no entry runnable fires for the initial mode unless explicitly configured.</p>
+
+<h3>Mode-dependent scheduling</h3>
+<div class="card">
+<p>Runnables can be <b>mode-disabled</b>: a <code>SwcModeSwitchEvent</code> can have a <code>disabledInMode</code> reference. When the system is in that mode, the runnable is not executed even if its trigger fires. This is how you implement behavior like "do not run this cyclic function during ECU SLEEP mode."</p>
+<pre>/* In ARXML: disabledInMode reference on RTEEvent */
+&lt;DISABLED-MODE-IREF&gt;
+  &lt;CONTEXT-PORT-REF&gt;/EcuM_Mode_Port&lt;/CONTEXT-PORT-REF&gt;
+  &lt;CONTEXT-MODE-DECLARATION-REF&gt;/SLEEP&lt;/CONTEXT-MODE-DECLARATION-REF&gt;
+&lt;/DISABLED-MODE-IREF&gt;</pre>
+</div>
+
+<h3>Common mode groups in automotive</h3>
+<table>
+  <tr><th>Mode group</th><th>Typical modes</th><th>Who manages it</th></tr>
+  <tr><td>EcuM main state</td><td>STARTUP, RUN, POST_RUN, SHUTDOWN, SLEEP, WAKE_SLEEP</td><td>EcuM service SWC</td></tr>
+  <tr><td>Communication mode</td><td>ENABLED, DISABLED</td><td>ComM service SWC</td></tr>
+  <tr><td>Application mode</td><td>Project-specific (e.g. NORMAL, DEGRADED, SAFE)</td><td>Application mode manager SWC</td></tr>
+  <tr><td>DEM operation cycle</td><td>STARTED, STOPPED</td><td>DEM service SWC</td></tr>
+</table>
+</div>
+
+<!-- ===== RUNNABLES & EVENTS ===== -->
+<div id="section-runnables" class="section">
+<h2>Runnable entities & RTE events</h2>
+<p>A <b>Runnable Entity</b> is the schedulable unit inside a SWC — a C function with a defined entry point. The RTE triggers runnables in response to <b>RTEEvents</b>. Understanding the event types is essential for both design and debugging.</p>
+
+<h3>Interactive: click any event to learn about it</h3>
+<div style="margin-bottom:.5rem">
+  <span class="clickable-event" onclick="showEvent('TimingEvent')">TimingEvent</span>
+  <span class="clickable-event" onclick="showEvent('InitEvent')">InitEvent</span>
+  <span class="clickable-event" onclick="showEvent('DataReceivedEvent')">DataReceivedEvent</span>
+  <span class="clickable-event" onclick="showEvent('DataReceiveErrorEvent')">DataReceiveErrorEvent</span>
+  <span class="clickable-event" onclick="showEvent('DataSendCompletedEvent')">DataSendCompletedEvent</span>
+  <span class="clickable-event" onclick="showEvent('OperationInvokedEvent')">OperationInvokedEvent</span>
+  <span class="clickable-event" onclick="showEvent('AsynchronousServerCallReturnsEvent')">AsyncServerCallReturnsEvent</span>
+  <span class="clickable-event" onclick="showEvent('SwcModeSwitchEvent')">SwcModeSwitchEvent</span>
+  <span class="clickable-event" onclick="showEvent('ModeSwitchedAckEvent')">ModeSwitchedAckEvent</span>
+  <span class="clickable-event" onclick="showEvent('BackgroundEvent')">BackgroundEvent</span>
+  <span class="clickable-event" onclick="showEvent('ExternalTriggerOccurredEvent')">ExternalTriggerOccurredEvent</span>
+  <span class="clickable-event" onclick="showEvent('InternalTriggerOccurredEvent')">InternalTriggerOccurredEvent</span>
+  <span class="clickable-event" onclick="showEvent('TransformerHardErrorEvent')">TransformerHardErrorEvent</span>
+  <span class="clickable-event" onclick="showEvent('OsTaskExecutionEvent')">OsTaskExecutionEvent</span>
+</div>
+<div id="event-detail">Click any event above to see details.</div>
+
+<h3>Runnable categories</h3>
+<table>
+  <tr><th>Category</th><th>Can block?</th><th>Can have WaitPoint?</th><th>Task type</th></tr>
+  <tr><td>Category 1</td><td>No</td><td>No</td><td>Basic or Extended task</td></tr>
+  <tr><td>Category 1A</td><td>No</td><td>No</td><td>ISR2 context</td></tr>
+  <tr><td>Category 2</td><td>Yes (via WaitPoint)</td><td>Yes</td><td>Extended task only</td></tr>
+</table>
+
+<h3>Activation vs wakeup</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>ACT — Activate</h4>
+    <p>The runnable is scheduled to run. The RTE activates the OS task that contains this runnable. Most events can ACT a runnable. No explicit RTE API call needed in the runnable to set up the activation.</p>
+  </div>
+  <div class="card">
+    <h4>WUP — Wake up at WaitPoint</h4>
+    <p>A category 2 runnable has called a blocking RTE API (e.g. <code>Rte_Receive()</code>) and is waiting. The event wakes it up. Only a subset of events can WUP (see table in spec §4.2.2.4).</p>
+  </div>
+</div>
+
+<h3>Inter-Runnable Variables (IRV)</h3>
+<p>Private shared data between runnables of the same SWC instance. Not visible outside the SWC. Accessed via:</p>
+<pre>/* Read IRV */
+val = Rte_IrvRead_RunName_IrvName();
+
+/* Write IRV */
+Rte_IrvWrite_RunName_IrvName(value);</pre>
+<div class="info-box">IRVs are in the SWC's <code>PerInstanceMemory</code>. Multiple instantiated SWCs get separate IRV copies. For data consistency across runnables of different tasks, protect with an ExclusiveArea.</div>
+
+<h3>Multiple triggers on one runnable</h3>
+<p>One runnable can be triggered by multiple RTEEvents (e.g., both a TimingEvent AND a DataReceivedEvent). This is common for runnables that need to react to either periodic timeouts or data arrival. The runnable code typically uses <code>Rte_Mode()</code> or checks data status to determine which event fired.</p>
+</div>
+
+<!-- ===== LIFECYCLE ===== -->
+<div id="section-lifecycle" class="section">
+<h2>RTE & SWC lifecycle — state diagram</h2>
+
+<h3>RTE lifecycle (ECU startup to shutdown)</h3>
+<div class="rte-state-flow">
+  <div class="flow-states">
+    <div class="flow-state s-init">PRE-INIT</div>
+    <div style="font-size:20px;color:var(--color-text-secondary);align-self:center">→</div>
+    <div class="flow-state s-start">SchM_Init → SchM_Start</div>
+    <div style="font-size:20px;color:var(--color-text-secondary);align-self:center">→</div>
+    <div class="flow-state s-run">Rte_Init → Rte_Start</div>
+    <div style="font-size:20px;color:var(--color-text-secondary);align-self:center">→</div>
+    <div class="flow-state s-run">RUNNING</div>
+    <div style="font-size:20px;color:var(--color-text-secondary);align-self:center">→</div>
+    <div class="flow-state s-stop">Rte_Stop</div>
+    <div style="font-size:20px;color:var(--color-text-secondary);align-self:center">→</div>
+    <div class="flow-state s-deinit">SchM_Deinit</div>
+  </div>
+</div>
+
+<h3>Lifecycle API — what each function does</h3>
+<table>
+  <tr><th>API</th><th>Called by</th><th>What it does</th><th>Order</th></tr>
+  <tr><td><code>SchM_Init()</code></td><td>EcuM</td><td>Initializes the BSW Scheduler. Must be called before any BSW module's _Init function.</td><td>1st</td></tr>
+  <tr><td><code>SchM_Start()</code></td><td>EcuM</td><td>Starts the BSW Scheduler — enables BSW event scheduling and mode machine init.</td><td>2nd</td></tr>
+  <tr><td><code>Rte_Init()</code></td><td>EcuM / OS Startup Hook</td><td>Initializes RTE data structures, initializes data element buffers to init values, initializes mode machine instances, triggers InitEvent-based runnables.</td><td>3rd</td></tr>
+  <tr><td><code>Rte_Start()</code></td><td>EcuM</td><td>Releases timing events (alarms/schedule tables). After this call, cyclic runnables begin executing.</td><td>4th</td></tr>
+  <tr><td><code>Rte_StartTiming()</code></td><td>EcuM (optional)</td><td>Alternative: start timing only after communication is established. Allows fine-grained control.</td><td>Alt 4th</td></tr>
+  <tr><td><code>Rte_Stop()</code></td><td>EcuM (shutdown)</td><td>Stops timing events. No new runnable activations. Running runnables complete.</td><td>Shutdown</td></tr>
+  <tr><td><code>SchM_Deinit()</code></td><td>EcuM</td><td>De-initializes the BSW Scheduler.</td><td>Last</td></tr>
+</table>
+
+<div class="warn-box">⚠️ Exam trap: <code>Rte_Init()</code> runs InitEvent runnables, <code>Rte_Start()</code> releases timing. This means <b>init runnables run before cyclic runnables</b>. If an init runnable reads data from another SWC's P-Port, that sender SWC must have already written its initial value (set via <code>initValue</code> in the ComSpec or DataPrototype).</div>
+
+<h3>SWC instance initialization</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">RTE buffers initialized to <code>initValue</code> from ComSpec (or 0 if not specified) during <code>Rte_Init()</code></div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">InitEvent-triggered runnables called during <code>Rte_Init()</code> — used for SWC-level initialization logic</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Mode machine instances set to initial mode declared in <code>ModeDeclarationGroup</code></div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><code>Rte_Start()</code> releases TimingEvent alarms → cyclic runnables begin</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">DataReceivedEvent runnables activate when first data arrives (inter-ECU data may not be immediately available)</div></div>
+
+<h3>Partition lifecycle</h3>
+<p>In multi-partition ECUs (OS-Applications), each partition can have its own RTE lifecycle. The RTE supports partition restart (via OS) and handles cross-partition communication consistency. IOC (Inter-OS-Application Communication) is generated by the OS generator based on RTE configuration inputs.</p>
+
+<div class="danger-box">Critical: cross-partition C/S calls require <code>trusted function call</code> (OS <code>CallTrustedFunction()</code>) which has significant latency. Design SWC partitioning carefully to minimize cross-partition synchronous server calls in timing-critical paths.</div>
+</div>
+
+<!-- ===== API REFERENCE ===== -->
+<div id="section-api" class="section">
+<h2>RTE API reference — naming conventions & key APIs</h2>
+
+<h3>API naming pattern</h3>
+<pre>Rte_&lt;Service&gt;_&lt;PortName&gt;_&lt;DataElement/Operation&gt;
+
+Examples:
+  Rte_Write_SpeedPort_VehicleSpeed     /* explicit S/R write */
+  Rte_Read_TempPort_Temperature        /* explicit S/R read */
+  Rte_IWrite_Run1_SpeedPort_VehicleSpeed  /* implicit write */
+  Rte_IRead_Run1_TempPort_Temperature     /* implicit read */
+  Rte_Call_NvmPort_ReadBlock           /* C/S call */
+  Rte_Switch_EcuModePort_currentMode   /* mode switch */
+  Rte_Mode_EcuModePort_currentMode     /* mode read */</pre>
+
+<h3>Complete API reference by category</h3>
+
+<h4>Sender-receiver APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Write_p_de(val)</span><span class="api-desc">Explicit non-queued write. Sender writes data element <code>de</code> on port <code>p</code>.</span></div>
+<div class="api-row"><span class="api-name">Rte_Read_p_de(&val)</span><span class="api-desc">Explicit non-queued read. Receiver reads last written value. Returns RTE_E_OK, RTE_E_NEVER_RECEIVED, RTE_E_MAX_AGE_EXCEEDED, etc.</span></div>
+<div class="api-row"><span class="api-name">Rte_Send_p_de(&val)</span><span class="api-desc">Queued send. Puts value into the receiver's queue. Returns RTE_E_OK or RTE_E_LOST_DATA if queue full.</span></div>
+<div class="api-row"><span class="api-name">Rte_Receive_p_de(&val)</span><span class="api-desc">Queued receive. Dequeues one item. Returns RTE_E_OK or RTE_E_NO_DATA if empty.</span></div>
+<div class="api-row"><span class="api-name">Rte_IWrite_r_p_de(val)</span><span class="api-desc">Implicit write — write to local copy; RTE flushes to buffer after runnable. (<code>r</code>=runnable name)</span></div>
+<div class="api-row"><span class="api-name">Rte_IWriteRef_r_p_de()</span><span class="api-desc">Returns pointer to implicit write buffer — zero-copy optimization for large data.</span></div>
+<div class="api-row"><span class="api-name">Rte_IRead_r_p_de()</span><span class="api-desc">Implicit read — returns value from pre-filled local copy (snapshot at runnable start).</span></div>
+<div class="api-row"><span class="api-name">Rte_IInvalidate_r_p_de()</span><span class="api-desc">Mark implicit write data as invalid — receiver will get RTE_E_INVALID.</span></div>
+<div class="api-row"><span class="api-name">Rte_Feedback_p_de(&status)</span><span class="api-desc">Check transmission status of last explicit write (used with DataSendCompletedEvent).</span></div>
+<div class="api-row"><span class="api-name">Rte_Invalidate_p_de()</span><span class="api-desc">Explicit invalidation — marks data as invalid at port level.</span></div>
+
+<h4>Client-server APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Call_p_op(args...)</span><span class="api-desc">Synchronous or asynchronous C/S call. Returns Std_ReturnType. Operation arguments defined in the ClientServerInterface.</span></div>
+<div class="api-row"><span class="api-name">Rte_Result_p_op(&out)</span><span class="api-desc">Retrieve result of an asynchronous call. Called in the ASCR runnable.</span></div>
+
+<h4>Mode switch APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Switch_p_mg(mode)</span><span class="api-desc">Mode manager: initiate switch to <code>mode</code>. Returns RTE_E_OK or RTE_E_LIMIT (transition already pending).</span></div>
+<div class="api-row"><span class="api-name">Rte_Mode_p_mg()</span><span class="api-desc">Mode user: read current mode. Returns current mode value or RTE_TRANSITION_* during transition.</span></div>
+<div class="api-row"><span class="api-name">Rte_SwitchAck_p_mg()</span><span class="api-desc">Mode user: acknowledge mode switch completion (triggers ModeSwitchedAckEvent on manager side).</span></div>
+
+<h4>Exclusive area APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Enter_AreaName()</span><span class="api-desc">Enter exclusive area — disables interrupts or acquires OS resource depending on config.</span></div>
+<div class="api-row"><span class="api-name">Rte_Exit_AreaName()</span><span class="api-desc">Leave exclusive area. Must always be paired with Enter. No early return inside an exclusive area.</span></div>
+
+<h4>Trigger APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Trigger_p_t()</span><span class="api-desc">External trigger: fire a trigger on a TriggerInterface port (trigger source side).</span></div>
+<div class="api-row"><span class="api-name">Rte_IrTrigger_r_n()</span><span class="api-desc">Inter-runnable trigger: activate another runnable within the same SWC instance.</span></div>
+
+<h4>Per-instance memory APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Pim_PimName()</span><span class="api-desc">Returns pointer to PerInstanceMemory element. For multiple-instantiated SWCs, each instance gets its own pointer.</span></div>
+<div class="api-row"><span class="api-name">Rte_CData_CDataName()</span><span class="api-desc">Returns pointer to per-instance calibration data (constant, not writable by runnable).</span></div>
+
+<h4>Lifecycle APIs</h4>
+<div class="api-row"><span class="api-name">Rte_Start()</span><span class="api-desc">Start timing events. Called by EcuM after Rte_Init(). Cyclic runnables begin after this.</span></div>
+<div class="api-row"><span class="api-name">Rte_Stop()</span><span class="api-desc">Stop timing events. Called during ECU shutdown by EcuM.</span></div>
+<div class="api-row"><span class="api-name">Rte_Init()</span><span class="api-desc">Initialize RTE — sets init values, runs InitEvent runnables, initializes mode machines.</span></div>
+
+<h3>API data types</h3>
+<table>
+  <tr><th>Type</th><th>Description</th></tr>
+  <tr><td><code>Std_ReturnType</code></td><td>Standard return (uint8). Always check this!</td></tr>
+  <tr><td><code>Rte_ModeType_ModeGroupName</code></td><td>Generated enum type for mode values</td></tr>
+  <tr><td><code>Rte_CS_ClientIdType</code></td><td>Client identifier for async C/S calls</td></tr>
+  <tr><td><code>Rte_TransformerError</code></td><td>Error info from data transformation chain</td></tr>
+</table>
+</div>
+
+<!-- ===== SchM ===== -->
+<div id="section-schm" class="section">
+<h2>Basic Software Scheduler (SchM) API</h2>
+<p>The BSW Scheduler is the counterpart of the RTE for Basic Software Modules. It is generated alongside the RTE and provides BSW modules with the same abstractions the RTE provides to SWCs.</p>
+
+<h3>SchM naming convention</h3>
+<pre>SchM_&lt;Service&gt;_&lt;BswModuleName&gt;_&lt;ExArea/Mode/Port&gt;
+
+Examples:
+  SchM_Enter_Can_CAN_EXCLUSIVE_AREA_00   /* enter exclusive area */
+  SchM_Exit_Can_CAN_EXCLUSIVE_AREA_00    /* exit exclusive area */
+  SchM_Switch_BswM_Notification(mode)    /* mode switch */
+  SchM_Mode_BswM_Notification()          /* read mode */
+  SchM_Call_NvM_ReadBlock(args)          /* BSW C/S call */</pre>
+
+<h3>SchM API reference</h3>
+<div class="api-row"><span class="api-name">SchM_Enter_Mod_EA()</span><span class="api-desc">Enter BSW exclusive area. Equivalent to Rte_Enter but for BSW modules.</span></div>
+<div class="api-row"><span class="api-name">SchM_Exit_Mod_EA()</span><span class="api-desc">Exit BSW exclusive area. Always paired with SchM_Enter.</span></div>
+<div class="api-row"><span class="api-name">SchM_Call_Mod_Op(args)</span><span class="api-desc">BSW client-server call. Used for BSW-to-BSW operation invocations.</span></div>
+<div class="api-row"><span class="api-name">SchM_Result_Mod_Op(&out)</span><span class="api-desc">Retrieve result of async BSW C/S call.</span></div>
+<div class="api-row"><span class="api-name">SchM_Send_Mod_DE(&val)</span><span class="api-desc">BSW queued sender.</span></div>
+<div class="api-row"><span class="api-name">SchM_Receive_Mod_DE(&val)</span><span class="api-desc">BSW queued receiver.</span></div>
+<div class="api-row"><span class="api-name">SchM_Switch_Mod_MG(mode)</span><span class="api-desc">BSW mode switch — for BSW modules that manage modes (e.g. BswM, EcuM).</span></div>
+<div class="api-row"><span class="api-name">SchM_Mode_Mod_MG()</span><span class="api-desc">Read current mode in BSW context.</span></div>
+<div class="api-row"><span class="api-name">SchM_SwitchAck_Mod_MG()</span><span class="api-desc">Acknowledge mode switch from BSW side.</span></div>
+<div class="api-row"><span class="api-name">SchM_Trigger_Mod_T()</span><span class="api-desc">BSW trigger — fires an external trigger event from BSW context.</span></div>
+<div class="api-row"><span class="api-name">SchM_ActMainFunction_Mod()</span><span class="api-desc">Activates a BSW module's main function (BswSchedulableEntity activation).</span></div>
+<div class="api-row"><span class="api-name">SchM_CData_Mod_CD()</span><span class="api-desc">Access calibration data for BSW module.</span></div>
+<div class="api-row"><span class="api-name">SchM_Pim_Mod_Pim()</span><span class="api-desc">Access per-instance memory for BSW module.</span></div>
+
+<h3>SchM lifecycle APIs</h3>
+<table>
+  <tr><th>API</th><th>Description</th></tr>
+  <tr><td><code>SchM_Init(config*)</code></td><td>Initialize BSW Scheduler. Called before any BSW _Init.</td></tr>
+  <tr><td><code>SchM_Start()</code></td><td>Start BSW scheduling — mode machines initialized, events enabled.</td></tr>
+  <tr><td><code>SchM_StartTiming()</code></td><td>Start timing-based BSW schedulable entity activation.</td></tr>
+  <tr><td><code>SchM_Deinit()</code></td><td>De-initialize BSW Scheduler on shutdown.</td></tr>
+  <tr><td><code>SchM_GetVersionInfo(&info)</code></td><td>Standard BSW version info retrieval.</td></tr>
+</table>
+
+<h3>BSW event types</h3>
+<p>BSW modules have their own event types analogous to RTEEvents:</p>
+<table>
+  <tr><th>BswEvent</th><th>Analogous RTEEvent</th><th>Description</th></tr>
+  <tr><td><code>BswTimingEvent</code></td><td>TimingEvent</td><td>Cyclic activation of BSW main function</td></tr>
+  <tr><td><code>BswBackgroundEvent</code></td><td>BackgroundEvent</td><td>Background/idle activation</td></tr>
+  <tr><td><code>BswScheduleEvent</code></td><td>(no analog)</td><td>Explicit activation by another BSW entity</td></tr>
+  <tr><td><code>BswOperationInvokedEvent</code></td><td>OperationInvokedEvent</td><td>BSW server operation invoked</td></tr>
+  <tr><td><code>BswExternalTriggerOccurredEvent</code></td><td>ExternalTriggerOccurredEvent</td><td>External trigger received</td></tr>
+  <tr><td><code>BswInternalTriggerOccurredEvent</code></td><td>InternalTriggerOccurredEvent</td><td>Internal trigger between BSW entities</td></tr>
+  <tr><td><code>BswModeSwitchEvent</code></td><td>SwcModeSwitchEvent</td><td>Mode switch notification for BSW</td></tr>
+  <tr><td><code>BswModeSwitchedAckEvent</code></td><td>ModeSwitchedAckEvent</td><td>Mode switch acknowledgement for BSW</td></tr>
+</table>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div id="section-sequences" class="section">
+<h2>Key sequence diagrams</h2>
+
+<div class="nav" style="margin-bottom:1rem;border:none;padding:0">
+  <button class="active" id="seq-tab-startup" onclick="showSeq('startup')">ECU Startup</button>
+  <button id="seq-tab-sr" onclick="showSeq('sr')">S/R Explicit</button>
+  <button id="seq-tab-cs" onclick="showSeq('cs')">C/S Synchronous</button>
+  <button id="seq-tab-mode" onclick="showSeq('modeseq')">Mode Switch</button>
+  <button id="seq-tab-nvr" onclick="showSeq('nvm')">NvM Read</button>
+</div>
+
+<div id="seq-startup">
+<h3>ECU startup sequence</h3>
+<svg width="100%" viewBox="0 0 680 460" role="img"><title>ECU startup sequence diagram</title><desc>Sequence showing EcuM calling SchM_Init, BSW inits, SchM_Start, Rte_Init, Rte_Start</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<!-- Lifelines -->
+<rect x="20" y="20" width="80" height="28" rx="4" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="0.5"/>
+<text class="ts" x="60" y="38" text-anchor="middle" fill="#0C447C">EcuM</text>
+<rect x="160" y="20" width="80" height="28" rx="4" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+<text class="ts" x="200" y="38" text-anchor="middle" fill="#27500A">SchM</text>
+<rect x="300" y="20" width="80" height="28" rx="4" fill="#EEEDFE" stroke="#CECBF6" stroke-width="0.5"/>
+<text class="ts" x="340" y="38" text-anchor="middle" fill="#3C3489">RTE</text>
+<rect x="440" y="20" width="80" height="28" rx="4" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.5"/>
+<text class="ts" x="480" y="38" text-anchor="middle" fill="#633806">BSW Mods</text>
+<rect x="580" y="20" width="80" height="28" rx="4" fill="#FAECE7" stroke="#F5C4B3" stroke-width="0.5"/>
+<text class="ts" x="620" y="38" text-anchor="middle" fill="#712B13">App SWCs</text>
+
+<!-- Vertical lines -->
+<line x1="60" y1="48" x2="60" y2="450" stroke="var(--color-border-secondary)" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="200" y1="48" x2="200" y2="450" stroke="var(--color-border-secondary)" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="340" y1="48" x2="340" y2="450" stroke="var(--color-border-secondary)" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="480" y1="48" x2="480" y2="450" stroke="var(--color-border-secondary)" stroke-width="0.5" stroke-dasharray="4 3"/>
+<line x1="620" y1="48" x2="620" y2="450" stroke="var(--color-border-secondary)" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+<!-- Sequence steps -->
+<line x1="60" y1="80" x2="196" y2="80" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="128" y="74" text-anchor="middle" fill="#185FA5">SchM_Init()</text>
+
+<line x1="200" y1="100" x2="476" y2="100" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="338" y="94" text-anchor="middle" fill="#185FA5">BSW_Init() per module</text>
+
+<line x1="60" y1="130" x2="196" y2="130" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="128" y="124" text-anchor="middle" fill="#185FA5">SchM_Start()</text>
+
+<line x1="200" y1="150" x2="336" y2="150" stroke="#3C3489" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="268" y="144" text-anchor="middle" fill="#3C3489">Mode machines init</text>
+
+<line x1="60" y1="185" x2="336" y2="185" stroke="#3C3489" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="198" y="179" text-anchor="middle" fill="#3C3489">Rte_Init()</text>
+
+<line x1="340" y1="205" x2="616" y2="205" stroke="#712B13" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="478" y="199" text-anchor="middle" fill="#712B13">InitEvent runnables called</text>
+
+<line x1="340" y1="225" x2="340" y2="225"/>
+<text class="ts" x="350" y="230" fill="#3C3489">Init values set</text>
+<rect x="335" y="220" width="6" height="6" fill="#EEEDFE" stroke="#CECBF6" stroke-width="0.5"/>
+
+<line x1="60" y1="260" x2="336" y2="260" stroke="#3C3489" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="198" y="254" text-anchor="middle" fill="#3C3489">Rte_Start()</text>
+
+<line x1="340" y1="280" x2="476" y2="280" stroke="#BA7517" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="408" y="274" text-anchor="middle" fill="#BA7517">Alarms/SchedTbl start</text>
+
+<text class="ts" x="340" y="320" text-anchor="middle" fill="#27500A">— System Running —</text>
+<line x1="60" y1="330" x2="60" y2="330"/>
+<text class="ts" x="200" y="345" text-anchor="middle" fill="#885F00">TimingEvent runnables activate cyclically</text>
+<line x1="340" y1="340" x2="616" y2="340" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+
+<text class="ts" x="200" y="390" text-anchor="middle" fill="#712B13">— Shutdown —</text>
+<line x1="60" y1="400" x2="336" y2="400" stroke="#993C1D" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text class="ts" x="198" y="394" text-anchor="middle" fill="#993C1D">Rte_Stop()</text>
+
+<line x1="60" y1="425" x2="196" y2="425" stroke="#993C1D" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="128" y="419" text-anchor="middle" fill="#993C1D">SchM_Deinit()</text>
+</svg>
+</div>
+
+<div id="seq-sr" style="display:none">
+<h3>Explicit sender-receiver sequence</h3>
+<pre style="line-height:1.8">SWC_A (Sender)                RTE                    SWC_B (Receiver)
+     |                          |                          |
+     |-- Rte_Write_Port_DE(&v)->|                          |
+     |  (non-queued write)      |-- copies to RTE buf ---→ |
+     |                          |                          |
+     |  (Runnable B activated,  |                          |
+     |   e.g. DataReceivedEvent)|←-- activates task -------|
+     |                          |                          |
+     |                          |          |-- Rte_Read_Port_DE(&v) →|
+     |                          |←-- reads from RTE buf ---|
+     |                          |   returns RTE_E_OK       |
+     |                          |   (or NEVER_RECEIVED)    |
+
+Queued variant (FIFO):
+     |-- Rte_Send_Port_DE(&v)->|                          |
+     |                          |-- enqueue to FIFO -----→ |
+     |                          |          |-- Rte_Receive_Port_DE(&v) →|
+     |                          |←-- dequeue from FIFO ----|
+     |                          |  RTE_E_NO_DATA if empty  |</pre>
+</div>
+
+<div id="seq-cs" style="display:none">
+<h3>Synchronous client-server sequence</h3>
+<pre style="line-height:1.8">Client SWC                   RTE                    Server SWC
+     |                         |                         |
+     |-- Rte_Call_Port_Op(in, &out) →                    |
+     |                         |                         |
+     | (if same task: direct   |                         |
+     |  function call)         |-- call Server runnable →|
+     |                         |                         |
+     |                         |←----- return result ----|
+     |←------ Std_ReturnType --|                         |
+     | (RTE_E_OK or error)     |                         |
+     |                         |                         |
+
+Cross-task (extended task with WaitPoint):
+     |-- Rte_Call_Port_Op() → |                         |
+     |    (blocked at WaitPoint)                         |
+     |                         |-- activate Server task →|
+     |                         |  (ActivateTask/SetEvent)|
+     |                         |          (server runs)  |
+     |                         |←----- result via IOC ---|
+     |←-- WaitPoint woken up --|                         |
+     | continues execution...  |                         |</pre>
+</div>
+
+<div id="seq-modeseq" style="display:none">
+<h3>Mode switch sequence</h3>
+<pre style="line-height:1.8">Mode Manager (SWC)            RTE/SchM              Mode User SWC
+     |                           |                        |
+     |-- Rte_Switch_Port_MG(NEW_MODE) →                   |
+     |                           |-- mode machine: TRANSITION_REQUESTED
+     |                           |  (immediately → ON_EXIT)
+     |                           |                        |
+     |                           |-- activate on-exit runnable of user →|
+     |                           |     (user runnable runs, does cleanup)|
+     |                           |←-- runnable complete --|
+     |                           |  mode machine: ON_ENTRY |
+     |                           |-- activate on-entry runnable →|
+     |                           |     (user runnable runs, new mode setup)|
+     |                           |←-- runnable complete --|
+     |                           |  mode machine: IDLE (new mode)
+     |                           |-- fire ModeSwitchedAckEvent →
+     |←-- (manager ack runnable activates)                |
+     |  Rte_SwitchAck received   |                        |
+     |                           |                        |
+     |  Rte_Mode() now returns   |  Rte_Mode() returns    |
+     |  NEW_MODE                 |  NEW_MODE              |</pre>
+</div>
+
+<div id="seq-nvm" style="display:none">
+<h3>NvM read sequence (NvBlock SWC)</h3>
+<pre style="line-height:1.8">NvBlock SWC               RTE                   NvM BSW Module
+     |                      |                         |
+  (Rte_Init triggers)       |                         |
+     |←-- InitEvent runnable called                   |
+     |                      |                         |
+     |-- Rte_Call_NvMService_ReadBlock(blockId) →     |
+     |  (if async)          |-- NvM_ReadBlock(blockId)→|
+     |  runnable returns    |                         |  (NvM does read)
+     |                      |                         |
+     |  (NvM job complete)  |←-- NvM_JobFinishedCallback|
+     |                      |-- Rte_NvMNotifyJobFinished_BlockName()→|
+     |←-- DataReceivedEvent or callback runnable activates
+     |  data now available  |                         |
+     |-- Rte_Read_NvMPort_BlockData(&data) →          |
+     |←-- data returned     |                         |</pre>
+</div>
+</div>
+
+<!-- ===== DAVINCI CONFIG ===== -->
+<div id="section-davinci" class="section">
+<h2>Vector DaVinci configuration — step by step</h2>
+<p>DaVinci Developer is used for SWC design (ARXML authoring). DaVinci Configurator Pro performs ECU configuration and RTE generation. Here is the complete workflow for configuring and generating the RTE for a project.</p>
+
+<h3>DaVinci Developer — SWC design</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><b>Create SWC type:</b> In DaVinci Developer, define <code>ApplicationSwComponentType</code>. Add ports (P-Port/R-Port) and define their <code>PortInterface</code> (SenderReceiverInterface or ClientServerInterface).</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><b>Define SwcInternalBehavior:</b> Add runnables under <code>SwcInternalBehavior</code>. For each runnable, define its <code>RTEEvent</code> (TimingEvent with period, DataReceivedEvent, InitEvent, etc.).</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><b>Configure data access:</b> For each runnable, define <code>DataSendPoint</code> / <code>DataReceivePoint</code> (explicit) or <code>DataReadAccess</code> / <code>DataWriteAccess</code> (implicit). For C/S: define <code>ServerCallPoint</code> (sync/async).</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><b>Configure ComSpec:</b> On each port, set <code>InitValue</code>, <code>AliveTimeout</code> (for receiver), <code>QueueLength</code> (for queued S/R), <code>HandleInvalidOption</code> (keep/replace/default).</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><b>ExclusiveAreas:</b> Define <code>ExclusiveArea</code> elements in SwcInternalBehavior. Assign to runnables that share data. In DaVinci Developer: right-click runnable → Add ExclusiveArea reference.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><b>PerInstanceMemory:</b> Add <code>PerInstanceMemory</code> elements to the SwcInternalBehavior for SWC-local RAM. Each SWC instance gets a separate block.</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><b>Export ARXML:</b> File → Export → AUTOSAR XML. This produces the SWC description file used in the system-level design.</div></div>
+
+<h3>System-level design (DaVinci Developer or System Designer)</h3>
+<div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><b>Create system composition:</b> Place SWC prototypes (instances of SWC types) in a <code>CompositionSwComponentType</code>. Connect ports with <code>AssemblySwConnector</code> (SWC-to-SWC) or <code>DelegationSwConnector</code> (composition boundary).</div></div>
+<div class="seq-step"><div class="seq-num">9</div><div class="seq-text"><b>Map SWCs to ECUs:</b> Assign each SWC prototype to an ECU instance. This generates the <b>ECU Extract</b> — the per-ECU view of the system configuration.</div></div>
+
+<h3>DaVinci Configurator Pro — ECU configuration & RTE generation</h3>
+<div class="seq-step"><div class="seq-num">10</div><div class="seq-text"><b>Import ECU Extract:</b> File → Import → ECU Extract ARXML. DaVinci Configurator Pro loads all SWC descriptions, port connections, and inter-ECU signal mappings.</div></div>
+<div class="seq-step"><div class="seq-num">11</div><div class="seq-text"><b>OS configuration:</b> Configure AUTOSAR OS (tasks, alarms, schedule tables, events, OS applications). The RTE generator reads this to build task bodies. <em>Critical: task names and OS objects must match what the RTE generator expects.</em></div></div>
+<div class="seq-step"><div class="seq-num">12</div><div class="seq-text"><b>RTE event-to-task mapping:</b> In the RTE configuration (RteEventToTaskMapping container), map each RTEEvent to a specific OS task. Example: map the 10ms TimingEvent to Task_10ms, the DataReceivedEvent to Task_Event.</div></div>
+<div class="seq-step"><div class="seq-num">13</div><div class="seq-text"><b>ExclusiveArea implementation:</b> Configure each ExclusiveArea's implementation mechanism: <code>OS Resource</code> (for cross-task protection), <code>SuspendAllInterrupts</code>, <code>SuspendOSInterrupts</code>, or <code>NONE</code> (if only accessed from one task).</div></div>
+<div class="seq-step"><div class="seq-num">14</div><div class="seq-text"><b>COM configuration:</b> Map SWC port data elements to COM signals/signal groups. Inter-ECU data is transmitted via COM. Configure signal PDU mappings, I-PDU composition.</div></div>
+<div class="seq-step"><div class="seq-num">15</div><div class="seq-text"><b>Run RTE Contract Phase:</b> In DaVinci Configurator Pro: RTE → Generate → Contract Phase. Produces <code>Rte_&lt;SWCName&gt;.h</code> headers. SWC code can now be compiled and checked against the contract.</div></div>
+<div class="seq-step"><div class="seq-num">16</div><div class="seq-text"><b>Run RTE Generation Phase:</b> RTE → Generate → All. Produces <code>Rte.c</code>, <code>Rte.h</code>, <code>SchM.c</code>, <code>SchM.h</code>, and supporting files. Check the generation report for errors.</div></div>
+
+<h3>Common DaVinci configuration mistakes</h3>
+<div class="danger-box">🔴 <b>Missing event-to-task mapping:</b> Every RTEEvent must be mapped to an OS task, or the RTE generator will fail with an error. Check: RteEventToTaskMapping completeness in the RTE container.</div>
+<div class="danger-box">🔴 <b>OS task not configured:</b> Referenced OS tasks must exist in the OS configuration. The RTE generator validates this and rejects inconsistencies [SWS_Rte_08417].</div>
+<div class="warn-box">⚠️ <b>ExclusiveArea mechanism mismatch:</b> If an ExclusiveArea is used by runnables in multiple tasks, the implementation must be OS Resource (not SuspendInterrupts). Incorrect mechanism = data corruption risk.</div>
+<div class="warn-box">⚠️ <b>Wrong ComSpec InitValue:</b> If the receiver has <code>AliveTimeout</code> but the sender SWC's init phase is slow, the receiver may report <code>RTE_E_MAX_AGE_EXCEEDED</code> before real data arrives. Set appropriate timeout or handle this in the application.</div>
+<div class="warn-box">⚠️ <b>Queued length too small:</b> If <code>QueueLength</code> on a receiver port is too small for the production rate, <code>RTE_E_LOST_DATA</code> will occur. Monitor with VFB tracing.</div>
+<div class="info-box">💡 <b>Contract phase first:</b> Always run contract phase first and compile SWC code against it before full generation. This catches API mismatches early without needing a complete ECU configuration.</div>
+</div>
+
+<!-- ===== TESTING & DEBUG ===== -->
+<div id="section-debug" class="section">
+<h2>Integration, interface testing & debugging</h2>
+
+<h3>VFB tracing</h3>
+<p>The RTE has a built-in VFB tracing mechanism [SRS_Rte_00045]. When enabled, it hooks into all RTE API calls and sends trace events to a trace tool (e.g. AUTOSAR Trace Logger, Vector CANalyzer with AUTOSAR plugin).</p>
+
+<h4>What VFB tracing captures</h4>
+<table>
+  <tr><th>Trace event category</th><th>What it shows</th></tr>
+  <tr><td>RTE API trace events</td><td>Every Rte_Write, Rte_Read, Rte_Call, Rte_Switch call with timestamp, value, return code</td></tr>
+  <tr><td>Runnable entity trace</td><td>Runnable start/end timestamps — use for CPU load and timing analysis</td></tr>
+  <tr><td>Mode switch trace</td><td>Mode transitions with old/new mode values and timestamps</td></tr>
+  <tr><td>COM trace events</td><td>I-PDU send/receive on CAN/LIN/Ethernet</td></tr>
+  <tr><td>OS task trace</td><td>Task activation, preemption, suspension</td></tr>
+  <tr><td>BSW schedulable entity</td><td>BSW main function calls and durations</td></tr>
+</table>
+
+<h3>Common integration bugs and how to diagnose</h3>
+<div class="card">
+  <h4>Bug: Rte_Read returns RTE_E_NEVER_RECEIVED</h4>
+  <p>Root causes: (1) sender SWC not initialized yet, (2) COM signal not received from another ECU, (3) port not connected in ARXML (missing AssemblySwConnector).</p>
+  <p>Debug steps: VFB trace → check if Rte_Write on sender side ever called → check COM signal reception → check ARXML port connections in DaVinci.</p>
+</div>
+<div class="card">
+  <h4>Bug: Rte_Read returns RTE_E_MAX_AGE_EXCEEDED</h4>
+  <p>Root cause: <code>AliveTimeout</code> configured on the receiver port, and the sender is not writing frequently enough. Can also happen during system startup before sender is running.</p>
+  <p>Debug: check TimingEvent period of sender vs AliveTimeout value. Also check if sender task is running (check OS task activation with trace tool).</p>
+</div>
+<div class="card">
+  <h4>Bug: Rte_Receive returns RTE_E_LOST_DATA</h4>
+  <p>Root cause: queued port queue overflowed — receiver not reading fast enough or sender writing too fast. QueueLength too small.</p>
+  <p>Debug: check production vs consumption rate. Increase QueueLength in ComSpec or slow down the sender. VFB trace will show the exact moment of overflow.</p>
+</div>
+<div class="card">
+  <h4>Bug: Mode switch never completes (mode stuck in TRANSITION)</h4>
+  <p>Root causes: (1) on-exit runnable not completing (infinite loop, blocking call), (2) ModeSwitchedAckEvent runnable not running (task mapping error), (3) multiple Rte_Switch calls without waiting for completion.</p>
+  <p>Debug: VFB mode switch trace events → check if on-exit runnable fired and completed → check OS task scheduling.</p>
+</div>
+<div class="card">
+  <h4>Bug: Synchronous C/S call hangs (timeout)</h4>
+  <p>Root cause: server task has lower priority than client task, causing priority inversion. Or server runnable never activated due to task mapping error.</p>
+  <p>Debug: Check RTE_E_TIMEOUT return value. Verify server task priority in OS config. Check OperationInvokedEvent is mapped to a running task.</p>
+</div>
+<div class="card">
+  <h4>Bug: Data corruption / race condition</h4>
+  <p>Root cause: Two runnables in different tasks accessing shared PerInstanceMemory or IRV without ExclusiveArea protection.</p>
+  <p>Debug: Enable OS stack monitoring and data trace. Review ExclusiveArea configuration in DaVinci — each shared variable access must be protected.</p>
+</div>
+
+<h3>RTE implementation plug-ins (RIPS) for testing</h3>
+<p>The RTE supports <b>RTE Implementation Plug-Ins</b> — extension points where external code (e.g. XCP-based bypass tools) can intercept and optionally modify communication data. This is used for:</p>
+<ul style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;padding-left:1.2rem">
+  <li>Measurement: reading data values via XCP/CAN calibration protocols (A2L file-based)</li>
+  <li>Calibration: writing calibration parameter values during runtime (XCP stimulation)</li>
+  <li>Bypass: replacing SWC output data with externally generated values (RP bypass)</li>
+</ul>
+
+<h3>Key items to check in interface testing</h3>
+<table>
+  <tr><th>Test area</th><th>What to verify</th><th>Tool</th></tr>
+  <tr><td>Port connectivity</td><td>All AssemblySwConnectors present; no unconnected R-Ports that should be connected</td><td>DaVinci Validator</td></tr>
+  <tr><td>InitValue correctness</td><td>Initial data values at startup match spec before sender SWC runs</td><td>VFB trace at Rte_Init</td></tr>
+  <tr><td>Timing</td><td>Cyclic runnable periods correct; no jitter exceeding budget</td><td>OS task trace + AUTOSAR timing analysis</td></tr>
+  <tr><td>Data consistency</td><td>Implicit S/R data snapshot is consistent within a runnable execution</td><td>VFB trace + code review</td></tr>
+  <tr><td>Error handling</td><td>All Rte_Read/Rte_Receive return values checked; RTE_E_INVALID handled</td><td>Code review + SIL testing</td></tr>
+  <tr><td>ExclusiveArea usage</td><td>No missing SchM_Enter/Exit around shared data access</td><td>Static analysis (MISRA)</td></tr>
+  <tr><td>Queue sizing</td><td>No RTE_E_LOST_DATA under peak load conditions</td><td>System test + VFB trace</td></tr>
+  <tr><td>Mode-dependent behavior</td><td>Disabled runnables correctly not executing in specified modes</td><td>Mode trace + VFB trace</td></tr>
+  <tr><td>Cross-ECU signals</td><td>COM signal PDU timing matches SWC consumption rate</td><td>Network trace (CANalyzer)</td></tr>
+  <tr><td>NvM data integrity</td><td>NvBlock read/write callbacks fired correctly; data persists after reset</td><td>NvM trace + hardware debug</td></tr>
+</table>
+
+<h3>MISRA C violations in RTE code</h3>
+<div class="warn-box">The RTE specification (Appendix C) explicitly acknowledges that generated RTE code may violate certain MISRA-C rules. These violations are formally justified and documented. In a project audit, you should be aware of and able to explain these justified MISRA deviations — they are not bugs.</div>
+</div>
+
+</div><!-- end widget -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showComm(id) {
+  ['sr','cs','mode','nv'].forEach(t => {
+    document.getElementById('comm-'+t).style.display = t===id?'block':'none';
+    const btn = document.getElementById('comm-tab-'+t);
+    if(btn) btn.classList.toggle('active', t===id);
+  });
+}
+
+function showSeq(id) {
+  ['startup','sr','cs','modeseq','nvm'].forEach(t => {
+    const el = document.getElementById('seq-'+t);
+    if(el) el.style.display = t===id?'block':'none';
+  });
+  document.querySelectorAll('[id^="seq-tab-"]').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.getElementById('seq-tab-'+id.replace('modeseq','mode'));
+  if(activeBtn) activeBtn.classList.add('active');
+}
+
+const events = {
+  TimingEvent: 'Activates a runnable periodically. Configured with a period (e.g. 10ms). Implemented via OS Alarm or ScheduleTable. The most common event type. All timing events are released by Rte_Start(). In DaVinci: RteEventToTaskMapping maps this event to an OS task; the period is set in the TimingEvent element.',
+  InitEvent: 'Activates a runnable once during Rte_Init(). Used for SWC initialization logic (set default values, initialize state machines, read NvM data). Critical: this runs before Rte_Start(), so cyclic runnables have not started yet. Multiple init runnables in the same Rte_Init() call run in the configured order.',
+  DataReceivedEvent: 'Activates a runnable when new data arrives on a required S/R port. The referenced VariableDataPrototype defines which data element triggers this. Can also be used as a WaitPoint (Rte_Receive blocks until data arrives). Useful for event-driven processing rather than periodic polling.',
+  DataReceiveErrorEvent: 'Activates a runnable when a data reception error occurs — e.g. timeout (AliveTimeout expired), data invalidation by sender, or COM error. Used to implement fault handling for missing signals. The runnable checks the error condition and takes appropriate action.',
+  DataSendCompletedEvent: 'Activates a runnable (or wakes it at WaitPoint via Rte_Feedback) when a previously sent data element has been transmitted. Relevant for explicit inter-ECU S/R communication — confirms the COM layer has sent the signal to the bus.',
+  OperationInvokedEvent: 'Activates the server runnable when a client calls Rte_Call() on a C/S port. This is the trigger for server runnables. The server runnable must be mapped to a task. For synchronous C/S in the same task, RTE may implement as a direct function call (no task activation needed).',
+  AsynchronousServerCallReturnsEvent: 'Activates the ASCR runnable in the client SWC when an asynchronous server call completes. The ASCR runnable calls Rte_Result() to retrieve the out-parameters. The client SWC is not blocked during the server processing.',
+  SwcModeSwitchEvent: 'Activates a runnable on a mode transition. Configured with activation kind: entry (entering mode), exit (leaving mode), or transition (A→B specific transition). Critical for mode-dependent behavior and safe state transitions.',
+  ModeSwitchedAckEvent: 'Activates the mode manager\'s acknowledgement runnable after all mode users have completed their on-exit processing. This confirms the mode switch is complete. The mode machine instance moves to IDLE (new mode). Used for mode switch sequencing and safety confirmation.',
+  BackgroundEvent: 'Activates a runnable as a background task — runs only when no other runnable is ready. Low priority execution. Useful for non-time-critical processing. Only one BackgroundEvent per task body. Cannot have a WaitPoint.',
+  ExternalTriggerOccurredEvent: 'Activates a runnable when an external trigger (TriggerInterface port) fires. The trigger source calls Rte_Trigger(). Supports 1:n fan-out (one source, multiple sinks). Can be queued.',
+  InternalTriggerOccurredEvent: 'Activates a runnable when another runnable in the same SWC calls Rte_IrTrigger(). Intra-SWC triggering mechanism. Does not cross SWC boundaries.',
+  TransformerHardErrorEvent: 'Activates a runnable when a transformer (serialization/deserialization chain) encounters a hard error that prevents data delivery. Used for error recovery in SWC-to-SWC data transformation chains.',
+  OsTaskExecutionEvent: 'Activates a runnable when a specific OS task body completes (or starts). Used for runnable chaining and post-task cleanup. Advanced use case.'
+};
+
+function showEvent(name) {
+  const d = document.getElementById('event-detail');
+  d.innerHTML = '<strong style="color:var(--color-text-primary)">' + name + '</strong><br><br>' + events[name];
+  document.querySelectorAll('.clickable-event').forEach(e => e.style.background = '');
+  event.target.style.background = 'var(--color-background-info)';
+  event.target.style.color = 'var(--color-text-info)';
+  event.target.style.borderColor = 'var(--color-border-info)';
+}
+</script>

@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR IpduM — Master Study Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+ 
+  :root {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --surface2: #161c2a;
+    --border: #1e2840;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --accent3: #8b5cf6;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --success: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+  }
+ 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+ 
+  /* ── HEADER ── */
+  .hero {
+    background: linear-gradient(135deg, #060912 0%, #0f1629 50%, #0a0d14 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(59,130,246,0.08), transparent),
+                radial-gradient(ellipse 40% 60% at 20% 80%, rgba(139,92,246,0.06), transparent);
+  }
+  .hero-inner { position: relative; max-width: 1100px; margin: 0 auto; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3);
+    color: #93c5fd; font-family: var(--mono); font-size: 11px;
+    padding: 4px 12px; border-radius: 20px; letter-spacing: .08em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--display); font-size: clamp(28px,4vw,52px);
+    font-weight: 800; letter-spacing: -.02em; line-height: 1.1;
+    background: linear-gradient(135deg, #e2e8f0 30%, #93c5fd 70%, #c4b5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+  .hero p { color: #94a3b8; max-width: 640px; font-size: 16px; }
+  .meta-row { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .meta-item { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .meta-item span { color: #93c5fd; }
+ 
+  /* ── LAYOUT ── */
+  .layout { display: flex; max-width: 1280px; margin: 0 auto; }
+ 
+  /* ── SIDEBAR NAV ── */
+  .sidebar {
+    width: 260px; flex-shrink: 0; position: sticky; top: 0;
+    height: 100vh; overflow-y: auto; padding: 24px 16px;
+    border-right: 1px solid var(--border); background: var(--surface);
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .nav-section { font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--muted); padding: 16px 8px 6px; }
+  .nav-section:first-child { padding-top: 0; }
+  .nav-link {
+    display: block; padding: 7px 10px; border-radius: 6px;
+    color: #94a3b8; font-size: 13px; text-decoration: none;
+    cursor: pointer; transition: all .15s;
+  }
+  .nav-link:hover, .nav-link.active { background: rgba(59,130,246,0.1); color: #93c5fd; }
+  .nav-link.active { border-left: 2px solid var(--accent); }
+ 
+  /* ── MAIN CONTENT ── */
+  .main { flex: 1; padding: 40px 48px; max-width: 900px; }
+ 
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; }
+ 
+  /* ── TYPOGRAPHY ── */
+  h2 {
+    font-family: var(--display); font-size: 28px; font-weight: 800;
+    color: #e2e8f0; margin-bottom: 8px; letter-spacing: -.02em;
+  }
+  h3 {
+    font-family: var(--display); font-size: 18px; font-weight: 700;
+    color: #cbd5e1; margin: 32px 0 12px; letter-spacing: -.01em;
+  }
+  h4 {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    color: #93c5fd; margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .06em;
+  }
+  p { color: #94a3b8; margin-bottom: 14px; }
+  strong { color: #e2e8f0; }
+ 
+  .section-intro {
+    color: #64748b; font-size: 14px; font-style: italic;
+    margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+  }
+ 
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .card-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .card.highlight { border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.04); }
+  .card.warn { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.04); }
+  .card.danger { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.04); }
+  .card.success { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.04); }
+  .card h4 { margin-top: 0; }
+ 
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    padding: 2px 8px; border-radius: 4px; margin: 2px 3px 2px 0;
+    font-weight: 700; letter-spacing: .04em;
+  }
+  .tag-blue { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.2); }
+  .tag-purple { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.2); }
+  .tag-green { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.2); }
+  .tag-orange { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+  .tag-red { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+  .tag-cyan { background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.2); }
+ 
+  /* ── CODE ── */
+  code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: rgba(255,255,255,0.06); padding: 2px 6px;
+    border-radius: 4px; color: #93c5fd;
+  }
+  pre {
+    background: #0d1117; border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 20px; overflow-x: auto;
+    margin: 14px 0; font-family: var(--mono); font-size: 13px; line-height: 1.6;
+  }
+  pre .kw { color: #ff7b72; }
+  pre .str { color: #a5d6ff; }
+  pre .cmt { color: #6e7681; font-style: italic; }
+  pre .fn { color: #d2a8ff; }
+  pre .num { color: #79c0ff; }
+  pre .type { color: #ffa657; }
+ 
+  /* ── TABLES ── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th {
+    background: var(--surface2); text-align: left; padding: 10px 14px;
+    font-family: var(--mono); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--border);
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(30,40,64,0.5); color: #94a3b8; vertical-align: top; }
+  tr:hover td { background: rgba(59,130,246,0.03); }
+  td:first-child { color: #e2e8f0; font-family: var(--mono); font-size: 12px; }
+ 
+  /* ── CALLOUTS ── */
+  .callout {
+    border-left: 3px solid; padding: 14px 18px; border-radius: 0 8px 8px 0;
+    margin: 16px 0; font-size: 14px;
+  }
+  .callout-info { border-color: var(--accent); background: rgba(59,130,246,0.06); }
+  .callout-warn { border-color: var(--warn); background: rgba(245,158,11,0.06); }
+  .callout-danger { border-color: var(--danger); background: rgba(239,68,68,0.06); }
+  .callout-tip { border-color: var(--success); background: rgba(16,185,129,0.06); }
+  .callout-label {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .1em; font-weight: 700; margin-bottom: 6px;
+  }
+  .callout-info .callout-label { color: #60a5fa; }
+  .callout-warn .callout-label { color: #fbbf24; }
+  .callout-danger .callout-label { color: #f87171; }
+  .callout-tip .callout-label { color: #34d399; }
+ 
+  /* ── STATE DIAGRAMS (SVG-based) ── */
+  .diagram-wrap {
+    background: #0d1117; border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; margin: 20px 0;
+    overflow-x: auto;
+  }
+  .diagram-wrap svg { display: block; margin: 0 auto; }
+ 
+  /* ── SEQUENCE DIAGRAM ── */
+  .seq { font-family: var(--mono); font-size: 12px; }
+  .seq-lane { display: flex; gap: 0; }
+  .seq-actor {
+    flex: 1; text-align: center; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px; padding: 8px;
+    color: #93c5fd; font-size: 11px; font-weight: 700;
+  }
+  .seq-body { position: relative; min-height: 200px; }
+  .seq-line {
+    position: absolute; left: 0; right: 0;
+    border-top: 1px dashed rgba(255,255,255,0.06);
+  }
+ 
+  /* ── FLOW BOXES ── */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+  .flow-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; margin-bottom: 4px;
+    position: relative;
+  }
+  .flow-num {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); color: white; font-family: var(--mono);
+    font-size: 11px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; margin-top: 1px;
+  }
+  .flow-arrow {
+    text-align: center; color: var(--muted); font-size: 18px;
+    margin: -2px 0; line-height: 1;
+  }
+ 
+  /* ── TOOLTIP LIKE TAGS ── */
+  .sws { font-family: var(--mono); font-size: 11px; color: #6ee7b7;
+    background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);
+    padding: 1px 6px; border-radius: 3px; cursor: help; }
+ 
+  /* ── ACCORDION ── */
+  .accordion { margin-bottom: 8px; }
+  .accordion-header {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 18px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: all .15s; font-weight: 500;
+  }
+  .accordion-header:hover { border-color: rgba(59,130,246,0.3); }
+  .accordion-header .chevron { transition: transform .2s; font-size: 10px; }
+  .accordion-header.open .chevron { transform: rotate(180deg); }
+  .accordion-body {
+    display: none; background: var(--surface); border: 1px solid var(--border);
+    border-top: none; border-radius: 0 0 8px 8px; padding: 16px 20px;
+  }
+  .accordion-body.open { display: block; }
+ 
+  /* ── QUIZ ── */
+  .quiz-q { margin-bottom: 24px; }
+  .quiz-q p { color: #e2e8f0; font-weight: 500; margin-bottom: 12px; }
+  .quiz-opt {
+    display: block; padding: 10px 14px; border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; margin-bottom: 6px;
+    transition: all .15s; color: #94a3b8; font-size: 14px;
+  }
+  .quiz-opt:hover { border-color: rgba(59,130,246,0.4); color: #e2e8f0; }
+  .quiz-opt.correct { border-color: var(--success); background: rgba(16,185,129,0.1); color: #6ee7b7; }
+  .quiz-opt.wrong { border-color: var(--danger); background: rgba(239,68,68,0.1); color: #fca5a5; }
+  .quiz-explanation { display: none; margin-top: 10px; font-size: 13px; color: #94a3b8;
+    padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 6px; }
+  .quiz-explanation.show { display: block; }
+ 
+  /* ── SCROLLBAR ── */
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+ 
+  /* ── DIVIDER ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+ 
+  /* ── VECTOR DIAGRAM ── */
+  .arch-box {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    margin: 24px 0;
+  }
+  .arch-layer {
+    width: 100%; max-width: 600px; padding: 12px 20px;
+    border-radius: 8px; text-align: center; font-family: var(--mono); font-size: 13px;
+    border: 1px solid;
+  }
+  .arch-arrow { color: var(--muted); font-size: 20px; line-height: 1; }
+  .arch-com { background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.3); color: #c4b5fd; }
+  .arch-pdu { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
+  .arch-ipdum { background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.3); color: #67e8f9; font-weight: 700; }
+  .arch-comhal { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fcd34d; }
+  .arch-if { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #6ee7b7; }
+  .arch-bus { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.2); color: #fca5a5; }
+ 
+  .side-note {
+    font-size: 12px; color: var(--muted); font-style: italic;
+    padding: 8px 12px; border-left: 2px solid var(--border); margin: 8px 0;
+  }
+</style>
+</head>
+<body>
+ 
+<div class="hero">
+  <div class="hero-inner">
+    <div class="badge">📘 AUTOSAR CP R24-11 · Doc ID 182</div>
+    <h1>I-PDU Multiplexer<br>Master Study Guide</h1>
+    <p>A complete, exam-ready reference covering architecture, functional spec, API, state diagrams, sequences, and Vector DaVinci configuration — built for automotive integration engineers.</p>
+    <div class="meta-row">
+      <div class="meta-item">Module: <span>IpduM</span></div>
+      <div class="meta-item">Standard: <span>AUTOSAR Classic Platform</span></div>
+      <div class="meta-item">Release: <span>R24-11</span></div>
+      <div class="meta-item">Bus: <span>CAN · CAN-FD · FlexRay · LIN · Ethernet</span></div>
+    </div>
+  </div>
+</div>
+ 
+<div class="layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">Foundations</div>
+    <a class="nav-link active" onclick="show('intro')">1 · Concept & Architecture</a>
+    <a class="nav-link" onclick="show('pdu-anatomy')">2 · PDU Anatomy & Layout</a>
+ 
+    <div class="nav-section">Functional Spec</div>
+    <a class="nav-link" onclick="show('init')">3 · Initialization</a>
+    <a class="nav-link" onclick="show('tx')">4 · Transmission</a>
+    <a class="nav-link" onclick="show('rx')">5 · Reception</a>
+    <a class="nav-link" onclick="show('container')">6 · Container PDUs</a>
+ 
+    <div class="nav-section">State & Sequences</div>
+    <a class="nav-link" onclick="show('state')">7 · State Diagrams</a>
+    <a class="nav-link" onclick="show('seq')">8 · Sequence Diagrams</a>
+ 
+    <div class="nav-section">API Reference</div>
+    <a class="nav-link" onclick="show('api')">9 · API Specification</a>
+    <a class="nav-link" onclick="show('errors')">10 · Error Handling & DET</a>
+ 
+    <div class="nav-section">Configuration</div>
+    <a class="nav-link" onclick="show('davinci')">11 · Vector DaVinci Config</a>
+    <a class="nav-link" onclick="show('config-ref')">12 · Config Parameter Ref</a>
+ 
+    <div class="nav-section">Exam Prep</div>
+    <a class="nav-link" onclick="show('debug')">13 · Debugging & Testing</a>
+    <a class="nav-link" onclick="show('quiz')">14 · Practice Quiz</a>
+    <a class="nav-link" onclick="show('cheatsheet')">15 · Cheat Sheet</a>
+  </nav>
+ 
+  <!-- MAIN -->
+  <main class="main">
+ 
+    <!-- ═══════════════════ SECTION 1: INTRO ═══════════════════ -->
+    <div class="section active" id="s-intro">
+      <h2>Concept & Architecture</h2>
+      <p class="section-intro">The IpduM module is the communication "translator" that allows multiple logical messages (COM I-PDUs) to share a single physical bus frame ID, or to pack many small PDUs into one large container frame.</p>
+ 
+      <h3>🧠 The Big Picture — Why IpduM Exists</h3>
+      <p>On CAN, every frame has a fixed 11-bit or 29-bit identifier. In classic AUTOSAR, each COM I-PDU gets its own bus ID — but this wastes bandwidth. IpduM solves two problems:</p>
+ 
+      <div class="card-grid">
+        <div class="card highlight">
+          <h4>Problem 1 — Multiplexing</h4>
+          <p>Multiple signal layouts need to share <strong>one CAN ID</strong>. Think of a sensor that alternately reports temperature, pressure, or status — same ID, different payload layout each time. The <strong>selector field</strong> says which layout is active.</p>
+          <div><span class="tag tag-blue">CAN</span><span class="tag tag-blue">FlexRay</span><span class="tag tag-blue">LIN</span></div>
+        </div>
+        <div class="card highlight">
+          <h4>Problem 2 — Container PDUs</h4>
+          <p>Ethernet and CAN-FD support large frames (up to 4096+ bytes). Sending many tiny 8-byte PDUs wastes headers. IpduM packs <strong>multiple small PDUs</strong> into one large "container" frame — like packing boxes into a shipping container.</p>
+          <div><span class="tag tag-cyan">Ethernet</span><span class="tag tag-orange">CAN-FD</span><span class="tag tag-cyan">FlexRay</span></div>
+        </div>
+      </div>
+ 
+      <h3>📐 IpduM Position in AUTOSAR Stack</h3>
+      <p>IpduM lives <strong>beside the PDU Router</strong>, not strictly above or below it. It sits between COM and the Communication Hardware Abstraction layer.</p>
+ 
+      <div class="arch-box">
+        <div class="arch-layer arch-com">COM Module — creates/interprets signals and signal groups</div>
+        <div class="arch-arrow">⇅</div>
+        <div class="arch-layer arch-pdu">PDU Router (PduR) — routes PDUs between all BSW modules</div>
+        <div class="arch-arrow">⇅ &nbsp;&nbsp;⇅</div>
+        <div class="arch-layer arch-ipdum">★ IpduM — I-PDU Multiplexer (sits BESIDE PduR)</div>
+        <div class="arch-arrow">⇅</div>
+        <div class="arch-layer arch-comhal">Communication Hardware Abstraction (ComHAL)</div>
+        <div class="arch-arrow">⇅</div>
+        <div class="arch-layer arch-if">CAN Interface / FlexRay Interface / Lin Interface</div>
+        <div class="arch-arrow">⇅</div>
+        <div class="arch-layer arch-bus">Physical Bus (CAN, CAN-FD, FlexRay, LIN, Ethernet)</div>
+      </div>
+ 
+      <div class="callout callout-info">
+        <div class="callout-label">📌 Key Architectural Requirement</div>
+        <strong>SWS_IpduM_00097:</strong> IpduM shall be implemented so that <strong>no other modules depend on it</strong>. A system can be built completely without IpduM if it's not needed — it is always optional.
+      </div>
+ 
+      <h3>🔗 Module Dependencies</h3>
+      <table>
+        <tr><th>Module</th><th>What IpduM needs from it</th><th>What IpduM provides to it</th></tr>
+        <tr>
+          <td>COM</td>
+          <td>COM I-PDUs for static/dynamic parts; selector field values pre-set in COM I-PDUs</td>
+          <td>Demultiplexed static + dynamic I-PDUs forwarded back via PduR</td>
+        </tr>
+        <tr>
+          <td>PduR</td>
+          <td>Routes multiplexed PDUs to IpduM; routes confirmations</td>
+          <td>IpduM_Transmit, IpduM_RxIndication, IpduM_TxConfirmation, IpduM_TriggerTransmit</td>
+        </tr>
+        <tr>
+          <td>OS (AUTOSAR)</td>
+          <td><strong>Nothing</strong> — SWS_IpduM_00107: IpduM shall NOT directly access the OS</td>
+          <td>N/A</td>
+        </tr>
+        <tr>
+          <td>BSW Scheduler (RTE)</td>
+          <td>Calls IpduM_MainFunctionRx and IpduM_MainFunctionTx periodically</td>
+          <td>N/A</td>
+        </tr>
+        <tr>
+          <td>DET</td>
+          <td>Reports development + runtime errors via Det_ReportError / Det_ReportRuntimeError</td>
+          <td>N/A</td>
+        </tr>
+      </table>
+ 
+      <div class="callout callout-warn">
+        <div class="callout-label">⚠️ Exam Trap</div>
+        IpduM <strong>does NOT set the selector field</strong> (SWS_IpduM_00098). The COM module must already have the correct selector field value embedded in the dynamic part I-PDU before passing it to IpduM. This is configured as a signal with an init value that is never updated at runtime.
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 2: PDU ANATOMY ═══════════════════ -->
+    <div class="section" id="s-pdu-anatomy">
+      <h2>PDU Anatomy & Layout</h2>
+      <p class="section-intro">Understanding how bits are laid out inside a multiplexed I-PDU is the foundation of everything. Get this wrong in a project and you'll have garbled data on the bus.</p>
+ 
+      <h3>🔬 Multiplexed I-PDU Structure</h3>
+      <p>A multiplexed I-PDU = <strong>Static Part</strong> + <strong>Dynamic Part</strong>. The dynamic part contains the <strong>selector field</strong>.</p>
+ 
+      <!-- ASCII art style diagram -->
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg" width="720" height="200">
+          <!-- Background -->
+          <rect width="760" height="200" fill="#0d1117"/>
+          <!-- PDU outer box -->
+          <rect x="20" y="30" width="720" height="60" rx="6" fill="none" stroke="#1e2840" stroke-width="1.5"/>
+          <!-- Label -->
+          <text x="380" y="18" fill="#64748b" font-family="JetBrains Mono" font-size="11" text-anchor="middle" letter-spacing="1">IpduM I-PDU (assembled, outgoing to PduR → bus)</text>
+          <!-- Static Part -->
+          <rect x="20" y="30" width="200" height="60" rx="6" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.4)" stroke-width="1.5"/>
+          <text x="120" y="55" fill="#c4b5fd" font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="bold">STATIC PART</text>
+          <text x="120" y="73" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">signals/signal groups</text>
+          <text x="120" y="85" fill="#6ee7b7" font-family="JetBrains Mono" font-size="9" text-anchor="middle">0 or more segments</text>
+          <!-- Selector Field -->
+          <rect x="220" y="30" width="100" height="60" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.4)" stroke-width="1.5"/>
+          <text x="270" y="55" fill="#fcd34d" font-family="JetBrains Mono" font-size="11" text-anchor="middle" font-weight="bold">SELECTOR</text>
+          <text x="270" y="69" fill="#fcd34d" font-family="JetBrains Mono" font-size="11" text-anchor="middle" font-weight="bold">FIELD</text>
+          <text x="270" y="83" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">1–16 bits</text>
+          <!-- Dynamic Part -->
+          <rect x="320" y="30" width="420" height="60" fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.35)" stroke-width="1.5"/>
+          <text x="530" y="53" fill="#93c5fd" font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="bold">DYNAMIC PART (one of N layouts, chosen by selector)</text>
+          <text x="530" y="69" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">signals/signal groups — layout varies per selector value</text>
+          <text x="530" y="82" fill="#67e8f9" font-family="JetBrains Mono" font-size="9" text-anchor="middle">1+ segments · like a C union</text>
+          <!-- Arrow annotation -->
+          <text x="270" y="120" fill="#fbbf24" font-family="JetBrains Mono" font-size="10" text-anchor="middle">value=0x01 → layout A</text>
+          <text x="270" y="135" fill="#fbbf24" font-family="JetBrains Mono" font-size="10" text-anchor="middle">value=0x02 → layout B</text>
+          <text x="270" y="150" fill="#fbbf24" font-family="JetBrains Mono" font-size="10" text-anchor="middle">value=0xFF → layout N</text>
+          <line x1="270" y1="90" x2="270" y2="110" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3"/>
+          <!-- COM I-PDUs below -->
+          <text x="120" y="175" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">← COM I-PDU (static handle)</text>
+          <text x="530" y="175" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">← COM I-PDU (dynamic handle, N variants)</text>
+        </svg>
+      </div>
+ 
+      <h3>📏 Key Configuration Parameters for Layout</h3>
+      <table>
+        <tr><th>Parameter</th><th>Where</th><th>Value Range</th><th>Meaning</th></tr>
+        <tr><td>IpduMSelectorFieldLength</td><td>IpduMSelectorField</td><td>1–16 bits</td><td>How many bits is the selector field?</td></tr>
+        <tr><td>IpduMSelectorFieldPosition</td><td>IpduMSelectorField</td><td>0–2031 bits</td><td>Where in the PDU does the selector start? (CAN: 0–63, CAN-FD: 0–511, FlexRay: 0–2031)</td></tr>
+        <tr><td>IpduMByteOrder</td><td>IpduMTxRequest / IpduMRxIndication</td><td>BIG_ENDIAN / LITTLE_ENDIAN</td><td>Determines if SegmentPosition = MSB (big-endian) or LSB (little-endian) bit position</td></tr>
+        <tr><td>IpduMSegmentPosition</td><td>IpduMTxDynamic/StaticSegment</td><td>0–2031 bits</td><td>Bit position of this segment in the multiplexed PDU</td></tr>
+        <tr><td>IpduMSegmentLength</td><td>IpduMTxDynamic/StaticSegment</td><td>1–2032 bits</td><td>Length of this segment in bits</td></tr>
+      </table>
+ 
+      <div class="callout callout-info">
+        <div class="callout-label">📐 Segment Placement Rule — SWS_IpduM_00224</div>
+        All static and dynamic parts shall be configured to allocate <strong>exactly the same bits</strong> in both the multiplexed and de-multiplexed I-PDUs. IpduM does <strong>only masking and copying</strong> — no bit shifting, no endianness conversion of data bytes.
+      </div>
+ 
+      <h3>📦 Container PDU Layout</h3>
+      <p>Container PDUs come in two flavors: <strong>Dynamic</strong> (with headers) and <strong>Static</strong> (fixed offsets, no headers).</p>
+ 
+      <div class="card-grid">
+        <div class="card">
+          <h4>Dynamic Container (SHORT header)</h4>
+          <pre><span class="cmt">/* IPDUM_HEADERTYPE_SHORT */</span>
+<span class="kw">| Header (32-bit)</span>    | Payload  |
+<span class="kw">|</span> ID[23:0] | DLC[7:0] | data...  |
+<span class="cmt">/* then next contained PDU: */</span>
+<span class="kw">| Header (32-bit)</span>    | Payload  |
+<span class="kw">| ...</span></pre>
+        </div>
+        <div class="card">
+          <h4>Dynamic Container (LONG header)</h4>
+          <pre><span class="cmt">/* IPDUM_HEADERTYPE_LONG */</span>
+<span class="kw">| Header (64-bit)</span>         | Payload |
+<span class="kw">|</span> ID[31:0] | DLC[31:0]   | data... |
+<span class="cmt">/* Supports very large PDUs */</span>
+<span class="cmt">/* ID=0 means padding, stop */</span></pre>
+        </div>
+      </div>
+      <div class="card">
+        <h4>Static Container (IPDUM_HEADERTYPE_NONE)</h4>
+        <pre><span class="cmt">/* Fixed layout — positions configured per contained PDU */</span>
+<span class="kw">| ContainedPDU_A</span> (offset=0)  | update_bit_A |
+<span class="kw">| ContainedPDU_B</span> (offset=N)  | update_bit_B |
+<span class="kw">| ...</span>
+<span class="cmt">/* Update bits show if PDU was written since last send */</span>
+<span class="cmt">/* Only COLLECT_LAST_IS_BEST semantics allowed here */</span></pre>
+      </div>
+      <div class="callout callout-warn">
+        <div class="callout-label">⚠️ Critical Rule — Header byte order</div>
+        <code>IpduMHeaderByteOrder</code> (IPDUM_BIG_ENDIAN or IPDUM_LITTLE_ENDIAN) applies to the <strong>container header bytes only</strong>, not to the contained PDU payloads. Set this to match how the ECU interprets the header ID and DLC fields.
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 3: INIT ═══════════════════ -->
+    <div class="section" id="s-init">
+      <h2>Initialization</h2>
+      <p class="section-intro">Correct initialization is critical. Call order, buffer pre-loading, and the init value chain are all exam-tested topics.</p>
+ 
+      <h3>⚙️ Initialization Sequence</h3>
+      <div class="flow">
+        <div class="flow-item"><div class="flow-num">1</div><div><strong>EcuM calls IpduM_Init(config)</strong> — before ANY other IpduM function. SWS_IpduM_00084: behavior is <em>unspecified</em> until IpduM_Init completes.</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">2</div><div><strong>All global variables initialized</strong> — SWS_IpduM_00033. Internal state goes from UNINIT to INIT.</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">3</div><div><strong>Tx buffer filled with IpduMIPduUnusedAreasDefault</strong> — SWS_IpduM_00067. The pattern covers areas that are neither static nor dynamic part bits.</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">4</div><div><strong>Initial dynamic part copied from COM I-PDU</strong> — SWS_IpduM_00068. The reference is <code>IpduMInitialDynamicPart → IpduMTxDynamicPduRef</code>. The selector field inside is also initialized here implicitly.</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">5</div><div><strong>Static part initial values copied from COM I-PDU</strong> — SWS_IpduM_00143. Reference: <code>IpduMTxStaticPart → IpduMTxStaticPduRef</code>.</div></div>
+      </div>
+ 
+      <h3>📌 Initialization Function API</h3>
+      <pre><span class="type">void</span> <span class="fn">IpduM_Init</span>( <span class="kw">const</span> <span class="type">IpduM_ConfigType</span>* config );
+<span class="cmt">/* Service ID: 0x00
+   Sync/Async: Synchronous
+   Reentrancy: Non-Reentrant
+   Must be called ONCE before any other IpduM function */</span></pre>
+ 
+      <div class="callout callout-warn">
+        <div class="callout-label">⚠️ UNINIT Error — SWS_IpduM_00084 + E_UNINIT (0x20)</div>
+        If DET is enabled (<code>IpduMDevErrorDetect=TRUE</code>), calling any API except <code>IpduM_MainFunctionTx</code>, <code>IpduM_MainFunctionRx</code>, and <code>IpduM_GetVersionInfo</code> before <code>IpduM_Init</code> shall report <strong>IPDUM_E_UNINIT (0x20)</strong> to DET.
+      </div>
+ 
+      <h3>🏗️ Initialization Buffer Strategy</h3>
+      <p>For performance, the initial bit pattern for the Tx buffer can be pre-calculated at <strong>configuration time</strong> and copied as a single block at runtime — no signal-by-signal initialization loop needed. This is an important optimization for embedded systems.</p>
+ 
+      <div class="card success">
+        <h4>Multi-Core / Multi-Partition Init</h4>
+        <p>For multi-partition systems, IpduM may provide <strong>one IpduM_Init per partition</strong>. Each partition initializes only its own IpduM resources.</p>
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 4: TRANSMISSION ═══════════════════ -->
+    <div class="section" id="s-tx">
+      <h2>Transmission</h2>
+      <p class="section-intro">Transmission has four sub-topics that are individually examined: the transmit request, the trigger conditions, JIT update, and transmit confirmation.</p>
+ 
+      <h3>📤 Transmission Request — IpduM_Transmit</h3>
+      <p>COM sends its I-PDUs (static part, dynamic part) via PduR → IpduM_Transmit. IpduM assembles the multiplexed PDU and sends it out.</p>
+ 
+      <div class="callout callout-info">
+        <div class="callout-label">SWS_IpduM_00015 — Merge Rule</div>
+        IpduM merges the corresponding two COM I-PDUs (static part + <em>last received</em> dynamic part) into <strong>one single IpduM I-PDU</strong> with a <strong>new unique I-PDU ID</strong>, then sends it to PduR.
+      </div>
+ 
+      <div class="callout callout-danger">
+        <div class="callout-label">🔴 SWS_IpduM_00152 — Pending Confirmation Blocks New Transmit</div>
+        As long as no TxConfirmation is received for an IpduM I-PDU, <code>IpduM_Transmit</code> shall return <strong>E_NOT_OK</strong> for any new Tx request for the same IpduM I-PDU. This prevents overlapping transmissions.
+      </div>
+ 
+      <h3>🎛️ Transmission Trigger Modes — SWS_IpduM_00021</h3>
+      <p>Configured via <code>IpduMTxTriggerMode</code> — determines <em>which event triggers the merged PDU to be sent</em>:</p>
+ 
+      <table>
+        <tr><th>Mode</th><th>Enum Value</th><th>Triggers When</th><th>Use Case</th></tr>
+        <tr>
+          <td>STATIC_PART_TRIGGER</td>
+          <td><code>STATIC_PART_TRIGGER</code></td>
+          <td>Static COM I-PDU arrives at IpduM</td>
+          <td>Static part drives timing (e.g., periodic static + event-driven dynamic)</td>
+        </tr>
+        <tr>
+          <td>DYNAMIC_PART_TRIGGER</td>
+          <td><code>DYNAMIC_PART_TRIGGER</code></td>
+          <td>Dynamic COM I-PDU arrives at IpduM</td>
+          <td>Dynamic part drives timing</td>
+        </tr>
+        <tr>
+          <td>STATIC_OR_DYNAMIC</td>
+          <td><code>STATIC_OR_DYNAMIC_PART_TRIGGER</code></td>
+          <td>Either part arrives</td>
+          <td>Either part can trigger — most flexible</td>
+        </tr>
+        <tr>
+          <td>NONE</td>
+          <td><code>NONE</code></td>
+          <td>Never from COM update — only via TriggerTransmit from lower layer</td>
+          <td>FlexRay static segment, LIN Master schedule</td>
+        </tr>
+      </table>
+ 
+      <div class="callout callout-warn">
+        <div class="callout-label">⚠️ MDT Limitation</div>
+        Not all trigger modes guarantee Minimum Delay Time (MDT). If triggered by static-or-dynamic or dynamic-only, COM treats parts as independent PDUs with their own timing — the IpduM assembled PDU can exceed MDT constraints.
+      </div>
+ 
+      <h3>⚡ JIT (Just-In-Time) Update — SWS_IpduM_00168</h3>
+      <p>Sometimes a part might have stale data (e.g., update-bits already consumed). JIT update solves this by fetching the latest data <em>immediately before transmission</em>.</p>
+ 
+      <div class="card">
+        <h4>JIT Mechanism</h4>
+        <p>If <code>IpduMJitUpdate=TRUE</code> for a part, and the <em>other</em> part triggered the Tx, IpduM calls <code>PduR_IpduMTriggerTransmit</code> to fetch the JIT part's latest data before calling <code>PduR_IpduMTransmit</code>.</p>
+        <pre><span class="cmt">// Dynamic part triggers → static part has JitUpdate=TRUE:</span>
+<span class="num">1.</span> IpduM_Transmit(dynamicHandleId, ...)  <span class="cmt">// dynamic arrives</span>
+<span class="num">2.</span> IpduM calls PduR_IpduMTriggerTransmit  <span class="cmt">// fetch fresh static</span>
+<span class="kw">   → if E_NOT_OK:</span> DO NOT SEND (SWS_IpduM_00171)
+<span class="num">3.</span> IpduM assembles and calls PduR_IpduMTransmit</pre>
+      </div>
+ 
+      <div class="callout callout-danger">
+        <div class="callout-label">🔴 JIT Failure Rule — SWS_IpduM_00171 & 00172</div>
+        If JIT update returns E_NOT_OK: for <em>triggered Tx</em> → do NOT send the PDU. For <em>IpduM_TriggerTransmit</em> → return E_NOT_OK upward.
+      </div>
+ 
+      <h3>✅ Transmission Confirmation — SWS_IpduM_00022</h3>
+      <p>When PduR calls <code>IpduM_TxConfirmation</code>, IpduM <strong>translates</strong> it into confirmations for the COM I-PDUs that were inside the last sent multiplexed PDU.</p>
+ 
+      <table>
+        <tr><th>IpduMTxStaticConfirmation</th><th>IpduMTxDynamicConfirmation</th><th>COM confirmations generated</th></tr>
+        <tr><td>FALSE</td><td>FALSE</td><td>0 — none forwarded</td></tr>
+        <tr><td>TRUE</td><td>FALSE</td><td>1 — static part only</td></tr>
+        <tr><td>FALSE</td><td>TRUE</td><td>1 — dynamic part only</td></tr>
+        <tr><td>TRUE</td><td>TRUE</td><td>2 — both, but both are derived from same confirmation event</td></tr>
+      </table>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 5: RECEPTION ═══════════════════ -->
+    <div class="section" id="s-rx">
+      <h2>Reception</h2>
+      <p class="section-intro">On the receive path, IpduM reads the selector field and splits the incoming multiplexed PDU into static and dynamic parts, routing each to the correct COM I-PDU destination.</p>
+ 
+      <h3>📥 Reception Flow</h3>
+      <div class="flow">
+        <div class="flow-item"><div class="flow-num">1</div><div>Bus frame arrives at interface (CanIf/FrIf/LinIf)</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">2</div><div>PduR calls <code>IpduM_RxIndication(RxPduId, PduInfoPtr)</code></div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">3</div><div>IpduM checks if a <strong>static part</strong> is configured for this PDU ID → if yes, extracts static segments and forwards via <code>PduR_IpduMRxIndication</code> (SWS_IpduM_00041)</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">4</div><div>IpduM reads the <strong>selector field value</strong> from the received payload at the configured bit position</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">5</div><div>IpduM looks up the matching <code>IpduMRxDynamicPart</code> with matching <code>IpduMRxSelectorValue</code> → extracts dynamic segments → forwards via <code>PduR_IpduMRxIndication</code> (SWS_IpduM_00042)</div></div>
+      </div>
+ 
+      <div class="callout callout-info">
+        <div class="callout-label">Silent Ignore Rules (no error)</div>
+        <ul style="padding-left:16px;color:#94a3b8;font-size:14px">
+          <li>Received I-PDU has segments not configured for this ECU → <strong>ignored silently</strong></li>
+          <li>I-PDU has PduLength=0 → ignored silently</li>
+          <li>Selector value not in configured IpduMRxDynamicPart list → dynamic part ignored silently</li>
+        </ul>
+      </div>
+ 
+      <h3>🌐 Metadata Forwarding — SWS_IpduM_00227</h3>
+      <p>If <code>IpduMMetaDataSupport=TRUE</code>, IpduM shall <strong>forward the received MetaData</strong> (e.g., CAN address information) along with all demultiplexed parts to the upper layer.</p>
+ 
+      <h3>⚡ Direct COM Invocation Optimization — SWS_IpduM_00140</h3>
+      <p>If <code>IpduMRxDirectComInvocation=TRUE</code>, IpduM can call COM API directly (bypassing PduR) for Rx/Tx confirmation paths. This is a performance optimization — IpduM.c must include Com.h in this case.</p>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 6: CONTAINER ═══════════════════ -->
+    <div class="section" id="s-container">
+      <h2>Container PDU Handling</h2>
+      <p class="section-intro">Container PDUs are the "multiple-PDU-to-one-frame" feature. Master the collection semantics, trigger conditions, and queue behavior.</p>
+ 
+      <h3>📊 Collection Semantics — The Most Tested Topic</h3>
+      <div class="card-grid">
+        <div class="card highlight">
+          <h4>IPDUM_COLLECT_QUEUED</h4>
+          <p>Every instance is stored immediately in IpduM's buffer when <code>IpduM_Transmit</code> is called. FIFO-like ordering. Multiple instances of the same contained PDU CAN appear in one Container PDU.</p>
+          <p><strong>Guarantees:</strong> every value appears on the wire.</p>
+          <p><span class="tag tag-green">Reliability</span><span class="tag tag-blue">E2E-safe</span></p>
+        </div>
+        <div class="card warn">
+          <h4>IPDUM_COLLECT_LAST_IS_BEST</h4>
+          <p>Only the <em>latest</em> data is sent. Transmission request is stored; data is fetched via <code>PduR_IpduMTriggerTransmit</code> immediately before sending. Only ONE instance per contained PDU per Container PDU.</p>
+          <p><strong>Trade-off:</strong> values can be lost between transmissions.</p>
+          <p><span class="tag tag-orange">May lose data</span><span class="tag tag-red">E2E counter risk</span></p>
+        </div>
+      </div>
+ 
+      <div class="callout callout-danger">
+        <div class="callout-label">🔴 Critical Mixing Rule — SWS_IpduM_00219</div>
+        A Container PDU shall contain <strong>either solely QUEUED or solely LAST_IS_BEST</strong> contained PDUs. Mixed semantics are <strong>rejected at configuration time</strong>. Also: LAST_IS_BEST containers cannot have a queue (SWS_IpduM_00260).
+      </div>
+ 
+      <h3>⏱️ Transmission Trigger Conditions (Containers)</h3>
+      <table>
+        <tr><th>Trigger</th><th>Condition</th><th>Notes</th></tr>
+        <tr><td>IpduMContainedTxPduTrigger=ALWAYS</td><td>Container triggers <strong>immediately</strong> when this contained PDU is added</td><td>Most aggressive</td></tr>
+        <tr><td>IpduMContainedTxPduTrigger=NEVER</td><td>This PDU alone never triggers the container</td><td>Relies on other triggers</td></tr>
+        <tr><td>IpduMContainerTxFirstContainedPduTrigger=TRUE</td><td>Container queued for Tx when the <strong>first</strong> contained PDU is added</td><td>Used for time-triggered buses</td></tr>
+        <tr><td>IpduMContainerTxSizeThreshold exceeded</td><td>Container triggers when payload crosses the threshold bytes</td><td>Before max PDU size is reached</td></tr>
+        <tr><td>IpduMContainerTxSendTimeout / IpduMContainedTxPduSendTimeout</td><td>Timer expires — initialized with the smaller non-zero timeout when first PDU added</td><td>SWS_IpduM_00184: timer takes min(container, contained) timeout</td></tr>
+        <tr><td>Max PDU size exceeded</td><td>Container triggers, new contained PDU goes to next instance</td><td>SWS_IpduM_00182/183</td></tr>
+      </table>
+ 
+      <h3>📬 Queue Behavior (IPDUM_COLLECT_QUEUED)</h3>
+      <p>Configured via <code>IpduMContainerQueueSize</code> (1–255 instances).</p>
+ 
+      <div class="card">
+        <h4>Queue Overflow — SWS_IpduM_00199</h4>
+        <p>If creating a new Container PDU instance would <strong>exceed IpduMContainerQueueSize</strong>, the <strong>oldest instance is discarded</strong> and <code>IPDUM_E_QUEUEOVFL (0x31)</code> is reported via <code>Det_ReportRuntimeError</code>.</p>
+      </div>
+ 
+      <div class="card">
+        <h4>Transmit Retry — SWS_IpduM_00195</h4>
+        <p>If <code>PduR_IpduMTransmit</code> returns E_NOT_OK, the same transmit request is <strong>retried during the next IpduM_MainFunctionTx</strong> call, up to <code>IpduMMaxTransmitRetries</code> times (default=10).</p>
+      </div>
+ 
+      <h3>🔀 TriggerMode: DIRECT vs TRIGGERTRANSMIT</h3>
+      <table>
+        <tr><th>IpduMContainerTxTriggerMode</th><th>Assembly Timing</th><th>Flow</th></tr>
+        <tr>
+          <td>IPDUM_DIRECT</td>
+          <td>Container assembled <strong>when trigger fires</strong>, then <code>PduR_IpduMTransmit</code> called with data pointer and length</td>
+          <td>IpduM pushes data</td>
+        </tr>
+        <tr>
+          <td>IPDUM_TRIGGERTRANSMIT</td>
+          <td><code>PduR_IpduMTransmit</code> called with NULL SduDataPtr first (reserves slot); container assembled only in <code>IpduM_TriggerTransmit</code> context</td>
+          <td>Lower layer pulls data</td>
+        </tr>
+      </table>
+ 
+      <h3>📥 Container Reception</h3>
+      <div class="card-grid">
+        <div class="card">
+          <h4>IPDUM_PROCESSING_IMMEDIATE</h4>
+          <p>Container PDU is processed <strong>in the context of IpduM_RxIndication</strong> — all contained PDUs extracted and forwarded immediately. High-priority, no delay.</p>
+        </div>
+        <div class="card">
+          <h4>IPDUM_PROCESSING_DEFERRED</h4>
+          <p>Container PDU is <strong>queued</strong>. Processing happens in the <strong>next IpduM_MainFunctionRx call</strong>. Deferred PDUs processed in reception order. Reduces interrupt context work.</p>
+        </div>
+      </div>
+ 
+      <div class="callout callout-info">
+        <div class="callout-label">ACCEPT_CONFIGURED vs ACCEPT_ALL (Rx)</div>
+        <strong>IPDUM_ACCEPT_CONFIGURED:</strong> Only contained PDUs whose <code>IpduMContainedRxInContainerPduRef</code> points to this container are processed. <br/>
+        <strong>IPDUM_ACCEPT_ALL:</strong> Any contained PDU matching an IpduMContainedRxPdu <em>without</em> an IpduMContainedRxInContainerPduRef is accepted. Unmatched PDUs silently discarded.
+      </div>
+ 
+      <h3>⚡ Priority Handling (LAST_IS_BEST)</h3>
+      <p>When <code>IpduMContainedTxPduPriorityHandling=TRUE</code> in IpduMGeneral:</p>
+      <ul style="color:#94a3b8;padding-left:20px;line-height:2">
+        <li>Contained PDUs are placed in the Container in <strong>priority order</strong> (0=highest, 255=lowest default)</li>
+        <li>Same-priority PDUs: ordered by <em>first occurrence</em> of their transmission request</li>
+        <li>If priority handling is FALSE: order of first Tx request arrival is preserved</li>
+      </ul>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 7: STATE DIAGRAMS ═══════════════════ -->
+    <div class="section" id="s-state">
+      <h2>State Diagrams</h2>
+      <p class="section-intro">IpduM has two main state machines: module-level initialization state, and the per-PDU Tx confirmation state.</p>
+ 
+      <h3>🔄 Module Lifecycle State Machine</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" width="680" height="260">
+          <rect width="700" height="260" fill="#0d1117"/>
+          <!-- UNINIT State -->
+          <rect x="40" y="80" width="160" height="60" rx="8" fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.4)" stroke-width="1.5"/>
+          <text x="120" y="107" fill="#fca5a5" font-family="JetBrains Mono" font-size="13" text-anchor="middle" font-weight="bold">UNINIT</text>
+          <text x="120" y="123" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">IPDUM_E_UNINIT</text>
+          <!-- Init arrow -->
+          <line x1="200" y1="110" x2="310" y2="110" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <text x="255" y="100" fill="#93c5fd" font-family="JetBrains Mono" font-size="10" text-anchor="middle">IpduM_Init(config)</text>
+          <text x="255" y="130" fill="#6e7681" font-family="JetBrains Mono" font-size="9" text-anchor="middle">[config valid]</text>
+          <!-- INIT State -->
+          <rect x="310" y="55" width="200" height="110" rx="8" fill="rgba(16,185,129,0.10)" stroke="rgba(16,185,129,0.4)" stroke-width="2"/>
+          <text x="410" y="90" fill="#6ee7b7" font-family="JetBrains Mono" font-size="14" text-anchor="middle" font-weight="bold">INITIALIZED</text>
+          <text x="410" y="108" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">All APIs available</text>
+          <text x="410" y="122" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">Buffers ready</text>
+          <text x="410" y="136" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">MainFunctions scheduled</text>
+          <!-- Init Failed arrow -->
+          <line x1="200" y1="130" x2="120" y2="200" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowY)" stroke-dasharray="4"/>
+          <!-- INIT_FAILED State -->
+          <rect x="20" y="190" width="200" height="55" rx="8" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)" stroke-width="1.5"/>
+          <text x="120" y="215" fill="#fcd34d" font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="bold">INIT_FAILED</text>
+          <text x="120" y="232" fill="#94a3b8" font-family="JetBrains Mono" font-size="10" text-anchor="middle">IPDUM_E_INIT_FAILED(0x21)</text>
+          <text x="255" y="165" fill="#fbbf24" font-family="JetBrains Mono" font-size="9" text-anchor="middle">[config invalid]</text>
+          <!-- Self-loop on INIT -->
+          <path d="M 510 90 Q 580 40 510 90" fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3"/>
+          <text x="570" y="55" fill="#93c5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Normal operation</text>
+          <text x="570" y="67" fill="#6e7681" font-family="JetBrains Mono" font-size="8" text-anchor="middle">(Tx/Rx/Confirm)</text>
+          <!-- Arrow defs -->
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+            </marker>
+            <marker id="arrowY" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+            </marker>
+            <marker id="arrowR" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+ 
+      <h3>🔄 Per-Multiplexed-PDU Tx State Machine</h3>
+      <p>Each IpduM I-PDU (identified by IpduMTxConfirmationPduId) has its own pending-confirmation state:</p>
+ 
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" width="700" height="200">
+          <rect width="720" height="200" fill="#0d1117"/>
+          <!-- IDLE -->
+          <rect x="20" y="65" width="150" height="60" rx="8" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.35)" stroke-width="1.5"/>
+          <text x="95" y="91" fill="#93c5fd" font-family="JetBrains Mono" font-size="13" text-anchor="middle" font-weight="bold">IDLE</text>
+          <text x="95" y="108" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">ready to transmit</text>
+          <!-- PENDING -->
+          <rect x="280" y="65" width="180" height="60" rx="8" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5"/>
+          <text x="370" y="88" fill="#fcd34d" font-family="JetBrains Mono" font-size="13" text-anchor="middle" font-weight="bold">TX PENDING</text>
+          <text x="370" y="105" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">awaiting confirmation</text>
+          <text x="370" y="118" fill="#fca5a5" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Transmit → E_NOT_OK</text>
+          <!-- IDLE → PENDING -->
+          <line x1="170" y1="88" x2="278" y2="88" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowY)"/>
+          <text x="224" y="80" fill="#fbbf24" font-family="JetBrains Mono" font-size="9" text-anchor="middle">IpduM_Transmit OK</text>
+          <text x="224" y="100" fill="#6e7681" font-family="JetBrains Mono" font-size="8" text-anchor="middle">PduR_IpduMTransmit</text>
+          <!-- PENDING → IDLE -->
+          <path d="M 370 125 Q 224 175 95 125" fill="none" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrowG)"/>
+          <text x="224" y="172" fill="#6ee7b7" font-family="JetBrains Mono" font-size="9" text-anchor="middle">IpduM_TxConfirmation (E_OK or E_NOT_OK)</text>
+          <!-- Back to ready -->
+          <defs>
+            <marker id="arrowG" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+            </marker>
+          </defs>
+          <!-- Note -->
+          <text x="540" y="75" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="start">NOTE: Confirmation is given</text>
+          <text x="540" y="89" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="start">regardless of result (E_OK</text>
+          <text x="540" y="103" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="start">or E_NOT_OK) — both</text>
+          <text x="540" y="117" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="start">transition back to IDLE.</text>
+        </svg>
+      </div>
+ 
+      <h3>🔄 Container Tx State Machine</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" width="700" height="230">
+          <rect width="720" height="230" fill="#0d1117"/>
+          <!-- EMPTY -->
+          <rect x="20" y="80" width="130" height="55" rx="8" fill="rgba(100,116,139,0.1)" stroke="rgba(100,116,139,0.3)" stroke-width="1.5"/>
+          <text x="85" y="104" fill="#94a3b8" font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="bold">EMPTY</text>
+          <text x="85" y="120" fill="#64748b" font-family="JetBrains Mono" font-size="9" text-anchor="middle">no PDUs queued</text>
+          <!-- COLLECTING -->
+          <rect x="260" y="65" width="160" height="80" rx="8" fill="rgba(6,182,212,0.1)" stroke="rgba(6,182,212,0.35)" stroke-width="1.5"/>
+          <text x="340" y="95" fill="#67e8f9" font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="bold">COLLECTING</text>
+          <text x="340" y="111" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">adding contained PDUs</text>
+          <text x="340" y="124" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">timer running</text>
+          <text x="340" y="137" fill="#64748b" font-family="JetBrains Mono" font-size="9" text-anchor="middle">trigger not yet fired</text>
+          <!-- TRIGGERED -->
+          <rect x="530" y="65" width="160" height="80" rx="8" fill="rgba(245,158,11,0.1)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5"/>
+          <text x="610" y="95" fill="#fcd34d" font-family="JetBrains Mono" font-size="12" text-anchor="middle" font-weight="bold">TRIGGERED</text>
+          <text x="610" y="111" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PduR_IpduMTransmit</text>
+          <text x="610" y="124" fill="#94a3b8" font-family="JetBrains Mono" font-size="9" text-anchor="middle">called / in queue</text>
+          <text x="610" y="137" fill="#fca5a5" font-family="JetBrains Mono" font-size="9" text-anchor="middle">blocks next instance</text>
+          <!-- Arrows -->
+          <line x1="150" y1="107" x2="258" y2="107" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#arrowC)"/>
+          <text x="204" y="97" fill="#67e8f9" font-family="JetBrains Mono" font-size="9" text-anchor="middle">1st PDU added</text>
+          <line x1="420" y1="100" x2="528" y2="100" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrowY)"/>
+          <text x="474" y="90" fill="#fbbf24" font-family="JetBrains Mono" font-size="9" text-anchor="middle">trigger condition</text>
+          <!-- TRIGGERED → EMPTY (after confirmation) -->
+          <path d="M 610 145 Q 610 195 340 195 Q 100 195 85 135" fill="none" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrowG)"/>
+          <text x="350" y="213" fill="#6ee7b7" font-family="JetBrains Mono" font-size="9" text-anchor="middle">TxConfirmation received → process next instance if queued</text>
+          <defs>
+            <marker id="arrowC" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 8: SEQUENCES ═══════════════════ -->
+    <div class="section" id="s-seq">
+      <h2>Sequence Diagrams</h2>
+      <p class="section-intro">Four canonical sequences from the spec — memorize the call chains and what each module does in each step.</p>
+ 
+      <h3>📊 Seq 1: Transmit with Confirmation (Trigger fires)</h3>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 740 380" xmlns="http://www.w3.org/2000/svg" width="720" height="380">
+          <rect width="740" height="380" fill="#0d1117"/>
+          <!-- Actor headers -->
+          <rect x="10" y="10" width="80" height="30" rx="4" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.3)"/>
+          <text x="50" y="30" fill="#c4b5fd" font-family="JetBrains Mono" font-size="10" text-anchor="middle" font-weight="bold">COM</text>
+          <rect x="200" y="10" width="80" height="30" rx="4" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.3)"/>
+          <text x="240" y="30" fill="#93c5fd" font-family="JetBrains Mono" font-size="10" text-anchor="middle" font-weight="bold">PduR</text>
+          <rect x="390" y="10" width="80" height="30" rx="4" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.3)"/>
+          <text x="430" y="30" fill="#67e8f9" font-family="JetBrains Mono" font-size="10" text-anchor="middle" font-weight="bold">IpduM</text>
+          <rect x="610" y="10" width="80" height="30" rx="4" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)"/>
+          <text x="650" y="30" fill="#6ee7b7" font-family="JetBrains Mono" font-size="10" text-anchor="middle" font-weight="bold">CanIf</text>
+          <!-- Lifelines -->
+          <line x1="50" y1="40" x2="50" y2="380" stroke="#1e2840" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="240" y1="40" x2="240" y2="380" stroke="#1e2840" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="430" y1="40" x2="430" y2="380" stroke="#1e2840" stroke-width="1" stroke-dasharray="4"/>
+          <line x1="650" y1="40" x2="650" y2="380" stroke="#1e2840" stroke-width="1" stroke-dasharray="4"/>
+          <!-- Step 1 -->
+          <line x1="50" y1="70" x2="238" y2="70" stroke="#c4b5fd" stroke-width="1.5" marker-end="url(#aP)"/>
+          <text x="144" y="65" fill="#c4b5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PduR_ComTransmit(staticHandleId, data)</text>
+          <!-- Step 2 -->
+          <line x1="240" y1="90" x2="428" y2="90" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aB)"/>
+          <text x="334" y="85" fill="#93c5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">IpduM_Transmit(staticHandleId, PduInfoPtr)</text>
+          <!-- Step 3 box -->
+          <rect x="410" y="98" width="120" height="22" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.15)"/>
+          <text x="470" y="113" fill="#67e8f9" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Assemble MuxPDU</text>
+          <!-- Step 4 -->
+          <line x1="430" y1="128" x2="648" y2="128" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#aG)"/>
+          <text x="539" y="122" fill="#6ee7b7" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PduR_IpduMTransmit(muxPduId, data)</text>
+          <!-- Step 5 -->
+          <line x1="650" y1="148" x2="650" y2="158" stroke="#6ee7b7" stroke-width="1"/>
+          <text x="700" y="158" fill="#6e7681" font-family="JetBrains Mono" font-size="9">CanIf_Transmit()</text>
+          <!-- returns -->
+          <line x1="648" y1="168" x2="432" y2="168" stroke="#6ee7b7" stroke-width="1" stroke-dasharray="3" marker-end="url(#aG)"/>
+          <text x="539" y="162" fill="#6e7681" font-family="JetBrains Mono" font-size="9" text-anchor="middle">E_OK return</text>
+          <line x1="428" y1="180" x2="242" y2="180" stroke="#93c5fd" stroke-width="1" stroke-dasharray="3" marker-end="url(#aB)"/>
+          <line x1="238" y1="192" x2="52" y2="192" stroke="#c4b5fd" stroke-width="1" stroke-dasharray="3" marker-end="url(#aP)"/>
+          <!-- Divider -->
+          <line x1="10" y1="210" x2="730" y2="210" stroke="#1e2840" stroke-width="1" stroke-dasharray="2"/>
+          <text x="370" y="225" fill="#64748b" font-family="JetBrains Mono" font-size="9" text-anchor="middle">... time passes ... bus transmits ... CanIf gets hardware confirmation ...</text>
+          <!-- TxConfirmation -->
+          <line x1="650" y1="238" x2="432" y2="238" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#aY)"/>
+          <text x="539" y="232" fill="#fbbf24" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PduR_CanIfTxConfirmation(muxPduId, E_OK)</text>
+          <line x1="430" y1="252" x2="430" y2="262" stroke="#67e8f9" stroke-width="1"/>
+          <rect x="380" y="260" width="140" height="24" rx="3" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.15)"/>
+          <text x="450" y="276" fill="#67e8f9" font-family="JetBrains Mono" font-size="9" text-anchor="middle">evaluate → confirm static+dynamic</text>
+          <!-- Forward confirmations -->
+          <line x1="428" y1="292" x2="242" y2="292" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aB)"/>
+          <text x="334" y="286" fill="#93c5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PduR_IpduMTxConfirmation(staticId, E_OK)</text>
+          <line x1="238" y1="308" x2="52" y2="308" stroke="#c4b5fd" stroke-width="1.5" marker-end="url(#aP)"/>
+          <text x="144" y="302" fill="#c4b5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Com_TxConfirmation(staticId, E_OK)</text>
+          <line x1="428" y1="325" x2="242" y2="325" stroke="#93c5fd" stroke-width="1.5" marker-end="url(#aB)"/>
+          <text x="334" y="319" fill="#93c5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">PduR_IpduMTxConfirmation(dynamicId, E_OK)</text>
+          <line x1="238" y1="341" x2="52" y2="341" stroke="#c4b5fd" stroke-width="1.5" marker-end="url(#aP)"/>
+          <text x="144" y="335" fill="#c4b5fd" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Com_TxConfirmation(dynamicId, E_OK)</text>
+          <defs>
+            <marker id="aP" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#c4b5fd"/></marker>
+            <marker id="aB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#93c5fd"/></marker>
+            <marker id="aG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#6ee7b7"/></marker>
+            <marker id="aY" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#fbbf24"/></marker>
+          </defs>
+        </svg>
+      </div>
+ 
+      <h3>📊 Seq 2: Transmit Without Trigger (NONE mode)</h3>
+      <p>When <code>IpduMTxTriggerMode=NONE</code>, IpduM only updates its internal buffer. No PduR_IpduMTransmit is called.</p>
+      <div class="card">
+        <pre><span class="type">COM</span>   → PduR_ComTransmit(staticId, data)
+<span class="type">PduR</span>  → IpduM_Transmit(staticId, data)
+<span class="type">IpduM</span> → [updates internal Tx buffer ONLY, no transmit]
+<span class="type">IpduM</span> → return E_OK to PduR
+<span class="cmt">/* Later: lower layer calls IpduM_TriggerTransmit */</span>
+<span class="type">FrIf</span>  → PduR_FrIfTriggerTransmit(muxPduId, bufPtr)
+<span class="type">PduR</span>  → IpduM_TriggerTransmit(muxPduId, &amp;bufInfo)
+<span class="type">IpduM</span> → [copies assembled Mux PDU into bufPtr]
+<span class="type">IpduM</span> → return E_OK</pre>
+      </div>
+ 
+      <h3>📊 Seq 3: Reception of Multiplexed I-PDU</h3>
+      <div class="card">
+        <pre><span class="type">CanIf</span> → PduR_CanIfRxIndication(muxPduId, data)
+<span class="type">PduR</span>  → IpduM_RxIndication(muxPduId, PduInfoPtr)
+<span class="type">IpduM</span> → [check static part config for muxPduId]
+         [forward static segments via PduR_IpduMRxIndication(staticId)]
+         [read selector field at configured bit position]
+         [look up matching IpduMRxDynamicPart]
+         [forward dynamic segments via PduR_IpduMRxIndication(dynamicId)]
+<span class="type">PduR</span>  → Com_RxIndication(staticId, ...)  <span class="cmt">// COM gets static</span>
+<span class="type">PduR</span>  → Com_RxIndication(dynamicId, ...) <span class="cmt">// COM gets dynamic</span></pre>
+      </div>
+ 
+      <h3>📊 Seq 4: TriggerTransmit from Interface Layer</h3>
+      <div class="card">
+        <pre><span class="cmt">/* FlexRay static slot triggers — no COM involvement */</span>
+<span class="type">FrIf</span>  → PduR_FrIfTriggerTransmit(slot_id, pduInfoPtr)
+<span class="type">PduR</span>  → IpduM_TriggerTransmit(muxPduId, &amp;pduInfoPtr)
+<span class="type">IpduM</span> → [if JitUpdate: call PduR_IpduMTriggerTransmit for parts]
+         [copy Mux PDU content into pduInfoPtr->SduDataPtr]
+         [update pduInfoPtr->SduLength]
+<span class="type">IpduM</span> → return E_OK
+<span class="type">FrIf</span>  → [sends frame with IpduM data in the FlexRay slot]</pre>
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 9: API ═══════════════════ -->
+    <div class="section" id="s-api">
+      <h2>API Specification</h2>
+      <p class="section-intro">Every API function — signature, service ID, reentrancy, parameters, return value. Know these cold for exam and for integration testing.</p>
+ 
+      <h3>🔧 Function Definitions</h3>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_Init</code> — Service ID 0x00</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>void IpduM_Init(const IpduM_ConfigType* config)</code></td></tr>
+            <tr><td>Sync/Async</td><td>Synchronous</td></tr>
+            <tr><td>Reentrancy</td><td><strong>Non-Reentrant</strong></td></tr>
+            <tr><td>Return</td><td>void</td></tr>
+            <tr><td>config</td><td>Pointer to implementation-specific config structure. NULL is invalid.</td></tr>
+          </table>
+          <div class="callout callout-tip"><div class="callout-label">Integration note</div>EcuM calls this exactly once during startup, after OS start. In multi-partition: may have one per partition.</div>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_Transmit</code> — Service ID 0x49</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>Std_ReturnType IpduM_Transmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr)</code></td></tr>
+            <tr><td>Sync/Async</td><td>Synchronous</td></tr>
+            <tr><td>Reentrancy</td><td>Reentrant for <strong>different PduIds</strong>. Non-reentrant for <strong>same PduId</strong>.</td></tr>
+            <tr><td>Return</td><td>E_OK = request accepted; E_NOT_OK = rejected (confirmation pending, UNINIT, or param error)</td></tr>
+            <tr><td>TxPduId</td><td>Handle ID of the static or dynamic COM I-PDU</td></tr>
+            <tr><td>PduInfoPtr</td><td>Length + pointer to PDU data + MetaData pointer</td></tr>
+          </table>
+          <div class="callout callout-danger"><div class="callout-label">⚠️ Blocking condition</div>Returns E_NOT_OK if TxConfirmation for the same IpduM PDU is still pending (SWS_IpduM_00152).</div>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_RxIndication</code> — Service ID 0x42 (Callback)</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>void IpduM_RxIndication(PduIdType RxPduId, const PduInfoType* PduInfoPtr)</code></td></tr>
+            <tr><td>Sync/Async</td><td>Synchronous</td></tr>
+            <tr><td>Reentrancy</td><td>Reentrant for different PduIds, Non-reentrant for same PduId</td></tr>
+            <tr><td>Callable from ISR</td><td><strong>Yes</strong> — SWS_IpduM_00086 explicitly allows interrupt context</td></tr>
+            <tr><td>RxPduId</td><td>ID of received mux PDU or Container PDU</td></tr>
+            <tr><td>PduInfoPtr</td><td>Contains SduLength, SduDataPtr (pointer to raw received bytes), MetaData</td></tr>
+          </table>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_TxConfirmation</code> — Service ID 0x40 (Callback)</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>void IpduM_TxConfirmation(PduIdType TxPduId, Std_ReturnType result)</code></td></tr>
+            <tr><td>Reentrancy</td><td>Reentrant for different PduIds</td></tr>
+            <tr><td>Callable from ISR</td><td><strong>Yes</strong> — SWS_IpduM_00087</td></tr>
+            <tr><td>result</td><td>E_OK = transmitted successfully; E_NOT_OK = transmission failed</td></tr>
+          </table>
+          <p>Translates one IpduM confirmation into 0, 1, or 2 COM confirmations based on IpduMTxStaticConfirmation and IpduMTxDynamicConfirmation.</p>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_TriggerTransmit</code> — Service ID 0x41 (Callback)</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>Std_ReturnType IpduM_TriggerTransmit(PduIdType TxPduId, PduInfoType* PduInfoPtr)</code></td></tr>
+            <tr><td>PduInfoPtr (in)</td><td>SduDataPtr = buffer to fill; SduLength = available buffer size</td></tr>
+            <tr><td>PduInfoPtr (out)</td><td>SduLength updated to actual copied length</td></tr>
+            <tr><td>Return</td><td>E_OK = data copied; E_NOT_OK = no data (empty buffer, JIT failed)</td></tr>
+            <tr><td>Callable from ISR</td><td><strong>Yes</strong> — SWS_IpduM_00089</td></tr>
+          </table>
+          <p>IpduM copies its Tx buffer content into the provided buffer (SWS_IpduM_00090). For containers with TRIGGERTRANSMIT mode, this is where the container is assembled.</p>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_MainFunctionTx / Rx</code> — Service IDs 0x12 / 0x11 (Scheduled)</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>void IpduM_MainFunctionTx(void)</code> / <code>IpduM_MainFunctionRx(void)</code></td></tr>
+            <tr><td>Called by</td><td>BSW Scheduler (RTE) — periodically</td></tr>
+            <tr><td>Period</td><td>Configured via IpduMMainTxTimeBase / IpduMMainRxTimeBase (in seconds)</td></tr>
+            <tr><td>Purpose Tx</td><td>Process deferred container Tx retries, queue management, timeout handling</td></tr>
+            <tr><td>Purpose Rx</td><td>Process deferred container Rx processing (IPDUM_PROCESSING_DEFERRED)</td></tr>
+          </table>
+          <div class="callout callout-info"><div class="callout-label">Multi-core</div>Multiple instances can exist: IpduM_MainFunctionTx_&lt;shortName&gt; — one per IpduMMainFunctionTx container. Each maps to a different ECU partition.</div>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span><code>IpduM_GetVersionInfo</code> — Service ID 0x01</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <table>
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Syntax</td><td><code>void IpduM_GetVersionInfo(Std_VersionInfoType* versioninfo)</code></td></tr>
+            <tr><td>Reentrancy</td><td><strong>Reentrant</strong></td></tr>
+            <tr><td>Available before Init</td><td><strong>Yes</strong> — this is one of the only 3 functions that don't require IpduM_Init first</td></tr>
+          </table>
+        </div>
+      </div>
+ 
+      <h3>📋 Imported Types (SWS_IpduM_00102)</h3>
+      <table>
+        <tr><th>Type</th><th>Module</th><th>Header</th></tr>
+        <tr><td>PduIdType</td><td>ComStack_Types</td><td>ComStack_Types.h</td></tr>
+        <tr><td>PduInfoType</td><td>ComStack_Types</td><td>ComStack_Types.h</td></tr>
+        <tr><td>PduLengthType</td><td>ComStack_Types</td><td>ComStack_Types.h</td></tr>
+        <tr><td>Std_ReturnType</td><td>Std</td><td>Std_Types.h</td></tr>
+        <tr><td>Std_VersionInfoType</td><td>Std</td><td>Std_Types.h</td></tr>
+        <tr><td>IpduM_ConfigType</td><td>IpduM</td><td>IpduM.h</td></tr>
+      </table>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 10: ERRORS ═══════════════════ -->
+    <div class="section" id="s-errors">
+      <h2>Error Handling & DET</h2>
+      <p class="section-intro">Know every error code, its value, when it fires, and which DET function is used.</p>
+ 
+      <h3>🔴 Development Errors (SWS_IpduM_91003)</h3>
+      <p>Reported via <code>Det_ReportError()</code>. Only active when <code>IpduMDevErrorDetect=TRUE</code>.</p>
+      <table>
+        <tr><th>Error Code</th><th>Hex Value</th><th>When Triggered</th></tr>
+        <tr><td>IPDUM_E_PARAM</td><td>0x10</td><td>API called with wrong (non-pointer) parameter</td></tr>
+        <tr><td>IPDUM_E_PARAM_POINTER</td><td>0x11</td><td>NULL pointer passed for a pointer parameter</td></tr>
+        <tr><td>IPDUM_E_UNINIT</td><td>0x20</td><td>Any API (except MainFunctionTx, MainFunctionRx, GetVersionInfo) called before IpduM_Init</td></tr>
+        <tr><td>IPDUM_E_INIT_FAILED</td><td>0x21</td><td>Invalid configuration set selected during IpduM_Init</td></tr>
+        <tr><td>IPDUM_E_CONTAINER</td><td>0x32</td><td>Static container: received contained PDU not fully present (DET active required)</td></tr>
+      </table>
+ 
+      <h3>🟡 Runtime Errors (SWS_IpduM_91004)</h3>
+      <p>Reported via <code>Det_ReportRuntimeError()</code>. Active even in production code.</p>
+      <table>
+        <tr><th>Error Code</th><th>Hex Value</th><th>When Triggered</th></tr>
+        <tr><td>IPDUM_E_HEADER</td><td>0x30</td><td>Container reception: header payload length exceeds remaining container bytes — processing stops</td></tr>
+        <tr><td>IPDUM_E_QUEUEOVFL</td><td>0x31</td><td>Container queue overflow — oldest instance discarded (both Tx and Rx)</td></tr>
+        <tr><td>IPDUM_E_CONTAINER</td><td>0x32</td><td>Partly/erroneous container received</td></tr>
+      </table>
+ 
+      <div class="callout callout-info">
+        <div class="callout-label">No Production Errors</div>
+        IpduM has <strong>no production errors</strong> and <strong>no extended production errors</strong>. This is often asked in exams.
+      </div>
+ 
+      <h3>🛑 Container Reception Error Handling</h3>
+      <table>
+        <tr><th>Error Condition</th><th>Action</th><th>Error Reported</th></tr>
+        <tr><td>Header payload length > remaining bytes</td><td>Stop processing, ignore remaining bytes</td><td>IPDUM_E_HEADER</td></tr>
+        <tr><td>Remaining bytes &lt; configured header size</td><td>Ignore remaining bytes</td><td>None</td></tr>
+        <tr><td>Header ID = 0x00000000</td><td>Stop processing (padding)</td><td>None</td></tr>
+        <tr><td>Contained PDU ID not in configured list (ACCEPT_ALL mode)</td><td>Silently discard that PDU</td><td>None</td></tr>
+        <tr><td>Queue overflow</td><td>Discard oldest instance</td><td>IPDUM_E_QUEUEOVFL</td></tr>
+        <tr><td>Static container: PDU not/incomplete in received data</td><td>Do not indicate to upper layer</td><td>IPDUM_E_CONTAINER (if DET)</td></tr>
+      </table>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 11: DAVINCI ═══════════════════ -->
+    <div class="section" id="s-davinci">
+      <h2>Vector DaVinci Configuration</h2>
+      <p class="section-intro">Step-by-step walkthrough of configuring IpduM in Vector DaVinci Developer / DaVinci Configurator Pro for a typical CAN project.</p>
+ 
+      <h3>🛠️ Step 1: Enable IpduM Module</h3>
+      <div class="flow">
+        <div class="flow-item"><div class="flow-num">1</div><div>In DaVinci Developer, go to <strong>BSW Modules</strong> → search for "IpduM" → Add to project</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">2</div><div>Navigate to <strong>IpduM → IpduMGeneral</strong>. Set:
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMDevErrorDetect = TRUE</code> (for dev/test builds)</li>
+            <li><code>IpduMStaticPartExists = TRUE</code> (if using mux PDUs with static parts)</li>
+            <li><code>IpduMVersionInfoApi = TRUE</code> (optional)</li>
+            <li><code>IpduMHeaderByteOrder = IPDUM_LITTLE_ENDIAN</code> (for CAN usually)</li>
+            <li><code>IpduMMaxTransmitRetries = 3</code> (tune as needed)</li>
+          </ul>
+        </div></div>
+      </div>
+ 
+      <h3>🛠️ Step 2: Configure a Multiplexed TX Pathway</h3>
+      <div class="flow">
+        <div class="flow-item"><div class="flow-num">1</div><div>Under <strong>IpduMConfig → IpduMTxPathway</strong>: Add a new IpduMTxPathway instance</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">2</div><div>Under <strong>IpduMTxRequest</strong>:
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMOutgoingPduRef</code> → select the outgoing PDU (IpduM PDU defined in PduR)</li>
+            <li><code>IpduMTxTriggerMode</code> → STATIC_PART_TRIGGER (or as needed)</li>
+            <li><code>IpduMIPduUnusedAreasDefault</code> → 0x00 (fill unused bits with zeros)</li>
+            <li><code>IpduMByteOrder</code> → LITTLE_ENDIAN</li>
+            <li><code>IpduMInitialDynamicPart</code> → reference to the initial dynamic part container</li>
+          </ul>
+        </div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">3</div><div>Configure <strong>IpduMSelectorField</strong>:
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMSelectorFieldPosition</code> → bit position in the outgoing PDU (e.g., 0 for first byte)</li>
+            <li><code>IpduMSelectorFieldLength</code> → 8 (for 1-byte selector)</li>
+          </ul>
+        </div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">4</div><div>Add <strong>IpduMTxStaticPart</strong> (if needed):
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMTxStaticPduRef</code> → COM I-PDU representing static signals</li>
+            <li><code>IpduMTxStaticConfirmation = TRUE/FALSE</code></li>
+            <li><code>IpduMJitUpdate = FALSE</code> (typical)</li>
+          </ul>
+        </div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">5</div><div>Add <strong>IpduMTxDynamicPart</strong> (one per selector value):
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMTxDynamicHandleId</code> → auto-generated or manual ID</li>
+            <li><code>IpduMTxDynamicPduRef</code> → COM I-PDU for this dynamic layout</li>
+            <li><code>IpduMTxDynamicConfirmation = TRUE/FALSE</code></li>
+          </ul>
+        </div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">6</div><div>Add <strong>IpduMTxDynamicSegment(s)</strong> — define which bits of the COM I-PDU map to which bits in the outgoing Mux PDU:
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMSegmentPosition</code> → start bit in the Mux PDU</li>
+            <li><code>IpduMSegmentLength</code> → how many bits</li>
+          </ul>
+        </div></div>
+      </div>
+ 
+      <h3>🛠️ Step 3: Configure a Multiplexed RX Pathway</h3>
+      <div class="flow">
+        <div class="flow-item"><div class="flow-num">1</div><div><strong>IpduMConfig → IpduMRxPathway → IpduMRxIndication</strong>:
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMRxHandleId</code> → auto or manual, must match PduR routing table</li>
+            <li><code>IpduMRxIndicationPduRef</code> → incoming multiplexed PDU from PduR</li>
+            <li><code>IpduMByteOrder</code> → LITTLE_ENDIAN (for CAN)</li>
+          </ul>
+        </div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">2</div><div><strong>IpduMSelectorField</strong> (under RxIndication):
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMSelectorFieldPosition / IpduMSelectorFieldLength</code> → same as Tx side for matching PDU</li>
+          </ul>
+        </div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">3</div><div><strong>IpduMRxStaticPart</strong>: <code>IpduMOutgoingStaticPduRef</code> → COM I-PDU for static signals destination</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-item"><div class="flow-num">4</div><div><strong>IpduMRxDynamicPart</strong> (one per selector value):
+          <ul style="padding-left:16px;margin-top:6px;color:#94a3b8">
+            <li><code>IpduMRxSelectorValue</code> → the selector field value this entry handles</li>
+            <li><code>IpduMOutgoingDynamicPduRef</code> → COM I-PDU destination</li>
+          </ul>
+        </div></div>
+      </div>
+ 
+      <h3>🛠️ Step 4: Container PDU Configuration (Ethernet/CAN-FD)</h3>
+ 
+      <div class="card">
+        <h4>IpduMContainerTxPdu</h4>
+        <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+          <li><code>IpduMContainerTxPduRef</code> → the large PDU (Ethernet frame) in PduR</li>
+          <li><code>IpduMContainerHeaderSize</code> → IPDUM_HEADERTYPE_SHORT (32-bit) or LONG (64-bit)</li>
+          <li><code>IpduMContainerTxTriggerMode</code> → IPDUM_DIRECT or IPDUM_TRIGGERTRANSMIT</li>
+          <li><code>IpduMContainerTxSendTimeout</code> → e.g., 0.005 (5 ms) — max wait time before forced Tx</li>
+          <li><code>IpduMContainerTxSizeThreshold</code> → e.g., 1400 bytes — trigger before full</li>
+          <li><code>IpduMContainerQueueSize</code> → e.g., 3 (queue depth)</li>
+          <li><code>IpduMContainerTxFirstContainedPduTrigger</code> → TRUE for time-triggered buses</li>
+        </ul>
+      </div>
+ 
+      <div class="card">
+        <h4>IpduMContainedTxPdu (for each contained PDU)</h4>
+        <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+          <li><code>IpduMContainedTxPduRef</code> → small PDU</li>
+          <li><code>IpduMContainedTxInContainerPduRef</code> → link to its container</li>
+          <li><code>IpduMContainedPduHeaderId</code> → unique ID used in the container header (≥1)</li>
+          <li><code>IpduMContainedTxPduCollectionSemantics</code> → IPDUM_COLLECT_QUEUED or IPDUM_COLLECT_LAST_IS_BEST</li>
+          <li><code>IpduMContainedTxPduTrigger</code> → IPDUM_TRIGGER_ALWAYS or IPDUM_TRIGGER_NEVER</li>
+          <li><code>IpduMContainedTxPduSendTimeout</code> → PDU-specific deadline override</li>
+          <li><code>IpduMContainedTxPduConfirmation</code> → TRUE if upper layer needs TxConfirmation</li>
+          <li><code>IpduMContainedTxPduPriority</code> → 0 (highest) to 255 (lowest)</li>
+        </ul>
+      </div>
+ 
+      <h3>🛠️ Step 5: PduR Routing Table Setup</h3>
+      <div class="callout callout-warn">
+        <div class="callout-label">Critical PduR Configuration</div>
+        <ul style="padding-left:16px;color:#94a3b8">
+          <li>COM → PduR → IpduM: route the static and dynamic COM I-PDUs to IpduM's Transmit</li>
+          <li>CanIf → PduR → IpduM: route the incoming multiplexed frame ID to IpduM's RxIndication</li>
+          <li>IpduM → PduR → CanIf: route the assembled IpduM PDU to CanIf for Tx</li>
+          <li>IpduM → PduR → COM: route demultiplexed parts back to COM's RxIndication</li>
+          <li>The <strong>handle IDs</strong> in IpduM config must match PduR's look-up table entries</li>
+        </ul>
+      </div>
+ 
+      <h3>🛠️ Step 6: Scheduler / BSW Task Configuration</h3>
+      <div class="card">
+        <p>In DaVinci: BSW Task Manager or OS Task configuration:</p>
+        <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+          <li>Add <code>IpduM_MainFunctionTx</code> to a cyclic task — period must match <code>IpduMMainTxTimeBase</code></li>
+          <li>Add <code>IpduM_MainFunctionRx</code> to a cyclic task — period must match <code>IpduMMainRxTimeBase</code></li>
+          <li>For multi-core: assign each IpduMMainFunctionTx/Rx instance to its correct partition via <code>IpduMMainTxPartitionRef / IpduMMainRxPartitionRef</code></li>
+        </ul>
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 12: CONFIG REF ═══════════════════ -->
+    <div class="section" id="s-config-ref">
+      <h2>Configuration Parameter Reference</h2>
+      <p class="section-intro">Quick-reference table of all major configuration parameters with their type, range, and purpose.</p>
+ 
+      <h3>IpduMGeneral</h3>
+      <table>
+        <tr><th>Parameter</th><th>Type</th><th>Default</th><th>Purpose</th></tr>
+        <tr><td>IpduMDevErrorDetect</td><td>Boolean</td><td>false</td><td>Enable DET development error detection</td></tr>
+        <tr><td>IpduMStaticPartExists</td><td>Boolean</td><td>—</td><td>Pre-compile optimization — if false, no static part support compiled</td></tr>
+        <tr><td>IpduMVersionInfoApi</td><td>Boolean</td><td>false</td><td>Enable IpduM_GetVersionInfo API</td></tr>
+        <tr><td>IpduMHeaderByteOrder</td><td>Enum</td><td>—</td><td>Byte order for container PDU headers (BIG/LITTLE endian)</td></tr>
+        <tr><td>IpduMMaxTransmitRetries</td><td>Integer 0–65535</td><td>10</td><td>Max retries when PduR_IpduMTransmit returns E_NOT_OK</td></tr>
+        <tr><td>IpduMMetaDataSupport</td><td>Boolean</td><td>false</td><td>Enable MetaData (e.g., CAN address) forwarding</td></tr>
+        <tr><td>IpduMContainedTxPduPriorityHandling</td><td>Boolean</td><td>false</td><td>Enable priority sorting for LAST_IS_BEST contained PDUs</td></tr>
+      </table>
+ 
+      <h3>IpduMTxRequest Key Parameters</h3>
+      <table>
+        <tr><th>Parameter</th><th>Type</th><th>Purpose</th></tr>
+        <tr><td>IpduMTxTriggerMode</td><td>Enum</td><td>STATIC_PART_TRIGGER / DYNAMIC_PART_TRIGGER / STATIC_OR_DYNAMIC / NONE</td></tr>
+        <tr><td>IpduMOutgoingPduRef</td><td>PduRef</td><td>The assembled IpduM PDU ID (new unique ID)</td></tr>
+        <tr><td>IpduMInitialDynamicPart</td><td>Ref to IpduMTxDynamicPart</td><td>Which dynamic layout to use for buffer init</td></tr>
+        <tr><td>IpduMIPduUnusedAreasDefault</td><td>Integer 0–255</td><td>Fill pattern for unused bits (if omitted, no fill)</td></tr>
+        <tr><td>IpduMByteOrder</td><td>Enum</td><td>BIG_ENDIAN or LITTLE_ENDIAN — affects segment position interpretation</td></tr>
+        <tr><td>IpduMTxConfirmationPduId</td><td>Integer (auto)</td><td>Handle for PduR confirmation and TriggerTransmit resolution</td></tr>
+      </table>
+ 
+      <h3>IpduMContainerTxPdu Key Parameters</h3>
+      <table>
+        <tr><th>Parameter</th><th>Range</th><th>Purpose</th></tr>
+        <tr><td>IpduMContainerHeaderSize</td><td>LONG/SHORT/NONE</td><td>Header format for contained PDUs</td></tr>
+        <tr><td>IpduMContainerTxTriggerMode</td><td>DIRECT/TRIGGERTRANSMIT</td><td>Assembly timing strategy</td></tr>
+        <tr><td>IpduMContainerTxSendTimeout</td><td>0–65.535 s</td><td>Max collection time before forced Tx</td></tr>
+        <tr><td>IpduMContainerTxSizeThreshold</td><td>0–4294967295 bytes</td><td>Size at which Tx is triggered early</td></tr>
+        <tr><td>IpduMContainerQueueSize</td><td>1–255</td><td>Number of queued Container instances</td></tr>
+        <tr><td>IpduMContainerTxFirstContainedPduTrigger</td><td>Boolean</td><td>Trigger Tx on first PDU added (time-triggered buses)</td></tr>
+        <tr><td>IpduMUnusedAreasDefault</td><td>0–255</td><td>Fill pattern for static container unused bytes (CAN-FD/FlexRay padding alignment)</td></tr>
+      </table>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 13: DEBUGGING ═══════════════════ -->
+    <div class="section" id="s-debug">
+      <h2>Debugging & Interface Testing</h2>
+      <p class="section-intro">Real-world scenarios, what to check, and how IpduM problems typically manifest in automotive integration.</p>
+ 
+      <h3>🔍 Common Integration Issues & Fixes</h3>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span>🔴 PDU not transmitted / IpduM_Transmit always returns E_NOT_OK</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <p><strong>Likely causes:</strong></p>
+          <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+            <li>TxConfirmation not being received → check lower layer CAN/FlexRay configuration</li>
+            <li>IpduMTxConfirmationPduId not configured or wrong → PduR can't route confirmation back</li>
+            <li>IpduM_Init not called before IpduM_Transmit → IPDUM_E_UNINIT in DET log</li>
+            <li>Wrong TxPduId → check PduR routing table matches IpduMTxStaticHandleId/IpduMTxDynamicHandleId</li>
+          </ul>
+          <p><strong>Debug steps:</strong> Check DET log for errors. Set breakpoint in IpduM_TxConfirmation — is it being called? Verify PduR routing for the outgoing PDU.</p>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span>🟡 Wrong data on bus / selector field value incorrect</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <p><strong>Root cause:</strong> IpduM does NOT set the selector field. It's already in the COM I-PDU. Check:</p>
+          <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+            <li>Is the COM I-PDU representing the dynamic part initialized with the correct selector value?</li>
+            <li>Is IpduMSelectorFieldPosition/Length correct for both Tx and Rx sides?</li>
+            <li>Is IpduMByteOrder consistent between sender and receiver ECUs?</li>
+            <li>Are segment positions (IpduMSegmentPosition) correct for the bus byte order?</li>
+          </ul>
+          <p><strong>Debug:</strong> Capture raw bus frame with Vector CANalyzer/CANoe. Manually decode the selector field bits and compare to what COM initializes.</p>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span>🟡 Container PDU received but contained PDUs not forwarded to upper layer</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+            <li>Check IpduMContainerRxAcceptContainedPdu — ACCEPT_CONFIGURED vs ACCEPT_ALL</li>
+            <li>Verify IpduMContainedRxPduShortHeaderId / LongHeaderId matches what's in the received frame</li>
+            <li>Check IpduMContainedRxInContainerPduRef — is it pointing to the right container?</li>
+            <li>Ensure IpduMContainerPduProcessing — if DEFERRED, the MainFunctionRx must be running</li>
+            <li>Check for IPDUM_E_HEADER in DET — header might be corrupt</li>
+            <li>Verify IpduMContainerHeaderSize matches the actual header in the frame (SHORT vs LONG)</li>
+          </ul>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span>🟡 IPDUM_E_QUEUEOVFL reported — contained PDUs being dropped</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+            <li>IpduMContainerQueueSize too small for the application's burst rate</li>
+            <li>IpduM_MainFunctionTx period too long — not processing queue fast enough</li>
+            <li>Lower layer (CanIf) queue full — PduR_IpduMTransmit returning E_NOT_OK, causing retries to pile up</li>
+            <li>Solution: increase IpduMContainerQueueSize, reduce MainFunctionTx period, or tune IpduMContainerTxSendTimeout</li>
+          </ul>
+        </div>
+      </div>
+ 
+      <div class="accordion">
+        <div class="accordion-header" onclick="toggleAcc(this)">
+          <span>🔴 Static container: receiver gets garbage in "not updated" PDU slots</span><span class="chevron">▼</span>
+        </div>
+        <div class="accordion-body">
+          <p>Transmitter sends Static Container before all contained PDUs are updated:</p>
+          <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+            <li>Configure <code>IpduMUnusedAreasDefault</code> to a recognizable pattern (e.g., 0xFF) so receiver can detect stale slots</li>
+            <li>Configure <code>IpduMPduUpdateBitPosition</code> per contained PDU — receiver checks update bit before processing</li>
+            <li>Ensure the unused areas default aligns with bus padding value (CAN-FD padding = 0xCC typically)</li>
+            <li>SWS_IpduM_00233: IpduM fills non-updated areas before sending</li>
+            <li>SWS_IpduM_00236: Receiver ignores contained PDUs whose update bit is NOT set</li>
+          </ul>
+        </div>
+      </div>
+ 
+      <h3>🧪 Interface Testing Checklist</h3>
+      <div class="card-grid three">
+        <div class="card">
+          <h4>Mux PDU TX Tests</h4>
+          <ul style="color:#94a3b8;font-size:13px;padding-left:14px;line-height:1.9">
+            <li>Trigger from static part only</li>
+            <li>Trigger from dynamic part only</li>
+            <li>Both parts trigger → MDT check</li>
+            <li>Multiple dynamic layouts</li>
+            <li>JIT update enabled path</li>
+            <li>JIT failure → no Tx verify</li>
+            <li>Confirm static + dynamic = 2 confirms</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Mux PDU RX Tests</h4>
+          <ul style="color:#94a3b8;font-size:13px;padding-left:14px;line-height:1.9">
+            <li>Static part extracted correctly</li>
+            <li>Each selector value → correct dynamic</li>
+            <li>Unknown selector → silent ignore</li>
+            <li>No static part configured</li>
+            <li>MetaData forwarded</li>
+            <li>Call from ISR context</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Container PDU Tests</h4>
+          <ul style="color:#94a3b8;font-size:13px;padding-left:14px;line-height:1.9">
+            <li>Header ID=0 stops parsing</li>
+            <li>Overflow header → IPDUM_E_HEADER</li>
+            <li>QUEUED: order preserved</li>
+            <li>LAST_IS_BEST: only last sent</li>
+            <li>Queue full → QUEUEOVFL</li>
+            <li>Timeout trigger fires</li>
+            <li>Size threshold trigger</li>
+          </ul>
+        </div>
+      </div>
+ 
+      <h3>🔬 CANoe/CANalyzer Tips for IpduM Debugging</h3>
+      <div class="card">
+        <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+          <li>Use <strong>Symbol Editor</strong> to define the selector field as a named signal — easier to read in trace</li>
+          <li>Create a <strong>CAPL script</strong> that decodes the selector field and logs which dynamic layout is active per frame</li>
+          <li>For container PDUs: write a CAPL block that iterates the headers in each received frame and logs each contained PDU ID and length</li>
+          <li>Use <strong>DET logging</strong>: hook into Det_ReportError and Det_ReportRuntimeError in your test harness to catch IpduM errors in realtime</li>
+          <li>Check <strong>IpduM timing</strong> with CANoe's timing measurement: verify MainFunctionTx is called at the configured IpduMMainTxTimeBase period</li>
+        </ul>
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 14: QUIZ ═══════════════════ -->
+    <div class="section" id="s-quiz">
+      <h2>Practice Quiz</h2>
+      <p class="section-intro">Test your knowledge. Click an option to see if you're right — and why.</p>
+ 
+      <div class="quiz-q">
+        <p>1. Which module sets the selector field value in a multiplexed I-PDU?</p>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'IpduM explicitly does NOT set the selector field (SWS_IpduM_00098). The selector field value must already be present in the COM I-PDU, typically initialized as a signal with an init-only value.')">IpduM sets it based on which dynamic part is being transmitted</label>
+        <label class="quiz-opt" onclick="ansQ(this, true, 'Correct! The COM module embeds the selector field as part of the dynamic part I-PDU. The selector field value is typically a signal initialized with a fixed init value and never written after.')">COM module — it is already embedded in the dynamic part COM I-PDU</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'PduR is only a routing module — it does not interpret or modify PDU content.')">PduR sets it during routing</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'CanIf operates below the PDU layer and only handles raw frames, not signal-level content.')">CanIf calculates it from the PDU ID</label>
+        <div class="quiz-explanation"></div>
+      </div>
+ 
+      <div class="quiz-q">
+        <p>2. When is IPDUM_E_QUEUEOVFL reported, and via which DET function?</p>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'Det_ReportError is for development errors. Queue overflow is a runtime error.')">When queue is full; via Det_ReportError</label>
+        <label class="quiz-opt" onclick="ansQ(this, true, 'Correct! Queue overflow (both Tx and Rx) reports IPDUM_E_QUEUEOVFL (0x31) via Det_ReportRuntimeError. The oldest instance is discarded.')">When queue is full; via Det_ReportRuntimeError — oldest instance discarded</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'There is no IPDUM_E_OVERFLOW code — the actual code is IPDUM_E_QUEUEOVFL (0x31).')">When queue is full; via Det_ReportError with IPDUM_E_OVERFLOW</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'Queue overflow always generates an error report — it is never silent.')">Silently — no error reported, oldest instance discarded</label>
+        <div class="quiz-explanation"></div>
+      </div>
+ 
+      <div class="quiz-q">
+        <p>3. Which IpduM API functions can be called BEFORE IpduM_Init without causing IPDUM_E_UNINIT?</p>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'IpduM_Transmit requires initialization and will return IPDUM_E_UNINIT if called first.')">IpduM_Transmit and IpduM_GetVersionInfo</label>
+        <label class="quiz-opt" onclick="ansQ(this, true, 'Correct! Only IpduM_MainFunctionTx, IpduM_MainFunctionRx, and IpduM_GetVersionInfo are exempted from the UNINIT check.')">IpduM_MainFunctionTx, IpduM_MainFunctionRx, and IpduM_GetVersionInfo</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'IpduM_RxIndication requires the module to be initialized.')">IpduM_RxIndication and IpduM_GetVersionInfo</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'No IpduM API except the three listed can be called before IpduM_Init.')">All APIs — IpduM handles UNINIT internally</label>
+        <div class="quiz-explanation"></div>
+      </div>
+ 
+      <div class="quiz-q">
+        <p>4. A Container PDU has IpduMContainerQueueSize=3. What happens when a 4th instance is created?</p>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'The newest instance is not dropped — IpduM drops the OLDEST instance to make room.')">The newest (4th) instance is dropped silently</label>
+        <label class="quiz-opt" onclick="ansQ(this, true, 'Correct! The OLDEST instance is discarded and IPDUM_E_QUEUEOVFL is reported to DET via Det_ReportRuntimeError.')">The OLDEST instance is discarded and IPDUM_E_QUEUEOVFL is reported</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'IpduM_Transmit accepts the contained PDU and manages the queue internally — it does not block at this level.')">IpduM_Transmit for the 4th instance returns E_NOT_OK</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'Blocking is not the behavior — IpduM processes immediately and discards the oldest.')">IpduM blocks until a slot is free</label>
+        <div class="quiz-explanation"></div>
+      </div>
+ 
+      <div class="quiz-q">
+        <p>5. Which statement about IPDUM_COLLECT_LAST_IS_BEST collection semantics is TRUE?</p>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'LAST_IS_BEST containers cannot have a queue — SWS_IpduM_00260 explicitly rejects this configuration.')">It supports queuing via IpduMContainerQueueSize</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'Data is fetched just before transmission, not stored immediately — that is the QUEUED behavior.')">Data from contained PDUs is stored immediately when IpduM_Transmit is called</label>
+        <label class="quiz-opt" onclick="ansQ(this, true, 'Correct! With LAST_IS_BEST, IpduM calls PduR_IpduMTriggerTransmit to fetch the latest PDU data just before the Container is sent to the lower layer (SWS_IpduM_00220).')">IpduM fetches contained PDU data via PduR_IpduMTriggerTransmit immediately before Tx</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'LAST_IS_BEST can be combined with IPDUM_DIRECT — that is explicitly mentioned in the spec.')">LAST_IS_BEST can only be used with IPDUM_TRIGGERTRANSMIT mode</label>
+        <div class="quiz-explanation"></div>
+      </div>
+ 
+      <div class="quiz-q">
+        <p>6. In a static container (IPDUM_HEADERTYPE_NONE), which collection semantics is mandatory?</p>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'QUEUED is not allowed for static containers — static positioning and queuing are incompatible.')">IPDUM_COLLECT_QUEUED</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'Either/both is not an option — the spec mandates one specific semantic for static containers.')">Either QUEUED or LAST_IS_BEST, configured per PDU</label>
+        <label class="quiz-opt" onclick="ansQ(this, true, 'Correct! SWS_IpduM_00238 mandates that all contained PDUs in a static container must use IPDUM_COLLECT_LAST_IS_BEST. Queued semantics are not supported.')">IPDUM_COLLECT_LAST_IS_BEST</label>
+        <label class="quiz-opt" onclick="ansQ(this, false, 'Static containers do not use headers, so there is no header-based differentiation of semantics.')">No specific requirement — determined by header size</label>
+        <div class="quiz-explanation"></div>
+      </div>
+    </div>
+ 
+    <!-- ═══════════════════ SECTION 15: CHEAT SHEET ═══════════════════ -->
+    <div class="section" id="s-cheatsheet">
+      <h2>Cheat Sheet</h2>
+      <p class="section-intro">Everything on one page for last-minute review.</p>
+ 
+      <h3>📌 Key Requirements to Memorize</h3>
+      <table>
+        <tr><th>SWS ID</th><th>Key Rule</th></tr>
+        <tr><td>SWS_IpduM_00097</td><td>IpduM is optional — systems can be built without it; no module may depend on it</td></tr>
+        <tr><td>SWS_IpduM_00098</td><td>IpduM does NOT set the selector field — COM does this</td></tr>
+        <tr><td>SWS_IpduM_00107</td><td>IpduM does NOT directly access the AUTOSAR OS</td></tr>
+        <tr><td>SWS_IpduM_00015</td><td>IpduM merges static + last dynamic part → new single I-PDU ID → to PduR</td></tr>
+        <tr><td>SWS_IpduM_00152</td><td>Pending TxConfirmation → new Transmit for same PDU returns E_NOT_OK</td></tr>
+        <tr><td>SWS_IpduM_00021</td><td>4 trigger modes: STATIC, DYNAMIC, STATIC_OR_DYNAMIC, NONE</td></tr>
+        <tr><td>SWS_IpduM_00168</td><td>JIT: fetch non-triggering part via PduR_IpduMTriggerTransmit before Tx</td></tr>
+        <tr><td>SWS_IpduM_00171</td><td>JIT returns E_NOT_OK → do NOT send the PDU</td></tr>
+        <tr><td>SWS_IpduM_00022</td><td>TxConfirmation → translate to 0, 1, or 2 COM confirmations</td></tr>
+        <tr><td>SWS_IpduM_00224</td><td>Static+dynamic parts must allocate exactly the same bits in both PDU types</td></tr>
+        <tr><td>SWS_IpduM_00219</td><td>Container must be all-QUEUED or all-LAST_IS_BEST (no mixing)</td></tr>
+        <tr><td>SWS_IpduM_00260</td><td>LAST_IS_BEST containers cannot have a queue</td></tr>
+        <tr><td>SWS_IpduM_00199</td><td>Queue overflow → discard oldest + IPDUM_E_QUEUEOVFL</td></tr>
+        <tr><td>SWS_IpduM_00210</td><td>Container header ID=0 → stop parsing (padding bytes)</td></tr>
+        <tr><td>SWS_IpduM_00213</td><td>Header payload > remaining bytes → stop + IPDUM_E_HEADER</td></tr>
+        <tr><td>SWS_IpduM_00238</td><td>Static container (HEADERTYPE_NONE) → all contained PDUs must be LAST_IS_BEST</td></tr>
+        <tr><td>SWS_IpduM_00236</td><td>Static container Rx: only process contained PDUs whose update bit IS set</td></tr>
+      </table>
+ 
+      <h3>📌 Error Code Quick Reference</h3>
+      <div class="card-grid">
+        <div class="card danger">
+          <h4>Development Errors</h4>
+          <code>IPDUM_E_PARAM = 0x10</code><br/>
+          <code>IPDUM_E_PARAM_POINTER = 0x11</code><br/>
+          <code>IPDUM_E_UNINIT = 0x20</code><br/>
+          <code>IPDUM_E_INIT_FAILED = 0x21</code><br/>
+          <p style="margin-top:8px;font-size:12px">→ Det_ReportError()</p>
+        </div>
+        <div class="card warn">
+          <h4>Runtime Errors</h4>
+          <code>IPDUM_E_HEADER = 0x30</code><br/>
+          <code>IPDUM_E_QUEUEOVFL = 0x31</code><br/>
+          <code>IPDUM_E_CONTAINER = 0x32</code><br/>
+          <p style="margin-top:8px;font-size:12px">→ Det_ReportRuntimeError()</p>
+        </div>
+      </div>
+ 
+      <h3>📌 API Quick Reference</h3>
+      <table>
+        <tr><th>Function</th><th>Service ID</th><th>Callable before Init?</th><th>ISR-safe?</th></tr>
+        <tr><td>IpduM_Init</td><td>0x00</td><td>Yes (IS the init)</td><td>No (Non-Reentrant)</td></tr>
+        <tr><td>IpduM_GetVersionInfo</td><td>0x01</td><td><strong>Yes</strong></td><td>Yes (Reentrant)</td></tr>
+        <tr><td>IpduM_Transmit</td><td>0x49</td><td>No</td><td>Yes (diff PduIds)</td></tr>
+        <tr><td>IpduM_RxIndication</td><td>0x42</td><td>No</td><td><strong>Yes</strong></td></tr>
+        <tr><td>IpduM_TxConfirmation</td><td>0x40</td><td>No</td><td><strong>Yes</strong></td></tr>
+        <tr><td>IpduM_TriggerTransmit</td><td>0x41</td><td>No</td><td><strong>Yes</strong></td></tr>
+        <tr><td>IpduM_MainFunctionTx</td><td>0x12</td><td><strong>Yes</strong></td><td>No</td></tr>
+        <tr><td>IpduM_MainFunctionRx</td><td>0x11</td><td><strong>Yes</strong></td><td>No</td></tr>
+      </table>
+ 
+      <h3>📌 Container Header Sizes</h3>
+      <table>
+        <tr><th>Type</th><th>ID Bits</th><th>DLC Bits</th><th>Total</th><th>Use case</th></tr>
+        <tr><td>IPDUM_HEADERTYPE_SHORT</td><td>24</td><td>8</td><td>32 bits (4 bytes)</td><td>Small IDs, DLC ≤ 255 bytes</td></tr>
+        <tr><td>IPDUM_HEADERTYPE_LONG</td><td>32</td><td>32</td><td>64 bits (8 bytes)</td><td>Large IDs, large DLC</td></tr>
+        <tr><td>IPDUM_HEADERTYPE_NONE</td><td>—</td><td>—</td><td>0</td><td>Static container — fixed offsets</td></tr>
+      </table>
+ 
+      <h3>📌 Selector Field Constraints</h3>
+      <ul style="color:#94a3b8;padding-left:16px;line-height:2">
+        <li>Size: <strong>1–16 bits</strong> (configurable)</li>
+        <li>Position: 0–2031 bits (CAN: 0–63, CAN-FD: 0–511, FlexRay: 0–2031)</li>
+        <li>Position means: MSB position (BIG_ENDIAN) or LSB position (LITTLE_ENDIAN)</li>
+        <li>Only <strong>one</strong> selector field per multiplexed I-PDU</li>
+        <li>Not all selector values need to be used — SWS_IpduM_00011</li>
+        <li>IpduM reads but never writes the selector field</li>
+      </ul>
+ 
+      <h3>📌 Configuration Rules Summary</h3>
+      <div class="card-grid">
+        <div class="card warn">
+          <h4>Forbidden Combinations</h4>
+          <ul style="color:#94a3b8;font-size:13px;padding-left:14px;line-height:1.9">
+            <li>QUEUED + LAST_IS_BEST in same container</li>
+            <li>LAST_IS_BEST + IpduMContainerQueueSize</li>
+            <li>HEADERTYPE_NONE + COLLECT_QUEUED</li>
+            <li>Different MetaDataTypes in same container</li>
+            <li>IpduMPduUpdateBitPosition on dynamic container</li>
+          </ul>
+        </div>
+        <div class="card success">
+          <h4>Valid Combinations</h4>
+          <ul style="color:#94a3b8;font-size:13px;padding-left:14px;line-height:1.9">
+            <li>LAST_IS_BEST + IPDUM_DIRECT ✓</li>
+            <li>LAST_IS_BEST + IPDUM_TRIGGERTRANSMIT ✓</li>
+            <li>QUEUED + IPDUM_DIRECT ✓</li>
+            <li>QUEUED + IPDUM_TRIGGERTRANSMIT ✓</li>
+            <li>Static container + update bits ✓</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+ 
+  </main>
+</div>
+ 
+<script>
+  function show(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('s-' + id).classList.add('active');
+    event.target.classList.add('active');
+    document.querySelector('.main').scrollTo(0, 0);
+  }
+ 
+  function toggleAcc(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    // close all in same section
+    header.closest('.section').querySelectorAll('.accordion-header').forEach(h => {
+      h.classList.remove('open');
+      h.nextElementSibling.classList.remove('open');
+    });
+    if (!isOpen) {
+      header.classList.add('open');
+      body.classList.add('open');
+    }
+  }
+ 
+  function ansQ(el, correct, explanation) {
+    const q = el.closest('.quiz-q');
+    // reset
+    q.querySelectorAll('.quiz-opt').forEach(o => {
+      o.classList.remove('correct', 'wrong');
+      o.onclick = null;
+    });
+    q.querySelectorAll('.quiz-opt').forEach(o => o.style.pointerEvents = 'none');
+    el.classList.add(correct ? 'correct' : 'wrong');
+    // show correct if wrong
+    if (!correct) {
+      q.querySelectorAll('.quiz-opt').forEach(o => {
+        if (o._correct) o.classList.add('correct');
+      });
+    }
+    const exp = q.querySelector('.quiz-explanation');
+    exp.textContent = (correct ? '✅ ' : '❌ ') + explanation;
+    exp.classList.add('show');
+    // mark correct option for reference
+    el._correct = correct;
+  }
+ 
+  // Mark correct options on load
+  document.querySelectorAll('.quiz-opt').forEach(opt => {
+    const orig = opt.onclick;
+    opt._correct = false;
+  });
+</script>
+ 
+</body>
+</html>

@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR DCM — Complete Study Guide</title>
+<style>
+:root {
+  --bg: #fff; --bg2: #f5f4f0; --bg3: #ebebeb;
+  --tx: #1a1a18; --tx2: #5f5e5a; --tx3: #9c9a92;
+  --blue: #185FA5; --blue-bg: #E6F1FB; --blue-mid: #378ADD;
+  --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-mid: #1D9E75;
+  --amber: #854F0B; --amber-bg: #FAEEDA; --amber-mid: #BA7517;
+  --red: #A32D2D; --red-bg: #FCEBEB; --red-mid: #E24B4A;
+  --purple: #3C3489; --purple-bg: #EEEDFE; --purple-mid: #7F77DD;
+  --coral: #993C1D; --coral-bg: #FAECE7; --coral-mid: #D85A30;
+  --green: #3B6D11; --green-bg: #EAF3DE; --green-mid: #639922;
+  --border: rgba(0,0,0,0.12);
+  --rad: 8px; --rad-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1c; --bg2: #262624; --bg3: #2e2e2c;
+    --tx: #e0dfd6; --tx2: #a8a7a0; --tx3: #6b6a65;
+    --blue: #85B7EB; --blue-bg: #0C2A45; --blue-mid: #378ADD;
+    --teal: #5DCAA5; --teal-bg: #073320; --teal-mid: #1D9E75;
+    --amber: #FAC775; --amber-bg: #3a2a0a; --amber-mid: #BA7517;
+    --red: #F09595; --red-bg: #3a1010; --red-mid: #E24B4A;
+    --purple: #AFA9EC; --purple-bg: #1e1a3a; --purple-mid: #7F77DD;
+    --coral: #F0997B; --coral-bg: #3a1a0a; --coral-mid: #D85A30;
+    --green: #97C459; --green-bg: #1a2e08; --green-mid: #639922;
+    --border: rgba(255,255,255,0.12);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; font-size: 14px; background: var(--bg2); color: var(--tx); line-height: 1.6; }
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: var(--bg); border-right: 0.5px solid var(--border); padding: 16px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+.sidebar h2 { font-size: 11px; font-weight: 500; color: var(--tx3); padding: 8px 16px 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+.sidebar a { display: flex; align-items: center; gap: 8px; padding: 7px 16px; color: var(--tx2); text-decoration: none; font-size: 13px; border-radius: 0; transition: background 0.1s; cursor: pointer; border-left: 2px solid transparent; }
+.sidebar a:hover { background: var(--bg2); color: var(--tx); }
+.sidebar a.active { background: var(--blue-bg); color: var(--blue); border-left-color: var(--blue-mid); font-weight: 500; }
+.sidebar .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+.main { flex: 1; padding: 0; overflow: hidden; }
+.section { display: none; padding: 28px 32px; max-width: 900px; }
+.section.active { display: block; }
+h1 { font-size: 22px; font-weight: 500; color: var(--tx); margin-bottom: 4px; }
+h2 { font-size: 17px; font-weight: 500; color: var(--tx); margin: 28px 0 12px; border-bottom: 0.5px solid var(--border); padding-bottom: 8px; }
+h3 { font-size: 14px; font-weight: 500; color: var(--tx); margin: 20px 0 8px; }
+p { color: var(--tx2); margin-bottom: 10px; line-height: 1.7; }
+.subtitle { font-size: 13px; color: var(--tx3); margin-bottom: 20px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.badge-blue { background: var(--blue-bg); color: var(--blue); }
+.badge-teal { background: var(--teal-bg); color: var(--teal); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-coral { background: var(--coral-bg); color: var(--coral); }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--rad-lg); padding: 16px 20px; margin-bottom: 16px; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.mini-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--rad); padding: 12px 14px; }
+.mini-card h4 { font-size: 12px; font-weight: 500; color: var(--tx3); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.mini-card .val { font-size: 15px; font-weight: 500; color: var(--tx); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+th { background: var(--bg2); color: var(--tx2); font-weight: 500; text-align: left; padding: 8px 10px; border-bottom: 0.5px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+td { padding: 7px 10px; border-bottom: 0.5px solid var(--border); color: var(--tx2); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg2); }
+code { font-family: monospace; font-size: 12px; background: var(--bg2); padding: 1px 5px; border-radius: 4px; color: var(--coral); }
+.code-block { background: var(--bg3); border: 0.5px solid var(--border); border-radius: var(--rad); padding: 14px 16px; font-family: monospace; font-size: 12px; color: var(--tx); overflow-x: auto; margin-bottom: 14px; white-space: pre; line-height: 1.6; }
+.tip { background: var(--teal-bg); border-left: 3px solid var(--teal-mid); border-radius: 0 var(--rad) var(--rad) 0; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: var(--tx2); }
+.warn { background: var(--amber-bg); border-left: 3px solid var(--amber-mid); border-radius: 0 var(--rad) var(--rad) 0; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: var(--tx2); }
+.danger { background: var(--red-bg); border-left: 3px solid var(--red-mid); border-radius: 0 var(--rad) var(--rad) 0; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: var(--tx2); }
+.info { background: var(--blue-bg); border-left: 3px solid var(--blue-mid); border-radius: 0 var(--rad) var(--rad) 0; padding: 10px 14px; margin-bottom: 12px; font-size: 13px; color: var(--tx2); }
+.step-list { counter-reset: steps; list-style: none; padding: 0; }
+.step-list li { counter-increment: steps; display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.step-list li::before { content: counter(steps); display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--blue-bg); color: var(--blue); font-weight: 500; font-size: 11px; flex-shrink: 0; margin-top: 2px; }
+.step-list li span { color: var(--tx2); font-size: 13px; line-height: 1.6; }
+.nrc-grid { display: grid; grid-template-columns: 80px 1fr 120px; gap: 0; border: 0.5px solid var(--border); border-radius: var(--rad); overflow: hidden; margin-bottom: 16px; }
+.nrc-grid .hdr { background: var(--bg2); font-size: 11px; font-weight: 500; color: var(--tx3); padding: 6px 10px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 0.5px solid var(--border); }
+.nrc-grid .row { display: contents; }
+.nrc-grid .row > * { padding: 7px 10px; border-bottom: 0.5px solid var(--border); font-size: 12px; color: var(--tx2); }
+.nrc-grid .row:last-child > * { border-bottom: none; }
+.nrc-hex { font-family: monospace; font-weight: 500; color: var(--purple); }
+.flow-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.flow-box { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--rad); padding: 8px 14px; font-size: 12px; font-weight: 500; color: var(--tx); text-align: center; min-width: 80px; }
+.flow-box.blue { background: var(--blue-bg); border-color: var(--blue-mid); color: var(--blue); }
+.flow-box.teal { background: var(--teal-bg); border-color: var(--teal-mid); color: var(--teal); }
+.flow-box.amber { background: var(--amber-bg); border-color: var(--amber-mid); color: var(--amber); }
+.flow-box.red { background: var(--red-bg); border-color: var(--red-mid); color: var(--red); }
+.flow-box.purple { background: var(--purple-bg); border-color: var(--purple-mid); color: var(--purple); }
+.arrow { color: var(--tx3); font-size: 16px; }
+svg text { font-family: system-ui, sans-serif; }
+.api-fn { font-family: monospace; font-size: 13px; font-weight: 500; color: var(--blue); margin-bottom: 4px; }
+.api-block { border: 0.5px solid var(--border); border-radius: var(--rad); margin-bottom: 14px; overflow: hidden; }
+.api-header { background: var(--bg2); padding: 10px 14px; display: flex; align-items: baseline; gap: 10px; border-bottom: 0.5px solid var(--border); }
+.api-body { padding: 10px 14px; }
+.param-row { display: grid; grid-template-columns: 140px 90px 60px 1fr; gap: 8px; font-size: 12px; padding: 4px 0; border-bottom: 0.5px solid var(--border); align-items: start; }
+.param-row:last-child { border-bottom: none; }
+.param-name { font-family: monospace; color: var(--purple); font-weight: 500; }
+.param-type { color: var(--amber); font-family: monospace; }
+.param-dir { color: var(--teal); font-size: 11px; font-weight: 500; }
+.param-desc { color: var(--tx2); }
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="sidebar">
+  <div style="padding:16px 16px 12px; border-bottom:0.5px solid var(--border); margin-bottom:8px;">
+    <div style="font-size:13px;font-weight:500;color:var(--tx);">AUTOSAR DCM</div>
+    <div style="font-size:11px;color:var(--tx3);">R24-11 Study Guide</div>
+  </div>
+  <h2>Foundation</h2>
+  <a onclick="show('intro')" class="active"><span class="dot"></span>Introduction & Overview</a>
+  <a onclick="show('arch')"><span class="dot"></span>Architecture</a>
+  <h2>State Machines</h2>
+  <a onclick="show('sessions')"><span class="dot"></span>Session State Machine</a>
+  <a onclick="show('security')"><span class="dot"></span>Security Level Machine</a>
+  <a onclick="show('auth')"><span class="dot"></span>Authentication States</a>
+  <h2>Functional Spec</h2>
+  <a onclick="show('dsl')"><span class="dot"></span>DSL Submodule</a>
+  <a onclick="show('dsd')"><span class="dot"></span>DSD Submodule</a>
+  <a onclick="show('dsp')"><span class="dot"></span>DSP Submodule</a>
+  <h2>UDS Services</h2>
+  <a onclick="show('services')"><span class="dot"></span>UDS Service Table</a>
+  <a onclick="show('key-services')"><span class="dot"></span>Key Services Deep Dive</a>
+  <a onclick="show('nrc')"><span class="dot"></span>NRC Reference</a>
+  <h2>API Specification</h2>
+  <a onclick="show('api-core')"><span class="dot"></span>Core APIs</a>
+  <a onclick="show('api-pdu')"><span class="dot"></span>PDU/TP Interface</a>
+  <h2>Sequences</h2>
+  <a onclick="show('seq-request')"><span class="dot"></span>Request–Response Flow</a>
+  <a onclick="show('seq-sa')"><span class="dot"></span>Security Access Sequence</a>
+  <a onclick="show('seq-resp-pend')"><span class="dot"></span>ResponsePending Flow</a>
+  <h2>Integration</h2>
+  <a onclick="show('davinci')"><span class="dot"></span>Vector DaVinci Config</a>
+  <a onclick="show('testing')"><span class="dot"></span>Interface Testing</a>
+  <a onclick="show('debug')"><span class="dot"></span>Debugging Guide</a>
+</nav>
+<div class="main">
+
+<!-- ====== INTRO ====== -->
+<div id="intro" class="section active">
+  <h1>AUTOSAR Diagnostic Communication Manager (DCM)</h1>
+  <p class="subtitle">AUTOSAR Classic Platform · R24-11 · Document ID 18 · ISO 14229-1 (UDS)</p>
+
+  <div class="card-grid">
+    <div class="mini-card"><h4>Standard</h4><div class="val">ISO 14229-1</div></div>
+    <div class="mini-card"><h4>Protocol</h4><div class="val">UDS + OBD</div></div>
+    <div class="mini-card"><h4>OSI Layer</h4><div class="val">5 – 7</div></div>
+    <div class="mini-card"><h4>Document Pages</h4><div class="val">835</div></div>
+  </div>
+
+  <h2>What is DCM?</h2>
+  <p>The <strong>Diagnostic Communication Manager (Dcm)</strong> is an AUTOSAR Basic Software (BSW) module in the <em>Communication Services</em> layer. It acts as the bridge between an external diagnostic tool (OBD scanner, HiL tester, ODX-based tool) and the ECU's internal application software.</p>
+  <p>DCM handles <strong>OSI layers 5–7</strong>: session layer (L5), presentation layer (L6), and application layer (L7). Network-specific concerns (CAN TP, DoIP, LIN) live below DCM in the stack and are handled by the PduR / CanTp / DoIP modules.</p>
+
+  <div class="tip"><strong>Key insight:</strong> DCM is <em>network-independent</em>. The same DCM code handles requests whether they arrive over CAN, Ethernet, or FlexRay. The transport adaptation happens in lower layers.</div>
+
+  <h2>Why does DCM exist?</h2>
+  <p>During development, manufacturing, and service, diagnostic tools need to:</p>
+  <div class="card-grid">
+    <div class="mini-card"><h4>Read</h4><div class="val">DTCs, DID values, sensor data</div></div>
+    <div class="mini-card"><h4>Write</h4><div class="val">Calibration data, NVM config</div></div>
+    <div class="mini-card"><h4>Control</h4><div class="val">ECU reset, I/O overrides</div></div>
+    <div class="mini-card"><h4>Update</h4><div class="val">Flash firmware (via programming session)</div></div>
+  </div>
+
+  <h2>Three Main Use Phases</h2>
+  <table>
+    <tr><th>Phase</th><th>Who uses it</th><th>Typical sessions</th></tr>
+    <tr><td>Development</td><td>Engineers, HIL lab</td><td>Extended, Programming, OEM-specific</td></tr>
+    <tr><td>Manufacturing</td><td>Production line EOL test</td><td>Extended, Programming</td></tr>
+    <tr><td>Service</td><td>Workshop mechanics, garage tool</td><td>Default, Extended</td></tr>
+  </table>
+
+  <h2>Position in AUTOSAR Stack</h2>
+  <div class="flow-row">
+    <div class="flow-box blue">SW-Components (App)</div>
+    <div class="arrow">↕ RTE</div>
+    <div class="flow-box blue">DCM (BSW)</div>
+    <div class="arrow">↕</div>
+    <div class="flow-box teal">PduR</div>
+    <div class="arrow">↕</div>
+    <div class="flow-box amber">CanTp / DoIP / LinTp</div>
+    <div class="arrow">↕</div>
+    <div class="flow-box">Network (CAN / ETH / LIN)</div>
+  </div>
+
+  <h2>Interactions with other BSW Modules</h2>
+  <table>
+    <tr><th>Module</th><th>Interaction</th><th>Key APIs</th></tr>
+    <tr><td><span class="badge badge-blue">PduR</span></td><td>Rx/Tx of diagnostic PDUs (Transport Protocol interface)</td><td><code>Dcm_StartOfReception</code>, <code>PduR_DcmTransmit</code></td></tr>
+    <tr><td><span class="badge badge-teal">DEM</span></td><td>Read/clear DTCs, Freeze frames, Extended data</td><td><code>Dem_SetDTCFilter</code>, <code>Dem_ClearDTC</code></td></tr>
+    <tr><td><span class="badge badge-amber">ComM</span></td><td>Full/Silent/NoCom mode control</td><td><code>ComM_DCM_ActiveDiagnostic</code></td></tr>
+    <tr><td><span class="badge badge-purple">BswM</span></td><td>Mode switches (ECU Reset, Session changes)</td><td>Mode declaration groups via SchM</td></tr>
+    <tr><td><span class="badge badge-coral">RTE</span></td><td>DID data read/write via SW-Components</td><td>Port-based data access</td></tr>
+    <tr><td><span class="badge badge-green">NvM</span></td><td>Security attempt counters, NV-backed data</td><td>Via application callouts</td></tr>
+    <tr><td><span class="badge badge-blue">Det</span></td><td>Development error reporting</td><td><code>Det_ReportError</code></td></tr>
+    <tr><td><span class="badge badge-teal">SchM</span></td><td>Main function scheduling, mode switches</td><td><code>Dcm_MainFunction</code></td></tr>
+  </table>
+</div>
+
+<!-- ====== ARCHITECTURE ====== -->
+<div id="arch" class="section">
+  <h1>DCM Internal Architecture</h1>
+  <p class="subtitle">Three submodules: DSL · DSD · DSP</p>
+
+  <h2>Submodule Overview</h2>
+  <p>DCM is internally divided into three submodules. Each has a specific responsibility and they communicate with each other in a defined pipeline:</p>
+
+  <svg width="100%" viewBox="0 0 680 340" role="img">
+    <title>DCM internal architecture with DSL, DSD, DSP submodules</title>
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <!-- Outer DCM box -->
+    <rect x="120" y="60" width="440" height="240" rx="14" fill="none" stroke="#7F77DD" stroke-width="1" stroke-dasharray="6 4"/>
+    <text x="340" y="84" text-anchor="middle" fill="#7F77DD" font-size="12" font-weight="500" font-family="system-ui">DCM Module</text>
+
+    <!-- DSL -->
+    <rect x="140" y="100" width="120" height="170" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="200" y="122" text-anchor="middle" fill="#0C447C" font-size="13" font-weight="500" font-family="system-ui">DSL</text>
+    <text x="200" y="138" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">Session Layer</text>
+    <text x="200" y="156" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• Session mgmt</text>
+    <text x="200" y="172" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• Security level</text>
+    <text x="200" y="188" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• Timers (P2, S3)</text>
+    <text x="200" y="204" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• Rx/Tx routing</text>
+    <text x="200" y="220" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• Auth state</text>
+    <text x="200" y="236" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• ComM mode</text>
+    <text x="200" y="252" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">• NRC 0x78 (RCRRP)</text>
+
+    <!-- DSD -->
+    <rect x="290" y="100" width="120" height="170" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="0.5"/>
+    <text x="350" y="122" text-anchor="middle" fill="#27500A" font-size="13" font-weight="500" font-family="system-ui">DSD</text>
+    <text x="350" y="138" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">Service Dispatcher</text>
+    <text x="350" y="156" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• SID validation</text>
+    <text x="350" y="172" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• Session check</text>
+    <text x="350" y="188" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• Security check</text>
+    <text x="350" y="204" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• Dispatch to DSP</text>
+    <text x="350" y="220" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• Manufacturer NR</text>
+    <text x="350" y="236" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• Supplier NR</text>
+    <text x="350" y="252" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">• Response assembly</text>
+
+    <!-- DSP -->
+    <rect x="440" y="100" width="100" height="170" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="490" y="122" text-anchor="middle" fill="#633806" font-size="13" font-weight="500" font-family="system-ui">DSP</text>
+    <text x="490" y="138" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">Service Processor</text>
+    <text x="490" y="156" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• UDS 0x10–0x87</text>
+    <text x="490" y="172" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• OBD $01–$0A</text>
+    <text x="490" y="188" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• DID read/write</text>
+    <text x="490" y="204" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• Routine ctrl</text>
+    <text x="490" y="220" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• DEM interface</text>
+    <text x="490" y="236" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• Memory ops</text>
+    <text x="490" y="252" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">• App callouts</text>
+
+    <!-- Arrows between submodules -->
+    <line x1="260" y1="185" x2="290" y2="185" stroke="#73726c" stroke-width="1" marker-end="url(#arr)"/>
+    <line x1="410" y1="185" x2="440" y2="185" stroke="#73726c" stroke-width="1" marker-end="url(#arr)"/>
+
+    <!-- External: PduR -->
+    <rect x="10" y="165" width="60" height="40" rx="6" fill="none" stroke="#9c9a92" stroke-width="0.5"/>
+    <text x="40" y="181" text-anchor="middle" fill="#5f5e5a" font-size="11" font-family="system-ui">PduR</text>
+    <text x="40" y="197" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">Rx/Tx</text>
+    <line x1="70" y1="185" x2="138" y2="185" stroke="#185FA5" stroke-width="1" marker-end="url(#arr)"/>
+    <line x1="138" y1="200" x2="70" y2="200" stroke="#185FA5" stroke-width="1" marker-end="url(#arr)"/>
+
+    <!-- External: App/RTE -->
+    <rect x="610" y="130" width="60" height="35" rx="6" fill="none" stroke="#9c9a92" stroke-width="0.5"/>
+    <text x="640" y="152" text-anchor="middle" fill="#5f5e5a" font-size="11" font-family="system-ui">App/RTE</text>
+    <line x1="540" y1="155" x2="608" y2="155" stroke="#854F0B" stroke-width="1" marker-end="url(#arr)"/>
+
+    <!-- External: DEM -->
+    <rect x="610" y="185" width="60" height="35" rx="6" fill="none" stroke="#9c9a92" stroke-width="0.5"/>
+    <text x="640" y="207" text-anchor="middle" fill="#5f5e5a" font-size="11" font-family="system-ui">DEM</text>
+    <line x1="540" y1="205" x2="608" y2="205" stroke="#854F0B" stroke-width="1" marker-end="url(#arr)"/>
+
+    <!-- External: BswM -->
+    <rect x="610" y="240" width="60" height="35" rx="6" fill="none" stroke="#9c9a92" stroke-width="0.5"/>
+    <text x="640" y="262" text-anchor="middle" fill="#5f5e5a" font-size="11" font-family="system-ui">BswM</text>
+    <line x1="320" y1="270" x2="608" y2="258" stroke="#5f5e5a" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+    <!-- Label above arrows -->
+    <text x="155" y="178" fill="#185FA5" font-size="9" font-family="system-ui">req</text>
+    <text x="155" y="212" fill="#185FA5" font-size="9" font-family="system-ui">resp</text>
+    <text x="268" y="178" fill="#73726c" font-size="9" font-family="system-ui">dispatch</text>
+    <text x="414" y="178" fill="#73726c" font-size="9" font-family="system-ui">process</text>
+  </svg>
+
+  <h2>Submodule Responsibilities</h2>
+  <table>
+    <tr><th>Submodule</th><th>Full Name</th><th>Responsibility</th></tr>
+    <tr>
+      <td><span class="badge badge-blue">DSL</span></td>
+      <td>Diagnostic Session Layer</td>
+      <td>Manages sessions, security levels, timers (P2/S3), ComM mode, authentication state. Routes Rx from PduR to DSD; Tx from DSD to PduR.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-green">DSD</span></td>
+      <td>Diagnostic Service Dispatcher</td>
+      <td>Validates the incoming SID. Checks session/security access conditions. Dispatches to the correct DSP handler. Notifies manufacturer/supplier.</td>
+    </tr>
+    <tr>
+      <td><span class="badge badge-amber">DSP</span></td>
+      <td>Diagnostic Service Processing</td>
+      <td>Implements all UDS/OBD service processors. Interfaces to DEM (DTC), App SWCs (DID data), BswM (mode switches), NvM. Builds the positive response.</td>
+    </tr>
+  </table>
+
+  <h2>Protocol & Addressing</h2>
+  <table>
+    <tr><th>Parameter</th><th>Value / Behavior</th></tr>
+    <tr><td>Physical addressing</td><td>1:1 unicast — one tester to one ECU</td></tr>
+    <tr><td>Functional addressing</td><td>1:N broadcast — used for TesterPresent, keep-alive</td></tr>
+    <tr><td>Multiple protocols</td><td>Configured via <code>DcmDslProtocolRow</code>; each gets own buffer</td></tr>
+    <tr><td>Generic connections</td><td>SOURCE_ADDRESS_16 / TARGET_ADDRESS_16 in MetaData (DoIP, CAN 29-bit)</td></tr>
+    <tr><td>Addressing format</td><td>Extended, Normal, Mixed — handled by CanTp below DCM</td></tr>
+  </table>
+</div>
+
+<!-- ====== SESSION STATE ====== -->
+<div id="sessions" class="section">
+  <h1>Session State Machine</h1>
+  <p class="subtitle">ISO 14229-1 defines sessions; AUTOSAR DCM manages transitions via DSL</p>
+
+  <h2>State Diagram</h2>
+  <svg width="100%" viewBox="0 0 680 380" role="img">
+    <title>DCM session state machine: Default, Extended, Programming, OEM sessions</title>
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <!-- Default Session -->
+    <rect x="240" y="30" width="200" height="60" rx="10" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.5"/>
+    <text x="340" y="56" text-anchor="middle" fill="#0C447C" font-size="14" font-weight="500" font-family="system-ui">Default Session (0x01)</text>
+    <text x="340" y="74" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">Security: LOCKED · P2=50ms · P2*=5s</text>
+
+    <!-- Extended Session -->
+    <rect x="60" y="200" width="200" height="60" rx="10" fill="#EAF3DE" stroke="#639922" stroke-width="1.5"/>
+    <text x="160" y="226" text-anchor="middle" fill="#27500A" font-size="14" font-weight="500" font-family="system-ui">Extended (0x03)</text>
+    <text x="160" y="244" text-anchor="middle" fill="#3B6D11" font-size="11" font-family="system-ui">S3=5s · security access allowed</text>
+
+    <!-- Programming Session -->
+    <rect x="420" y="200" width="200" height="60" rx="10" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
+    <text x="520" y="226" text-anchor="middle" fill="#633806" font-size="14" font-weight="500" font-family="system-ui">Programming (0x02)</text>
+    <text x="520" y="244" text-anchor="middle" fill="#854F0B" font-size="11" font-family="system-ui">Flash enabled · security required</text>
+
+    <!-- OEM specific -->
+    <rect x="240" y="290" width="200" height="55" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1"/>
+    <text x="340" y="314" text-anchor="middle" fill="#3C3489" font-size="13" font-weight="500" font-family="system-ui">OEM/Supplier Sessions</text>
+    <text x="340" y="330" text-anchor="middle" fill="#534AB7" font-size="10" font-family="system-ui">0x40–0x5E manufacturer-specific</text>
+
+    <!-- Arrows: Default → Extended -->
+    <path d="M270 90 Q180 145 160 200" fill="none" stroke="#639922" stroke-width="1.2" marker-end="url(#arr2)"/>
+    <text x="175" y="148" fill="#3B6D11" font-size="10" font-family="system-ui">0x10 0x03</text>
+
+    <!-- Arrows: Default → Programming -->
+    <path d="M410 90 Q500 145 520 200" fill="none" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr2)"/>
+    <text x="484" y="148" fill="#854F0B" font-size="10" font-family="system-ui">0x10 0x02</text>
+
+    <!-- Arrows: Extended → Default -->
+    <path d="M195 200 Q240 155 310 90" fill="none" stroke="#185FA5" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arr2)"/>
+    <text x="220" y="168" fill="#185FA5" font-size="10" font-family="system-ui">0x10 0x01 / S3 timeout</text>
+
+    <!-- Arrows: Programming → Default -->
+    <path d="M485 200 Q440 155 380 90" fill="none" stroke="#185FA5" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arr2)"/>
+    <text x="425" y="170" fill="#185FA5" font-size="10" font-family="system-ui">0x10 0x01</text>
+
+    <!-- Extended → Programming (direct) -->
+    <path d="M260 230 Q340 230 420 230" fill="none" stroke="#9c9a92" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arr2)"/>
+    <text x="330" y="222" fill="#5f5e5a" font-size="10" font-family="system-ui">NRC 0x22 if wrong from OBD</text>
+
+    <!-- Default → OEM -->
+    <path d="M340 90 L340 290" fill="none" stroke="#7F77DD" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr2)"/>
+    <text x="348" y="200" fill="#534AB7" font-size="10" font-family="system-ui">0x10 0x4x</text>
+
+    <!-- Init marker -->
+    <circle cx="340" cy="15" r="7" fill="#1a1a18"/>
+    <line x1="340" y1="22" x2="340" y2="30" stroke="#1a1a18" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <text x="350" y="18" fill="#5f5e5a" font-size="10" font-family="system-ui">Init</text>
+  </svg>
+
+  <h2>Session Timers</h2>
+  <table>
+    <tr><th>Timer</th><th>Configured in</th><th>Purpose</th><th>Typical Value</th></tr>
+    <tr><td><code>P2Server</code></td><td><code>DcmDspSessionP2ServerMax</code></td><td>Max time to send response before NRC 0x78</td><td>50 ms</td></tr>
+    <tr><td><code>P2*Server</code></td><td><code>DcmDspSessionP2StarServerMax</code></td><td>Extended time after NRC 0x78</td><td>5000 ms</td></tr>
+    <tr><td><code>S3Server</code></td><td>ISO 14229-2, ~5 s</td><td>Non-default session keep-alive; reset by TesterPresent</td><td>5000 ms</td></tr>
+  </table>
+
+  <h2>Important Rules (SWS Requirements)</h2>
+  <div class="info"><strong>[SWS_Dcm_00034]</strong> At initialization, session = <code>DefaultSession (0x01)</code></div>
+  <div class="info"><strong>[SWS_Dcm_00311]</strong> Session switch happens on Tx confirmation (after positive response sent), NOT on request received</div>
+  <div class="warn"><strong>[SWS_Dcm_00139]</strong> Security level resets to LOCKED (0x00) on any transition from non-default → any session</div>
+  <div class="tip"><strong>[SWS_Dcm_01667]</strong> Concurrent TesterPresent (3E 80 functional) only resets S3 timer on the connection that entered non-default session</div>
+
+  <h2>Session-Specific Access Control</h2>
+  <p>Every UDS service and sub-function can be restricted to specific sessions in the DCM configuration. This is configured in <code>DcmDsdService → DcmDsdSubService → DcmDsdSubServiceSessionModeRule</code> or <code>DcmDsdServiceSessionModeRule</code>.</p>
+  <div class="code-block">Example: ReadMemoryByAddress (0x23) restricted to Extended + Programming:
+DcmDsdService:
+  DcmDsdServiceId: 0x23
+  DcmDsdSubServiceSessionModeRule → DcmModeRule:
+    conditions: ExtendedSession OR ProgrammingSession</div>
+</div>
+
+<!-- ====== SECURITY ====== -->
+<div id="security" class="section">
+  <h1>Security Level State Machine</h1>
+  <p class="subtitle">UDS Service 0x27 SecurityAccess — unlock gated services</p>
+
+  <h2>State Diagram</h2>
+  <svg width="100%" viewBox="0 0 680 320" role="img">
+    <title>DCM security level state machine: LOCKED state transitions to unlocked levels via SecurityAccess</title>
+    <defs>
+      <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <!-- LOCKED -->
+    <rect x="250" y="30" width="180" height="65" rx="10" fill="#FCEBEB" stroke="#E24B4A" stroke-width="1.5"/>
+    <text x="340" y="55" text-anchor="middle" fill="#501313" font-size="14" font-weight="500" font-family="system-ui">LOCKED (0x00)</text>
+    <text x="340" y="73" text-anchor="middle" fill="#A32D2D" font-size="11" font-family="system-ui">DCM_SEC_LEV_LOCKED</text>
+    <text x="340" y="88" text-anchor="middle" fill="#A32D2D" font-size="10" font-family="system-ui">Default state at init</text>
+
+    <!-- Level 1 -->
+    <rect x="60" y="200" width="170" height="60" rx="10" fill="#EAF3DE" stroke="#639922" stroke-width="1.5"/>
+    <text x="145" y="225" text-anchor="middle" fill="#27500A" font-size="13" font-weight="500" font-family="system-ui">Level 1 (0x01)</text>
+    <text x="145" y="243" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">e.g. Read calibration data</text>
+
+    <!-- Level 2 -->
+    <rect x="260" y="200" width="170" height="60" rx="10" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
+    <text x="345" y="225" text-anchor="middle" fill="#633806" font-size="13" font-weight="500" font-family="system-ui">Level 2 (0x03)</text>
+    <text x="345" y="243" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">e.g. Write calibration</text>
+
+    <!-- Level N -->
+    <rect x="460" y="200" width="170" height="60" rx="10" fill="#EEEDFE" stroke="#7F77DD" stroke-width="1.5"/>
+    <text x="545" y="225" text-anchor="middle" fill="#3C3489" font-size="13" font-weight="500" font-family="system-ui">Level N (odd SID)</text>
+    <text x="545" y="243" text-anchor="middle" fill="#534AB7" font-size="10" font-family="system-ui">OEM-specific access</text>
+
+    <!-- Arrows LOCKED → L1 -->
+    <path d="M290 95 Q200 150 200 200" fill="none" stroke="#639922" stroke-width="1.2" marker-end="url(#arr3)"/>
+    <text x="205" y="148" fill="#3B6D11" font-size="9" font-family="system-ui">0x27 0x01 (Seed)</text>
+    <text x="205" y="160" fill="#3B6D11" font-size="9" font-family="system-ui">0x27 0x02 (Key OK)</text>
+
+    <!-- Arrows LOCKED → L2 -->
+    <path d="M340" d="M340 95 L345 200" fill="none" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr3)"/>
+    <path d="M340 95 Q344 148 345 200" fill="none" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr3)"/>
+    <text x="350" y="148" fill="#854F0B" font-size="9" font-family="system-ui">0x27 0x03/0x04</text>
+
+    <!-- Arrows LOCKED → LN -->
+    <path d="M390 95 Q500 148 545 200" fill="none" stroke="#7F77DD" stroke-width="1.2" marker-end="url(#arr3)"/>
+    <text x="480" y="148" fill="#534AB7" font-size="9" font-family="system-ui">0x27 odd/even</text>
+
+    <!-- Back to LOCKED -->
+    <path d="M145 200 Q100 130 280 95" fill="none" stroke="#E24B4A" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#arr3)"/>
+    <text x="100" y="135" fill="#A32D2D" font-size="9" font-family="system-ui">Session → Default</text>
+
+    <!-- Init -->
+    <circle cx="340" cy="14" r="7" fill="#1a1a18"/>
+    <line x1="340" y1="21" x2="340" y2="30" stroke="#1a1a18" stroke-width="1.5" marker-end="url(#arr3)"/>
+  </svg>
+
+  <h2>Security Access Flow (0x27)</h2>
+  <ol class="step-list">
+    <li><span>Tester sends <strong>Request Seed</strong>: <code>27 01</code> (or 03, 05… odd sub-functions)</span></li>
+    <li><span>DCM calls application: <code>Xxx_GetSeed(securityAccessType, seedLen, seed)</code> and returns seed in positive response: <code>67 01 [seed bytes]</code></span></li>
+    <li><span>Tester computes key using OEM algorithm and sends <strong>Send Key</strong>: <code>27 02 [key bytes]</code> (even sub-function = requestSeed + 1)</span></li>
+    <li><span>DCM calls: <code>Xxx_CompareKey(securityAccessType, key)</code>. If OK → unlock. If fail → attempt counter incremented.</span></li>
+    <li><span>On success: <code>67 02</code> positive response. Security level set via <code>DslInternal_SetSecurityLevel()</code></span></li>
+  </ol>
+
+  <h2>Security Attempt Counter</h2>
+  <div class="warn"><strong>NRC 0x36 (exceededNumberOfAttempts):</strong> If attempts ≥ <code>DcmDspSecurityNumAttDelay</code>, DCM locks out for <code>DcmDspSecurityDelayTime</code> milliseconds and responds with NRC 0x37 (requiredTimeDelayNotExpired) until timer expires.</div>
+  <table>
+    <tr><th>Config param</th><th>Purpose</th></tr>
+    <tr><td><code>DcmDspSecurityNumAttDelay</code></td><td>Max failed key attempts before lockout</td></tr>
+    <tr><td><code>DcmDspSecurityDelayTime</code></td><td>Lockout duration in ms after max attempts</td></tr>
+    <tr><td><code>DcmDspSecurityDelayTimeOnBoot</code></td><td>Lockout duration on boot if counter was at max (NVM-backed counter)</td></tr>
+    <tr><td><code>DcmDspSecurityAttemptCounterEnabled</code></td><td>Enable NVM-backed attempt counter persistence</td></tr>
+  </table>
+
+  <h2>Key Implementation Rules</h2>
+  <div class="info">[SWS_Dcm_00033] Security level is initialized to 0x00 (LOCKED) at Dcm_Init</div>
+  <div class="info">[SWS_Dcm_00139] Security level resets to LOCKED on any non-default → any session transition</div>
+  <div class="info">[SWS_Dcm_01329] Every security level change triggers mode switch of <code>DcmSecurityAccess</code> mode declaration group</div>
+</div>
+
+<!-- ====== AUTH ====== -->
+<div id="auth" class="section">
+  <h1>Authentication State (UDS 0x29)</h1>
+  <p class="subtitle">Introduced in ISO 14229-1:2018 — certificate-based authentication per connection</p>
+
+  <h2>Authentication States per Connection</h2>
+  <div class="card-grid">
+    <div class="mini-card"><h4>deauthenticated</h4><div class="val">Default role from config</div></div>
+    <div class="mini-card"><h4>authenticated</h4><div class="val">Certificate-verified role + whitelist</div></div>
+  </div>
+
+  <div class="info"><strong>[SWS_Dcm_01477]</strong> DCM maintains a separate authentication state per <code>DcmDslConnection</code></div>
+  <div class="info"><strong>[SWS_Dcm_01479]</strong> Only two states: deauthenticated / authenticated</div>
+
+  <h2>Transitions</h2>
+  <table>
+    <tr><th>Trigger</th><th>Transition</th><th>Key SWS</th></tr>
+    <tr><td>Successful certificate exchange via 0x29</td><td>deauthenticated → authenticated</td><td>SWS_Dcm_01480</td></tr>
+    <tr><td>S3 server timeout (non-default session)</td><td>authenticated → deauthenticated</td><td>SWS_Dcm_01483</td></tr>
+    <tr><td>Connection idle in default session > <code>DcmDspAuthenticationDefaultSessionTimeOut</code></td><td>authenticated → deauthenticated</td><td>SWS_Dcm_01482</td></tr>
+    <tr><td>Any deauthenticated transition</td><td>Clears role, whitelist</td><td>SWS_Dcm_01485</td></tr>
+  </table>
+
+  <h2>Persistent Authentication (Production Use Case)</h2>
+  <p>In production, ECUs power-cycle frequently. <code>DcmDspAuthenticationPersistStateModeRuleRef</code> allows the authenticated state to persist across power cycles — useful for end-of-line test where re-authentication every cycle is too slow.</p>
+  <div class="warn">If persistence is enabled and the mode rule evaluates TRUE, DCM restores the authentication state including role and whitelist from NVM at boot.</div>
+
+  <h2>API: Dcm_SetDeauthenticatedRole</h2>
+  <p>Allows an application SW-Component to overwrite the deauthenticated role without going through certificate-based service 0x29. Only active in deauthenticated state. Not persisted. Overwritten when connection becomes authenticated.</p>
+</div>
+
+<!-- ====== DSL ====== -->
+<div id="dsl" class="section">
+  <h1>DSL — Diagnostic Session Layer</h1>
+  <p class="subtitle">The gateway: routes messages, manages state, controls timing</p>
+
+  <h2>DSL Responsibilities</h2>
+  <div class="card-grid">
+    <div class="mini-card"><h4>Request Handling</h4><div class="val">Forward PduR → DSD; block during processing</div></div>
+    <div class="mini-card"><h4>Response Handling</h4><div class="val">Forward DSD → PduR; periodic Tx; ROE</div></div>
+    <div class="mini-card"><h4>Timing</h4><div class="val">P2/P2* timer; NRC 0x78 if exceeded</div></div>
+    <div class="mini-card"><h4>State</h4><div class="val">Session + Security + Auth per connection</div></div>
+    <div class="mini-card"><h4>ComM</h4><div class="val">Active/Inactive diagnostic signaling</div></div>
+    <div class="mini-card"><h4>Multi-client</h4><div class="val">Protocol resources per DcmDslProtocolRow</div></div>
+  </div>
+
+  <h2>Rx Processing Pipeline</h2>
+  <ol class="step-list">
+    <li><span>PduR calls <code>Dcm_StartOfReception(RxPduId, info, TpSduLength, bufferSizePtr)</code> — DCM checks buffer space, rejects if overflow</span></li>
+    <li><span>PduR calls <code>Dcm_CopyRxData(RxPduId, info, bufferSizePtr)</code> — DCM copies data into Rx buffer</span></li>
+    <li><span>PduR calls <code>Dcm_TpRxIndication(RxPduId, result)</code> — only if result=E_OK does DSL forward to DSD [SWS_Dcm_00111]</span></li>
+    <li><span>DSL blocks the DcmPduId until Tx confirmation arrives [SWS_Dcm_00241]</span></li>
+  </ol>
+
+  <h2>Tx Response Pipeline</h2>
+  <ol class="step-list">
+    <li><span>DSD signals DSL: response ready</span></li>
+    <li><span>DSL calls <code>PduR_DcmTransmit(TxPduId, PduInfoPtr)</code></span></li>
+    <li><span>PduR calls <code>Dcm_CopyTxData()</code> to retrieve response bytes</span></li>
+    <li><span>PduR calls <code>Dcm_TpTxConfirmation(TxPduId, result)</code> — DSL unlocks buffer, stops timers</span></li>
+  </ol>
+
+  <h2>NRC 0x78 — Response Pending (RCRRP)</h2>
+  <p>When the application needs more time than P2Server allows:</p>
+  <div class="flow-row">
+    <div class="flow-box">Req received</div><div class="arrow">→</div>
+    <div class="flow-box amber">P2Server expires</div><div class="arrow">→</div>
+    <div class="flow-box red">NRC 0x78 from separate buffer</div><div class="arrow">→</div>
+    <div class="flow-box">P2*Server timer starts</div><div class="arrow">→</div>
+    <div class="flow-box teal">Real response</div>
+  </div>
+  <div class="warn"><strong>[SWS_Dcm_00024]:</strong> DSL sends NRC 0x78 (separate buffer) before P2ServerMax - DcmTimStrP2ServerAdjust expires. Application can also force this by returning <code>DCM_E_FORCE_RCRRP</code>.</div>
+  <div class="info">Config: <code>DcmDslDiagRespMaxNumRespPend</code> limits total NRC 0x78 count. If not configured → infinite (application deadlock risk!)</div>
+
+  <h2>Concurrent TesterPresent (Keep-Alive)</h2>
+  <p>A functionally-addressed <code>3E 80</code> resets the S3 timer without affecting ongoing request processing. DCM tracks which connection entered non-default session and only accepts keep-alive from that same connection [SWS_Dcm_01667].</p>
+
+  <h2>Periodic Transmission (0x2A)</h2>
+  <p>ReadDataByPeriodicIdentifier (0x2A) sets up the ECU to periodically send DID values. Key rules:</p>
+  <div class="info">[SWS_Dcm_00122] Periodic Tx uses a separate protocol + separate buffer</div>
+  <div class="info">[SWS_Dcm_00123] Periodic Tx only in Full Communication Mode</div>
+  <div class="info">[SWS_Dcm_00125] Events while not in FullCom are discarded — NOT queued</div>
+
+  <h2>Generic Connection Handling</h2>
+  <p>For DoIP and CAN 29-bit addressing, PDUs carry MetaData items <code>SOURCE_ADDRESS_16</code> and <code>TARGET_ADDRESS_16</code>. DCM stores the source address and uses it as target address in the response [SWS_Dcm_00848, SWS_Dcm_00849].</p>
+
+  <h2>ComM Integration</h2>
+  <table>
+    <tr><th>API called by DSL</th><th>When</th></tr>
+    <tr><td><code>ComM_DCM_ActiveDiagnostic()</code></td><td>Diagnostic request received — wake up network</td></tr>
+    <tr><td><code>ComM_DCM_InactiveDiagnostic()</code></td><td>No active diagnostic — allow network to sleep</td></tr>
+  </table>
+</div>
+
+<!-- ====== DSD ====== -->
+<div id="dsd" class="section">
+  <h1>DSD — Diagnostic Service Dispatcher</h1>
+  <p class="subtitle">Validates, authorizes, and routes each diagnostic service request</p>
+
+  <h2>DSD Processing Flow</h2>
+  <ol class="step-list">
+    <li><span>Receive service request from DSL</span></li>
+    <li><span><strong>SID lookup:</strong> Search configured <code>DcmDsdServiceTable</code> for matching SID. If not found → NRC 0x11 (serviceNotSupported)</span></li>
+    <li><span><strong>Session check:</strong> Is the service allowed in current session? If not → NRC 0x7F (serviceNotSupportedInActiveSession)</span></li>
+    <li><span><strong>Security check:</strong> Is required security level active? If not → NRC 0x33 (securityAccessDenied)</span></li>
+    <li><span><strong>Manufacturer notification:</strong> Call <code>Xxx_<service>_Indication</code> (if configured). Can override NRC.</span></li>
+    <li><span><strong>Dispatch to DSP:</strong> Call the appropriate DSP handler</span></li>
+    <li><span><strong>Supplier notification:</strong> After DSP returns, notify supplier (if configured)</span></li>
+    <li><span><strong>Response assembly:</strong> Forward to DSL for Tx</span></li>
+  </ol>
+
+  <h2>Configuration Structure</h2>
+  <div class="code-block">DcmDsd
+└── DcmDsdServiceTable (multiple tables supported)
+    └── DcmDsdService (one per SID)
+        ├── DcmDsdServiceId: 0x22
+        ├── DcmDsdSidTabServiceIdModeRule (session restrictions)
+        ├── DcmDsdSidTabSecurityLevelRef (security restrictions)
+        └── DcmDsdSubService (sub-functions per service)
+            ├── DcmDsdSubServiceId: 0x01
+            ├── DcmDsdSubServiceSessionModeRule
+            └── DcmDsdSubServiceSecurityLevelRef</div>
+
+  <h2>Manufacturer / Supplier Notification</h2>
+  <p>These are callouts giving OEMs/Tier-1s a chance to intercept processing. Configured via <code>DcmDsdServiceRequestManufacturerNotification</code> and <code>DcmDsdServiceRequestSupplierNotification</code>.</p>
+  <div class="tip">Use manufacturer notification to implement custom authorization logic (e.g., allow service 0x2E only if a specific DID value is set). The callout can return a custom NRC to abort processing.</div>
+
+  <h2>Sub-function Validation</h2>
+  <p>For services with sub-functions, DSD checks if the subfunction byte is configured. If not → NRC 0x12 (subFunctionNotSupported). The suppressPosRspMsgIndicationBit (bit 7 of subfn) is handled here — if set, positive response is suppressed but negative responses are still sent.</p>
+</div>
+
+<!-- ====== DSP ====== -->
+<div id="dsp" class="section">
+  <h1>DSP — Diagnostic Service Processing</h1>
+  <p class="subtitle">Implements all UDS and OBD service handlers</p>
+
+  <h2>DSP Scope</h2>
+  <p>DSP contains the actual implementation of every diagnostic service. It interacts with:</p>
+  <div class="card-grid">
+    <div class="mini-card"><h4>DEM</h4><div class="val">DTC read, clear, filter, status</div></div>
+    <div class="mini-card"><h4>App SWC (RTE)</h4><div class="val">DID data via port operations</div></div>
+    <div class="mini-card"><h4>BswM</h4><div class="val">ECU reset mode switch</div></div>
+    <div class="mini-card"><h4>NvM</h4><div class="val">Security attempt counters (via App)</div></div>
+  </div>
+
+  <h2>DID Access via RTE — USE_DATA_SYNCH_CLIENT_SERVER</h2>
+  <div class="code-block">For ReadDataByIdentifier (0x22) reading DID 0x1234:
+  - DSP calls: Rte_Call_DataServices_DID0x1234_ReadData(Data, DataLength)
+  - Application fills the buffer and returns E_OK
+  - DSP assembles: 62 12 34 [data bytes]
+
+Port interface types (DcmDspDataUsePort):
+  USE_DATA_SYNCH_FNC          → Xxx_ReadData(Data, DataLength)  — synchronous
+  USE_DATA_ASYNCH_FNC         → Xxx_ReadData(OpStatus, Data, DataLength) — async via OpStatus
+  USE_DATA_ASYNCH_CLIENT_SERVER → via RTE Client-Server call
+  USE_DATA_SENDER_RECEIVER    → S/R port, direct signal read
+  USE_ECU_SIGNAL              → direct IoHwAb signal</div>
+
+  <h2>OpStatus Values (Async Callouts)</h2>
+  <table>
+    <tr><th>Value</th><th>Meaning</th></tr>
+    <tr><td><code>DCM_INITIAL</code></td><td>First call — all IN parameters valid</td></tr>
+    <tr><td><code>DCM_PENDING</code></td><td>Subsequent call after DCM_E_PENDING returned — IN params set to 0</td></tr>
+    <tr><td><code>DCM_CANCEL</code></td><td>Abort — application must clean up</td></tr>
+    <tr><td><code>DCM_FORCE_RCRRP_OK</code></td><td>Called after DCM_E_FORCE_RCRRP was returned, before next iteration</td></tr>
+  </table>
+
+  <h2>DEM Integration for Service 0x14/0x19</h2>
+  <ol class="step-list">
+    <li><span>Call <code>Dem_SelectDTC(ClientId, DTC, DTCFormat, DTCOrigin)</code> to set filter</span></li>
+    <li><span>Call <code>Dem_SetDTCFilter()</code> with mask parameters</span></li>
+    <li><span>Call <code>Dem_GetNumberOfFilteredDTC()</code> or <code>Dem_GetNextFilteredDTC()</code> to read results</span></li>
+    <li><span>For extended data: call <code>Dem_DisableDTCRecordUpdate()</code> before reading, <code>Dem_EnableDTCRecordUpdate()</code> after</span></li>
+    <li><span>DEM may return <code>DEM_PENDING</code> → DSP re-tries on next <code>Dcm_MainFunction()</code> cycle</span></li>
+  </ol>
+
+  <h2>Active DID 0xF186</h2>
+  <div class="info">[SWS_Dcm_00085] DCM internally manages DID 0xF186 (ActiveDiagnosticSessionDataIdentifier). No explicit app callout needed — DCM returns the current session type automatically.</div>
+
+  <h2>RoutineControl (0x31) — Three Operations</h2>
+  <table>
+    <tr><th>Sub-function</th><th>Value</th><th>Action</th></tr>
+    <tr><td>StartRoutine</td><td>0x01</td><td>Start the routine — callout: <code>Xxx_Start()</code></td></tr>
+    <tr><td>StopRoutine</td><td>0x02</td><td>Stop the routine — callout: <code>Xxx_Stop()</code></td></tr>
+    <tr><td>RequestRoutineResults</td><td>0x03</td><td>Read results — callout: <code>Xxx_RequestResults()</code></td></tr>
+  </table>
+</div>
+
+<!-- ====== UDS TABLE ====== -->
+<div id="services" class="section">
+  <h1>UDS Service Table</h1>
+  <p class="subtitle">All services supported by AUTOSAR DCM per R24-11</p>
+
+  <table>
+    <tr><th>SID</th><th>Service Name</th><th>Default</th><th>Extended</th><th>Programming</th></tr>
+    <tr><td><code>0x10</code></td><td>DiagnosticSessionControl</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x11</code></td><td>ECUReset</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x14</code></td><td>ClearDiagnosticInformation</td><td>✓</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x19</code></td><td>ReadDTCInformation</td><td>✓</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x22</code></td><td>ReadDataByIdentifier</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x23</code></td><td>ReadMemoryByAddress</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x24</code></td><td>ReadScalingDataByIdentifier</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x27</code></td><td>SecurityAccess</td><td>–</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x28</code></td><td>CommunicationControl</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x29</code></td><td>Authentication</td><td>✓</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x2A</code></td><td>ReadDataByPeriodicIdentifier</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x2C</code></td><td>DynamicallyDefineDataIdentifier</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x2E</code></td><td>WriteDataByIdentifier</td><td>–</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x2F</code></td><td>InputOutputControlByIdentifier</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x31</code></td><td>RoutineControl</td><td>–</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x34</code></td><td>RequestDownload</td><td>–</td><td>–</td><td>✓</td></tr>
+    <tr><td><code>0x35</code></td><td>RequestUpload</td><td>–</td><td>–</td><td>✓</td></tr>
+    <tr><td><code>0x36</code></td><td>TransferData</td><td>–</td><td>–</td><td>✓</td></tr>
+    <tr><td><code>0x37</code></td><td>RequestTransferExit</td><td>–</td><td>–</td><td>✓</td></tr>
+    <tr><td><code>0x38</code></td><td>RequestFileTransfer</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x3D</code></td><td>WriteMemoryByAddress</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x3E</code></td><td>TesterPresent</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>0x83</code></td><td>AccessTimingParameter</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x85</code></td><td>ControlDTCSetting</td><td>–</td><td>✓</td><td>–</td></tr>
+    <tr><td><code>0x86</code></td><td>ResponseOnEvent</td><td>–</td><td>✓</td><td>–</td></tr>
+  </table>
+  <p style="font-size:12px;color:var(--tx3);">Session availability is OEM-configurable. Table shows typical defaults per ISO 14229-1.</p>
+</div>
+
+<!-- ====== KEY SERVICES ====== -->
+<div id="key-services" class="section">
+  <h1>Key Services — Deep Dive</h1>
+
+  <h2>0x10 — DiagnosticSessionControl</h2>
+  <p>Switches the ECU diagnostic session. Every session change resets security to LOCKED.</p>
+  <div class="code-block">Request:  10 03  (switch to Extended Session)
+Response: 50 03 [P2ServerMax_high] [P2ServerMax_low] [P2StarServerMax_high] [P2StarServerMax_low]
+NRC 0x12: subfunction not configured (DcmDspSessionLevel missing)</div>
+  <div class="warn">Session switch is committed AFTER positive response Tx confirmation, not on request receipt.</div>
+
+  <h2>0x11 — ECUReset</h2>
+  <table>
+    <tr><th>Sub-fn</th><th>Value</th><th>Reset Type</th><th>Mode Switch</th></tr>
+    <tr><td>hardReset</td><td>0x01</td><td>Power cycle equivalent</td><td>DcmEcuReset → HARD, then EXECUTE</td></tr>
+    <tr><td>keyOffOnReset</td><td>0x02</td><td>Key cycle</td><td>DcmEcuReset → KEYONOFF, then EXECUTE</td></tr>
+    <tr><td>softReset</td><td>0x03</td><td>Software restart</td><td>DcmEcuReset → SOFT, then EXECUTE</td></tr>
+    <tr><td>enableRapidPowerShutDown</td><td>0x04</td><td>Short power-down time</td><td>DcmRapidPowerShutDown → ENABLE</td></tr>
+  </table>
+  <div class="info">BswM carries out the actual reset via action list. DCM ignores all further requests after sending 0x11 positive response [SWS_Dcm_00834].</div>
+
+  <h2>0x19 — ReadDTCInformation</h2>
+  <p>The most complex service — 20+ sub-functions for various DTC query modes. Key sub-functions:</p>
+  <table>
+    <tr><th>Sub-fn</th><th>Name</th><th>Returns</th></tr>
+    <tr><td>0x01</td><td>reportNumberOfDTCByStatusMask</td><td>Count of DTCs matching mask</td></tr>
+    <tr><td>0x02</td><td>reportDTCByStatusMask</td><td>DTC list + status bytes</td></tr>
+    <tr><td>0x03</td><td>reportDTCSnapshotIdentification</td><td>Snapshot/freeze frame IDs</td></tr>
+    <tr><td>0x04</td><td>reportDTCSnapshotRecordByDTCNumber</td><td>Freeze frame data</td></tr>
+    <tr><td>0x06</td><td>reportDTCExtendedDataRecordByDTCNumber</td><td>Extended data (counters, timestamps)</td></tr>
+    <tr><td>0x09</td><td>reportDTCWithPermanentStatus</td><td>Permanent DTCs</td></tr>
+    <tr><td>0x14</td><td>reportDTCFaultDetectionCounter</td><td>Debounce counter per DTC</td></tr>
+  </table>
+
+  <h2>0x22 — ReadDataByIdentifier (RDBI)</h2>
+  <div class="code-block">Request:  22 F1 90         (read DID 0xF190 = VIN)
+Response: 62 F1 90 [17 VIN bytes]
+Multi-DID: 22 F1 90 F1 86   (read VIN + ActiveSession in one request)
+Response:  62 F1 90 [17 bytes] F1 86 [1 byte]</div>
+  <div class="tip">DCM supports reading multiple DIDs in one request. The response is assembled in order. If any DID fails: NRC for that individual DID in AUTOSAR extended mode, or fail entire request in strict mode.</div>
+
+  <h2>0x2E — WriteDataByIdentifier (WDBI)</h2>
+  <div class="code-block">Request:  2E F1 90 [17 VIN bytes]
+Response: 6E F1 90
+NRC 0x31: DID not found or not writable
+NRC 0x33: Security level too low
+NRC 0x22: Conditions not correct (app returned E_NOT_OK)</div>
+
+  <h2>0x31 — RoutineControl</h2>
+  <div class="code-block">Start:   31 01 [RID_H] [RID_L] [optional params]
+Stop:    31 02 [RID_H] [RID_L] [optional params]
+Result:  31 03 [RID_H] [RID_L]
+Positive: 71 [subfn] [RID_H] [RID_L] [result bytes]</div>
+
+  <h2>0x85 — ControlDTCSetting</h2>
+  <div class="code-block">Enable DTC storage:  85 01
+Disable DTC storage: 85 02
+Response: C5 [subfn]
+NRC 0x22: App conditions not correct</div>
+  <div class="warn">On session return to Default, DCM must re-enable DTC setting. Integrate with BswM to handle this automatically.</div>
+</div>
+
+<!-- ====== NRC ====== -->
+<div id="nrc" class="section">
+  <h1>NRC Reference — Negative Response Codes</h1>
+  <p class="subtitle">ISO 14229-1 Table 13 — key NRCs generated by AUTOSAR DCM</p>
+
+  <table>
+    <tr><th>NRC</th><th>Name</th><th>When DCM sends it</th></tr>
+    <tr><td><code class="nrc-hex">0x10</code></td><td>generalReject</td><td>Generic failure; rare in DCM</td></tr>
+    <tr><td><code class="nrc-hex">0x11</code></td><td>serviceNotSupported</td><td>SID not in DcmDsdServiceTable</td></tr>
+    <tr><td><code class="nrc-hex">0x12</code></td><td>subFunctionNotSupported</td><td>Sub-function not configured</td></tr>
+    <tr><td><code class="nrc-hex">0x13</code></td><td>incorrectMessageLengthOrInvalidFormat</td><td>Request too short/long for service</td></tr>
+    <tr><td><code class="nrc-hex">0x14</code></td><td>responseTooLong</td><td>Response exceeds buffer size</td></tr>
+    <tr><td><code class="nrc-hex">0x21</code></td><td>busyRepeatRequest</td><td>Second request while first still processing (if DcmDslDiagRespOnSecondDeclinedRequest=TRUE)</td></tr>
+    <tr><td><code class="nrc-hex">0x22</code></td><td>conditionsNotCorrect</td><td>App returned E_NOT_OK / Dem busy / wrong state</td></tr>
+    <tr><td><code class="nrc-hex">0x24</code></td><td>requestSequenceError</td><td>Wrong sequence (e.g. Send Key without Get Seed)</td></tr>
+    <tr><td><code class="nrc-hex">0x25</code></td><td>noResponseFromSubnetComponent</td><td>Subnet gateway timeout</td></tr>
+    <tr><td><code class="nrc-hex">0x31</code></td><td>requestOutOfRange</td><td>DID/DTC/RID not found; invalid parameter</td></tr>
+    <tr><td><code class="nrc-hex">0x33</code></td><td>securityAccessDenied</td><td>Required security level not active</td></tr>
+    <tr><td><code class="nrc-hex">0x35</code></td><td>invalidKey</td><td>Wrong key in SecurityAccess</td></tr>
+    <tr><td><code class="nrc-hex">0x36</code></td><td>exceededNumberOfAttempts</td><td>Too many failed SecurityAccess attempts</td></tr>
+    <tr><td><code class="nrc-hex">0x37</code></td><td>requiredTimeDelayNotExpired</td><td>SecurityAccess lockout timer still running</td></tr>
+    <tr><td><code class="nrc-hex">0x70</code></td><td>uploadDownloadNotAccepted</td><td>Flash programming declined</td></tr>
+    <tr><td><code class="nrc-hex">0x71</code></td><td>transferDataSuspended</td><td>Data transfer aborted</td></tr>
+    <tr><td><code class="nrc-hex">0x72</code></td><td>generalProgrammingFailure</td><td>NVM write error (Dem_ClearDTC: DEM_CLEAR_MEMORY_ERROR)</td></tr>
+    <tr><td><code class="nrc-hex">0x73</code></td><td>wrongBlockSequenceCounter</td><td>Flash block counter mismatch</td></tr>
+    <tr><td><code class="nrc-hex">0x78</code></td><td>requestCorrectlyReceivedResponsePending</td><td>Processing ongoing — more time needed (RCRRP)</td></tr>
+    <tr><td><code class="nrc-hex">0x7E</code></td><td>subFunctionNotSupportedInActiveSession</td><td>Sub-function not allowed in current session</td></tr>
+    <tr><td><code class="nrc-hex">0x7F</code></td><td>serviceNotSupportedInActiveSession</td><td>Service not allowed in current session</td></tr>
+  </table>
+
+  <div class="tip"><strong>Exam tip:</strong> NRC 0x78 is NOT a failure — it's a keep-alive telling the tester "I'm working on it, wait for P2*Server timeout." The tester must restart its P2* timer and keep waiting.</div>
+  <div class="warn"><strong>NRC suppression:</strong> NRC 0x11, 0x12, 0x7E, 0x7F are suppressed for functional addressing (broadcast). Physical addressing always sends NRCs.</div>
+</div>
+
+<!-- ====== API CORE ====== -->
+<div id="api-core" class="section">
+  <h1>Core API Specification</h1>
+  <p class="subtitle">Chapter 8 APIs — provided by DCM or called by other modules</p>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_Init</div>
+      <span class="badge badge-blue">Initialization</span>
+    </div>
+    <div class="api-body">
+      <p>Called by BSW module initialization code. Resets session to Default, security to LOCKED, clears all buffers.</p>
+      <div class="param-row"><div class="param-name">ConfigPtr</div><div class="param-type">const Dcm_ConfigType*</div><div class="param-dir">IN</div><div class="param-desc">Pointer to config data (NULL if pre-compile config)</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_MainFunction</div>
+      <span class="badge badge-teal">Scheduled</span>
+    </div>
+    <div class="api-body">
+      <p>Called cyclically by SchM. Drives all state machines, timers, async operation retries, and periodic DID transmission. Period = <code>DcmTaskTime</code>.</p>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_GetSecurityLevel</div>
+      <span class="badge badge-amber">State Query</span>
+    </div>
+    <div class="api-body">
+      <p>Returns current active security level. Called by application SWCs to check authorization.</p>
+      <div class="param-row"><div class="param-name">SecLevel</div><div class="param-type">Dcm_SecLevelType*</div><div class="param-dir">OUT</div><div class="param-desc">0x00 = LOCKED, 0x01 = Level1, 0x03 = Level2, ...</div></div>
+      <div class="param-row"><div class="param-name">return</div><div class="param-type">Std_ReturnType</div><div class="param-dir">–</div><div class="param-desc">E_OK always (in initialized state)</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_GetSesCtrlType</div>
+      <span class="badge badge-amber">State Query</span>
+    </div>
+    <div class="api-body">
+      <p>Returns current active diagnostic session type.</p>
+      <div class="param-row"><div class="param-name">SesCtrlType</div><div class="param-type">Dcm_SesCtrlType*</div><div class="param-dir">OUT</div><div class="param-desc">0x01=Default, 0x02=Programming, 0x03=Extended</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_ResetToDefaultSession</div>
+      <span class="badge badge-coral">State Control</span>
+    </div>
+    <div class="api-body">
+      <p>Allows an application SWC to force return to Default session. Example: automatically end Extended session when vehicle speed exceeds limit. Triggers DcmDiagnosticSessionControl mode switch.</p>
+      <div class="param-row"><div class="param-name">return</div><div class="param-type">Std_ReturnType</div><div class="param-dir">–</div><div class="param-desc">E_OK if accepted</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_GetActiveProtocol</div>
+      <span class="badge badge-amber">State Query</span>
+    </div>
+    <div class="api-body">
+      <p>Returns the currently active diagnostic protocol (e.g., UDS on CAN, OBD, DoIP).</p>
+      <div class="param-row"><div class="param-name">ActiveProtocol</div><div class="param-type">Dcm_ProtocolType*</div><div class="param-dir">OUT</div><div class="param-desc">Protocol identifier from DcmDslProtocolRow</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_SetActiveDiagnostic</div>
+      <span class="badge badge-coral">State Control</span>
+    </div>
+    <div class="api-body">
+      <p>Enable/disable diagnostic communication from application. When disabled, DCM calls ComM_DCM_InactiveDiagnostic.</p>
+      <div class="param-row"><div class="param-name">active</div><div class="param-type">boolean</div><div class="param-dir">IN</div><div class="param-desc">TRUE = active, FALSE = inactive</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header">
+      <div class="api-fn">Dcm_TriggerOnEvent</div>
+      <span class="badge badge-purple">ROE</span>
+    </div>
+    <div class="api-body">
+      <p>Application triggers a ResponseOnEvent (service 0x86). DCM transmits the configured DID/DTC data if ROE is active.</p>
+      <div class="param-row"><div class="param-name">RoeEventId</div><div class="param-type">uint8</div><div class="param-dir">IN</div><div class="param-desc">Configured ROE event identifier</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== API PDU ====== -->
+<div id="api-pdu" class="section">
+  <h1>PDU / Transport Protocol Interface APIs</h1>
+  <p class="subtitle">Called by PduR module to transfer request/response data to/from DCM</p>
+
+  <div class="api-block">
+    <div class="api-header"><div class="api-fn">Dcm_StartOfReception</div><span class="badge badge-blue">Rx — Called by PduR</span></div>
+    <div class="api-body">
+      <p>PduR calls this when a new TP message starts arriving. DCM checks buffer availability and can reject oversized messages.</p>
+      <div class="param-row"><div class="param-name">id</div><div class="param-type">PduIdType</div><div class="param-dir">IN</div><div class="param-desc">DcmDslProtocolRxPduId</div></div>
+      <div class="param-row"><div class="param-name">info</div><div class="param-type">const PduInfoType*</div><div class="param-dir">IN</div><div class="param-desc">First frame data + MetaData (SOURCE_ADDRESS for generic)</div></div>
+      <div class="param-row"><div class="param-name">TpSduLength</div><div class="param-type">PduLengthType</div><div class="param-dir">IN</div><div class="param-desc">Total message length. Must be > 0 [SWS_Dcm_00642]</div></div>
+      <div class="param-row"><div class="param-name">bufferSizePtr</div><div class="param-type">PduLengthType*</div><div class="param-dir">OUT</div><div class="param-desc">Available buffer size in DCM</div></div>
+      <div class="param-row"><div class="param-name">return</div><div class="param-type">BufReq_ReturnType</div><div class="param-dir">–</div><div class="param-desc">BUFREQ_OK / BUFREQ_E_OVFL (too large) / BUFREQ_E_NOT_OK</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header"><div class="api-fn">Dcm_CopyRxData</div><span class="badge badge-blue">Rx — Called by PduR</span></div>
+    <div class="api-body">
+      <p>PduR feeds subsequent frames. DCM copies data into Rx buffer. Called repeatedly until all data is received.</p>
+      <div class="param-row"><div class="param-name">id</div><div class="param-type">PduIdType</div><div class="param-dir">IN</div><div class="param-desc">DcmDslProtocolRxPduId</div></div>
+      <div class="param-row"><div class="param-name">info</div><div class="param-type">const PduInfoType*</div><div class="param-dir">IN</div><div class="param-desc">Frame data chunk. SduLength=0 → just return remaining size</div></div>
+      <div class="param-row"><div class="param-name">bufferSizePtr</div><div class="param-type">PduLengthType*</div><div class="param-dir">OUT</div><div class="param-desc">Remaining free space after copy</div></div>
+      <div class="param-row"><div class="param-name">return</div><div class="param-type">BufReq_ReturnType</div><div class="param-dir">–</div><div class="param-desc">BUFREQ_OK / BUFREQ_E_NOT_OK</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header"><div class="api-fn">Dcm_TpRxIndication</div><span class="badge badge-blue">Rx — Called by PduR</span></div>
+    <div class="api-body">
+      <p>PduR signals end of reception. Only if result=E_OK does DCM forward request to DSD.</p>
+      <div class="param-row"><div class="param-name">id</div><div class="param-type">PduIdType</div><div class="param-dir">IN</div><div class="param-desc">DcmDslProtocolRxPduId</div></div>
+      <div class="param-row"><div class="param-name">result</div><div class="param-type">Std_ReturnType</div><div class="param-dir">IN</div><div class="param-desc">E_OK = success, E_NOT_OK = reception error (discard)</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header"><div class="api-fn">Dcm_CopyTxData</div><span class="badge badge-teal">Tx — Called by PduR</span></div>
+    <div class="api-body">
+      <p>PduR requests response data for transmission. DCM provides bytes from Tx buffer. Used for segmented responses.</p>
+      <div class="param-row"><div class="param-name">id</div><div class="param-type">PduIdType</div><div class="param-dir">IN</div><div class="param-desc">DcmTxPduId</div></div>
+      <div class="param-row"><div class="param-name">info</div><div class="param-type">const PduInfoType*</div><div class="param-dir">IN</div><div class="param-desc">Buffer to fill with Tx data</div></div>
+      <div class="param-row"><div class="param-name">availableDataPtr</div><div class="param-type">PduLengthType*</div><div class="param-dir">OUT</div><div class="param-desc">Remaining bytes still to be sent (≤ remaining total)</div></div>
+      <div class="param-row"><div class="param-name">return</div><div class="param-type">BufReq_ReturnType</div><div class="param-dir">–</div><div class="param-desc">BUFREQ_OK / BUFREQ_E_BUSY (page not ready) / BUFREQ_E_NOT_OK</div></div>
+    </div>
+  </div>
+
+  <div class="api-block">
+    <div class="api-header"><div class="api-fn">Dcm_TpTxConfirmation</div><span class="badge badge-teal">Tx — Called by PduR</span></div>
+    <div class="api-body">
+      <p>PduR signals Tx complete. DCM unlocks Tx buffer, stops P2/P2* timers. Session change (if pending) is committed here.</p>
+      <div class="param-row"><div class="param-name">id</div><div class="param-type">PduIdType</div><div class="param-dir">IN</div><div class="param-desc">DcmTxPduId</div></div>
+      <div class="param-row"><div class="param-name">result</div><div class="param-type">Std_ReturnType</div><div class="param-dir">IN</div><div class="param-desc">E_OK = success, E_NOT_OK = Tx error</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SEQ REQUEST ====== -->
+<div id="seq-request" class="section">
+  <h1>Request–Response Sequence</h1>
+  <p class="subtitle">Complete flow from tester request to ECU response (physical addressing, UDS)</p>
+
+  <svg width="100%" viewBox="0 0 680 520" role="img">
+    <title>DCM request response sequence diagram showing Tester, PduR, DSL, DSD, DSP, App interactions</title>
+    <defs>
+      <marker id="sq" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <!-- Lifelines -->
+    <text x="50" y="30" text-anchor="middle" fill="#0C447C" font-size="11" font-weight="500" font-family="system-ui">Tester</text>
+    <line x1="50" y1="35" x2="50" y2="510" stroke="#378ADD" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="150" y="30" text-anchor="middle" fill="#5f5e5a" font-size="11" font-weight="500" font-family="system-ui">PduR</text>
+    <line x1="150" y1="35" x2="150" y2="510" stroke="#9c9a92" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="270" y="30" text-anchor="middle" fill="#185FA5" font-size="11" font-weight="500" font-family="system-ui">DSL</text>
+    <line x1="270" y1="35" x2="270" y2="510" stroke="#378ADD" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="390" y="30" text-anchor="middle" fill="#3B6D11" font-size="11" font-weight="500" font-family="system-ui">DSD</text>
+    <line x1="390" y1="35" x2="390" y2="510" stroke="#639922" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="510" y="30" text-anchor="middle" fill="#854F0B" font-size="11" font-weight="500" font-family="system-ui">DSP/App</text>
+    <line x1="510" y1="35" x2="510" y2="510" stroke="#BA7517" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+    <!-- 1: Tester → PduR (request) -->
+    <line x1="50" y1="55" x2="148" y2="55" stroke="#378ADD" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="95" y="49" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">Diag Request [CAN]</text>
+
+    <!-- 2: PduR → DSL: StartOfReception -->
+    <line x1="150" y1="70" x2="268" y2="70" stroke="#9c9a92" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="210" y="64" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">StartOfReception()</text>
+
+    <!-- 3: DSL → PduR: BUFREQ_OK -->
+    <line x1="270" y1="85" x2="152" y2="85" stroke="#9c9a92" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq)"/>
+    <text x="210" y="96" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">BUFREQ_OK</text>
+
+    <!-- 4: PduR → DSL: CopyRxData -->
+    <line x1="150" y1="108" x2="268" y2="108" stroke="#9c9a92" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="210" y="102" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">CopyRxData()</text>
+
+    <!-- 5: PduR → DSL: TpRxIndication(E_OK) -->
+    <line x1="150" y1="128" x2="268" y2="128" stroke="#9c9a92" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="210" y="122" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">TpRxIndication(E_OK)</text>
+
+    <!-- DSL processes, forwards to DSD -->
+    <rect x="245" y="138" width="50" height="16" rx="3" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="270" y="149" text-anchor="middle" fill="#185FA5" font-size="9" font-family="system-ui">DSL process</text>
+
+    <!-- 6: DSL → DSD -->
+    <line x1="270" y1="158" x2="388" y2="158" stroke="#378ADD" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="330" y="152" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">Forward to DSD</text>
+
+    <!-- 7: DSD validates + dispatches -->
+    <rect x="365" y="168" width="50" height="20" rx="3" fill="#EAF3DE" stroke="#639922" stroke-width="0.5"/>
+    <text x="390" y="179" text-anchor="middle" fill="#3B6D11" font-size="9" font-family="system-ui">Validate SID</text>
+
+    <!-- 8: DSD → DSP -->
+    <line x1="390" y1="194" x2="508" y2="194" stroke="#639922" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="450" y="188" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">Dispatch service</text>
+
+    <!-- 9: DSP calls App -->
+    <line x1="510" y1="210" x2="570" y2="210" stroke="#BA7517" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="578" y="214" fill="#854F0B" font-size="10" font-family="system-ui">Xxx_ReadData()</text>
+    <line x1="570" y1="230" x2="512" y2="230" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq)"/>
+    <text x="578" y="234" fill="#854F0B" font-size="10" font-family="system-ui">E_OK + data</text>
+
+    <!-- 10: DSP → DSD response -->
+    <line x1="510" y1="250" x2="392" y2="250" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq)"/>
+    <text x="450" y="244" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">Pos. response ready</text>
+
+    <!-- 11: DSD → DSL -->
+    <line x1="390" y1="268" x2="272" y2="268" stroke="#639922" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq)"/>
+    <text x="330" y="262" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">Trigger Tx</text>
+
+    <!-- 12: DSL → PduR: Transmit -->
+    <line x1="270" y1="288" x2="152" y2="288" stroke="#378ADD" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="210" y="282" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">PduR_DcmTransmit()</text>
+
+    <!-- 13: PduR calls CopyTxData -->
+    <line x1="150" y1="308" x2="268" y2="308" stroke="#9c9a92" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="210" y="302" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">CopyTxData()</text>
+    <line x1="270" y1="322" x2="152" y2="322" stroke="#9c9a92" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq)"/>
+    <text x="210" y="334" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">BUFREQ_OK + data</text>
+
+    <!-- 14: PduR → Tester response -->
+    <line x1="150" y1="350" x2="52" y2="350" stroke="#9c9a92" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="95" y="344" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">Response [CAN]</text>
+
+    <!-- 15: TpTxConfirmation -->
+    <line x1="150" y1="370" x2="268" y2="370" stroke="#9c9a92" stroke-width="1" marker-end="url(#sq)"/>
+    <text x="210" y="364" text-anchor="middle" fill="#5f5e5a" font-size="10" font-family="system-ui">TpTxConfirmation(E_OK)</text>
+
+    <!-- DSL cleanup -->
+    <rect x="245" y="380" width="50" height="20" rx="3" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="270" y="394" text-anchor="middle" fill="#185FA5" font-size="9" font-family="system-ui">Unlock PDU</text>
+    <text x="270" y="406" text-anchor="middle" fill="#185FA5" font-size="9" font-family="system-ui">Stop timers</text>
+    <text x="270" y="418" text-anchor="middle" fill="#185FA5" font-size="9" font-family="system-ui">Commit session</text>
+  </svg>
+
+  <div class="tip"><strong>Key insight:</strong> The session switch (e.g., after 0x10 Extended session request) is committed only at step 15 — <code>TpTxConfirmation</code>. If Tx fails, the session does NOT change.</div>
+</div>
+
+<!-- ====== SEQ SA ====== -->
+<div id="seq-sa" class="section">
+  <h1>Security Access Sequence (0x27)</h1>
+  <p class="subtitle">Full two-step seed-key exchange</p>
+
+  <svg width="100%" viewBox="0 0 680 400" role="img">
+    <title>SecurityAccess UDS 0x27 seed-key sequence diagram</title>
+    <defs>
+      <marker id="sq2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <text x="80" y="28" text-anchor="middle" fill="#0C447C" font-size="11" font-weight="500" font-family="system-ui">Tester</text>
+    <line x1="80" y1="33" x2="80" y2="390" stroke="#378ADD" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="260" y="28" text-anchor="middle" fill="#185FA5" font-size="11" font-weight="500" font-family="system-ui">DCM (DSP)</text>
+    <line x1="260" y1="33" x2="260" y2="390" stroke="#378ADD" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="460" y="28" text-anchor="middle" fill="#854F0B" font-size="11" font-weight="500" font-family="system-ui">App (Seed/Key)</text>
+    <line x1="460" y1="33" x2="460" y2="390" stroke="#BA7517" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+    <!-- Step 1: Request Seed -->
+    <line x1="80" y1="60" x2="258" y2="60" stroke="#378ADD" stroke-width="1.2" marker-end="url(#sq2)"/>
+    <text x="170" y="52" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">27 01 (requestSeed)</text>
+
+    <!-- DCM calls GetSeed -->
+    <line x1="260" y1="78" x2="458" y2="78" stroke="#BA7517" stroke-width="1" marker-end="url(#sq2)"/>
+    <text x="360" y="70" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">Xxx_GetSeed(accessType, ...)</text>
+    <line x1="460" y1="95" x2="262" y2="95" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq2)"/>
+    <text x="360" y="108" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">E_OK + seed[N bytes]</text>
+
+    <!-- Positive response -->
+    <line x1="260" y1="120" x2="82" y2="120" stroke="#378ADD" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#sq2)"/>
+    <text x="170" y="114" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">67 01 [seed bytes]</text>
+
+    <!-- Tester computes key -->
+    <rect x="20" y="132" width="130" height="24" rx="4" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.5"/>
+    <text x="85" y="148" text-anchor="middle" fill="#3C3489" font-size="10" font-family="system-ui">Compute key (OEM algo)</text>
+
+    <!-- Step 2: Send Key -->
+    <line x1="80" y1="168" x2="258" y2="168" stroke="#378ADD" stroke-width="1.2" marker-end="url(#sq2)"/>
+    <text x="170" y="160" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">27 02 [key bytes] (sendKey)</text>
+
+    <!-- DCM calls CompareKey -->
+    <line x1="260" y1="186" x2="458" y2="186" stroke="#BA7517" stroke-width="1" marker-end="url(#sq2)"/>
+    <text x="360" y="178" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">Xxx_CompareKey(accessType, key)</text>
+
+    <!-- Path A: Success -->
+    <rect x="378" y="200" width="165" height="18" rx="3" fill="#EAF3DE" stroke="#639922" stroke-width="0.5"/>
+    <text x="460" y="213" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">E_OK → Key matches!</text>
+    <line x1="460" y1="218" x2="262" y2="218" stroke="#639922" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq2)"/>
+    <line x1="260" y1="234" x2="82" y2="234" stroke="#378ADD" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#sq2)"/>
+    <text x="170" y="228" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">67 02 (positive response)</text>
+    <rect x="170" y="246" width="180" height="18" rx="3" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="260" y="259" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">Security Level SET → active!</text>
+
+    <!-- Path B: Failure -->
+    <rect x="378" y="285" width="165" height="18" rx="3" fill="#FCEBEB" stroke="#E24B4A" stroke-width="0.5"/>
+    <text x="460" y="298" text-anchor="middle" fill="#A32D2D" font-size="10" font-family="system-ui">E_NOT_OK → Wrong key</text>
+    <line x1="460" y1="303" x2="262" y2="303" stroke="#E24B4A" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq2)"/>
+    <line x1="260" y1="318" x2="82" y2="318" stroke="#E24B4A" stroke-width="1.2" marker-end="url(#sq2)"/>
+    <text x="170" y="312" text-anchor="middle" fill="#A32D2D" font-size="11" font-family="system-ui">7F 27 35 (NRC: invalidKey)</text>
+    <text x="260" y="342" text-anchor="middle" fill="#A32D2D" font-size="10" font-family="system-ui">Attempt counter++</text>
+    <text x="260" y="358" text-anchor="middle" fill="#A32D2D" font-size="10" font-family="system-ui">If ≥ NumAttDelay → NRC 0x36</text>
+    <text x="260" y="374" text-anchor="middle" fill="#A32D2D" font-size="10" font-family="system-ui">+ lockout timer starts (NRC 0x37)</text>
+
+    <text x="40" y="280" fill="#5f5e5a" font-size="10" font-family="system-ui">Path A: Success</text>
+    <text x="40" y="290" fill="#5f5e5a" font-size="10" font-family="system-ui">────────────</text>
+    <text x="40" y="310" fill="#5f5e5a" font-size="10" font-family="system-ui">Path B: Fail</text>
+  </svg>
+</div>
+
+<!-- ====== SEQ RESP PEND ====== -->
+<div id="seq-resp-pend" class="section">
+  <h1>ResponsePending (NRC 0x78) Flow</h1>
+  <p class="subtitle">When processing takes longer than P2ServerMax allows</p>
+
+  <svg width="100%" viewBox="0 0 680 420" role="img">
+    <title>ResponsePending NRC 0x78 sequence showing P2 timer expiry and RCRRP transmission</title>
+    <defs>
+      <marker id="sq3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <text x="80" y="28" text-anchor="middle" fill="#0C447C" font-size="11" font-weight="500" font-family="system-ui">Tester</text>
+    <line x1="80" y1="33" x2="80" y2="415" stroke="#378ADD" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="260" y="28" text-anchor="middle" fill="#185FA5" font-size="11" font-weight="500" font-family="system-ui">DSL</text>
+    <line x1="260" y1="33" x2="260" y2="415" stroke="#378ADD" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <text x="460" y="28" text-anchor="middle" fill="#854F0B" font-size="11" font-weight="500" font-family="system-ui">DSP/App</text>
+    <line x1="460" y1="33" x2="460" y2="415" stroke="#BA7517" stroke-width="0.5" stroke-dasharray="4 3"/>
+
+    <!-- Request -->
+    <line x1="80" y1="55" x2="258" y2="55" stroke="#378ADD" stroke-width="1.2" marker-end="url(#sq3)"/>
+    <text x="170" y="49" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">Request (e.g. 31 01 FF 00)</text>
+
+    <!-- DSL dispatches -->
+    <line x1="260" y1="72" x2="458" y2="72" stroke="#378ADD" stroke-width="1" marker-end="url(#sq3)"/>
+    <text x="360" y="65" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">Dispatch → App starts routine</text>
+
+    <!-- P2Server timer runs -->
+    <rect x="220" y="82" width="80" height="50" rx="4" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="260" y="100" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">P2Server</text>
+    <text x="260" y="116" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">timer running</text>
+    <text x="260" y="128" text-anchor="middle" fill="#854F0B" font-size="9" font-family="system-ui">(e.g. 50 ms)</text>
+
+    <!-- App still busy -->
+    <rect x="420" y="82" width="80" height="50" rx="4" fill="#EAF3DE" stroke="#639922" stroke-width="0.5"/>
+    <text x="460" y="100" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">DCM_E_PENDING</text>
+    <text x="460" y="116" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">App still</text>
+    <text x="460" y="128" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">processing</text>
+
+    <!-- P2 expires → NRC 0x78 -->
+    <line x1="260" y1="136" x2="82" y2="136" stroke="#E24B4A" stroke-width="1.5" marker-end="url(#sq3)"/>
+    <text x="170" y="128" text-anchor="middle" fill="#A32D2D" font-size="11" font-family="system-ui">7F [SID] 78 (NRC: RCRRP)</text>
+    <text x="170" y="150" text-anchor="middle" fill="#5f5e5a" font-size="9" font-family="system-ui">From separate buffer — main buffer intact!</text>
+
+    <!-- Tester resets timer -->
+    <rect x="18" y="158" width="130" height="18" rx="3" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.5"/>
+    <text x="83" y="171" text-anchor="middle" fill="#185FA5" font-size="10" font-family="system-ui">Tester restarts P2*Server (5s)</text>
+
+    <!-- P2* timer -->
+    <rect x="220" y="185" width="80" height="50" rx="4" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="260" y="203" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">P2*Server</text>
+    <text x="260" y="219" text2anchor="middle" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">timer running</text>
+    <text x="260" y="231" text-anchor="middle" fill="#854F0B" font-size="9" font-family="system-ui">(e.g. 5000 ms)</text>
+
+    <!-- Possibly more NRC 0x78 -->
+    <line x1="260" y1="242" x2="82" y2="242" stroke="#E24B4A" stroke-width="1" stroke-dasharray="5 3" marker-end="url(#sq3)"/>
+    <text x="170" y="236" text-anchor="middle" fill="#A32D2D" font-size="10" font-family="system-ui">7F [SID] 78 (if still pending)</text>
+
+    <!-- App finishes -->
+    <line x1="460" y1="270" x2="262" y2="270" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#sq3)"/>
+    <text x="360" y="263" text-anchor="middle" fill="#854F0B" font-size="10" font-family="system-ui">E_OK — response ready</text>
+
+    <!-- Positive response -->
+    <line x1="260" y1="290" x2="82" y2="290" stroke="#378ADD" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#sq3)"/>
+    <text x="170" y="283" text-anchor="middle" fill="#185FA5" font-size="11" font-family="system-ui">Positive response (71 01 FF 00...)</text>
+
+    <rect x="100" y="310" width="360" height="50" rx="6" fill="#EAF3DE" stroke="#639922" stroke-width="0.5"/>
+    <text x="280" y="330" text-anchor="middle" fill="#27500A" font-size="11" font-weight="500" font-family="system-ui">Alternative: App returns DCM_E_FORCE_RCRRP</text>
+    <text x="280" y="348" text-anchor="middle" fill="#3B6D11" font-size="10" font-family="system-ui">→ DSL sends NRC 0x78 immediately without waiting for P2 expiry</text>
+  </svg>
+
+  <div class="warn"><strong>Critical for testing:</strong> Verify that your tool waits the full P2*Server duration (configured in 0x10 response bytes 3–6) before timing out. Many testers use default 5s.</div>
+  <div class="tip">Configure <code>DcmDslDiagRespMaxNumRespPend</code> to limit NRC 0x78 count. Infinite NRC 0x78 (default if not configured) can mask application deadlocks in testing.</div>
+</div>
+
+<!-- ====== DAVINCI ====== -->
+<div id="davinci" class="section">
+  <h1>Vector DaVinci Configuration Guide</h1>
+  <p class="subtitle">Step-by-step setup of AUTOSAR DCM in Vector DaVinci Developer / Configurator Pro</p>
+
+  <h2>Overall Configuration Workflow</h2>
+  <ol class="step-list">
+    <li><span><strong>Add DCM module</strong> to your project in DaVinci. Go to Modules → Add → Dcm</span></li>
+    <li><span><strong>Configure DcmConfigSet</strong> — top-level container for all DCM config</span></li>
+    <li><span><strong>Configure DcmDsl</strong> — buffers, protocols, connections, PDU references</span></li>
+    <li><span><strong>Configure DcmDsd</strong> — service tables, session/security restrictions</span></li>
+    <li><span><strong>Configure DcmDsp</strong> — DIDs, routines, security levels, sessions, DTC parameters</span></li>
+    <li><span><strong>Link to PduR</strong> — configure DcmDslProtocolRxPduRef and TxPduRef matching PduR Rx/Tx PDUs</span></li>
+    <li><span><strong>Generate code</strong> — DaVinci generates Dcm_Cfg.h, Dcm_Lcfg.c, and callout stubs</span></li>
+    <li><span><strong>Implement callouts</strong> — fill in the generated stub functions for DID read/write, security access, routines</span></li>
+  </ol>
+
+  <h2>DcmDsl — Buffer and Protocol Setup</h2>
+  <div class="code-block">DcmDsl
+├── DcmDslBuffer
+│   ├── DcmDslBufferID: 0
+│   └── DcmDslBufferSize: 1024        ← must fit largest request + response
+├── DcmDslDiagResp
+│   ├── DcmDslDiagRespMaxNumRespPend: 10    ← limit NRC 0x78 count
+│   └── DcmDslDiagRespOnSecondDeclinedRequest: FALSE
+├── DcmDslProtocol
+│   └── DcmDslProtocolRow (for UDS on CAN)
+│       ├── DcmDslProtocolID: DCM_UDS_ON_CAN
+│       ├── DcmDslProtocolPriority: 0
+│       ├── DcmDslProtocolMaximumResponseSize: 4095
+│       ├── DcmDslProtocolRxBufferRef → DcmDslBuffer[0]
+│       ├── DcmDslProtocolTxBufferRef → DcmDslBuffer[0]
+│       └── DcmDslConnection
+│           ├── DcmDslMainConnection
+│           │   ├── DcmDslProtocolRxPduRef → [PduR Rx PDU for UDS phys]
+│           │   ├── DcmDslProtocolTxPduRef → [PduR Tx PDU for UDS]
+│           │   └── DcmDslPeriodicTranRef → [PduR Tx PDU for periodic]
+│           └── DcmDslConnectionEcuAddress: 0x07E8  ← physical ECU address</div>
+
+  <h2>DcmDsd — Service Table Setup</h2>
+  <div class="code-block">DcmDsd
+└── DcmDsdServiceTable
+    ├── DcmDsdSidTabId: 0
+    └── DcmDsdService (one per SID you want to support)
+        Example: ReadDataByIdentifier (0x22)
+        ├── DcmDsdServiceId: 0x22
+        ├── DcmDsdSidTabSessionModeRule → [ModeRule: Default OR Extended]
+        └── DcmDsdSidTabSecurityLevelRef → [not required for 0x22]
+
+        Example: WriteDataByIdentifier (0x2E)
+        ├── DcmDsdServiceId: 0x2E
+        ├── DcmDsdSidTabSessionModeRule → [ModeRule: Extended only]
+        └── DcmDsdSidTabSecurityLevelRef → [SecLevel_01 or higher]</div>
+
+  <h2>DcmDsp — DID Configuration</h2>
+  <div class="code-block">DcmDsp
+└── DcmDspDid (one container per DID)
+    Example: DID 0xF190 (VIN)
+    ├── DcmDspDidId: 0xF190
+    ├── DcmDspDidInfoRef → DcmDspDidInfo_VIN
+    └── DcmDspDidSignal
+        ├── DcmDspDidSignalByteOffset: 0
+        └── DcmDspDataRef → DcmDspData_VIN
+
+DcmDspData (the actual data element)
+    ├── DcmDspDataId: [unique name]
+    ├── DcmDspDataType: UINT8_DYN         ← for variable-length like VIN
+    ├── DcmDspDataByteSize: 17
+    ├── DcmDspDataUsePort: USE_DATA_SYNCH_FNC  ← or USE_DATA_ASYNCH_FNC
+    └── DcmDspDataReadFnc: App_Read_VIN   ← callout function name
+
+DcmDspDidInfo
+    ├── DcmDspDidRead         (enable read access)
+    │   └── DcmDspDidReadSessionRef → [Default, Extended sessions]
+    ├── DcmDspDidWrite        (enable write access, if needed)
+    └── DcmDspDidControl      (enable I/O control, if needed)</div>
+
+  <h2>DcmDsp — Security Level Setup</h2>
+  <div class="code-block">DcmDspSecurity
+└── DcmDspSecurityRow (one per security level)
+    ├── DcmDspSecurityLevel: DCM_SEC_LEV_L1     ← = 0x01
+    ├── DcmDspSecuritySeedSize: 4               ← bytes
+    ├── DcmDspSecurityKeySize: 4
+    ├── DcmDspSecurityNumAttDelay: 3            ← max failed attempts
+    ├── DcmDspSecurityDelayTime: 10000          ← ms lockout
+    ├── DcmDspSecurityDelayTimeOnBoot: 10000
+    ├── DcmDspSecurityAttemptCounterEnabled: TRUE
+    └── DcmDspSecurityUsePort: USE_ASYNCH_FNC
+        → generates: App_GetSeed(), App_CompareKey(),
+                     App_GetSecurityAttemptCounter(),
+                     App_SetSecurityAttemptCounter()</div>
+
+  <h2>DcmDsp — Session Setup</h2>
+  <div class="code-block">DcmDspSession
+└── DcmDspSessionRow (one per session type)
+    Example: Extended Diagnostic Session
+    ├── DcmDspSessionLevel: DCM_EXTENDED_SESSION  ← SID = 0x03
+    ├── DcmDspSessionP2ServerMax: 50              ← ms
+    └── DcmDspSessionP2StarServerMax: 5000        ← ms</div>
+
+  <h2>DcmDsp — Routine Setup</h2>
+  <div class="code-block">DcmDspRoutine
+    ├── DcmDspRoutineIdentifier: 0xFF00    ← RID
+    ├── DcmDspStartRoutine
+    │   ├── DcmDspStartRoutineFnc: App_StartFF00  ← callout
+    │   └── DcmDspStartRoutineIn / Out (parameters)
+    ├── DcmDspStopRoutine (if stop is supported)
+    └── DcmDspRequestRoutineResults (if results are readable)</div>
+
+  <h2>Linking PDUs (Critical Step)</h2>
+  <div class="warn">The PDU links between DCM and PduR are the most common integration error. Each <code>DcmDslProtocolRxPduRef</code> must point to a matching PduR Rx PDU, and the <code>DcmDslProtocolTxPduRef</code> to the PduR Tx PDU. These are also linked in the CanTp/DoIP config.</div>
+  <div class="code-block">Correct PDU chain:
+  CanTp Rx PDU → PduR DcmRxPdu → DCM StartOfReception
+  DCM TxPdu → PduR → CanTp Tx PDU
+  
+In DaVinci:
+  DcmDslProtocolRxPduRef = /ActiveEcuC/PduR/DcmRxPdu_UDS_Phys
+  DcmDslProtocolTxPduRef = /ActiveEcuC/PduR/DcmTxPdu_UDS</div>
+
+  <h2>Generated Callout Stubs</h2>
+  <p>After generation, DaVinci creates stub files. You must implement these:</p>
+  <div class="code-block">/* DID Read callout */
+Std_ReturnType App_Read_VIN(uint8 *Data, uint16 DataLength) {
+    /* Copy 17-byte VIN into Data buffer */
+    memcpy(Data, &g_VIN[0], 17);
+    return E_OK;
+}
+
+/* Security seed callout */
+Std_ReturnType App_GetSeed(
+    Dcm_OpStatusType OpStatus,
+    uint8 *Seed, uint16 *SeedLen,
+    Dcm_NegativeResponseCodeType *ErrorCode)
+{
+    if (OpStatus == DCM_INITIAL) {
+        /* generate or retrieve seed */
+        Seed[0] = 0xAB; Seed[1] = 0xCD; Seed[2] = 0xEF; Seed[3] = 0x01;
+        *SeedLen = 4;
+        return E_OK;
+    }
+    return DCM_E_PENDING; /* if async NVM read needed */
+}
+
+/* Security key compare callout */
+Std_ReturnType App_CompareKey(
+    Dcm_OpStatusType OpStatus,
+    const uint8 *Key, uint16 KeyLen,
+    Dcm_NegativeResponseCodeType *ErrorCode)
+{
+    /* Compute expected key from stored seed using OEM algo */
+    uint8 expectedKey[4];
+    ComputeKey(g_Seed, expectedKey);
+    if (memcmp(Key, expectedKey, 4) == 0) return E_OK;
+    *ErrorCode = DCM_E_INVALIDKEY;
+    return E_NOT_OK;
+}</div>
+</div>
+
+<!-- ====== TESTING ====== -->
+<div id="testing" class="section">
+  <h1>Interface Testing</h1>
+  <p class="subtitle">How to test DCM integration in automotive projects</p>
+
+  <h2>Testing Layers</h2>
+  <div class="card-grid">
+    <div class="mini-card"><h4>Unit Test</h4><div class="val">Test callout stubs in isolation (GoogleTest / VectorCAST)</div></div>
+    <div class="mini-card"><h4>Integration Test</h4><div class="val">DCM + DEM + PduR on SIL/HIL with simulated tester</div></div>
+    <div class="mini-card"><h4>ECU Test</h4><div class="val">Real ECU + diagnostic tester (CANalyzer, ODXP, VeDyNA)</div></div>
+    <div class="mini-card"><h4>Network Test</h4><div class="val">Timing, addressing, multi-client scenarios</div></div>
+  </div>
+
+  <h2>Critical Test Scenarios</h2>
+  <table>
+    <tr><th>Test Case</th><th>What to verify</th><th>Pass Criterion</th></tr>
+    <tr><td>Session transition 0x10 0x03</td><td>Session switches after Tx confirm; security resets</td><td>DID 0xF186 returns 0x03; GetSecurityLevel() = LOCKED</td></tr>
+    <tr><td>S3 timeout</td><td>Wait >5s in extended session with no TesterPresent</td><td>Session returns to default; security LOCKED</td></tr>
+    <tr><td>NRC 0x78 handling</td><td>Trigger slow routine; verify RCRRP sent within P2Server</td><td>7F SID 78 received; final response within P2*Server</td></tr>
+    <tr><td>Security lockout</td><td>Send 3 wrong keys to 0x27 0x02</td><td>NRC 0x36 → then NRC 0x37 for lockout period</td></tr>
+    <tr><td>Buffer overflow</td><td>Send oversized request (>DcmDslBufferSize)</td><td>StartOfReception returns BUFREQ_E_OVFL; no crash</td></tr>
+    <tr><td>Functional addressing</td><td>Send 0x3E 0x80 (suppress pos resp) functionally</td><td>No response sent; S3 timer reset</td></tr>
+    <tr><td>NRC suppression</td><td>Send unknown SID with functional addressing</td><td>No NRC 0x11 sent (functional addressing → suppress)</td></tr>
+    <tr><td>Multi-DID read</td><td>0x22 F190 F186 in one request</td><td>62 F190 [VIN] F186 [session] in single response</td></tr>
+    <tr><td>DTC clear 0x14</td><td>Clear all DTCs; verify DEM cleared</td><td>54 FF FF FF positive response; 0x19 returns 0 DTCs</td></tr>
+    <tr><td>Concurrent TesterPresent</td><td>Send 3E 80 from different connection</td><td>S3 NOT reset (only same-connection keep-alive accepted)</td></tr>
+  </table>
+
+  <h2>Timing Verification</h2>
+  <div class="tip">Use CANalyzer/CANoe with a CAPL script to measure response times. P2Server is typically 50ms. Measure from last bit of request to first bit of response. Any response within P2Server is compliant.</div>
+
+  <h2>Addressing Verification</h2>
+  <div class="code-block">Physical (1:1):  TX → 0x7DF (OBD) or configured phys ID (e.g. 0x7E0)
+                  RX ← 0x7E8 (or configured response ID)
+
+Functional (broadcast): TX → 0x7DF
+                        RX ← 0x7E8 (ECU responds if service supported)
+
+For DoIP: Source address in UDP/TCP header acts as generic connection MetaData</div>
+
+  <h2>DEM Interface Test Points</h2>
+  <table>
+    <tr><th>Scenario</th><th>Expected behavior</th></tr>
+    <tr><td>0x14 with valid groupOfDTC (0xFFFFFF)</td><td>Dem_ClearDTC called; positive response 54</td></tr>
+    <tr><td>0x14 with invalid DTC group</td><td>NRC 0x31 (requestOutOfRange)</td></tr>
+    <tr><td>0x19 while DEM is busy (DEM_CLEAR_BUSY)</td><td>NRC 0x22 (conditionsNotCorrect)</td></tr>
+    <tr><td>0x19 0x02 with mask 0xFF</td><td>Returns all active DTCs with status byte</td></tr>
+    <tr><td>0x85 0x02 (disable DTC setting)</td><td>DEM stops storing new DTCs; 0xC5 0x02 response</td></tr>
+  </table>
+</div>
+
+<!-- ====== DEBUG ====== -->
+<div id="debug" class="section">
+  <h1>Debugging Guide</h1>
+  <p class="subtitle">Common issues and how to trace/resolve them in AUTOSAR DCM</p>
+
+  <h2>Debugging Tools</h2>
+  <div class="card-grid">
+    <div class="mini-card"><h4>CANalyzer/CANoe</h4><div class="val">Trace raw frames, measure timing, replay tests</div></div>
+    <div class="mini-card"><h4>DaVinci Analyzer</h4><div class="val">Check config consistency, missing links</div></div>
+    <div class="mini-card"><h4>Det (Default Error Tracer)</h4><div class="val">DCM reports development errors to Det</div></div>
+    <div class="mini-card"><h4>JTAG/SWD Debugger</h4><div class="val">Set breakpoints in DCM state machine / callouts</div></div>
+  </div>
+
+  <h2>Common Issues and Fixes</h2>
+  <table>
+    <tr><th>Symptom</th><th>Likely Cause</th><th>How to fix</th></tr>
+    <tr><td>NRC 0x11 for all services</td><td>DcmDsdServiceTable empty or not linked to DcmDsdProtocolRow</td><td>Check DcmDslProtocol → DcmDslServiceTableRef</td></tr>
+    <tr><td>NRC 0x7F for 0x22 in Extended session</td><td>Session mode rule missing Extended session</td><td>Add Extended session to DcmDsdSidTabSessionModeRule</td></tr>
+    <tr><td>NRC 0x31 for valid DID</td><td>DID not configured or not readable in current session</td><td>Check DcmDspDidRead → DcmDspDidReadSessionRef</td></tr>
+    <tr><td>No response at all</td><td>PDU routing misconfigured; ComM in No-Communication mode</td><td>Check PduR PDU links; verify ComM state</td></tr>
+    <tr><td>Infinite NRC 0x78</td><td>App callout always returns DCM_E_PENDING (deadlock)</td><td>Add timeout logic in app callout; configure MaxNumRespPend</td></tr>
+    <tr><td>Security lockout on boot</td><td>Attempt counter NVM value ≥ NumAttDelay</td><td>Check Xxx_GetSecurityAttemptCounter() NVM value; verify DcmDspSecurityDelayTimeOnBoot</td></tr>
+    <tr><td>Session not switching after 0x10</td><td>TpTxConfirmation not called (Tx path issue)</td><td>Check PduR_DcmTransmit and CanTp Tx configuration</td></tr>
+    <tr><td>DEM DTC clear always fails (0x22)</td><td>DEM returns DEM_CLEAR_BUSY; another client holds lock</td><td>Check DcmDemClientRef is unique; verify no concurrent DEM access</td></tr>
+    <tr><td>NRC 0x13 (wrong length)</td><td>Request byte count doesn't match service definition</td><td>Verify tool is sending correct length per ISO 14229-1</td></tr>
+    <tr><td>BUFREQ_E_OVFL on reception</td><td>DcmDslBufferSize too small for request</td><td>Increase DcmDslBufferSize; check largest expected request</td></tr>
+  </table>
+
+  <h2>Det Error IDs (Key ones)</h2>
+  <table>
+    <tr><th>Error ID</th><th>Meaning</th></tr>
+    <tr><td><code>DCM_E_PARAM</code></td><td>Invalid parameter passed to API</td></tr>
+    <tr><td><code>DCM_E_UNINIT</code></td><td>DCM not initialized when API called</td></tr>
+    <tr><td><code>DCM_E_INTERFACE_TIMEOUT</code></td><td>Callout did not return in time</td></tr>
+    <tr><td><code>DCM_E_INTERFACE_RETURN_VALUE</code></td><td>Callout returned unexpected value</td></tr>
+    <tr><td><code>DCM_E_INTERFACE_BUFFER_OVERFLOW</code></td><td>Buffer overflow in paged-buffer mode</td></tr>
+  </table>
+
+  <h2>Runtime State Inspection</h2>
+  <div class="code-block">/* Add these calls in your debug console / JTAG watch */
+Dcm_SecLevelType secLevel;
+Dcm_SesCtrlType  session;
+Dcm_ProtocolType protocol;
+
+Dcm_GetSecurityLevel(&secLevel);   /* 0x00=LOCKED, 0x01=L1, ... */
+Dcm_GetSesCtrlType(&session);      /* 0x01=Default, 0x02=Prog, 0x03=Ext */
+Dcm_GetActiveProtocol(&protocol);  /* Which protocol row is active */</div>
+
+  <h2>CANalyzer CAPL Snippet — Verify P2 Timing</h2>
+  <div class="code-block">/* CAPL: measure response time after request */
+variables {
+  dword tRequest;
+  dword tResponse;
+}
+
+on message 0x7E0 {  /* Tester request */
+  tRequest = timeNow();
+}
+
+on message 0x7E8 {  /* ECU response */
+  tResponse = timeNow();
+  float p2ms = (tResponse - tRequest) / 1000.0;
+  write("Response time: %.1f ms", p2ms);
+  if (p2ms > 50.0 && this.byte(1) != 0x78)
+    write("WARNING: P2Server violation! %.1f ms > 50 ms", p2ms);
+}</div>
+
+  <h2>Key Exam / Interview Points Summary</h2>
+  <div class="card">
+    <p><strong>1. Session change timing:</strong> Committed at TpTxConfirmation, not at request receipt</p>
+    <p><strong>2. Security reset:</strong> Always on any non-default → any session transition</p>
+    <p><strong>3. NRC 0x78:</strong> Sent from a separate buffer; main buffer untouched</p>
+    <p><strong>4. Functional addressing:</strong> NRC 0x11, 0x12, 0x7E, 0x7F are suppressed</p>
+    <p><strong>5. S3 timer:</strong> Only reset by TesterPresent from the same connection that entered the session</p>
+    <p><strong>6. DCM_E_PENDING:</strong> Application returns this; DCM retries on next MainFunction cycle</p>
+    <p><strong>7. Generic connections:</strong> SOURCE_ADDRESS_16 MetaData used for response routing in DoIP/29-bit CAN</p>
+    <p><strong>8. DID 0xF186:</strong> ActiveDiagnosticSession — managed internally by DCM, no callout needed</p>
+    <p><strong>9. Paged-buffer:</strong> Allows responses larger than buffer; Tx only, not Rx</p>
+    <p><strong>10. OSI layers:</strong> DCM handles L5 (session), L6 (presentation), L7 (application)</p>
+  </div>
+</div>
+
+</div><!-- .main -->
+</div><!-- .app -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

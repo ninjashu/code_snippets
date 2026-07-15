@@ -1,0 +1,596 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.tab-bar{display:flex;gap:4px;flex-wrap:wrap;padding:8px 0 0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab{padding:7px 14px;font-size:13px;border-radius:6px 6px 0 0;border:0.5px solid transparent;cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-primary);border-color:var(--color-border-tertiary);border-bottom-color:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;margin-bottom:-0.5px}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.panel{display:none}.panel.active{display:block}
+.section{margin-bottom:24px}
+.section-title{font-size:15px;font-weight:500;margin-bottom:10px;color:var(--color-text-primary);border-left:3px solid #534AB7;padding-left:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.badge-purple{background:#EEEDFE;color:#3C3489}
+.badge-teal{background:#E1F5EE;color:#085041}
+.badge-amber{background:#FAEEDA;color:#633806}
+.badge-coral{background:#FAECE7;color:#712B13}
+.badge-blue{background:#E6F1FB;color:#0C447C}
+.badge-gray{background:#F1EFE8;color:#444441}
+.badge-red{background:#FCEBEB;color:#791F1F}
+.badge-green{background:#EAF3DE;color:#27500A}
+.api-table{width:100%;border-collapse:collapse;font-size:12px}
+.api-table th{text-align:left;padding:6px 10px;background:var(--color-background-secondary);font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.api-table td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;color:var(--color-text-primary)}
+.api-table tr:last-child td{border-bottom:none}
+.api-table tr:hover td{background:var(--color-background-secondary)}
+.fn{font-family:var(--font-mono);font-size:11px;color:#534AB7}
+.hex{font-family:var(--font-mono);font-size:11px;color:#0F6E56}
+.note{background:var(--color-background-secondary);border-left:3px solid #534AB7;padding:8px 12px;font-size:12px;color:var(--color-text-secondary);border-radius:0 6px 6px 0;margin:8px 0}
+.warn{background:#FAEEDA;border-left:3px solid #854F0B;padding:8px 12px;font-size:12px;color:#633806;border-radius:0 6px 6px 0;margin:8px 0}
+.danger{background:#FCEBEB;border-left:3px solid #A32D2D;padding:8px 12px;font-size:12px;color:#791F1F;border-radius:0 6px 6px 0;margin:8px 0}
+.seq-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:12px}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:#534AB7;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.seq-content{flex:1;background:var(--color-background-secondary);border-radius:6px;padding:6px 10px}
+.seq-arrow{font-family:var(--font-mono);font-size:11px;color:#534AB7;font-weight:500}
+.enum-row{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.enum-row:last-child{border-bottom:none}
+.enum-val{font-family:var(--font-mono);font-size:11px;min-width:50px;color:#0F6E56}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.tip-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--color-text-primary)}
+.tip-title{font-weight:500;font-size:12px;margin-bottom:4px;color:var(--color-text-primary)}
+</style>
+
+<h2 class="sr-only">AUTOSAR NM Interface comprehensive study guide covering state machine, functional spec, API, sequences, and DaVinci configuration</h2>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('overview')">Architecture</button>
+  <button class="tab" onclick="showTab('states')">State Machine</button>
+  <button class="tab" onclick="showTab('api')">API Reference</button>
+  <button class="tab" onclick="showTab('callbacks')">Callbacks</button>
+  <button class="tab" onclick="showTab('sequences')">Sequences</button>
+  <button class="tab" onclick="showTab('pnc')">PNC / Partial NW</button>
+  <button class="tab" onclick="showTab('coord')">Coordinator</button>
+  <button class="tab" onclick="showTab('config')">DaVinci Config</button>
+  <button class="tab" onclick="showTab('debug')">Debug / Testing</button>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="panel-overview" class="panel active">
+  <div class="section">
+    <div class="section-title">What NM Interface is</div>
+    <div class="card">
+      <p style="font-size:13px;line-height:1.7;margin-bottom:10px">NM Interface (Nm) is a <strong>bus-independent abstraction layer</strong> between ComM (Communication Manager) and bus-specific NM modules (CanNm, FrNm, UdpNm, J1939Nm). It hides bus differences, coordinates multi-bus shutdown, and handles Partial Network Cluster (PNC) logic.</p>
+      <svg width="100%" viewBox="0 0 640 220" role="img"><title>AUTOSAR NM Interface layer diagram</title><desc>ComM at top, Nm in middle, bus NMs at bottom</desc>
+        <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <!-- ComM -->
+        <rect x="220" y="10" width="200" height="44" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+        <text x="320" y="36" text-anchor="middle" font-size="13" font-weight="500" fill="#3C3489" dominant-baseline="central">ComM</text>
+        <!-- Nm -->
+        <rect x="180" y="80" width="280" height="44" rx="8" fill="#534AB7" stroke="#3C3489" stroke-width="0.5"/>
+        <text x="320" y="102" text-anchor="middle" font-size="13" font-weight="500" fill="#fff" dominant-baseline="central">Nm (NM Interface)</text>
+        <!-- Bus NMs -->
+        <rect x="30"  y="155" width="110" height="44" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="85"  y="177" text-anchor="middle" font-size="12" fill="#085041" dominant-baseline="central">CanNm</text>
+        <rect x="162" y="155" width="110" height="44" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="217" y="177" text-anchor="middle" font-size="12" fill="#085041" dominant-baseline="central">FrNm</text>
+        <rect x="294" y="155" width="110" height="44" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+        <text x="349" y="177" text-anchor="middle" font-size="12" fill="#085041" dominant-baseline="central">UdpNm</text>
+        <rect x="426" y="155" width="110" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+        <text x="481" y="170" text-anchor="middle" font-size="11" fill="#444441" dominant-baseline="central">J1939Nm/</text>
+        <text x="481" y="186" text-anchor="middle" font-size="11" fill="#444441" dominant-baseline="central">Generic/CDD</text>
+        <!-- Arrows down (ComM → Nm) -->
+        <line x1="310" y1="54" x2="290" y2="78" stroke="#534AB7" stroke-width="1" marker-end="url(#a2)"/>
+        <line x1="330" y1="54" x2="350" y2="78" stroke="#534AB7" stroke-width="1" marker-end="url(#a2)"/>
+        <!-- Arrows down (Nm → BusNms) -->
+        <line x1="260" y1="124" x2="150" y2="153" stroke="#0F6E56" stroke-width="1" marker-end="url(#a2)"/>
+        <line x1="295" y1="124" x2="260" y2="153" stroke="#0F6E56" stroke-width="1" marker-end="url(#a2)"/>
+        <line x1="330" y1="124" x2="367" y2="153" stroke="#0F6E56" stroke-width="1" marker-end="url(#a2)"/>
+        <line x1="370" y1="124" x2="470" y2="153" stroke="#5F5E5A" stroke-width="1" marker-end="url(#a2)"/>
+        <!-- Label: Bus-agnostic API -->
+        <text x="400" y="62" font-size="11" fill="#534AB7" font-style="italic">Bus-agnostic API</text>
+        <text x="400" y="138" font-size="11" fill="#0F6E56" font-style="italic">Bus-specific forwarding</text>
+      </svg>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Three core functionalities</div>
+    <div class="grid3">
+      <div class="card"><span class="badge badge-purple" style="margin-bottom:6px">Basic</span><br><span style="font-size:12px;line-height:1.6">Pass-through between ComM and &lt;Bus&gt;Nm. Forwards requests & callbacks. Bus-independent API.</span></div>
+      <div class="card"><span class="badge badge-teal" style="margin-bottom:6px">Coordinator</span><br><span style="font-size:12px;line-height:1.6">Coordinates shutdown of multiple buses in a cluster. Prevents early sleep if any bus is still active.</span></div>
+      <div class="card"><span class="badge badge-amber" style="margin-bottom:6px">PNC Handling</span><br><span style="font-size:12px;line-height:1.6">PNC bit vector filter, EIRA/ERA aggregation, PNC timer management, synchronized PNC shutdown.</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Key module relationships</div>
+    <div class="card">
+      <table class="api-table">
+        <tr><th>Upper (calls Nm)</th><th>Lower (Nm calls)</th><th>Other</th></tr>
+        <tr><td>ComM — requests network, receives mode indications</td><td>CanNm, FrNm, UdpNm — bus-specific NM</td><td>BswM — mode manager, gets CarWakeUp + StateChange</td></tr>
+        <tr><td>DCM — DisableCommunication during diag sessions</td><td>J1939Nm, Generic CDD</td><td>EcuM — triggers init via EcuM_Init chain</td></tr>
+        <tr><td>OEM extensions (via extra Nm APIs)</td><td>LIN: no NM layer, uses LocalNm type</td><td>Com — NmStateReportSignalRef for signal-based state reporting</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">NmBusNmType enum — critical for integration</div>
+    <div class="card">
+      <div class="enum-row"><span class="enum-val">CANNM</span><span>CAN bus — CanNm. Most common. Full NM message voting.</span></div>
+      <div class="enum-row"><span class="enum-val">FRNM</span><span>FlexRay — FrNm. Slot-based, uses NmSynchronizingNetwork for coordinator sync.</span></div>
+      <div class="enum-row"><span class="enum-val">UDPNM</span><span>Ethernet — UdpNm. Multicast NM messages.</span></div>
+      <div class="enum-row"><span class="enum-val">J1939NM</span><span>SAE J1939 address claiming NM.</span></div>
+      <div class="enum-row"><span class="enum-val">LOCALNM</span><span><strong>Special:</strong> No NM PDU (e.g. LIN). On PassiveStartUp or NetworkRequest → Nm calls ComM_Nm_NetworkMode directly. Coordinator controls shutdown.</span></div>
+      <div class="enum-row"><span class="enum-val">GENERICNM</span><span>CDD-based generic bus NM.</span></div>
+    </div>
+    <div class="danger">LOCALNM buses cannot transmit NM PDUs. They must never be configured as active coordinator channels (NmActiveCoordinator=TRUE) in isolation without a proper bus NM backing them.</div>
+  </div>
+</div>
+
+<!-- STATE MACHINE -->
+<div id="panel-states" class="panel">
+  <div class="section">
+    <div class="section-title">Nm_StateType — complete enumeration</div>
+    <div class="card">
+      <div class="enum-row"><span class="enum-val">0x00</span><span class="badge badge-gray" style="margin-right:8px">UNINIT</span><span style="font-size:12px">Before Nm_Init(). No APIs callable. DET raises NM_E_UNINIT.</span></div>
+      <div class="enum-row"><span class="enum-val">0x01</span><span class="badge badge-blue" style="margin-right:8px">BUS_SLEEP</span><span style="font-size:12px">Network off. All nodes silent. Waiting for wakeup trigger.</span></div>
+      <div class="enum-row"><span class="enum-val">0x02</span><span class="badge badge-purple" style="margin-right:8px">PREPARE_BUS_SLEEP</span><span style="font-size:12px">Transitional. NM PDUs stopped. Timers running before full sleep.</span></div>
+      <div class="enum-row"><span class="enum-val">0x03</span><span class="badge badge-teal" style="margin-right:8px">READY_SLEEP</span><span style="font-size:12px">Local wants to sleep, but bus not yet released. No active comm request.</span></div>
+      <div class="enum-row"><span class="enum-val">0x04</span><span class="badge badge-amber" style="margin-right:8px">NORMAL_OPERATION</span><span style="font-size:12px">Active network. NM PDUs transmitted. ComM keeps bus alive.</span></div>
+      <div class="enum-row"><span class="enum-val">0x05</span><span class="badge badge-coral" style="margin-right:8px">REPEAT_MESSAGE</span><span style="font-size:12px">Wakeup or RepeatMessageRequest. NM PDUs sent rapidly. All nodes identify themselves.</span></div>
+      <div class="enum-row"><span class="enum-val">0x06</span><span class="badge badge-gray" style="margin-right:8px">SYNCHRONIZE</span><span style="font-size:12px">Coordinator-internal state for bus sync before coordinated shutdown.</span></div>
+      <div class="enum-row"><span class="enum-val">0x07</span><span class="badge badge-red" style="margin-right:8px">OFFLINE</span><span style="font-size:12px">Passive mode. Does not contribute to cluster stay-awake. No tx.</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Nm_ModeType — the grouping above states</div>
+    <div class="card">
+      <div class="enum-row"><span class="badge badge-blue" style="min-width:120px;margin-right:8px">BUS_SLEEP</span><span style="font-size:12px">Contains NM_STATE_BUS_SLEEP</span></div>
+      <div class="enum-row"><span class="badge badge-purple" style="min-width:120px;margin-right:8px">PREPARE_BUS_SLEEP</span><span style="font-size:12px">Contains NM_STATE_PREPARE_BUS_SLEEP</span></div>
+      <div class="enum-row"><span class="badge badge-teal" style="min-width:120px;margin-right:8px">SYNCHRONIZE</span><span style="font-size:12px">Contains NM_STATE_SYNCHRONIZE (coordinator use)</span></div>
+      <div class="enum-row"><span class="badge badge-amber" style="min-width:120px;margin-right:8px">NETWORK</span><span style="font-size:12px">Contains READY_SLEEP, NORMAL_OPERATION, REPEAT_MESSAGE</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">State transition diagram (CanNm-style, representative for all buses)</div>
+    <svg width="100%" viewBox="0 0 640 480" role="img"><title>NM state machine diagram</title><desc>States: Bus-Sleep, Prepare Bus Sleep, Ready Sleep, Normal Operation, Repeat Message with transitions</desc>
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <!-- Bus Sleep -->
+      <rect x="240" y="10" width="160" height="50" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="1"/>
+      <text x="320" y="38" text-anchor="middle" font-size="13" font-weight="500" fill="#0C447C" dominant-baseline="central">Bus-Sleep</text>
+      <!-- Prepare Bus Sleep -->
+      <rect x="10" y="210" width="160" height="50" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="1"/>
+      <text x="90" y="228" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489" dominant-baseline="central">Prepare</text>
+      <text x="90" y="244" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489" dominant-baseline="central">Bus-Sleep</text>
+      <!-- Repeat Message -->
+      <rect x="240" y="160" width="160" height="50" rx="10" fill="#FAECE7" stroke="#993C1D" stroke-width="1"/>
+      <text x="320" y="178" text-anchor="middle" font-size="11" font-weight="500" fill="#712B13" dominant-baseline="central">Repeat</text>
+      <text x="320" y="194" text-anchor="middle" font-size="11" font-weight="500" fill="#712B13" dominant-baseline="central">Message</text>
+      <!-- Normal Operation -->
+      <rect x="470" y="210" width="160" height="50" rx="10" fill="#FAEEDA" stroke="#854F0B" stroke-width="1"/>
+      <text x="550" y="228" text-anchor="middle" font-size="11" font-weight="500" fill="#633806" dominant-baseline="central">Normal</text>
+      <text x="550" y="244" text-anchor="middle" font-size="11" font-weight="500" fill="#633806" dominant-baseline="central">Operation</text>
+      <!-- Ready Sleep -->
+      <rect x="240" y="340" width="160" height="50" rx="10" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+      <text x="320" y="368" text-anchor="middle" font-size="13" font-weight="500" fill="#085041" dominant-baseline="central">Ready Sleep</text>
+      <!-- Transitions: Bus-Sleep → Repeat Message (PassiveStartUp/NetworkRequest) -->
+      <path d="M320 60 L320 158" fill="none" stroke="#993C1D" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="330" y="112" font-size="10" fill="#993C1D">PassiveStartUp / NetworkRequest</text>
+      <!-- Repeat Message → Normal Operation -->
+      <path d="M400 185 L468 225" fill="none" stroke="#854F0B" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="418" y="198" font-size="10" fill="#854F0B">NetworkRequest</text>
+      <!-- Repeat Message → Ready Sleep -->
+      <path d="M320 210 L320 338" fill="none" stroke="#0F6E56" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="327" y="278" font-size="10" fill="#0F6E56">NetworkRelease</text>
+      <!-- Normal Operation → Ready Sleep -->
+      <path d="M470 260 L402 340" fill="none" stroke="#0F6E56" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="415" y="295" font-size="10" fill="#0F6E56">NetworkRelease</text>
+      <!-- Ready Sleep → Prepare Bus Sleep -->
+      <path d="M240 368 L172 243" fill="none" stroke="#534AB7" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="148" y="315" font-size="10" fill="#534AB7">all remote sleep</text>
+      <!-- Prepare Bus Sleep → Bus Sleep -->
+      <path d="M90 210 L260 62" fill="none" stroke="#185FA5" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="42" y="145" font-size="10" fill="#185FA5">PrepareBusSleepTime</text>
+      <!-- Normal Operation → Repeat Message (RepeatMessageRequest) -->
+      <path d="M470 222 L402 185" fill="none" stroke="#993C1D" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="418" y="212" font-size="10" fill="#993C1D">RMR bit set</text>
+      <!-- Ready Sleep → Repeat Message (wakeup) -->
+      <path d="M316 340 L316 212" fill="none" stroke="#993C1D" stroke-width="1" marker-end="url(#arr)"/>
+      <text x="235" y="280" font-size="10" fill="#993C1D">remote wakeup</text>
+      <!-- Normal Op → Repeat (network request by remote) -->
+      <!-- Wakeup from bus sleep (NM msg received) note -->
+      <text x="320" y="138" text-anchor="middle" font-size="10" fill="#712B13" font-style="italic">↑ NM PDU received in Bus-Sleep</text>
+      <!-- SWS_Nm_00509 state bits table -->
+      <rect x="0" y="420" width="640" height="58" rx="8" fill="var(--color-background-secondary, #f5f5f5)" stroke="none"/>
+      <text x="12" y="435" font-size="10" font-weight="500" fill="#444441">SWS_Nm_00509 — StateChangeNotification bit values:</text>
+      <text x="12" y="452" font-size="10" fill="#444441">Bit0: RM_BSM (RepMsg←BusSleep)  Bit1: RM_PBSM (RepMsg←PrepBusSleep)  Bit2: NO_RM (NormOp←RepMsg)</text>
+      <text x="12" y="468" font-size="10" fill="#444441">Bit3: NO_RS (NormOp←ReadySleep)  Bit4: RM_RS (RepMsg←ReadySleep)  Bit5: RM_NO (RepMsg←NormOp)</text>
+    </svg>
+    <div class="note" style="margin-top:8px">Repeat Message state: all nodes transmit NM PDUs rapidly. Duration = NmRepeatMessageTime (CanNm param). Purpose: node discovery, keeping bus awake during wakeup negotiation.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">State rules you must know for testing</div>
+    <div class="grid2">
+      <div class="card"><div class="tip-title">PassiveStartUp vs NetworkRequest</div><span style="font-size:12px">PassiveStartUp → enters RepeatMessage but does NOT actively request network (no NM PDU tx in active mode unless CanNm active). NetworkRequest → actively requests and transmits.</span></div>
+      <div class="card"><div class="tip-title">NmPassiveModeEnabled=TRUE</div><span style="font-size:12px">Node goes to OFFLINE state. Cannot NetworkRequest or NetworkRelease. Acts as listener only. Nm_NetworkRequest returns E_NOT_OK.</span></div>
+      <div class="card"><div class="tip-title">Ready Sleep exit</div><span style="font-size:12px">If ANY remote node sends NM PDU (not ready to sleep), Ready Sleep → Repeat Message (Nm_RemoteSleepCancellation fires). Local stays in Ready Sleep until all remote nodes agree.</span></div>
+      <div class="card"><div class="tip-title">Coordinator clusters</div><span style="font-size:12px">If PassiveStartUp received for a coordinated channel → treated as NetworkRequest (SWS_Nm_00178). This prevents early sleep on one channel while others are still negotiating.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- API REFERENCE -->
+<div id="panel-api" class="panel">
+  <div class="section">
+    <div class="section-title">Standard services — upper layer interface (ComM calls these)</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="api-table">
+        <tr><th>Function</th><th>ID</th><th>Sync</th><th>Returns</th><th>Key behavior / pitfalls</th></tr>
+        <tr><td><span class="fn">Nm_Init(ConfigPtr)</span></td><td><span class="hex">0x00</span></td><td>Sync</td><td>void</td><td>ConfigPtr must be NULL_PTR. Call AFTER bus NM init. Non-reentrant.</td></tr>
+        <tr><td><span class="fn">Nm_PassiveStartUp(handle)</span></td><td><span class="hex">0x01</span></td><td>Async</td><td>E_OK/E_NOT_OK</td><td>Forwards to &lt;Bus&gt;Nm_PassiveStartUp. In coordinator cluster → treated as NetworkRequest. Passive nodes cannot use this.</td></tr>
+        <tr><td><span class="fn">Nm_NetworkRequest(handle)</span></td><td><span class="hex">0x02</span></td><td>Async</td><td>E_OK/E_NOT_OK</td><td>Forwards to &lt;Bus&gt;Nm_NetworkRequest. E_NOT_OK if NmPassiveModeEnabled. DevError if invalid handle.</td></tr>
+        <tr><td><span class="fn">Nm_NetworkRelease(handle)</span></td><td><span class="hex">0x03</span></td><td>Async</td><td>E_OK/E_NOT_OK</td><td>Forwards to &lt;Bus&gt;Nm_NetworkRelease. E_NOT_OK if passive. Coordinator may veto via re-requesting.</td></tr>
+        <tr><td><span class="fn">Nm_DisableCommunication(handle)</span></td><td><span class="hex">0x04</span></td><td>Async</td><td>E_OK/E_NOT_OK</td><td>Only if NmComControlEnabled=TRUE. Used by DCM during diag. DANGER: if released while comm disabled, ECU shuts down after re-enable.</td></tr>
+        <tr><td><span class="fn">Nm_EnableCommunication(handle)</span></td><td><span class="hex">0x05</span></td><td>Async</td><td>E_OK/E_NOT_OK</td><td>Only if NmComControlEnabled=TRUE. Re-enables NM PDU tx after DCM session ends.</td></tr>
+      </table>
+    </div>
+    <div class="warn">DisableCommunication + NetworkRelease race: if NetworkRelease is called while comm is disabled, ECU will only shut down AFTER communication is re-enabled. This causes unexpected late shutdowns. Critical for diagnostics integration testing.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Extra services — OEM extensions (optional, forwarded to &lt;Bus&gt;Nm)</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="api-table">
+        <tr><th>Function</th><th>ID</th><th>Enabled by</th><th>Purpose</th></tr>
+        <tr><td><span class="fn">Nm_SetUserData(handle, *ptr)</span></td><td><span class="hex">0x06</span></td><td>NmUserDataEnabled, !NmComUserDataSupport</td><td>Set bytes in next outgoing NM PDU user data field</td></tr>
+        <tr><td><span class="fn">Nm_GetUserData(handle, *ptr)</span></td><td><span class="hex">0x07</span></td><td>NmUserDataEnabled</td><td>Read user data from last received NM PDU</td></tr>
+        <tr><td><span class="fn">Nm_GetPduData(handle, *ptr)</span></td><td><span class="hex">0x08</span></td><td>NmPduRxIndicationEnabled</td><td>Full raw NM PDU from last RX</td></tr>
+        <tr><td><span class="fn">Nm_RepeatMessageRequest(handle)</span></td><td><span class="hex">0x09</span></td><td>—</td><td>Forces all bus nodes to transmit. Used for node discovery / diagnostics.</td></tr>
+        <tr><td><span class="fn">Nm_GetNodeIdentifier(handle, *ptr)</span></td><td><span class="hex">0x0A</span></td><td>—</td><td>Source node ID from last received NM PDU byte 0</td></tr>
+        <tr><td><span class="fn">Nm_GetLocalNodeIdentifier(handle, *ptr)</span></td><td><span class="hex">0x0B</span></td><td>—</td><td>This ECU's configured node ID for the channel</td></tr>
+        <tr><td><span class="fn">Nm_CheckRemoteSleepIndication(handle, *bool)</span></td><td><span class="hex">0x0D</span></td><td>NmRemoteSleepIndEnabled</td><td>Polls whether all remote nodes are ready to sleep. Returns bool.</td></tr>
+        <tr><td><span class="fn">Nm_GetState(handle, *state, *mode)</span></td><td><span class="hex">0x0E</span></td><td>—</td><td>Returns current Nm_StateType and Nm_ModeType. Reentrant. Key for debugging.</td></tr>
+        <tr><td><span class="fn">Nm_GetVersionInfo(*info)</span></td><td><span class="hex">0x0F</span></td><td>—</td><td>Returns Std_VersionInfoType. Reentrant.</td></tr>
+        <tr><td><span class="fn">Nm_PnLearningRequest(handle)</span></td><td><span class="hex">0x22</span></td><td>NmDynamicPncToChannelMappingSupport</td><td>Sets RM bit + PN Learning bit. Forces all nodes into PNC Learning Phase.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">PNC / Partial Network services</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="api-table">
+        <tr><th>Function</th><th>ID</th><th>Direction</th><th>Purpose</th></tr>
+        <tr><td><span class="fn">Nm_RequestSynchronizedPncShutdown(handle, PncId)</span></td><td><span class="hex">0x24</span></td><td>ComM → Nm</td><td>Stores PNC shutdown request. Nm_MainFunction processes it and triggers PN shutdown message via &lt;Bus&gt;Nm.</td></tr>
+        <tr><td><span class="fn">Nm_UpdateIRA(handle, *bitVector)</span></td><td><span class="hex">0x26</span></td><td>ComM → Nm</td><td>ComM reports internal PNC requests. Nm aggregates into EIRA.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Development error codes</div>
+    <div class="card">
+      <div class="enum-row"><span class="enum-val">0x00</span><span class="badge badge-red" style="margin-right:8px">NM_E_UNINIT</span><span style="font-size:12px">Nm_Init not called. Every API checks this first.</span></div>
+      <div class="enum-row"><span class="enum-val">0x01</span><span class="badge badge-amber" style="margin-right:8px">NM_E_INVALID_CHANNEL</span><span style="font-size:12px">Wrong NetworkHandle, or passive mode violation, or feature not enabled for that channel.</span></div>
+      <div class="enum-row"><span class="enum-val">0x02</span><span class="badge badge-amber" style="margin-right:8px">NM_E_PARAM_POINTER</span><span style="font-size:12px">NULL pointer passed where output pointer expected.</span></div>
+      <div class="enum-row"><span class="enum-val">0x10</span><span class="badge badge-red" style="margin-right:8px">NM_E_TRANSMISSION_OF_PN_SHUTDOWN_MESSAGE_FAILED</span><span style="font-size:12px">Runtime error. PN shutdown message retransmission timer expired. PNCs may not shut down synchronized.</span></div>
+    </div>
+    <div class="note">All dev errors only raised when NmDevErrorDetect=TRUE (pre-processor switch). In production builds these checks are compiled out.</div>
+  </div>
+</div>
+
+<!-- CALLBACKS -->
+<div id="panel-callbacks" class="panel">
+  <div class="section">
+    <div class="section-title">Callbacks: &lt;Bus&gt;Nm → Nm (lower layer → Nm)</div>
+    <div class="card" style="overflow-x:auto">
+      <table class="api-table">
+        <tr><th>Callback</th><th>ID</th><th>Forwarded to ComM as</th><th>Meaning / when fired</th></tr>
+        <tr><td><span class="fn">Nm_NetworkStartIndication(handle)</span></td><td><span class="hex">0x11</span></td><td>ComM_Nm_NetworkStartIndication</td><td>NM PDU received while in Bus-Sleep. Bus waking up. ComM calls PassiveStartUp in response.</td></tr>
+        <tr><td><span class="fn">Nm_NetworkMode(handle)</span></td><td><span class="hex">0x12</span></td><td>ComM_Nm_NetworkMode</td><td>Entered Network Mode (RepeatMessage/NormalOp/ReadySleep). Bus is active.</td></tr>
+        <tr><td><span class="fn">Nm_PrepareBusSleepMode(handle)</span></td><td><span class="hex">0x13</span></td><td>ComM_Nm_PrepareBusSleepMode</td><td>All nodes voted to sleep. PrepareBusSleep timer started. No more NM PDUs.</td></tr>
+        <tr><td><span class="fn">Nm_BusSleepMode(handle)</span></td><td><span class="hex">0x14</span></td><td>ComM_Nm_BusSleepMode</td><td>Fully in Bus-Sleep. ComM can now power down transceivers.</td></tr>
+        <tr><td><span class="fn">Nm_SynchronizeMode(handle)</span></td><td><span class="hex">0x21</span></td><td>—</td><td>Coordinator-internal. Entered Synchronize mode. Not forwarded to ComM.</td></tr>
+        <tr><td><span class="fn">Nm_RemoteSleepIndication(handle)</span></td><td><span class="hex">0x17</span></td><td>— (coordinator use)</td><td>All REMOTE nodes ready to sleep on this channel. Coordinator can now start coordinated shutdown for this bus. Only if NmRemoteSleepIndEnabled.</td></tr>
+        <tr><td><span class="fn">Nm_RemoteSleepCancellation(handle)</span></td><td><span class="hex">0x18</span></td><td>—</td><td>A remote node is no longer ready to sleep. Coordinator must abort/restart. Only if NmRemoteSleepIndEnabled.</td></tr>
+        <tr><td><span class="fn">Nm_SynchronizationPoint(handle)</span></td><td><span class="hex">0x19</span></td><td>—</td><td>Good moment to initiate coordinated shutdown (e.g. FlexRay cycle boundary). Coordinator uses this. Only for synchronizing networks.</td></tr>
+        <tr><td><span class="fn">Nm_CoordReadyToSleepIndication(handle)</span></td><td><span class="hex">0x1E</span></td><td>—</td><td>Passively coordinated channel: Sleep Ready bit set in CBV. Only if NmCoordinatorSyncSupport=TRUE.</td></tr>
+        <tr><td><span class="fn">Nm_CoordReadyToSleepCancellation(handle)</span></td><td><span class="hex">0x1F</span></td><td>—</td><td>Sleep Ready bit cleared. Abort coordination for this channel.</td></tr>
+        <tr><td><span class="fn">Nm_PncBitVectorRxIndication(handle, *vec)</span></td><td><span class="hex">—</span></td><td>→ EIRA/ERA update</td><td>External PNC request received. Nm runs filter algorithm, updates EIRA. Triggers PNC timers.</td></tr>
+        <tr><td><span class="fn">Nm_PncBitVectorTxIndication(handle, *vec)</span></td><td><span class="hex">—</span></td><td>→ fills TX PNC bit vector</td><td>Bus NM requests Nm to fill PNC bit vector for outgoing NM PDU. Nm aggregates EIRA + internal.</td></tr>
+        <tr><td><span class="fn">Nm_ForwardSynchronizedPncShutdown(handle, *vec)</span></td><td><span class="hex">—</span></td><td>ComM_Nm_ForwardSynchronizedPncShutdown</td><td>PN shutdown message received. Intermediate/leaf nodes forward to ComM. ERA bits cleared for shutting PNCs.</td></tr>
+        <tr><td><span class="fn">Nm_RepeatMessageIndication(handle)</span></td><td><span class="hex">0x26</span></td><td>—</td><td>RepeatMessage bit set by remote. If NmDynamicPncToChannelMappingEnabled: triggers ComM_Nm_RepeatMessageLeftIndication on RM exit.</td></tr>
+        <tr><td><span class="fn">Nm_TxTimeoutException(handle)</span></td><td><span class="hex">—</span></td><td>—</td><td>NM PDU tx timeout from &lt;Bus&gt;Nm.</td></tr>
+        <tr><td><span class="fn">Nm_CarWakeupIndication(handle)</span></td><td><span class="hex">—</span></td><td>BswM_Nm_CarWakeUpIndication or NmCarWakeUpCallout</td><td>Car wakeup (CWU) bit detected. App must re-distribute CWU on other channels.</td></tr>
+        <tr><td><span class="fn">Nm_StateChangeNotification(handle, prev, curr)</span></td><td><span class="hex">—</span></td><td>BswM_Nm_StateChangeNotification</td><td>If NmStateReportEnabled: also calls Com_SendSignal() on NmStateReportSignalRef. Signal ≥6 bits.</td></tr>
+        <tr><td><span class="fn">Nm_PduRxIndication(handle)</span></td><td><span class="hex">—</span></td><td>—</span></td><td>NM PDU received indication. Triggers if NmPduRxIndicationEnabled.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Callback reentrancy rules — critical for ISR/task context</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">Per SWS_Nm_00028: all callbacks must assume they can run in <strong>task or interrupt context</strong>. They are all declared Reentrant (different channels). Nm_CoordReadyToSleepIndication is explicitly Non-Reentrant (critical section for coordinator state).</p>
+    </div>
+    <div class="note">In multicore setups: Nm kernel lives in same partition as ComM kernel. Satellite Nm instances allowed for inter-partition API calls (SWS_Nm_00484–486).</div>
+  </div>
+</div>
+
+<!-- SEQUENCES -->
+<div id="panel-sequences" class="panel">
+  <div class="section">
+    <div class="section-title">Sequence 1: Network wakeup (remote node triggers)</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><span class="seq-arrow">Remote ECU →</span> sends NM PDU on bus</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><span class="seq-arrow">CanNm →</span> <span class="fn">Nm_NetworkStartIndication(handle)</span> [was in Bus-Sleep]</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content"><span class="seq-arrow">Nm →</span> <span class="fn">ComM_Nm_NetworkStartIndication(handle)</span></div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content"><span class="seq-arrow">ComM →</span> <span class="fn">Nm_PassiveStartUp(handle)</span> [decides to join]</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content"><span class="seq-arrow">Nm →</span> <span class="fn">CanNm_PassiveStartUp(handle)</span></div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content">CanNm enters RepeatMessage state → starts NM PDU transmission</div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content"><span class="seq-arrow">CanNm →</span> <span class="fn">Nm_NetworkMode(handle)</span></div></div>
+      <div class="seq-row"><div class="seq-num">8</div><div class="seq-content"><span class="seq-arrow">Nm →</span> <span class="fn">ComM_Nm_NetworkMode(handle)</span> → ComM enables application communication</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 2: Local application requests network</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">Application (SWC) requests FULL_COMMUNICATION via RTE → ComM</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><span class="seq-arrow">ComM →</span> <span class="fn">Nm_NetworkRequest(handle)</span></div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content"><span class="seq-arrow">Nm →</span> <span class="fn">CanNm_NetworkRequest(handle)</span></div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">CanNm → RepeatMessage → NM PDU tx starts</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content"><span class="seq-arrow">CanNm →</span> <span class="fn">Nm_NetworkMode()</span> → <span class="fn">ComM_Nm_NetworkMode()</span></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 3: Coordinated network shutdown (2-bus cluster)</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">Both buses: applications release → <span class="fn">Nm_NetworkRelease()</span> on each channel</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content">CanNm (Bus A): enters ReadySleep → detects all remotes ready → <span class="fn">Nm_RemoteSleepIndication(handleA)</span></div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">CanNm (Bus B): enters ReadySleep → <span class="fn">Nm_RemoteSleepIndication(handleB)</span></div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">Nm Coordinator: all buses in cluster have RemoteSleepIndication → starts coordinated shutdown timer (NmGlobalCoordinatorTime)</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content">If NmSynchronizingNetwork: coordinator waits for <span class="fn">Nm_SynchronizationPoint()</span> from the designated sync network</div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content"><span class="seq-arrow">Nm →</span> <span class="fn">CanNm_RequestBusSynchronization(handleA)</span> then <span class="fn">CanNm_NetworkRelease(handleA)</span></div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content"><span class="seq-arrow">Nm →</span> <span class="fn">CanNm_NetworkRelease(handleB)</span></div></div>
+      <div class="seq-row"><div class="seq-num">8</div><div class="seq-content">Both buses → PrepareBusSleep → BusSleep. Nm → <span class="fn">ComM_Nm_BusSleepMode()</span></div></div>
+    </div>
+    <div class="danger">Shutdown ABORT: if any <span class="fn" style="color:#791F1F">Nm_RemoteSleepCancellation</span> or <span class="fn" style="color:#791F1F">Nm_NetworkMode</span> arrives during coordinated shutdown → coordinator calls <span class="fn" style="color:#791F1F">CanNm_NetworkRequest</span> on ALL cluster buses to keep them awake. Restart conditions must all be met again.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 4: Diagnostic session — DisableCommunication</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">DCM starts diagnostic session → calls <span class="fn">Nm_DisableCommunication(handle)</span></div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content">Nm → <span class="fn">CanNm_DisableCommunication(handle)</span> — NM PDU tx stops (no more NM voting)</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">ECU stays on bus, receives diag requests. NM PDU transmission disabled.</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">DCM ends session → <span class="fn">Nm_EnableCommunication(handle)</span> → NM PDU tx resumes</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content">IMPORTANT: if <span class="fn">Nm_NetworkRelease()</span> was called during disabled state, ECU WILL sleep after step 4.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Sequence 5: NM state polling for debug</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">Tester / debug hook calls <span class="fn">Nm_GetState(handle, &amp;state, &amp;mode)</span></div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content">Nm → <span class="fn">CanNm_GetState(handle, &amp;state, &amp;mode)</span> and returns values</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content">Compare state vs expected. E.g. in NORMAL_OPERATION = NM_STATE_NORMAL_OPERATION(0x04) + NM_MODE_NETWORK</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PNC -->
+<div id="panel-pnc" class="panel">
+  <div class="section">
+    <div class="section-title">Partial Network Cluster (PNC) — concept</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7;margin-bottom:8px">PNC lets groups of ECUs stay awake for specific functions (a PNC) while the rest of the network sleeps. Each PNC is represented by a <strong>bit</strong> in the NM PDU PNC bit vector. Nm manages PNC timers and aggregates requests.</p>
+      <div class="grid3" style="margin-top:10px">
+        <div class="tip-card"><div class="tip-title">EIRA</div>External/Internal Request Array. Combined view of all PNC requests (from bus + local app). Stored per PNC bit.</div>
+        <div class="tip-card"><div class="tip-title">ERA</div>External Request Array. Only external (bus-received) PNC requests. Used by gateway ECUs to forward PNCs to other buses.</div>
+        <div class="tip-card"><div class="tip-title">IRA</div>Internal Request Array. Local application PNC requests. ComM updates via <span class="fn">Nm_UpdateIRA()</span>.</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">PNC filter algorithm</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7;margin-bottom:8px">Each byte of received PNC bit vector is ANDed with NmPnFilterMaskByte. Only bits where both are '1' are "relevant PNC requests." Relevant requests restart PNC timer and update EIRA/ERA.</p>
+      <div class="note">Example: received=0x86, mask=0xC6 → relevant=0x86 AND 0xC6 = 0x86. If received=0x05, mask=0xC6 → relevant=0x04. Non-masked bits ignored.</div>
+      <p style="font-size:12px;margin-top:8px">Nm_PncBitVectorRxIndication sets RelevantPncRequestDetectedPtr=TRUE if at least one relevant PNC bit detected (when NmPnEiraCalcEnabled or NmPnEraCalcEnabled).</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">PNC roles in a network topology</div>
+    <div class="grid3">
+      <div class="card"><span class="badge badge-purple" style="margin-bottom:6px">Top-level PNC coordinator</span><br><span style="font-size:12px">Has PNC gateway. Triggers synchronized PNC shutdown when PNC unrequested. Transmits PN shutdown message with CBIT set.</span></div>
+      <div class="card"><span class="badge badge-teal" style="margin-bottom:6px">Intermediate PNC coordinator</span><br><span style="font-size:12px">Has PNC gateway. Forwards PN shutdown message on actively coordinated channels for passively coordinated PNCs.</span></div>
+      <div class="card"><span class="badge badge-gray" style="margin-bottom:6px">PNC leaf node</span><br><span style="font-size:12px">No PNC gateway. Processes PN requests locally. Responds to shutdown messages by releasing PNCs.</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Synchronized PNC shutdown sequence</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content">ComM calls <span class="fn">Nm_RequestSynchronizedPncShutdown(handle, PncId)</span> on top-level coordinator</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content">Nm stores request. Nm_MainFunction picks up pending shutdown requests.</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content"><span class="fn">Nm_PncBitVectorTxIndication</span> called → Nm fills PN shutdown message with CBIT set + PNC bits for shutting PNCs</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content">PN shutdown message transmitted on network. Intermediate coordinators forward it.</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content">Leaf nodes receive via <span class="fn">Nm_ForwardSynchronizedPncShutdown(handle, *vec)</span> → ERA bits cleared → <span class="fn">ComM_Nm_ForwardSynchronizedPncShutdown()</span></div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content">If tx fails: NM_E_TRANSMISSION_OF_PN_SHUTDOWN_MESSAGE_FAILED raised. If NmPnShutdownMessageRetransmissionDuration configured, retried.</div></div>
+    </div>
+    <div class="danger">If new PNC request arrives (external or internal) while shutdown pending → Nm cancels that PNC's pending shutdown (SWS_Nm_00529). Prevents race condition where PNC is released while still needed.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Key PNC configuration parameters</div>
+    <div class="card">
+      <table class="api-table">
+        <tr><th>Parameter</th><th>Purpose</th></tr>
+        <tr><td><span class="fn">NmPnEnabled</span></td><td>Enables PN handling on this channel</td></tr>
+        <tr><td><span class="fn">NmPnFilterMaskByte</span></td><td>Per-byte mask for relevant PNC detection (1 byte per PNC vector byte)</td></tr>
+        <tr><td><span class="fn">NmPncBitVectorLength</span></td><td>Length of PNC bit vector in bytes</td></tr>
+        <tr><td><span class="fn">NmPnEiraCalcEnabled</span></td><td>Enables EIRA calculation on this channel</td></tr>
+        <tr><td><span class="fn">NmPnEraCalcEnabled</span></td><td>Enables ERA calculation (gateway ECUs)</td></tr>
+        <tr><td><span class="fn">NmSynchronizedPncShutdownEnabled</span></td><td>Enables synchronized shutdown feature</td></tr>
+        <tr><td><span class="fn">NmPnShutdownMessageRetransmissionDuration</span></td><td>Optional: retransmission window for PN shutdown message</td></tr>
+        <tr><td><span class="fn">NmDynamicPncToChannelMappingEnabled</span></td><td>Enables dynamic PNC-to-channel mapping (learning phase)</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- COORDINATOR -->
+<div id="panel-coord" class="panel">
+  <div class="section">
+    <div class="section-title">NM Coordinator algorithm overview</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7;margin-bottom:8px">Coordinator ensures that when multiple buses are in one <strong>NM coordination cluster</strong>, they ALL sleep together. No bus goes to sleep while any other in the cluster is still active. Each channel belongs to 0 or 1 cluster (NmCoordClusterIndex).</p>
+      <div class="note">Key rule: as long as ANY bus in a cluster is not ready to sleep, the coordinator keeps ALL buses in the cluster awake — even if the local ECU wants to sleep on all of them.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Coordinator parameters</div>
+    <div class="card">
+      <table class="api-table">
+        <tr><th>Parameter</th><th>Values</th><th>Effect</th></tr>
+        <tr><td><span class="fn">NmCoordClusterIndex</span></td><td>0..N or unset</td><td>Which cluster this channel belongs to. Unset = not in any cluster.</td></tr>
+        <tr><td><span class="fn">NmActiveCoordinator</span></td><td>TRUE/FALSE</td><td>TRUE = coordinator actively calls NetworkRequest/Release on this channel. FALSE = passively coordinated (only monitors).</td></tr>
+        <tr><td><span class="fn">NmChannelSleepMaster</span></td><td>TRUE/FALSE</td><td>TRUE = this channel is the "sleep master." Coordinator waits for remote sleep from this channel before checking shutdown conditions.</td></tr>
+        <tr><td><span class="fn">NmSynchronizingNetwork</span></td><td>TRUE/FALSE</td><td>TRUE = coordinator uses Nm_SynchronizationPoint from this network for timing. Only ONE per cluster should be TRUE.</td></tr>
+        <tr><td><span class="fn">NmGlobalCoordinatorTime</span></td><td>ms</td><td>Total time for coordinated shutdown including nested sub-bus shutdown time.</td></tr>
+        <tr><td><span class="fn">NmCoordinatorSyncSupport</span></td><td>TRUE/FALSE</td><td>Enables CoordReadyToSleepIndication/Cancellation API.</td></tr>
+        <tr><td><span class="fn">NmRemoteSleepIndEnabled</span></td><td>TRUE/FALSE</td><td>Must be TRUE for coordinator to function. Enables RemoteSleepIndication/Cancellation callbacks.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Nested sub-bus coordination</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">Nested coordinators build a hierarchy. Top coordinator has only actively coordinated channels. Sub-coordinators have a mix. Sub-bus shutdown time must be included in parent's NmGlobalCoordinatorTime.</p>
+      <p style="font-size:12px;line-height:1.7;margin-top:8px">SleepReadyBit: coordinator calls <span class="fn">&lt;Bus&gt;Nm_SetSleepReadyBit()</span> on actively coordinated channels to signal passively coordinated sub-coordinators that shutdown is imminent.</p>
+    </div>
+    <div class="note">If a cyclic network is in the cluster and NmSynchronizingNetwork=FALSE, coordinator does not wait for SynchronizationPoint — it treats cyclic remote sleep as immediate. Set NmSynchronizingNetwork=TRUE on the cyclic network to enable cycle-boundary sync.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Abort conditions — must memorize</div>
+    <div class="card">
+      <p style="font-size:12px;font-weight:500;margin-bottom:6px">Coordinated shutdown is IMMEDIATELY ABORTED if:</p>
+      <div class="seq-row"><div class="seq-num" style="background:#A32D2D">!</div><div class="seq-content"><span class="fn">Nm_RemoteSleepCancellation()</span> received — a remote node woke up</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#A32D2D">!</div><div class="seq-content"><span class="fn">Nm_NetworkMode()</span> received — a network became active again</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#A32D2D">!</div><div class="seq-content">ComM calls <span class="fn">Nm_NetworkRequest()</span> or <span class="fn">Nm_PassiveStartUp()</span> on any cluster channel</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#A32D2D">!</div><div class="seq-content"><span class="fn">&lt;Bus&gt;Nm_NetworkRelease()</span> returns E_NOT_OK for any channel</div></div>
+      <p style="font-size:12px;margin-top:8px">On abort: coordinator calls <span class="fn">CanNm_NetworkRequest()</span> on ALL cluster buses to keep them awake. All conditions must be re-evaluated.</p>
+    </div>
+    <div class="note">Nm_NetworkStartIndication is NOT an abort trigger. Only the above four conditions abort coordinated shutdown.</div>
+  </div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="panel-config" class="panel">
+  <div class="section">
+    <div class="section-title">DaVinci Developer / Configurator — Nm module configuration path</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7">In DaVinci Developer: <code>BSW Modules → Nm → NmConfig → NmChannelConfig[0..N]</code>. Each channel maps to one network handle and one bus NM type.</p>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Step-by-step: configure Nm for a new CAN channel</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num">1</div><div class="seq-content"><strong>Add NmChannelConfig:</strong> Right-click NmConfig → Add NmChannelConfig. Set NmChannelId = unique uint.</div></div>
+      <div class="seq-row"><div class="seq-num">2</div><div class="seq-content"><strong>Set bus type:</strong> NmBusType = NM_BUSNM_CANNM. This tells Nm which function table to use.</div></div>
+      <div class="seq-row"><div class="seq-num">3</div><div class="seq-content"><strong>Link to ComM channel:</strong> NmComMChannelRef → select matching ComMChannel. Handle mapping comes from here.</div></div>
+      <div class="seq-row"><div class="seq-num">4</div><div class="seq-content"><strong>Passive mode:</strong> NmPassiveModeEnabled = FALSE for active nodes. TRUE for listen-only nodes (no tx, no NetworkRequest allowed).</div></div>
+      <div class="seq-row"><div class="seq-num">5</div><div class="seq-content"><strong>Enable features:</strong> NmComControlEnabled (for DCM), NmUserDataEnabled, NmRemoteSleepIndEnabled, NmPduRxIndicationEnabled as needed.</div></div>
+      <div class="seq-row"><div class="seq-num">6</div><div class="seq-content"><strong>Coordinator:</strong> NmCoordClusterIndex (if in a cluster), NmActiveCoordinator, NmChannelSleepMaster, NmSynchronizingNetwork.</div></div>
+      <div class="seq-row"><div class="seq-num">7</div><div class="seq-content"><strong>PNC:</strong> NmPnEnabled, NmPnFilterMaskByte[0..N] (one per byte of PNC vector), NmPncBitVectorLength. Set NmPnEiraCalcEnabled, NmPnEraCalcEnabled per role.</div></div>
+      <div class="seq-row"><div class="seq-num">8</div><div class="seq-content"><strong>State reporting:</strong> NmStateReportEnabled + NmStateReportSignalRef → select a Com signal (must be ≥6 bits).</div></div>
+      <div class="seq-row"><div class="seq-num">9</div><div class="seq-content"><strong>Generate:</strong> DaVinci generates Nm_Cfg.c/h. Check NmChannelCount matches channel count. Verify function call tables in generated code.</div></div>
+      <div class="seq-row"><div class="seq-num">10</div><div class="seq-content"><strong>Init sequence:</strong> EcuM calls CanNm_Init() FIRST, THEN Nm_Init(NULL_PTR). Order is mandatory.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Critical parameters checklist for integration</div>
+    <div class="card">
+      <table class="api-table">
+        <tr><th>Parameter</th><th>Where to set</th><th>Integration impact</th></tr>
+        <tr><td><span class="fn">NmDevErrorDetect</span></td><td>Nm/General</td><td>TRUE in development. FALSE in production. DET hooks active when TRUE.</td></tr>
+        <tr><td><span class="fn">NmVersionInfoApi</span></td><td>Nm/General</td><td>Enables Nm_GetVersionInfo(). Usually TRUE.</td></tr>
+        <tr><td><span class="fn">NmCoordinatorSyncSupport</span></td><td>Nm/General</td><td>Enables CoordReadyToSleep APIs. Must match CanNm config (NmCoordinatorSyncSupport in CanNm).</td></tr>
+        <tr><td><span class="fn">NmGlobalCoordinatorTime</span></td><td>Nm/General</td><td>Must be ≥ max(CanNm ReadySleepTime + PrepBusSleepTime) across all channels in cluster.</td></tr>
+        <tr><td><span class="fn">NmCarWakeUpCallout</span></td><td>Nm/Channel</td><td>If defined: Nm calls this instead of BswM_Nm_CarWakeUpIndication. OEM-specific CWU logic.</td></tr>
+        <tr><td><span class="fn">NmComUserDataSupport</span></td><td>Nm/Channel</td><td>TRUE = user data managed by Com (IPDU). Makes Nm_SetUserData unavailable.</td></tr>
+        <tr><td><span class="fn">NmDynamicPncToChannelMappingSupport</span></td><td>Nm/General</td><td>Enables Nm_PnLearningRequest API and dynamic mapping feature.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Common config mistakes</div>
+    <div class="grid2">
+      <div class="warn">NmGlobalCoordinatorTime too small → coordinator releases buses before bus-specific timers expire → bus can't complete sleep sequence → wakeup-sleep loop</div>
+      <div class="warn">NmRemoteSleepIndEnabled=FALSE with coordinator enabled → coordinator never gets RemoteSleepIndication → never initiates shutdown → network never sleeps</div>
+      <div class="warn">NmSynchronizingNetwork=TRUE on multiple channels in same cluster → coordinator gets confused by multiple sync points, may delay shutdown unpredictably</div>
+      <div class="warn">NmPassiveModeEnabled=TRUE on a coordinator channel → coordinator tries to NetworkRequest but passive mode blocks it → cluster coordination broken</div>
+    </div>
+  </div>
+</div>
+
+<!-- DEBUG / TESTING -->
+<div id="panel-debug" class="panel">
+  <div class="section">
+    <div class="section-title">Debug: NM state inspection</div>
+    <div class="card">
+      <p style="font-size:12px;line-height:1.7;margin-bottom:8px"><strong>Primary tool:</strong> <span class="fn">Nm_GetState(handle, &state, &mode)</span> — call this from DaVinci calibration, CANoe symbol, or via DET/XCP. Reentrant, safe to call from any context.</p>
+      <table class="api-table">
+        <tr><th>State value</th><th>Expected in normal operation at</th><th>If stuck here check</th></tr>
+        <tr><td>0x05 REPEAT_MESSAGE</td><td>First 500ms after wakeup</td><td>CanNmRepeatMessageTime expired? Other node holding RM bit? CanNm_RepeatMessageRequest called in loop?</td></tr>
+        <tr><td>0x04 NORMAL_OPERATION</td><td>Network active, app running</td><td>Normal. If expected READY_SLEEP here: NetworkRelease not called?</td></tr>
+        <tr><td>0x03 READY_SLEEP</td><td>App released, waiting for remotes</td><td>Remote node not ready? Check other ECU states. Coordinator keeping alive?</td></tr>
+        <tr><td>0x02 PREPARE_BUS_SLEEP</td><td>Brief window before Bus-Sleep</td><td>Should be transient. If stuck: PrepareBusSleepTime misconfigured?</td></tr>
+        <tr><td>0x01 BUS_SLEEP</td><td>Network idle</td><td>Normal. If expected NORMAL_OPERATION: wakeup not triggered?</td></tr>
+        <tr><td>0x07 OFFLINE</td><td>Passive nodes</td><td>NmPassiveModeEnabled=TRUE? Intentional?</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Interface testing checklist</div>
+    <div class="card">
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify <span class="fn">Nm_Init(NULL_PTR)</span> called after <span class="fn">CanNm_Init()</span>. Wrong order → NM_E_UNINIT on first API call.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify each NetworkHandle resolves to correct CanNm channel. Check generated Nm_Cfg.c function table.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Test NetworkRequest on passive channel → expect E_NOT_OK + NM_E_INVALID_CHANNEL (if DET enabled).</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify RemoteSleepIndication fires when all remote nodes in Ready Sleep (check CANoe NM window).</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Test coordinator abort: inject NM PDU mid-shutdown → coordinator must re-request all buses. Check logs for NetworkRequest calls.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Verify Nm_BusSleepMode reaches ComM (check ComM_Nm_BusSleepMode trace) → ComM must then allow ECU sleep.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">Test DisableCommunication: verify no NM PDUs on bus (CANoe trace shows gap in NM messages) during diag session.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">PNC test: send NM PDU with PNC bit set → verify Nm_PncBitVectorRxIndication triggers → EIRA updated → PNC timer starts.</div></div>
+      <div class="seq-row"><div class="seq-num" style="background:#3B6D11">✓</div><div class="seq-content">StateChangeNotification: monitor Com signal NmStateReportSignalRef. Verify bit pattern matches SWS_Nm_00509 table on each transition.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">CANoe / Vector tool debugging</div>
+    <div class="card">
+      <table class="api-table">
+        <tr><th>CANoe feature</th><th>What to look for</th></tr>
+        <tr><td>NM window</td><td>Per-node NM state, sleep bits, wakeup bits in real time</td></tr>
+        <tr><td>Trace filter: NM PDUs</td><td>Check RepeatMessage bit, Control Bit Vector, PNC bytes</td></tr>
+        <tr><td>Symbol browser (XCP/CCP)</td><td>Access Nm internal variables: state per channel, coordinator flags</td></tr>
+        <tr><td>DET callout hook</td><td>Break on NM_E_UNINIT, NM_E_INVALID_CHANNEL to catch config errors early</td></tr>
+        <tr><td>vSignalyzer / Bus statistics</td><td>Check NM PDU cycle time, detect gaps indicating DisableCommunication</td></tr>
+        <tr><td>CAPL script</td><td>Inject NM PDUs, simulate remote nodes, test coordinator abort sequences</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Key SWS requirement IDs for exam reference</div>
+    <div class="card">
+      <div class="grid2" style="font-size:11px;line-height:1.8">
+        <div><span class="fn">SWS_Nm_00030</span> — Nm_Init definition<br><span class="fn">SWS_Nm_00031</span> — Nm_PassiveStartUp<br><span class="fn">SWS_Nm_00032</span> — Nm_NetworkRequest<br><span class="fn">SWS_Nm_00046</span> — Nm_NetworkRelease<br><span class="fn">SWS_Nm_00154</span> — Nm_NetworkStartIndication<br><span class="fn">SWS_Nm_00156</span> — Nm_NetworkMode<br><span class="fn">SWS_Nm_00159</span> — Nm_PrepareBusSleepMode<br><span class="fn">SWS_Nm_00162</span> — Nm_BusSleepMode</div>
+        <div><span class="fn">SWS_Nm_00192</span> — Nm_RemoteSleepIndication<br><span class="fn">SWS_Nm_00193</span> — Nm_RemoteSleepCancellation<br><span class="fn">SWS_Nm_00194</span> — Nm_SynchronizationPoint<br><span class="fn">SWS_Nm_00232</span> — Development errors<br><span class="fn">SWS_Nm_00274/275/276</span> — Type definitions<br><span class="fn">SWS_Nm_00283</span> — ConfigPtr=NULL<br><span class="fn">SWS_Nm_00509</span> — StateChangeNotification bits<br><span class="fn">SWS_Nm_91005/07</span> — PNC shutdown APIs</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+</script>

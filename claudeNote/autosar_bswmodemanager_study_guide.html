@@ -1,0 +1,338 @@
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">AUTOSAR BswM interactive study guide covering architecture, arbitration, action lists, APIs, and errors</h2>
+<style>
+.tab-btn{padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);}
+.tab-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;}
+.badge{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:500;display:inline-block;}
+.badge-purple{background:#EEEDFE;color:#3C3489;}
+.badge-teal{background:#E1F5EE;color:#085041;}
+.badge-coral{background:#FAECE7;color:#712B13;}
+.badge-amber{background:#FAEEDA;color:#633806;}
+.badge-red{background:#FCEBEB;color:#791F1F;}
+.badge-gray{background:#F1EFE8;color:#444441;}
+.code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:2px 6px;border-radius:4px;color:var(--color-text-primary);}
+.step-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+.step-num{width:24px;height:24px;border-radius:50%;background:#EEEDFE;color:#3C3489;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.err-row{display:grid;grid-template-columns:1fr 110px 60px;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;align-items:center;}
+.q-btn{width:100%;text-align:left;padding:10px 14px;cursor:pointer;border-radius:var(--border-radius-md);font-size:13px;margin-bottom:6px;}
+.q-btn:hover{background:var(--color-background-secondary);}
+.ans{font-size:13px;line-height:1.7;color:var(--color-text-secondary);padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:8px;}
+.dep-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;}
+</style>
+
+<div style="padding:1rem 0 2rem;">
+
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+  <span style="font-size:16px;font-weight:500;color:var(--color-text-primary)">AUTOSAR BswM — exam study guide</span>
+  <span class="badge badge-gray">R24-11</span>
+  <span class="badge badge-purple">224 pages compressed</span>
+</div>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;" id="tabs">
+  <button class="tab-btn active" onclick="showTab('arch')">Architecture</button>
+  <button class="tab-btn" onclick="showTab('arb')">Arbitration</button>
+  <button class="tab-btn" onclick="showTab('flow')">Code flow</button>
+  <button class="tab-btn" onclick="showTab('apis')">Key APIs</button>
+  <button class="tab-btn" onclick="showTab('errors')">Errors & debug</button>
+  <button class="tab-btn" onclick="showTab('qa')">Exam Q&amp;A</button>
+</div>
+
+<div id="arch" class="tab-panel active">
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 6px">What BswM does — one sentence</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Receives mode requests/indications from SW-Cs and BSW modules → evaluates Boolean rules → executes ordered action lists to switch ECU modes.</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Two core tasks</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="background:#EEEDFE;border-radius:var(--border-radius-md);padding:10px 12px;">
+        <p style="font-size:12px;font-weight:500;color:#3C3489;margin:0 0 4px">Mode Arbitration</p>
+        <p style="font-size:12px;color:#534AB7;margin:0">Evaluate Boolean rules on incoming requests. Decide what mode to switch to.</p>
+      </div>
+      <div style="background:#E1F5EE;border-radius:var(--border-radius-md);padding:10px 12px;">
+        <p style="font-size:12px;font-weight:500;color:#085041;margin:0 0 4px">Mode Control</p>
+        <p style="font-size:12px;color:#0F6E56;margin:0">Execute Action Lists. Call other BSW APIs. Notify SW-Cs via RTE switch.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Module dependencies (exam favourites)</p>
+    <div class="dep-row"><span class="badge badge-purple" style="min-width:50px;text-align:center">RTE</span><span style="color:var(--color-text-secondary)">SW-C mode requests in; mode switch notifications out via RTE Switch API</span></div>
+    <div class="dep-row"><span class="badge badge-teal" style="min-width:50px;text-align:center">EcuM</span><span style="color:var(--color-text-secondary)">Wakeup source indication → BswM; BswM sets EcuM state (run protocol)</span></div>
+    <div class="dep-row"><span class="badge badge-teal" style="min-width:50px;text-align:center">ComM</span><span style="color:var(--color-text-secondary)">ComM indicates comm mode; BswM requests comm modes via ComM users</span></div>
+    <div class="dep-row"><span class="badge badge-teal" style="min-width:50px;text-align:center">COM</span><span style="color:var(--color-text-secondary)">BswM starts/stops I-PDU groups, enables/disables deadline monitoring</span></div>
+    <div class="dep-row"><span class="badge badge-teal" style="min-width:50px;text-align:center">DCM</span><span style="color:var(--color-text-secondary)">DCM requests "Disable Normal Comm" → BswM turns off I-PDU groups + NM</span></div>
+    <div class="dep-row"><span class="badge badge-teal" style="min-width:50px;text-align:center">NvM</span><span style="color:var(--color-text-secondary)">NvM callbacks report block state; BswM triggers read-all on startup, write-all on shutdown</span></div>
+    <div class="dep-row"><span class="badge badge-amber" style="min-width:50px;text-align:center">CanSM LinSM FrSM EthSM</span><span style="color:var(--color-text-secondary)">Bus state managers indicate current bus state → BswM propagates to SW-Cs</span></div>
+    <div class="dep-row" style="border:none"><span class="badge badge-gray" style="min-width:50px;text-align:center">Sd/SoAd</span><span style="color:var(--color-text-secondary)">Service discovery client/server/event-group state indications</span></div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 6px">Constraints (exam trap)</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px">Max <span style="font-weight:500">one BswM instance per partition</span>. Multi-core = separate config per partition.</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Action list nesting max <span style="font-weight:500">7 hierarchic levels</span> — enforced by generator tool.</p>
+  </div>
+  <button class="q-btn" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)" onclick="sendPrompt('Explain the BswM architecture with a diagram showing SW-C, RTE, BswM, and BSW module interactions')">Show architecture diagram ↗</button>
+</div>
+
+<div id="arb" class="tab-panel">
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Arbitration pipeline (memorise this order)</p>
+    <div class="step-row"><div class="step-num">1</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Input arrives</span> — mode request (SW-C or BSW) or event request (SET/CLEAR)</div></div>
+    <div class="step-row"><div class="step-num">2</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Port updated</span> — IMMEDIATE: updated just before arbitration. DEFERRED: updated on trigger, arbitrated in next MainFunction.</div></div>
+    <div class="step-row"><div class="step-num">3</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Rule evaluated</span> — Boolean expression: AND/OR/XOR/NOT/NAND on ModeConditions</div></div>
+    <div class="step-row"><div class="step-num">4</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Action list selected</span> — True list or False list, based on result</div></div>
+    <div class="step-row"><div class="step-num">5</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Actions executed</span> — ordered by BswMActionListItemIndex (lowest first)</div></div>
+    <div class="step-row" style="margin:0"><div class="step-num">6</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">RTE switch called</span> — mode switch notification sent to subscribed SW-Cs</div></div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">IMMEDIATE vs DEFERRED — exam comparison</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <p style="font-size:12px;font-weight:500;color:#3C3489;margin:0 0 6px">IMMEDIATE</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 4px">Arbitration runs in caller's context (can be ISR)</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 4px">Port updated <em>just before</em> arbitration fires</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 4px">Only rules using that IMMEDIATE port are re-evaluated</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0">Nested IMMEDIATE postponed until current finishes</p>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:500;color:#085041;margin:0 0 6px">DEFERRED</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 4px">Arbitration waits for BswM_MainFunction cycle</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 4px">Port updated when triggered</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0 0 4px">All rules with ≥1 DEFERRED port evaluated each cycle</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0">Safer for complex multi-condition arbitration</p>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:10px 0 0;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)"><span style="font-weight:500">Timer always DEFERRED</span> — BswMRequestProcessing config ignored for BswMTimer; always arbitrated in MainFunction.</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Event request port states (BSWM_EVENT_IS_SET / CLEARED)</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
+      <div style="background:#EEEDFE;border-radius:8px;padding:8px 10px;"><p style="font-weight:500;color:#3C3489;margin:0 0 4px">Port = SET when</p><p style="color:#534AB7;margin:0">BswM_ComM_InitiateReset (or any event API) called</p></div>
+      <div style="background:#E1F5EE;border-radius:8px;padding:8px 10px;"><p style="font-weight:500;color:#085041;margin:0 0 4px">Port = CLEAR when</p><p style="color:#0F6E56;margin:0">BswMClearEventRequest action executed</p></div>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:10px 0 0">All EventRequestPorts initialised to CLEAR on BswM_Init.</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 8px">Action list execution modes</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px"><span class="code">BSWM_TRIGGER</span> — runs only when rule <em>changes</em> (False→True fires True list; True→False fires False list)</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px"><span class="code">BSWM_CONDITION</span> — runs every evaluation that matches (True every cycle = True list every cycle)</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0">If multiple rules trigger same top-level action list → only <span style="font-weight:500">one execution</span> per arbitration round [SWS_BswM_00223].</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 8px">Init behaviour — BswMRuleInitState × BswMActionListExecution</p>
+    <div style="overflow-x:auto;"><table style="width:100%;font-size:12px;border-collapse:collapse;">
+      <thead><tr>
+        <th style="text-align:left;padding:4px 6px;border-bottom:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)">RuleInitState</th>
+        <th style="text-align:left;padding:4px 6px;border-bottom:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)">Execution</th>
+        <th style="text-align:left;padding:4px 6px;border-bottom:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)">First eval=TRUE</th>
+        <th style="text-align:left;padding:4px 6px;border-bottom:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)">First eval=FALSE</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:4px 6px;color:var(--color-text-secondary)">UNDEFINED</td><td style="padding:4px 6px;color:var(--color-text-secondary)">TRIGGER</td><td style="padding:4px 6px;color:#085041">Run True list</td><td style="padding:4px 6px;color:#085041">Run False list</td></tr>
+        <tr style="background:var(--color-background-secondary)"><td style="padding:4px 6px;color:var(--color-text-secondary)">TRUE</td><td style="padding:4px 6px;color:var(--color-text-secondary)">TRIGGER</td><td style="padding:4px 6px;color:#712B13">Do nothing</td><td style="padding:4px 6px;color:#085041">Run False list</td></tr>
+        <tr><td style="padding:4px 6px;color:var(--color-text-secondary)">FALSE</td><td style="padding:4px 6px;color:var(--color-text-secondary)">TRIGGER</td><td style="padding:4px 6px;color:#085041">Run True list</td><td style="padding:4px 6px;color:#712B13">Do nothing</td></tr>
+        <tr style="background:var(--color-background-secondary)"><td style="padding:4px 6px;color:var(--color-text-secondary)">UNDEFINED</td><td style="padding:4px 6px;color:var(--color-text-secondary)">CONDITION</td><td style="padding:4px 6px;color:#085041">Run True list</td><td style="padding:4px 6px;color:#085041">Run False list</td></tr>
+        <tr><td style="padding:4px 6px;color:var(--color-text-secondary)">TRUE</td><td style="padding:4px 6px;color:var(--color-text-secondary)">CONDITION</td><td style="padding:4px 6px;color:#085041">Run True list</td><td style="padding:4px 6px;color:#085041">Run False list</td></tr>
+        <tr style="background:var(--color-background-secondary)"><td style="padding:4px 6px;color:var(--color-text-secondary)">FALSE</td><td style="padding:4px 6px;color:var(--color-text-secondary)">CONDITION</td><td style="padding:4px 6px;color:#085041">Run True list</td><td style="padding:4px 6px;color:#085041">Run False list</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0">Key: CONDITION always runs. TRIGGER only runs on change — so TRUE+TRIGGER won't run True list again on first TRUE eval.</p>
+  </div>
+  <button class="q-btn" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)" onclick="sendPrompt('Draw a BswM arbitration flow diagram showing mode request → rule evaluation → action list execution → RTE switch')">Draw arbitration flow diagram ↗</button>
+</div>
+
+<div id="flow" class="tab-panel">
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">DEFERRED processing sequence (Fig 9.1)</p>
+    <div class="step-row"><div class="step-num">1</div><div style="font-size:13px;color:var(--color-text-secondary)">SW-C calls <span class="code">Rte_Write_&lt;p&gt;_&lt;o&gt;()</span> — stores mode request in RTE</div></div>
+    <div class="step-row"><div class="step-num">2</div><div style="font-size:13px;color:var(--color-text-secondary)">OS task fires <span class="code">BswM_MainFunction()</span> cyclically via SchM</div></div>
+    <div class="step-row"><div class="step-num">3</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">Rte_Read_&lt;p&gt;_&lt;o&gt;()</span> reads buffered request into BswM</div></div>
+    <div class="step-row"><div class="step-num">4</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">ModeArbitration()</span> — evaluates all DEFERRED rules</div></div>
+    <div class="step-row"><div class="step-num">5</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">BswActions()</span> — executes triggered action lists</div></div>
+    <div class="step-row" style="margin:0"><div class="step-num">6</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">Rte_Switch_&lt;p&gt;_&lt;o&gt;()</span> + <span class="code">Rte_Feedback()</span> — notify subscribers</div></div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">IMMEDIATE processing sequence (Fig 9.2)</p>
+    <div class="step-row"><div class="step-num">1</div><div style="font-size:13px;color:var(--color-text-secondary)">SW-C calls <span class="code">Rte_Write_&lt;p&gt;_&lt;o&gt;()</span> — RTE triggers data-receive event in BswM</div></div>
+    <div class="step-row"><div class="step-num">2</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">ModeArbitrationRunnable()</span> fires in SW-C caller context</div></div>
+    <div class="step-row"><div class="step-num">3</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">ModeArbitration()</span> — only rules using this IMMEDIATE port evaluated</div></div>
+    <div class="step-row"><div class="step-num">4</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">BSW_Actions()</span> executed immediately (still in caller context)</div></div>
+    <div class="step-row" style="margin:0"><div class="step-num">5</div><div style="font-size:13px;color:var(--color-text-secondary)"><span class="code">Rte_Switch_&lt;p&gt;_&lt;o&gt;()</span> — mode switch notified immediately (no MainFunction wait)</div></div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">BswM_Init() — what happens inside</p>
+    <div class="step-row"><div class="step-num" style="background:#FAEEDA;color:#633806">1</div><div style="font-size:13px;color:var(--color-text-secondary)">Requires only OS + SchM to be init'd first [SWS_BswM_00118]</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FAEEDA;color:#633806">2</div><div style="font-size:13px;color:var(--color-text-secondary)">If BswMDevErrorDetect enabled → validate ConfigPtr. Error = <span class="code">BSWM_E_PARAM_CONFIG</span> → abort init</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FAEEDA;color:#633806">3</div><div style="font-size:13px;color:var(--color-text-secondary)">Init all module global variables</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FAEEDA;color:#633806">4</div><div style="font-size:13px;color:var(--color-text-secondary)">All BswMEventRequestPorts → CLEAR state</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FAEEDA;color:#633806">5</div><div style="font-size:13px;color:var(--color-text-secondary)">All BswMTimers → STOPPED state</div></div>
+    <div class="step-row" style="margin:0"><div class="step-num" style="background:#FAEEDA;color:#633806">6</div><div style="font-size:13px;color:var(--color-text-secondary)">BswMModeInitValues applied to ports. Undefined ports skipped in arbitration until first update.</div></div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 8px">Timer state machine</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;">
+      <div style="background:#EEEDFE;border-radius:6px;padding:6px 10px;color:#3C3489;font-weight:500">STOPPED</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);text-align:center">BswMTimerAction<br>BSWM_TIMER_START →</div>
+      <div style="background:#FAEEDA;border-radius:6px;padding:6px 10px;color:#633806;font-weight:500">STARTED</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);text-align:center">decrements each<br>MainFunction, then →</div>
+      <div style="background:#FAECE7;border-radius:6px;padding:6px 10px;color:#712B13;font-weight:500">EXPIRED</div>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0">EXPIRED stays EXPIRED — no auto-reset. Must explicitly configure BSWM_TIMER_STOP action. Timer resolution = MainFunction cycle time.</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 8px">Postponement rules during busy state</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px">Request during <span style="font-weight:500">MainFunction execution</span>: IMMEDIATE postponed → processed before MainFunction exits. DEFERRED postponed → next MainFunction cycle.</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Request during <span style="font-weight:500">IMMEDIATE execution</span>: new IMMEDIATE processed after current IMMEDIATE finishes. DEFERRED → next MainFunction.</p>
+  </div>
+  <button class="q-btn" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)" onclick="sendPrompt('Draw a sequence diagram comparing BswM IMMEDIATE vs DEFERRED mode request processing')">Draw IMMEDIATE vs DEFERRED sequence ↗</button>
+</div>
+
+<div id="apis" class="tab-panel">
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Core API quick reference</p>
+    <div style="font-size:12px;">
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_Init(ConfigPtr)</span><span style="color:var(--color-text-secondary)">ServiceID 0x00. Initialises module. Void return. Called once after OS+SchM init.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_Deinit()</span><span style="color:var(--color-text-secondary)">De-initialises module. Stops all activity.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_MainFunction()</span><span style="color:var(--color-text-secondary)">ServiceID 0x03. Scheduled by SchM. Evaluates all DEFERRED rules. Non-reentrant. No params, void return.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_RequestMode(user, mode)</span><span style="color:var(--color-text-secondary)">SW-C or BSW requests a named mode. BswM_UserType + BswM_ModeType (both uint16).</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_CanSM_CurrentState(network, state)</span><span style="color:var(--color-text-secondary)">CanSM indication. Triggers arbitration per IMMEDIATE/DEFERRED config.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_ComM_CurrentMode(channel, mode)</span><span style="color:var(--color-text-secondary)">ComM indicates comm mode change.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_EcuM_CurrentState(state)</span><span style="color:var(--color-text-secondary)">EcuM indicates current state (e.g. RUN, POST_RUN). BswM uses for arbitration.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);">
+        <span class="code">BswM_ComM_InitiateReset()</span><span style="color:var(--color-text-secondary)">Event-type request. Sets EventRequestPort to SET state. No mode value carried.</span>
+      </div>
+      <div style="display:grid;grid-template-columns:180px 1fr;gap:6px 12px;align-items:baseline;padding:5px 0;">
+        <span class="code">BswM_GetVersionInfo(info)</span><span style="color:var(--color-text-secondary)">Returns module version. Standard AUTOSAR BSW version info pattern.</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 8px">Available action types</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px">1. <span style="font-weight:500">Predefined BSW actions</span> — BswMAvailableActions: ComM mode, PDU group switch, NvM read/write, LinSM schedule, Rte mode switch, timer control, firewall state, etc.</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px">2. <span style="font-weight:500">User callouts</span> — any custom function. Params defined at config time via BswMUserCallout.</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0">3. <span style="font-weight:500">Action list reference</span> — link to another action list (max 7 levels). Nested action list executes before parent continues.</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 8px">Action list ordering rules</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px">Items ordered by <span class="code">BswMActionListItemIndex</span> — lowest first. Gaps in index OK. Duplicate index values → config rejected.</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 4px">Multiple top-level lists ready → executed highest <span class="code">BswMActionListPriority</span> first (0 = lowest if unset).</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0">Action returns <span class="code">E_NOT_OK</span> + <span class="code">BswMAbortOnFail=true</span> → action list aborted. Det runtime error reported.</p>
+  </div>
+  <button class="q-btn" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)" onclick="sendPrompt('Explain BswM_RequestMode vs BswM_ComM_InitiateReset - what is the difference between mode request ports and event request ports?')">Mode request vs event request deep dive ↗</button>
+</div>
+
+<div id="errors" class="tab-panel">
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Development errors (Det — used during testing)</p>
+    <div class="err-row" style="font-size:11px;font-weight:500;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-secondary);">
+      <span>Error type</span><span>Error code</span><span>Hex</span>
+    </div>
+    <div class="err-row"><span style="color:var(--color-text-secondary)">Called before init</span><span class="code">BSWM_E_UNINIT</span><span style="color:var(--color-text-secondary)">0x01</span></div>
+    <div class="err-row" style="background:var(--color-background-secondary);"><span style="color:var(--color-text-secondary)">Invalid param (unspecific)</span><span class="code">BSWM_E_PARAM_INVALID</span><span style="color:var(--color-text-secondary)">0x03</span></div>
+    <div class="err-row"><span style="color:var(--color-text-secondary)">User out of range</span><span class="code">BSWM_E_REQ_USER_OUT_OF_RANGE</span><span style="color:var(--color-text-secondary)">0x04</span></div>
+    <div class="err-row" style="background:var(--color-background-secondary);"><span style="color:var(--color-text-secondary)">Mode out of range</span><span class="code">BSWM_E_REQ_MODE_OUT_OF_RANGE</span><span style="color:var(--color-text-secondary)">0x05</span></div>
+    <div class="err-row"><span style="color:var(--color-text-secondary)">Config inconsistent</span><span class="code">BSWM_E_PARAM_CONFIG</span><span style="color:var(--color-text-secondary)">0x06</span></div>
+    <div class="err-row" style="background:var(--color-background-secondary);"><span style="color:var(--color-text-secondary)">Null pointer</span><span class="code">BSWM_E_PARAM_POINTER</span><span style="color:var(--color-text-secondary)">0x07</span></div>
+    <div class="err-row" style="border:none"><span style="color:var(--color-text-secondary)">Bad config set selection</span><span class="code">BSWM_E_INIT_FAILED</span><span style="color:var(--color-text-secondary)">0x08</span></div>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 6px">Runtime errors</p>
+    <div class="err-row" style="grid-template-columns:1fr 150px 80px;">
+      <span style="color:var(--color-text-secondary)">Action returned E_NOT_OK</span>
+      <span class="code">BSWM_E_ACTION_FAILED</span>
+      <span style="color:var(--color-text-secondary)">0x80–0xFF</span>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:8px 0 0">ErrorId value = BswMReportFailRuntimeErrorId config param. ApiId is implementation-specific (depends on IMMEDIATE/DEFERRED context).</p>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin:4px 0 0">No production errors and no extended production errors in BswM.</p>
+  </div>
+  <div class="card">
+    <p style="font-size:13px;font-weight:500;margin:0 0 10px">Testing & debugging checklist (automotive domain)</p>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Enable BswMDevErrorDetect</span> — activates all parameter range checks and UNINIT guards during development/test builds</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Hook Det callback</span> — all errors reported via Det_ReportError/Det_ReportRuntimeError. Log moduleId=BswM, serviceId to identify failing API</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Undefined mode condition</span> — if ModeInitValue absent, condition is UNDEFINED; rule won't arbitrate until first update. Common bug: rule never fires at startup.</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Action list abort tracing</span> — configure BswMReportFailRuntimeErrorId per action item. BSWM_E_ACTION_FAILED in Det log tells you which action failed</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Timing: MainFunction period</span> — BswMMainFunctionPeriod config param. DEFERRED accuracy = worst case = 1 period. Verify against communication timing budget.</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Exclusive area / reentrancy</span> — BswM can use OS exclusive areas to protect action list from interruption. Check integration: IMMEDIATE requests from ISR context + action list must not call non-ISR-safe functions</div></div>
+    <div class="step-row"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Multi-partition</span> — each partition has separate BswM instance. Config mistakes show as UNINIT or PARAM_CONFIG errors in wrong partition.</div></div>
+    <div class="step-row" style="margin:0"><div class="step-num" style="background:#FCEBEB;color:#791F1F">T</div><div style="font-size:13px;color:var(--color-text-secondary)"><span style="font-weight:500;color:var(--color-text-primary)">Generator tool</span> validates: max 7 nesting levels, no duplicate ActionListItemIndex, BswMReportFailRuntimeErrorId in 0x80–0xFF. Fail at generation = config error, not runtime.</div></div>
+  </div>
+  <button class="q-btn" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)" onclick="sendPrompt('What happens in BswM when an action returns E_NOT_OK and BswMAbortOnFail is true? Walk me through the full error handling sequence.')">Action failure sequence walkthrough ↗</button>
+</div>
+
+<div id="qa" class="tab-panel">
+  <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 12px">Tap a question. Answer appears below it.</p>
+
+  <div id="q1">
+  <button class="q-btn card" onclick="toggle('a1')" style="border:0.5px solid var(--color-border-tertiary)">Q1: What is the difference between a ModeRequestPort and an EventRequestPort?</button>
+  <div id="a1" class="ans" style="display:none">ModeRequestPort carries a value (the requested mode). The arbitration evaluates EQUAL/NOT_EQUAL conditions. EventRequestPort carries no value — only SET or CLEAR state. The requester calls the event API to SET it; BswMClearEventRequest action CLEARs it. Use EventRequestPort for trigger-style inputs (e.g. reset request) with no associated mode enum.</div>
+  </div>
+
+  <div id="q2">
+  <button class="q-btn card" onclick="toggle('a2')" style="border:0.5px solid var(--color-border-tertiary)">Q2: What happens if BswMModeInitValue is not configured for a port?</button>
+  <div id="a2" class="ans" style="display:none">The condition is UNDEFINED. BswM will NOT use it in arbitration until the port receives its first update [SWS_BswM_00064]. Rule containing that port skips arbitration. This is a common startup bug: configure BswMModeInitValue or ensure the first mode indication arrives before the first MainFunction cycle.</div>
+  </div>
+
+  <div id="q3">
+  <button class="q-btn card" onclick="toggle('a3')" style="border:0.5px solid var(--color-border-tertiary)">Q3: Can BswM use the result of one rule as input to another rule?</button>
+  <div id="a3" class="ans" style="display:none">No. [SWS_BswM_00117] prohibits this. Rule evaluation results must not feed into logical expressions of other rules. Hierarchy is achieved by nesting action lists (one list can trigger rule evaluation via a list item of type "rule"), NOT by feeding rule outputs into another rule's conditions.</div>
+  </div>
+
+  <div id="q4">
+  <button class="q-btn card" onclick="toggle('a4')" style="border:0.5px solid var(--color-border-tertiary)">Q4: How does BswM_MainFunction interact with IMMEDIATE requests that arrive during its execution?</button>
+  <div id="a4" class="ans" style="display:none">[SWS_BswM_00068]: IMMEDIATE requests received during MainFunction are postponed. They are processed BEFORE MainFunction exits (not in next cycle). DEFERRED requests received during MainFunction are processed in the NEXT MainFunction call. This ensures MainFunction completes atomically before any new arbitration occurs.</div>
+  </div>
+
+  <div id="q5">
+  <button class="q-btn card" onclick="toggle('a5')" style="border:0.5px solid var(--color-border-tertiary)">Q5: What DET error is reported when BswM_CanSM_CurrentState() is called before BswM_Init()?</button>
+  <div id="a5" class="ans" style="display:none">BSWM_E_UNINIT (0x01). All BswM APIs check init status when BswMDevErrorDetect is enabled. On error, the API ignores the request and reports to Det. Same pattern applies to all BswM_XXX notification APIs.</div>
+  </div>
+
+  <div id="q6">
+  <button class="q-btn card" onclick="toggle('a6')" style="border:0.5px solid var(--color-border-tertiary)">Q6: How does BswM handle "Disable Normal Communication" from DCM?</button>
+  <div id="a6" class="ans" style="display:none">DCM calls BswM_Dcm_CommunicationMode_CurrentState() with the new comm mode. BswM rules evaluate this as a mode indication. Configured action list then: (1) stops relevant I-PDU groups via COM, (2) disables deadline monitoring, (3) calls Nm_DisableCommunication on affected channels. Mode switch notification propagates to SW-Cs via RTE. On restore: reverse actions.</div>
+  </div>
+
+  <div id="q7">
+  <button class="q-btn card" onclick="toggle('a7')" style="border:0.5px solid var(--color-border-tertiary)">Q7: What is the maximum nesting depth for action lists and why does it exist?</button>
+  <div id="a7" class="ans" style="display:none">7 hierarchic levels [SWS_BswM_00037]. The limit exists to make testing of BswM implementations and generator tools feasible. Without a limit, arbitration/execution chains become untestable. Enforced at generation time, not runtime.</div>
+  </div>
+
+  <div id="q8">
+  <button class="q-btn card" onclick="toggle('a8')" style="border:0.5px solid var(--color-border-tertiary)">Q8: A BswMTimer expires — what happens to subsequent MainFunction cycles?</button>
+  <div id="a8" class="ans" style="display:none">Timer mode becomes BSWM_TIMER_EXPIRED. It is arbitrated AGAIN in the SAME cycle it expired. It does NOT auto-reset to STOPPED. Every subsequent MainFunction will continue to arbitrate it as EXPIRED until a BswMTimerControl action explicitly sets it to STOPPED or STARTED again. Not handling this causes repeated action list execution.</div>
+  </div>
+
+  <button class="q-btn" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);margin-top:4px" onclick="sendPrompt('Give me 5 more BswM exam questions with detailed answers covering action list priorities, multi-partition support, and LinSM integration')">More exam questions ↗</button>
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+function toggle(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>

@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR COM – Complete Study Guide</title>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1f2937;--border:#30363d;--border2:#444c56;
+  --text:#e6edf3;--text2:#8b949e;
+  --amber:#f0a500;--amber-dim:#7d5800;--amber-bg:#1f1600;
+  --green:#3fb950;--green-bg:#0d1f0f;
+  --red:#f85149;--red-bg:#1f0d0d;
+  --blue:#58a6ff;--blue-bg:#0d1f35;
+  --purple:#bc8cff;--purple-bg:#1a0d35;
+  --teal:#39c5bb;--teal-bg:#0d1f1e;
+  --pink:#ff79c6;--pink-bg:#1f0d1a;
+  --font:'Segoe UI',system-ui,sans-serif;
+  --mono:'Cascadia Code','Fira Code','Consolas',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-size:13px;font-weight:700;color:var(--blue);letter-spacing:.5px;white-space:nowrap}
+.logo span{color:var(--text2);font-weight:400}
+.nav-tabs{display:flex;gap:4px;flex-wrap:wrap}
+.nav-tabs button{background:transparent;border:1px solid transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:var(--font);padding:5px 12px;border-radius:20px;transition:all .15s;white-space:nowrap}
+.nav-tabs button:hover{border-color:var(--border2);color:var(--text)}
+.nav-tabs button.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue);font-weight:600}
+main{max-width:980px;margin:0 auto;padding:24px 20px}
+.section{display:none}.section.active{display:block}
+h1{font-size:22px;font-weight:700;color:var(--blue);margin-bottom:4px}
+h2{font-size:17px;font-weight:600;color:var(--text);margin:24px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+h3{font-size:14px;font-weight:600;color:var(--text);margin:16px 0 8px}
+p{margin-bottom:10px;color:var(--text)}
+code{font-family:var(--mono);background:var(--bg3);color:var(--amber);padding:1px 5px;border-radius:4px;font-size:12px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px}
+.card-grid{display:grid;gap:12px}
+.cols2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.cols3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.cols4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.exam-tip{background:var(--amber-bg);border:1px solid var(--amber-dim);border-left:3px solid var(--amber);border-radius:6px;padding:12px 14px;margin:14px 0}
+.exam-tip .tip-label{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.exam-tip p{color:#d4a55a;margin:0;font-size:13px}
+.info-box{background:var(--blue-bg);border:1px solid #1d4380;border-left:3px solid var(--blue);border-radius:6px;padding:12px 14px;margin:14px 0}
+.info-box p{color:#90c4ff;margin:0;font-size:13px}
+.warn-box{background:var(--red-bg);border:1px solid #5a1d1d;border-left:3px solid var(--red);border-radius:6px;padding:12px 14px;margin:14px 0}
+.warn-box p{color:#f9a09a;margin:0;font-size:13px}
+.green-box{background:var(--green-bg);border:1px solid #1a4a1a;border-left:3px solid var(--green);border-radius:6px;padding:12px 14px;margin:14px 0}
+.green-box p{color:#7ee787;margin:0;font-size:13px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+thead tr{background:var(--bg3)}
+th{padding:8px 10px;text-align:left;font-weight:600;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px}
+.tag-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-dim)}
+.tag-green{background:var(--green-bg);color:var(--green);border:1px solid #1a4a1a}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid #5a1d1d}
+.tag-blue{background:var(--blue-bg);color:var(--blue);border:1px solid #1d4380}
+.tag-purple{background:var(--purple-bg);color:var(--purple);border:1px solid #3d1d70}
+.tag-teal{background:var(--teal-bg);color:var(--teal);border:1px solid #1d3d3a}
+.tag-pink{background:var(--pink-bg);color:var(--pink);border:1px solid #3d1d2a}
+.tag-gray{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+/* Layer diagram */
+.layer-stack{display:flex;flex-direction:column;gap:4px}
+.layer{border-radius:6px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid transparent;cursor:default;transition:border-color .15s}
+.layer:hover{border-color:var(--border2)}
+.layer-name{font-weight:600;font-size:13px}
+.layer-sub{font-size:11px;opacity:.7}
+.layer-arrow{text-align:center;color:var(--border2);font-size:16px}
+/* Signal flow viz */
+.flow-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.flow-box{border-radius:6px;padding:8px 12px;font-size:12px;font-weight:600;text-align:center;min-width:90px;border:1px solid}
+.flow-arrow{color:var(--border2);font-size:18px;flex-shrink:0}
+/* Transmission mode cards */
+.tm-card{border-radius:8px;padding:14px 16px;border:2px solid transparent;cursor:pointer;transition:all .2s}
+.tm-card:hover{transform:translateY(-1px)}
+.tm-card.periodic{background:#0d1f0f;border-color:#3fb950}
+.tm-card.direct{background:#0d1f35;border-color:#58a6ff}
+.tm-card.mixed{background:#1a0d35;border-color:#bc8cff}
+.tm-card.none{background:var(--bg3);border-color:#444}
+.tm-card h3{margin:0 0 6px;font-size:14px}
+.tm-card ul{list-style:none;padding:0}
+.tm-card li{font-size:12px;color:var(--text2);padding:2px 0}
+.tm-card li::before{content:'→ '}
+/* API cards */
+.api-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.api-header{background:var(--bg3);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.api-name{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--blue)}
+.api-body{padding:12px 14px}
+.api-sig{font-family:var(--mono);font-size:12px;background:var(--bg);padding:10px 12px;border-radius:6px;margin-bottom:10px;overflow-x:auto;white-space:pre;color:var(--text);line-height:1.5}
+.api-sig .kw{color:#ff7b72}
+.api-sig .type{color:var(--amber)}
+.api-sig .fn{color:var(--blue)}
+.api-sig .param{color:#cba6f7}
+.api-sig .comment{color:var(--text2)}
+/* Stepper */
+.stepper{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:16px;align-items:flex-start}
+.step-line{display:flex;flex-direction:column;align-items:center;min-width:32px}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;z-index:1}
+.step-connector{width:2px;flex:1;min-height:20px;background:var(--border);margin:2px 0}
+.step-content{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;flex:1}
+.step-content h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.step-content p{font-size:12px;color:var(--text2);margin:0}
+.step-tx .step-dot{background:var(--blue-bg);color:var(--blue);border:2px solid var(--blue)}
+.step-rx .step-dot{background:var(--green-bg);color:var(--green);border:2px solid var(--green)}
+.step-dm .step-dot{background:var(--amber-bg);color:var(--amber);border:2px solid var(--amber)}
+.step-err .step-dot{background:var(--red-bg);color:var(--red);border:2px solid var(--red)}
+/* misc */
+ul.bullet-list{padding-left:20px;margin-bottom:10px}
+ul.bullet-list li{margin-bottom:4px;color:var(--text);font-size:13px}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.section-intro{color:var(--text2);font-size:13px;margin-bottom:20px;line-height:1.7}
+.two-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+.mono-small{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-bar input{flex:1;min-width:200px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 12px;font-size:13px;font-family:var(--font)}
+.filter-bar input:focus{outline:none;border-color:var(--blue)}
+/* timeline horizontal */
+.timeline{display:flex;gap:0;overflow-x:auto;padding:8px 0}
+.tl-item{display:flex;flex-direction:column;align-items:center;min-width:110px;flex:1}
+.tl-dot{width:14px;height:14px;border-radius:50%;margin:0 auto;flex-shrink:0}
+.tl-line{height:2px;flex:1;min-width:20px;align-self:center}
+.tl-label{font-size:11px;text-align:center;margin-top:6px;color:var(--text2)}
+.tl-row{display:flex;align-items:center;width:100%}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">AUTOSAR COM <span>R24-11 — Study Guide</span></div>
+  <div class="nav-tabs">
+    <button class="active" onclick="showSec(0)">🏗 Architecture</button>
+    <button onclick="showSec(1)">📦 Signal & PDU Model</button>
+    <button onclick="showSec(2)">📤 TX Side</button>
+    <button onclick="showSec(3)">📥 RX Side</button>
+    <button onclick="showSec(4)">🗂 I-PDU Groups</button>
+    <button onclick="showSec(5)">⏱ Deadline Monitoring</button>
+    <button onclick="showSec(6)">🔔 Callbacks</button>
+    <button onclick="showSec(7)">📋 API Reference</button>
+    <button onclick="showSec(8)">🚨 Errors & DET</button>
+    <button onclick="showSec(9)">🔀 Signal Gateway</button>
+  </div>
+</header>
+<main>
+
+<!-- ===== SEC 0: ARCHITECTURE ===== -->
+<div class="section active" id="s0">
+  <h1>Architecture Overview</h1>
+  <p class="section-intro">AUTOSAR COM (Communication) is a BSW module that handles signal/signal-group packing into I-PDUs (Interaction Layer PDUs), transmission modes, deadline monitoring, filtering, and notification. It sits between the RTE/Application layer and the PDU Router (PduR).</p>
+
+  <h2>Layer Stack</h2>
+  <div class="layer-stack">
+    <div class="layer" style="background:linear-gradient(90deg,#0d2210,#0d1f35);border-color:#1d4a30">
+      <div><div class="layer-name" style="color:#7ee787">SW-Components (SWC) / RTE / SwCluC</div><div class="layer-sub">Sends/receives signals via Com_SendSignal / Com_ReceiveSignal. Does not know about PDUs or buses.</div></div>
+      <div class="tag tag-green">Users</div>
+    </div>
+    <div class="layer-arrow">↕ Signal / Signal Group API</div>
+    <div class="layer" style="background:var(--blue-bg);border-color:#1d4380">
+      <div><div class="layer-name" style="color:var(--blue)">COM — AUTOSAR Communication Module ★</div><div class="layer-sub">Packs signals → I-PDUs (TX). Unpacks I-PDUs → signals (RX). Manages transmission modes, DM timers, filtering, update-bits, signal groups.</div></div>
+      <div class="tag tag-blue">This Module</div>
+    </div>
+    <div class="layer-arrow">↕ I-PDU (PduR_ComTransmit / Com_RxIndication)</div>
+    <div class="layer" style="background:#1a1d35;border-color:#2d3060">
+      <div><div class="layer-name" style="color:#9d9fff">PduR — PDU Router</div><div class="layer-sub">Routes I-PDUs between COM and bus-specific modules. Transparent to COM. Handles normal L-PDUs and TP (Transport Protocol) for large I-PDUs.</div></div>
+      <div class="tag tag-gray">BSW</div>
+    </div>
+    <div class="layer-arrow">↕</div>
+    <div class="layer" style="background:#1a1a1a;border-color:#333">
+      <div><div class="layer-name" style="color:var(--text2)">CAN-IF / LIN-IF / FlexRay-IF / Eth-IF / CanTp / FrIsoTp</div><div class="layer-sub">Bus-specific interface and transport protocol layers.</div></div>
+      <div class="tag tag-gray">HW Abstraction</div>
+    </div>
+    <div class="layer-arrow">↕</div>
+    <div class="layer" style="background:#10100a;border-color:#333">
+      <div><div class="layer-name" style="color:#888">CAN / LIN / FlexRay / Ethernet Hardware</div></div>
+      <div class="tag tag-gray">HW</div>
+    </div>
+  </div>
+
+  <h2>Key Module Interactions</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-green">RTE / SwCluC</span><span class="tag tag-gray">User</span></div>
+      <h3>Primary Users</h3>
+      <ul class="bullet-list">
+        <li>Calls <code>Com_SendSignal()</code> to write signal values</li>
+        <li>Calls <code>Com_ReceiveSignal()</code> to read received values</li>
+        <li>Receives callbacks: <code>CbkRxAck</code>, <code>CbkTxAck</code>, <code>CbkRxTOut</code>, <code>CbkTxTOut</code>, <code>CbkInv</code></li>
+        <li>SwCluC ComProxy handles SW-C signal access across Software Clusters</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-purple">PduR</span><span class="tag tag-gray">Lower Layer</span></div>
+      <h3>PDU Router Interface</h3>
+      <ul class="bullet-list">
+        <li>COM → PduR: <code>PduR_ComTransmit()</code> to send I-PDU</li>
+        <li>PduR → COM: <code>Com_RxIndication()</code> on reception</li>
+        <li>PduR → COM: <code>Com_TxConfirmation()</code> on successful TX</li>
+        <li>PduR → COM: <code>Com_TriggerTransmit()</code> for LIN/FlexRay slots</li>
+        <li>TP: <code>Com_StartOfReception</code>, <code>Com_CopyRxData</code>, <code>Com_CopyTxData</code>, <code>Com_TpRxIndication</code>, <code>Com_TpTxConfirmation</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-amber">BswM</span><span class="tag tag-gray">Mode Manager</span></div>
+      <h3>Mode Management</h3>
+      <ul class="bullet-list">
+        <li>Calls <code>Com_Init()</code> at startup</li>
+        <li>Controls I-PDU groups via <code>Com_IpduGroupStart()</code> / <code>Com_IpduGroupStop()</code></li>
+        <li>Calls <code>Com_DeInit()</code> at shutdown</li>
+        <li>Enables/disables RX deadline monitoring per I-PDU group</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-red">DET</span><span class="tag tag-gray">Error Reporting</span></div>
+      <h3>Development Errors</h3>
+      <ul class="bullet-list">
+        <li>ModuleId = <strong>50</strong> for COM module</li>
+        <li>Reports via <code>Det_ReportError()</code> (if <code>ComConfigurationUseDet=TRUE</code>)</li>
+        <li>Runtime errors via <code>Det_ReportRuntimeError()</code></li>
+        <li>Transmission cancellation: <code>PduR_ComCancelTransmit()</code> for I-PDUs with <code>ComIPduCancellationSupport=TRUE</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Scheduled Functions</h2>
+  <div class="card-grid cols3">
+    <div class="card" style="border-color:var(--blue)">
+      <h3 style="color:var(--blue)">Com_MainFunctionTx()</h3>
+      <p style="font-size:12px;color:var(--text2)">Processes TX activities not handled in send-path. Triggers periodic/cyclic transmissions, repetitions (N-Times), MDT expiry, TX deadline monitoring. Called from OS task at configured period.</p>
+      <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Critical</div><p>An I-PDU is sent <strong>at most once</strong> per <code>Com_MainFunctionTx()</code> call.</p></div>
+    </div>
+    <div class="card" style="border-color:var(--green)">
+      <h3 style="color:var(--green)">Com_MainFunctionRx()</h3>
+      <p style="font-size:12px;color:var(--text2)">Processes DEFERRED signal unpacking and indication callbacks. Also handles RX deadline monitoring timer counting. Called from OS task at configured period.</p>
+    </div>
+    <div class="card" style="border-color:var(--amber)">
+      <h3 style="color:var(--amber)">Com_MainFunctionRouteSignals()</h3>
+      <p style="font-size:12px;color:var(--text2)">Executes the Signal Gateway. Routes signals from source to destination I-PDUs. Latency directly determined by the period of this call. Called from OS task.</p>
+    </div>
+  </div>
+
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical — COM's Role</div>
+    <p>COM does NOT know about physical bus protocols. It operates purely at the I-PDU level, packing/unpacking signal bits according to <code>ComBitPosition</code>, <code>ComBitSize</code>, <code>ComSignalEndianness</code>. PduR handles all routing. COM never accesses bus hardware directly.</p>
+  </div>
+
+  <h2>Init & De-Init Sequence</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Step</th><th>Action</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>Com_Init(ConfigPtr)</code></td><td>Initializes all I-PDUs (unused areas → <code>ComTxIPduUnusedAreasDefault</code>), signals (→ <code>ComSignalInitValue</code>), clears update-bits, clears shadow buffers. All I-PDU groups remain STOPPED.</td></tr>
+        <tr><td>2</td><td><code>Com_IpduGroupStart(groupId, initialize)</code></td><td>Starts one or more I-PDU groups. If <code>initialize=true</code>: full re-init of PDU buffers, signal init values, filter states. If <code>initialize=false</code>: only timers reset, no data change.</td></tr>
+        <tr><td>3</td><td>Normal Operation</td><td>SWC sends/receives signals. COM packs/unpacks. MainFunction called periodically.</td></tr>
+        <tr><td>4</td><td><code>Com_IpduGroupStop(groupId)</code></td><td>Stops I-PDU group. Cancels TX requests, DM timers. Disables RX processing. Returns <code>COM_SERVICE_NOT_AVAILABLE</code> for access attempts.</td></tr>
+        <tr><td>5</td><td><code>Com_DeInit()</code></td><td>Stops all I-PDU groups. No further communication possible.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== SEC 1: SIGNAL & PDU MODEL ===== -->
+<div class="section" id="s1">
+  <h1>Signal &amp; PDU Model</h1>
+  <p class="section-intro">Understanding the hierarchy of COM objects is the foundation of everything. A signal is the smallest unit of application data. Signals are packed into I-PDUs. I-PDUs are transported by PduR.</p>
+
+  <h2>Object Hierarchy</h2>
+  <div class="card">
+    <div class="flow-row" style="flex-direction:column;gap:6px;align-items:flex-start;">
+      <div class="flow-box" style="background:#0d1f35;border-color:#1d4380;color:var(--blue);width:100%">I-PDU (I-Signal PDU) — the transport container; has a direction (TX or RX), I-PDU group membership, and transmission mode config</div>
+      <div style="color:var(--border2);padding-left:20px">├──</div>
+      <div class="flow-box" style="background:#1a0d35;border-color:#3d1d70;color:var(--purple);width:95%;margin-left:20px">Signal — a scalar value (uint8/16/32, boolean, float32, etc.) packed at a specific bit position within the I-PDU</div>
+      <div style="color:var(--border2);padding-left:20px">├──</div>
+      <div class="flow-box" style="background:#1a0d35;border-color:#3d1d70;color:var(--purple);width:95%;margin-left:20px">Signal Group — a consistent set of group signals sharing a shadow buffer; treated atomically</div>
+      <div style="color:var(--border2);padding-left:40px">└──</div>
+      <div class="flow-box" style="background:#1f0d1a;border-color:#3d1d2a;color:var(--pink);width:90%;margin-left:40px">Group Signal — individual field within a signal group; accessed via shadow buffer</div>
+    </div>
+  </div>
+
+  <h2>Signal Types</h2>
+  <table>
+    <thead><tr><th>ComSignalType</th><th>Size</th><th>Notes</th><th>Filter Restrictions</th></tr></thead>
+    <tbody>
+      <tr><td><code>BOOLEAN</code></td><td>1 bit</td><td>Stored as uint8 internally</td><td>No NEW_IS_WITHIN/NEW_IS_OUTSIDE</td></tr>
+      <tr><td><code>UINT8/SINT8</code></td><td>8 bits</td><td>Sign extension on receive for sint</td><td>All filters supported</td></tr>
+      <tr><td><code>UINT16/SINT16</code></td><td>16 bits</td><td>Endianness conversion applies</td><td>All filters supported</td></tr>
+      <tr><td><code>UINT32/SINT32</code></td><td>32 bits</td><td>Endianness conversion applies</td><td>All filters supported</td></tr>
+      <tr><td><code>UINT64/SINT64</code></td><td>64 bits</td><td>Endianness conversion applies</td><td>All filters supported</td></tr>
+      <tr><td><code>FLOAT32</code></td><td>32 bits</td><td>Endianness only, no sign ext, no complex conversion</td><td>ALWAYS, NEVER, ONE_EVERY_N only</td></tr>
+      <tr><td><code>FLOAT64</code></td><td>64 bits</td><td>Endianness only, no sign ext, no complex conversion</td><td>ALWAYS, NEVER, ONE_EVERY_N only</td></tr>
+      <tr><td><code>UINT8_N</code></td><td>N bytes (static)</td><td>Large signals >8 bytes. No sign ext. Endianness: OPAQUE unless overridden.</td><td>ALWAYS, NEVER, ONE_EVERY_N only</td></tr>
+      <tr><td><code>UINT8_DYN</code></td><td>Variable (≤max)</td><td>Dynamic length signal. Must be LAST in I-PDU. Sent via <code>Com_SendDynSignal()</code>.</td><td>ALWAYS, NEVER, ONE_EVERY_N only</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Update-Bits</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>What are they?</h3>
+      <p style="font-size:13px">A 1-bit flag inside the I-PDU (at <code>ComUpdateBitPosition</code>) that tells the receiver whether the sender has actually updated this signal before the I-PDU was sent. Invisible to SWCs — managed entirely by COM.</p>
+      <ul class="bullet-list">
+        <li><code>1</code> = "set / data was updated by sender"</li>
+        <li><code>0</code> = "cleared / not updated"</li>
+        <li>Cleared by <code>Com_Init()</code> and <code>Com_IpduGroupStart()</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Update-Bit Rules</h3>
+      <table style="font-size:12px">
+        <thead><tr><th>Event</th><th>Update-Bit</th></tr></thead>
+        <tbody>
+          <tr><td><code>Com_SendSignal()</code> called</td><td>SET (→1)</td></tr>
+          <tr><td><code>Com_SendSignalGroup()</code> called</td><td>SET (→1)</td></tr>
+          <tr><td>ComTxIPduClearUpdateBit = Transmit</td><td>CLEARED after PduR_ComTransmit returns E_OK</td></tr>
+          <tr><td>ComTxIPduClearUpdateBit = Confirmation</td><td>CLEARED after TX Confirmation received</td></tr>
+          <tr><td>ComTxIPduClearUpdateBit = TriggerTransmit</td><td>CLEARED after Com_TriggerTransmit</td></tr>
+        </tbody>
+      </table>
+      <div class="warn-box" style="margin-top:8px;"><p>Update-bits NOT allowed with DIRECT mode + <code>ComTxModeNumberOfRepetitions ≥ 1</code>.</p></div>
+    </div>
+  </div>
+
+  <h2>Signal Group — Shadow Buffer Mechanism</h2>
+  <div class="card">
+    <p style="font-size:13px">Signal groups use a shadow buffer to guarantee atomic access (complex data type consistency). The shadow buffer is a separate RAM area that mirrors the group signal portions of the I-PDU buffer.</p>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <h4 style="color:var(--blue);font-size:13px;">TX — Sending a Signal Group</h4>
+        <div class="stepper">
+          <div class="step step-tx"><div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div><div class="step-content"><h4>Write group signals to shadow buffer</h4><p>Call <code>Com_SendSignal(groupSignalId, &val)</code> for each group signal — only updates shadow buffer</p></div></div>
+          <div class="step step-tx"><div class="step-line"><div class="step-dot">2</div><div class="step-connector"></div></div><div class="step-content"><h4>Atomically copy shadow → I-PDU</h4><p>Call <code>Com_SendSignalGroup(signalGroupId)</code> — atomically packs all group signals into I-PDU buffer. TMS re-evaluated.</p></div></div>
+          <div class="step step-tx"><div class="step-line"><div class="step-dot">3</div></div><div class="step-content"><h4>COM schedules transmission</h4><p>Based on ComTransferProperty and transmission mode, COM calls <code>PduR_ComTransmit()</code> in next MainFunctionTx</p></div></div>
+        </div>
+      </div>
+      <div>
+        <h4 style="color:var(--green);font-size:13px;">RX — Receiving a Signal Group</h4>
+        <div class="stepper">
+          <div class="step step-rx"><div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div><div class="step-content"><h4>Copy I-PDU → shadow buffer</h4><p>Call <code>Com_ReceiveSignalGroup(signalGroupId)</code> — atomically copies group signals from I-PDU buffer to shadow buffer</p></div></div>
+          <div class="step step-rx"><div class="step-line"><div class="step-dot">2</div></div><div class="step-content"><h4>Read group signals from shadow buffer</h4><p>Call <code>Com_ReceiveSignal(groupSignalId, &val)</code> for each group signal — reads from shadow buffer</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Endianness Conversion</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <h3>Supported</h3>
+      <ul class="bullet-list">
+        <li>All integer types (uint8..uint64, sint8..sint64)</li>
+        <li>Signals within signal groups (group signals)</li>
+        <li>float32/float64 — endianness only (no complex conversion)</li>
+        <li>Converted <strong>before</strong> filtering/notification on RX side</li>
+        <li>Converted <strong>before</strong> I-PDU callout on TX side</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Sign Extension (RX side only)</h3>
+      <p style="font-size:13px">When a signed signal (e.g., 10-bit sint) is received and copied to a larger type (e.g., sint16), COM extends the sign bit.</p>
+      <p style="font-size:12px;color:var(--text2)">Example: 10-bit signed <code>1111111101b</code> → extended to 16-bit: <code>1111111111111101b</code> (both = -3)</p>
+      <div class="info-box" style="margin-top:8px;"><p>Not performed for float32/float64. Sender side does not need sign extension (values are already in correct format).</p></div>
+    </div>
+  </div>
+
+  <h2>Signal Initialization</h2>
+  <div class="card">
+    <p>During <code>Com_Init()</code>, for each I-PDU:</p>
+    <ol style="padding-left:20px;font-size:13px;color:var(--text);">
+      <li style="margin-bottom:4px;">Fill entire I-PDU byte-by-byte with <code>ComTxIPduUnusedAreasDefault</code> (e.g., 0xFF)</li>
+      <li style="margin-bottom:4px;">Overwrite each signal's bits with the lower N bits of <code>ComSignalInitValue</code> (bit-wise)</li>
+      <li>Clear all update-bits to 0</li>
+    </ol>
+    <div class="exam-tip" style="margin-top:10px;"><div class="tip-label">🎯 Exam Critical</div><p>Filter's <code>old_value</code> is set to <code>ComSignalInitValue</code> at startup. Until first application send, <code>new_value</code> for filter evaluation also uses <code>ComSignalInitValue</code>.</p></div>
+  </div>
+</div>
+
+<!-- ===== SEC 2: TX SIDE ===== -->
+<div class="section" id="s2">
+  <h1>Transmission Side</h1>
+  <p class="section-intro">COM's TX processing determines when and how often an I-PDU is sent, based on the Transmission Mode (TM), Transfer Property of signals, and the Transmission Mode Selector (TMS).</p>
+
+  <h2>4 Transmission Modes (ComTxModeMode)</h2>
+  <div class="card-grid cols2">
+    <div class="tm-card periodic" onclick="showTMDetail('periodic')">
+      <h3 style="color:var(--green)">PERIODIC</h3>
+      <ul>
+        <li>Cyclic: sends every <code>ComTxModeTimePeriod</code></li>
+        <li>No send-path trigger from signal writes</li>
+        <li>Start delay: <code>ComTxModeTimeOffset</code></li>
+        <li>MDT not applied by default (unless <code>ComEnableMDTForCyclicTransmission=true</code>)</li>
+      </ul>
+    </div>
+    <div class="tm-card direct" onclick="showTMDetail('direct')">
+      <h3 style="color:var(--blue)">DIRECT</h3>
+      <ul>
+        <li>Event-driven: triggered by signal with TRIGGERED transfer property</li>
+        <li>N+1 transmissions (N = <code>ComTxModeNumberOfRepetitions</code>)</li>
+        <li>Period between repetitions: <code>ComTxModeRepetitionPeriod</code></li>
+        <li>New send request cancels outstanding repetitions</li>
+      </ul>
+    </div>
+    <div class="tm-card mixed" onclick="showTMDetail('mixed')">
+      <h3 style="color:var(--purple)">MIXED</h3>
+      <ul>
+        <li>Combination: cyclic baseline + event-driven bursts</li>
+        <li>TRIGGERED signal → N-Times burst overlaps with cyclic</li>
+        <li>Cyclic TX counts as one of the N-Times transmissions</li>
+        <li>Most complex mode — used for important data that needs both reliability and responsiveness</li>
+      </ul>
+    </div>
+    <div class="tm-card none" onclick="showTMDetail('none')">
+      <h3 style="color:var(--text2)">NONE</h3>
+      <ul>
+        <li>COM never initiates transmission autonomously</li>
+        <li>Only sent via <code>Com_TriggerTransmit()</code> from PduR (LIN/FlexRay slots)</li>
+        <li>I-PDU still accessible for reading latest data</li>
+        <li>Can be used to disable sending (when TMS evaluates to false)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="tm-detail" class="card" style="border-color:var(--border2);margin-top:4px;"><p style="color:var(--text2);font-style:italic;">Click a transmission mode card above to see details.</p></div>
+
+  <h2>Transfer Properties (per signal/signal group)</h2>
+  <table>
+    <thead><tr><th>Property</th><th>Triggers TX?</th><th>On Send Request</th><th>Repetitions</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>PENDING</code></td>
+        <td><span class="tag tag-gray">No</span></td>
+        <td>Updates I-PDU buffer only. No transmission trigger. Sent only when periodic cycle or another TRIGGERED signal fires.</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td><code>TRIGGERED</code></td>
+        <td><span class="tag tag-green">Yes</span></td>
+        <td>Triggers N+1 transmissions immediately (within next MainFunctionTx)</td>
+        <td><code>ComTxModeNumberOfRepetitions + 1</code></td>
+      </tr>
+      <tr>
+        <td><code>TRIGGERED_WITHOUT_REPETITION</code></td>
+        <td><span class="tag tag-green">Yes</span></td>
+        <td>Triggers exactly 1 transmission (no repetitions)</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td><code>TRIGGERED_ON_CHANGE</code></td>
+        <td><span class="tag tag-amber">Conditional</span></td>
+        <td>Triggers N+1 transmissions ONLY IF new value differs from last sent (or init) value in length or value</td>
+        <td><code>ComTxModeNumberOfRepetitions + 1</code></td>
+      </tr>
+      <tr>
+        <td><code>TRIGGERED_ON_CHANGE_WITHOUT_REPETITION</code></td>
+        <td><span class="tag tag-amber">Conditional</span></td>
+        <td>Triggers 1 transmission ONLY IF value changed</td>
+        <td>1</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="warn-box">
+    <p><code>TRIGGERED_ON_CHANGE</code> and <code>TRIGGERED_ON_CHANGE_WITHOUT_REPETITION</code> are NOT supported for signals/group signals with <code>ComBitSize = 0</code>. TRIGGERED properties only apply when I-PDU is in DIRECT or MIXED mode.</p>
+  </div>
+
+  <h2>Transmission Mode Selector (TMS)</h2>
+  <div class="card">
+    <p style="font-size:13px">Each TX I-PDU has two statically configured transmission mode sets: <code>ComTxModeTrue</code> and <code>ComTxModeFalse</code>. The TMS mechanism selects which one is active based on signal values.</p>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <h4 style="font-size:13px;margin-bottom:8px;">TMS Logic Flow</h4>
+        <ul class="bullet-list">
+          <li>Signals with a <code>ComFilter</code> container → "contributing signals"</li>
+          <li>Each contributing signal has a Transmission Mode Condition (TMC) = its filter evaluation result (true/false)</li>
+          <li><strong>TMS = true</strong> if ANY contributing signal's TMC is true → use <code>ComTxModeTrue</code></li>
+          <li><strong>TMS = false</strong> if NO contributing signal's TMC is true → use <code>ComTxModeFalse</code></li>
+          <li>If NO signals contribute to TMS → TMS is always <strong>true</strong></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size:13px;margin-bottom:8px;">On TMS Change</h4>
+        <ul class="bullet-list">
+          <li>Mode switch takes effect <strong>immediately</strong> (within next MainFunctionTx)</li>
+          <li>PERIODIC/MIXED timer <strong>restarted</strong> on TMS change</li>
+          <li>Switch to DIRECT → immediate N-Times transmission initiated</li>
+          <li>Switch to PERIODIC/MIXED → first TX immediately (respecting MDT)</li>
+          <li>TMS re-evaluated after every <code>Com_SendSignal()</code> or <code>Com_SendSignalGroup()</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="exam-tip" style="margin-top:10px;"><div class="tip-label">🎯 Exam Critical</div><p>A signal with <code>ComFilterAlgorithm=ALWAYS</code> always sets TMS to true. If you configure a PENDING signal with ALWAYS filter, the I-PDU will always be in the ComTxModeTrue transmission mode — regardless of other signals.</p></div>
+  </div>
+
+  <h2>Minimum Delay Timer (MDT)</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <h3>Purpose</h3>
+      <p style="font-size:13px">Prevents sending an I-PDU more frequently than <code>ComMinimumDelayTime</code>. If a transmission is requested while MDT is running, it is <strong>postponed</strong> until MDT expires.</p>
+      <ul class="bullet-list">
+        <li>MDT starts when I-PDU is sent via <code>PduR_ComTransmit</code></li>
+        <li><strong>Reloaded</strong> on successful TX confirmation</li>
+        <li>Reset by I-PDU group start</li>
+        <li>If ComRetryFailedTransmitRequests=false: MDT starts on any transmit attempt</li>
+        <li>If ComRetryFailedTransmitRequests=true: MDT starts only if PduR returns E_OK</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>MDT and Cyclic Transmissions</h3>
+      <p style="font-size:13px">By default, <code>ComEnableMDTForCyclicTransmission=false</code> means MDT does NOT apply to:</p>
+      <ul class="bullet-list">
+        <li>PERIODIC transmissions</li>
+        <li>Cyclic part of MIXED transmissions</li>
+        <li>N-Times repetitions</li>
+      </ul>
+      <div class="info-box" style="margin-top:8px;"><p>MDT still applies to event-driven (TRIGGERED) transmissions in DIRECT/MIXED mode, even when cyclic MDT is disabled.</p></div>
+    </div>
+  </div>
+
+  <h2>N-Times Transmission (Repetitions)</h2>
+  <div class="card">
+    <p style="font-size:13px">When a TRIGGERED signal fires in DIRECT/MIXED mode with <code>ComTxModeNumberOfRepetitions > 0</code>:</p>
+    <ol style="padding-left:20px;font-size:13px;color:var(--text);">
+      <li style="margin-bottom:4px;">COM sends the I-PDU immediately (1st transmission)</li>
+      <li style="margin-bottom:4px;">COM sends again every <code>ComTxModeRepetitionPeriod</code></li>
+      <li style="margin-bottom:4px;">This continues until <code>ComTxModeNumberOfRepetitions + 1</code> successful confirmations received</li>
+      <li>A new send request <strong>cancels remaining repetitions</strong> and starts fresh from step 1</li>
+    </ol>
+    <div class="warn-box" style="margin-top:10px;"><p>If TX deadline monitoring expires before all repetitions complete → remaining repetitions are cancelled (not continued). Transmission deadline monitoring timer is NOT restarted after N-Times.</p></div>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">MIXED mode special case</div><p>If a cyclic TX in MIXED mode is pending confirmation when an N-Times request starts, that cyclic confirmation counts as the 1st N-Times confirmation. Only N repetitions of the new value are observed.</p></div>
+  </div>
+
+  <h2>Retry Failed Transmit Requests</h2>
+  <div class="card">
+    <p style="font-size:13px">If <code>ComRetryFailedTransmitRequests=true</code> and <code>PduR_ComTransmit()</code> returns NOT E_OK:</p>
+    <ul class="bullet-list">
+      <li>COM retries in the next <code>Com_MainFunctionTx()</code> call</li>
+      <li>If I-PDU data was updated in between, the new data is sent</li>
+      <li>TX deadline monitoring starts immediately on first attempt (regardless of result)</li>
+      <li>If TX DM timer expires → pending retry is expired/cancelled</li>
+    </ul>
+  </div>
+
+  <h2>Complete TX Signal Flow</h2>
+  <div class="stepper">
+    <div class="step step-tx"><div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--blue)">SWC calls Com_SendSignal(signalId, &value)</h4><p>COM writes value to signal's position in I-PDU buffer (packing). Sets update-bit. Re-evaluates TMS. Determines if transmission should be triggered based on transfer property and TM.</p></div></div>
+    <div class="step step-tx"><div class="step-line"><div class="step-dot">2</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--blue)">I-PDU Callout (if configured: ComTxIPduCallout)</h4><p>Optional user callout before sending. Returns true → send; false → discard. Endianness conversion already applied at this point.</p></div></div>
+    <div class="step step-tx"><div class="step-line"><div class="step-dot">3</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--blue)">Com_MainFunctionTx(): PduR_ComTransmit() called</h4><p>COM passes I-PDU to PduR. TX DM timer started (if not already running). MDT started. At most once per MainFunctionTx call.</p></div></div>
+    <div class="step step-tx"><div class="step-line"><div class="step-dot">4</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--blue)">Com_TxConfirmation() (from PduR)</h4><p>Successful: clear update-bits (if Confirmation mode). Cancel TX DM timers. MDT reloaded. Trigger CbkTxAck notifications. Count N-Times confirmation.</p></div></div>
+    <div class="step step-tx"><div class="step-line"><div class="step-dot">5</div></div><div class="step-content"><h4 style="color:var(--red)">TX DM Timeout (if no confirmation in time)</h4><p>Notify SWC via CbkTxTOut callbacks. Timer NOT restarted (TX DM unlike RX DM). Cancel any pending transmissions if CancellationSupport=true.</p></div></div>
+  </div>
+</div>
+
+<!-- ===== SEC 3: RX SIDE ===== -->
+<div class="section" id="s3">
+  <h1>Reception Side</h1>
+  <p class="section-intro">COM receives I-PDUs from PduR via Com_RxIndication, unpacks signals, applies filtering, handles invalid values, and notifies applications. Understanding IMMEDIATE vs DEFERRED unpacking is critical.</p>
+
+  <h2>Two Unpacking Modes (ComIPduSignalProcessing)</h2>
+  <div class="card-grid cols2">
+    <div class="card" style="border-color:var(--green)">
+      <h3 style="color:var(--green)">IMMEDIATE</h3>
+      <p style="font-size:13px">Signal processing and callbacks happen <em>inside</em> <code>Com_RxIndication()</code> — in the same execution context as the interrupt/task that received the PDU.</p>
+      <ul class="bullet-list">
+        <li>Lower latency — SWC notified in same call</li>
+        <li><strong>Risk:</strong> callback runs in interrupt context → must be fast, no blocking</li>
+        <li>Use for time-critical signals</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:var(--amber)">
+      <h3 style="color:var(--amber)">DEFERRED</h3>
+      <p style="font-size:13px">Data copied into COM's internal buffer inside <code>Com_RxIndication()</code>, but actual signal unpacking + callbacks deferred to <code>Com_MainFunctionRx()</code>.</p>
+      <ul class="bullet-list">
+        <li>Decoupled from interrupt context — safer</li>
+        <li>If <code>Com_ReceiveSignal()</code> called before next <code>MainFunctionRx()</code>, returns <em>previous</em> value</li>
+        <li>Latency = up to 1 MainFunctionRx period</li>
+        <li>Use for non-time-critical signals; standard approach</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Complete RX Signal Flow</h2>
+  <div class="stepper">
+    <div class="step step-rx"><div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--green)">PduR calls Com_RxIndication(PduId, &PduInfo)</h4><p>COM checks if I-PDU is active (started). If stopped → ignore. Checks received length against configured length. I-PDU Callout (if configured) → if returns false, discard.</p></div></div>
+    <div class="step step-rx"><div class="step-line"><div class="step-dot">2</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--green)">Unpack signals from I-PDU bytes</h4><p>Endianness conversion. Sign extension for signed types. Only completely received signals unpacked (partial signals skipped for length-checking safety). Update-bit check for signals with update-bits.</p></div></div>
+    <div class="step step-rx"><div class="step-line"><div class="step-dot">3</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--green)">Reset RX Deadline Monitoring timer</h4><p>Timer reset to ComTimeout (or ComFirstTimeout for first reception after start). Done inside Com_RxIndication regardless of IMMEDIATE/DEFERRED.</p></div></div>
+    <div class="step step-rx"><div class="step-line"><div class="step-dot">4</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--green)">Check for Invalid Value</h4><p>If received value = ComSignalDataInvalidValue: NOTIFY action → call CbkInv, don't store value. REPLACE action → replace with ComSignalInitValue, continue normal processing.</p></div></div>
+    <div class="step step-rx"><div class="step-line"><div class="step-dot">5</div><div class="step-connector"></div></div><div class="step-content"><h4 style="color:var(--green)">Apply Reception Filter</h4><p>Evaluate ComFilterAlgorithm. If filter evaluates to false → discard signal, don't notify. old_value only updated if filter passes. (IMMEDIATE: happens in Com_RxIndication. DEFERRED: happens in Com_MainFunctionRx.)</p></div></div>
+    <div class="step step-rx"><div class="step-line"><div class="step-dot">6</div></div><div class="step-content"><h4 style="color:var(--green)">Notify SWC via CbkRxAck</h4><p>If filter passed and value was stored: call configured CbkRxAck callback. SWC can then call Com_ReceiveSignal() to read the new value.</p></div></div>
+  </div>
+
+  <h2>Reception Filtering Algorithms</h2>
+  <table>
+    <thead><tr><th>Filter</th><th>Passes when...</th><th>Type Restrictions</th></tr></thead>
+    <tbody>
+      <tr><td><code>ALWAYS</code></td><td>Always passes every received value</td><td>All types</td></tr>
+      <tr><td><code>NEVER</code></td><td>Never passes — effectively disables reception notification</td><td>All types</td></tr>
+      <tr><td><code>MASKED_NEW_EQUALS_X</code></td><td><code>(new_value AND ComFilterMask) == ComFilterX</code></td><td>Integer, boolean</td></tr>
+      <tr><td><code>MASKED_NEW_DIFFERS_X</code></td><td><code>(new_value AND ComFilterMask) != ComFilterX</code></td><td>Integer, boolean</td></tr>
+      <tr><td><code>MASKED_NEW_DIFFERS_MASKED_OLD</code></td><td><code>(new_value AND mask) != (old_value AND mask)</code></td><td>Integer, boolean (not ComBitSize=0)</td></tr>
+      <tr><td><code>NEW_IS_WITHIN</code></td><td><code>ComFilterMin ≤ new_value ≤ ComFilterMax</code></td><td>Integer only (not BOOLEAN/FLOAT/UINT8_N/UINT8_DYN)</td></tr>
+      <tr><td><code>NEW_IS_OUTSIDE</code></td><td><code>new_value < ComFilterMin OR new_value > ComFilterMax</code></td><td>Integer only</td></tr>
+      <tr><td><code>ONE_EVERY_N</code></td><td>Every Nth reception passes (offset by OFFSET)</td><td>All types</td></tr>
+    </tbody>
+  </table>
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Filter Key Rules</div>
+    <p>1. Filtering happens ONLY on RX side. TX side uses filter only for TMS evaluation (not to suppress sending).<br>
+    2. If filter rejects → value NOT stored, NOT notified, old_value NOT updated.<br>
+    3. After a RX DM timeout, first value received for MASKED_NEW_DIFFERS_MASKED_OLD always passes (treated as different from old_value).<br>
+    4. Filter old_value = ComSignalInitValue at startup.</p>
+  </div>
+
+  <h2>Signal Invalidation</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>TX: Sending Invalid Value</h3>
+      <p style="font-size:13px">Sender indicates "I cannot provide valid data" (e.g., faulty sensor).</p>
+      <ul class="bullet-list">
+        <li>Call <code>Com_InvalidateSignal(signalId)</code> — internally performs <code>Com_SendSignal(signalId, ComSignalDataInvalidValue)</code></li>
+        <li>Transfer property and TMS apply as for normal send</li>
+        <li>Invalid value used for TMS filter evaluation</li>
+        <li>For signal groups: <code>Com_InvalidateSignalGroup()</code> invalidates all group signals</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>RX: Receiving Invalid Value</h3>
+      <p style="font-size:13px">Receiver handles based on <code>ComDataInvalidAction</code>:</p>
+      <table style="font-size:12px">
+        <thead><tr><th>Action</th><th>Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><code>NOTIFY</code></td><td>Call CbkInv. Do NOT store invalid value. Do NOT run normal filter/notification. Next ReceiveSignal returns last valid (or init).</td></tr>
+          <tr><td><code>REPLACE</code></td><td>Replace with ComSignalInitValue. Process normally (filter, notify CbkRxAck) as if init value was received.</td></tr>
+        </tbody>
+      </table>
+      <div class="info-box" style="margin-top:8px;"><p>RX DM timer is still restarted when invalid signal/signal group is received — it counts as "something arrived".</p></div>
+    </div>
+  </div>
+
+  <h2>RX Behavior for Partial I-PDUs (length < configured)</h2>
+  <div class="card">
+    <ul class="bullet-list">
+      <li>Signals completely within received bytes → unpacked and notified normally</li>
+      <li>Signals partially received → NOT unpacked, NOT notified</li>
+      <li>Signal groups partially received → entire signal group discarded</li>
+      <li>A signal whose update-bit is outside the received bytes → treated as if update-bit was SET (signal is considered updated)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== SEC 4: I-PDU GROUPS ===== -->
+<div class="section" id="s4">
+  <h1>I-PDU Groups</h1>
+  <p class="section-intro">I-PDU groups are logical collections of I-PDUs that can be started and stopped together. They are the mechanism for controlling which I-PDUs are actively transmitting or receiving.</p>
+
+  <h2>I-PDU Group Rules</h2>
+  <div class="card">
+    <ul class="bullet-list">
+      <li>An I-PDU can belong to any number of I-PDU groups</li>
+      <li>An I-PDU group contains I-PDUs of <strong>one direction only</strong> (TX or RX — not both)</li>
+      <li>An I-PDU is active (started) if <strong>at least one</strong> of its groups is started</li>
+      <li>All groups must be stopped to fully deactivate an I-PDU</li>
+      <li>I-PDUs not assigned to any group are started automatically during <code>Com_Init()</code> and can never be stopped</li>
+      <li>Maximum number of I-PDU groups: <code>ComSupportedIPduGroups</code></li>
+    </ul>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">🎯 Critical</div><p>I-PDU group "nesting" is a conceptual tool only — COM does NOT handle nested groups. If group B contains group A, then I-PDUs of group A must also be explicitly added to group B in configuration. BswM must consistently manage all group states.</p></div>
+  </div>
+
+  <h2>Com_IpduGroupStart(groupId, initialize)</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3 style="color:var(--green)">Always performed (regardless of initialize flag):</h3>
+      <ul class="bullet-list">
+        <li>Reset <code>ComMinimumDelayTime</code> timer for DIRECT/MIXED I-PDUs</li>
+        <li>Restart all RX DM timers for signals with non-zero <code>ComFirstTimeout</code></li>
+        <li>Cancel TX DM timers; use <code>ComFirstTimeout</code> for first TX DM</li>
+        <li>Clear all update-bits</li>
+        <li>Reset ONE_EVERY_N filter OCCURRENCE counter</li>
+        <li>Start RX deadline monitoring (if I-PDU in DM-enabled group)</li>
+        <li>Determine transmission mode from current data content (TMS evaluation)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--amber)">Additionally, if initialize=true:</h3>
+      <ul class="bullet-list">
+        <li>Re-initialize I-PDU data as in <code>Com_Init()</code> (ComTxIPduUnusedAreasDefault + ComSignalInitValue)</li>
+        <li>Re-initialize shadow buffers of signal groups</li>
+        <li>Reset old_value of filters to ComSignalInitValue</li>
+        <li>Reset <code>ComTxModeTimePeriod</code> and <code>ComTxModeTimeOffset</code> for PERIODIC/MIXED I-PDUs</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Com_IpduGroupStop(groupId) — What Gets Cancelled</h2>
+  <table>
+    <thead><tr><th>For TX I-PDUs</th><th>For RX I-PDUs</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <ul class="bullet-list">
+            <li>Cancel all outstanding TX requests (N-Times, pending sends)</li>
+            <li>Cancel TX deadline monitoring timers</li>
+            <li>Invoke <code>CbkTxErr</code> for signals/signal groups with outstanding unconfirmed TX</li>
+            <li>Ignore any subsequent <code>Com_TxConfirmation()</code> for this I-PDU</li>
+            <li>Internal buffers still updated by <code>Com_SendSignal()</code> (but returns <code>COM_SERVICE_NOT_AVAILABLE</code>)</li>
+            <li><code>Com_TriggerTransmit()</code> returns E_NOT_OK</li>
+            <li>If large I-PDU TX in progress: stop immediately</li>
+          </ul>
+        </td>
+        <td>
+          <ul class="bullet-list">
+            <li>Disable RX processing (ignore incoming PDUs)</li>
+            <li>Cancel RX deadline monitoring</li>
+            <li>No callbacks fired on reception</li>
+            <li><code>Com_ReceiveSignal()</code> returns last known value (or init) with <code>COM_SERVICE_NOT_AVAILABLE</code></li>
+            <li>If large I-PDU RX in progress: stop and discard partial data</li>
+            <li><code>Com_StartOfReception()</code> returns <code>BUFREQ_E_NOT_OK</code> for stopped I-PDU</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Values for Stopped I-PDUs</h2>
+  <table>
+    <thead><tr><th>API Called on Stopped I-PDU</th><th>Return Value</th><th>Data Behavior</th></tr></thead>
+    <tbody>
+      <tr><td><code>Com_SendSignal()</code></td><td><code>COM_SERVICE_NOT_AVAILABLE</code></td><td>Internal buffer STILL updated (for when restarted)</td></tr>
+      <tr><td><code>Com_SendSignalGroup()</code></td><td><code>COM_SERVICE_NOT_AVAILABLE</code></td><td>Internal buffer still updated</td></tr>
+      <tr><td><code>Com_InvalidateSignal()</code></td><td><code>COM_SERVICE_NOT_AVAILABLE</code></td><td>Internal buffer still updated</td></tr>
+      <tr><td><code>Com_ReceiveSignal()</code></td><td><code>COM_SERVICE_NOT_AVAILABLE</code></td><td>Returns last known value (or init value)</td></tr>
+      <tr><td><code>Com_ReceiveSignalGroup()</code></td><td><code>COM_SERVICE_NOT_AVAILABLE</code></td><td>Returns last known value</td></tr>
+      <tr><td><code>Com_TriggerTransmit()</code></td><td><code>E_NOT_OK</code></td><td>N/A</td></tr>
+    </tbody>
+  </table>
+
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical — CbkTxErr Trigger</div>
+    <p><code>CbkTxErr</code> (TX error callback) is triggered when <code>Com_IpduGroupStop()</code> is called while there are signals/signal groups with outstanding unconfirmed transmissions. This is the only time CbkTxErr fires due to group management. It signals to the SWC that a previously requested transmission will NOT be confirmed.</p>
+  </div>
+
+  <h2>Reception Deadline Monitoring Control</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>Com_EnableReceptionDM(ipduGroupId)</h3>
+      <ul class="bullet-list">
+        <li>Sets RX DM timer to <code>ComFirstTimeout</code> for all signals in this RX I-PDU group</li>
+        <li>Silently ignored if DM already enabled for this group</li>
+        <li>Silently ignored if called on TX I-PDU group</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Com_DisableReceptionDM(ipduGroupId)</h3>
+      <ul class="bullet-list">
+        <li>Disables RX DM — timer expiry events are suppressed (no CbkRxTOut called)</li>
+        <li>Reception of I-PDU is still processed normally (not stopped)</li>
+        <li>Silently ignored if DM already disabled or called on TX group</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEC 5: DEADLINE MONITORING ===== -->
+<div class="section" id="s5">
+  <h1>Deadline Monitoring</h1>
+  <p class="section-intro">COM monitors both reception (are messages arriving on time?) and transmission (are sent messages being confirmed on time?). These are separate, configurable mechanisms with different restart behaviors.</p>
+
+  <h2>RX Deadline Monitoring — "Is my data arriving on time?"</h2>
+  <div class="card">
+    <div class="two-col">
+      <div>
+        <h3>Timer Configuration</h3>
+        <table style="font-size:12px">
+          <thead><tr><th>Parameter</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>ComFirstTimeout</code></td><td>Timeout for first-ever reception after I-PDU group start. If 0 → no monitoring until first reception.</td></tr>
+            <tr><td><code>ComTimeout</code></td><td>Timeout for all subsequent receptions. If 0 → no monitoring at all.</td></tr>
+          </tbody>
+        </table>
+        <div class="info-box" style="margin-top:8px;"><p>RX DM timer is <strong>restarted</strong> after each timeout — periodic timeout notifications if reception fails for an extended period. (Unlike TX DM!)</p></div>
+      </div>
+      <div>
+        <h3>On RX DM Timeout — ComRxDataTimeoutAction</h3>
+        <table style="font-size:12px">
+          <thead><tr><th>Action</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><code>REPLACE</code></td><td>Replace signal value with <code>ComSignalInitValue</code>. Old value lost.</td></tr>
+            <tr><td><code>SUBSTITUTE</code></td><td>Replace signal value with <code>ComTimeoutSubstitutionValue</code> (a configured safe value).</td></tr>
+            <tr><td><code>NONE</code> (or omitted)</td><td>Keep last received value. No replacement.</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text2);margin-top:6px;">Additionally: <code>CbkRxTOut</code> callback is called (if configured) — independently from the action above.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>RX DM — Signal vs I-PDU Level</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Signal Type</th><th>DM Level</th><th>Timer Value Used</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Signals <strong>WITH</strong> update-bit</td>
+          <td>Per-signal DM — each signal/signal group has its own timer</td>
+          <td>That signal's own <code>ComFirstTimeout</code> / <code>ComTimeout</code></td>
+        </tr>
+        <tr>
+          <td>Signals <strong>WITHOUT</strong> update-bit</td>
+          <td>I-PDU level DM — shared timer for all no-update-bit signals in same I-PDU</td>
+          <td>Smallest non-zero timeout among all no-update-bit signals in this I-PDU</td>
+        </tr>
+        <tr>
+          <td>All signals in I-PDU have update-bits</td>
+          <td>No I-PDU-level DM needed</td>
+          <td>N/A</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">🎯 Exam Critical</div><p>I-PDU-level DM does NOT check signal values. It only checks if the I-PDU arrived. Per-signal DM additionally checks if the update-bit was set, meaning the sender actually updated this particular signal.</p></div>
+  </div>
+
+  <h2>TX Deadline Monitoring — "Was my sent message confirmed on time?"</h2>
+  <div class="card">
+    <h3>Purpose</h3>
+    <p style="font-size:13px">Supervises the lower layers and bus — not COM itself. Detects bus errors, CAN arbitration failures, missing confirmations from physical transmission.</p>
+    <div class="two-col" style="margin-top:10px;">
+      <div>
+        <h3>Timer Start Rules</h3>
+        <ul class="bullet-list">
+          <li>Started when I-PDU is sent to PduR via <code>PduR_ComTransmit()</code></li>
+          <li>If timer already running → NOT restarted on new send request</li>
+          <li>If multiple signals in I-PDU have different ComTimeout → use <strong>smallest</strong> value</li>
+          <li>First timer start → uses <code>ComFirstTimeout</code>; subsequent → <code>ComTimeout</code></li>
+          <li>Independent of transfer property (PENDING or TRIGGERED)</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Timer Stop/Cancel Rules</h3>
+        <ul class="bullet-list">
+          <li>Cancelled on successful <code>Com_TxConfirmation()</code></li>
+          <li><strong>NOT restarted</strong> after timeout (unlike RX DM)</li>
+          <li>Stopped when I-PDU group is stopped</li>
+          <li>N-Times: cancelled after all N+1 confirmations received</li>
+          <li>For DIRECT + N-Times: timer reset on new send request (<code>SWS_Com_00739</code>)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:10px;">
+      <p>TX DM fires even if transmission was filtered out by I-PDU callout. Also fires even if confirmation returned E_NOT_OK. Only successful E_OK confirmation cancels the TX DM timer.</p>
+    </div>
+  </div>
+
+  <h2>DM Timeline Summary</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>RX Deadline Monitoring</th><th>TX Deadline Monitoring</th></tr></thead>
+    <tbody>
+      <tr><td>Purpose</td><td>Detect missing receptions</td><td>Detect missing TX confirmations</td></tr>
+      <tr><td>Timer Start</td><td>I-PDU group start (ComFirstTimeout) or on reception (ComTimeout)</td><td>When PduR_ComTransmit() called (timer not yet running)</td></tr>
+      <tr><td>Timer Reset</td><td>On successful reception (Com_RxIndication or TpRxIndication)</td><td>NOT reset by new send request (usually)</td></tr>
+      <tr><td>On Timeout</td><td>Replace/Substitute/NONE + CbkRxTOut + timer RESTARTED</td><td>CbkTxTOut + timer NOT restarted. Cancel TX if CancellationSupport=true.</td></tr>
+      <tr><td>Timer Restart</td><td><span class="tag tag-green">YES — periodic timeouts</span></td><td><span class="tag tag-red">NO — one-shot</span></td></tr>
+      <tr><td>Disabled when</td><td>ComTimeout=0, or DM disabled via Com_DisableReceptionDM</td><td>ComTimeout=0, or TM=NONE is active with another TM configured</td></tr>
+    </tbody>
+  </table>
+
+  <h2>ComFirstTimeout vs ComTimeout</h2>
+  <div class="card">
+    <p style="font-size:13px"><strong>ComFirstTimeout:</strong> Applied the first time a deadline timer starts after I-PDU group activation. Allows for a longer grace period on startup (e.g., sensor needs time to warm up before first transmission).</p>
+    <p style="font-size:13px;margin-top:8px;"><strong>ComTimeout:</strong> Applied for all subsequent timeouts. Usually shorter than ComFirstTimeout.</p>
+    <p style="font-size:13px;margin-top:8px;">If <code>ComFirstTimeout=0</code> → no monitoring until first reception (I-PDU monitoring is waived for first reception).</p>
+  </div>
+</div>
+
+<!-- ===== SEC 6: CALLBACKS ===== -->
+<div class="section" id="s6">
+  <h1>Callbacks &amp; Notifications</h1>
+  <p class="section-intro">COM uses configurable callback functions to notify applications of significant events. Understanding each callback's trigger condition, which side (TX/RX), and when it fires is essential for testing and debugging.</p>
+
+  <h2>All 5 Callback Types</h2>
+  <div class="card-grid cols2">
+    <div class="card" style="border-color:var(--green)">
+      <div class="badge-row"><span class="tag tag-green">RX side only</span><span class="tag tag-gray">Notification Class 1</span></div>
+      <h3 style="color:var(--green)">CbkRxAck — Reception Acknowledge</h3>
+      <p style="font-size:13px">Called when a signal or signal group is successfully received and stored. Indicates new data is available.</p>
+      <ul class="bullet-list">
+        <li>IMMEDIATE: called inside <code>Com_RxIndication()</code></li>
+        <li>DEFERRED: called inside <code>Com_MainFunctionRx()</code></li>
+        <li>NOT called if filter rejects the value</li>
+        <li>NOT called if invalid value received (NOTIFY action)</li>
+        <li>Called after each successful periodic reception</li>
+      </ul>
+      <div class="mono-small" style="margin-top:6px;">void CbkRxAck(CbkHandleIdType ComUserCbkHandleId)</div>
+    </div>
+    <div class="card" style="border-color:var(--blue)">
+      <div class="badge-row"><span class="tag tag-blue">TX side only</span><span class="tag tag-gray">Notification Class 2</span></div>
+      <h3 style="color:var(--blue)">CbkTxAck — Transmission Acknowledge</h3>
+      <p style="font-size:13px">Called immediately after successful transmission confirmation. For N-Times: called only after ALL N+1 confirmations received.</p>
+      <ul class="bullet-list">
+        <li>Triggered by <code>Com_TxConfirmation()</code> from PduR</li>
+        <li>For periodic: called after each successful periodic TX confirmation</li>
+        <li>For N-Times: only after final (Nth+1) confirmation</li>
+        <li>NOT called if I-PDU group is stopped when confirmation arrives</li>
+      </ul>
+      <div class="mono-small" style="margin-top:6px;">void CbkTxAck(CbkHandleIdType ComUserCbkHandleId)</div>
+    </div>
+    <div class="card" style="border-color:var(--red)">
+      <div class="badge-row"><span class="tag tag-red">RX side only</span><span class="tag tag-gray">Notification Class 3</span></div>
+      <h3 style="color:var(--red)">CbkRxTOut — Reception Timeout</h3>
+      <p style="font-size:13px">Called when RX deadline monitoring timer expires — signal/signal group has not been received within the configured timeout.</p>
+      <ul class="bullet-list">
+        <li>Called in <code>Com_MainFunctionRx()</code> context</li>
+        <li>Called periodically if signal continues to be missing (RX DM timer restarts)</li>
+        <li>Fires independently from ComRxDataTimeoutAction (replace/substitute/none)</li>
+        <li>Not fired if DM is disabled via Com_DisableReceptionDM</li>
+      </ul>
+      <div class="mono-small" style="margin-top:6px;">void CbkRxTOut(CbkHandleIdType ComUserCbkHandleId)</div>
+    </div>
+    <div class="card" style="border-color:var(--amber)">
+      <div class="badge-row"><span class="tag tag-amber">TX side only</span><span class="tag tag-gray">Notification Class 4</span></div>
+      <h3 style="color:var(--amber)">CbkTxTOut — Transmission Timeout</h3>
+      <p style="font-size:13px">Called when TX deadline monitoring timer expires — sent I-PDU was not confirmed in time by the bus.</p>
+      <ul class="bullet-list">
+        <li>Called in <code>Com_MainFunctionTx()</code> context</li>
+        <li>Called only ONCE (TX DM timer not restarted)</li>
+        <li>Fires even if TX was filtered by I-PDU callout</li>
+        <li>Fires even if PduR returned E_NOT_OK</li>
+        <li>NOT called if I-PDU group stopped before timeout</li>
+      </ul>
+      <div class="mono-small" style="margin-top:6px;">void CbkTxTOut(CbkHandleIdType ComUserCbkHandleId)</div>
+    </div>
+    <div class="card" style="border-color:var(--purple)">
+      <div class="badge-row"><span class="tag tag-purple">RX side only</span></div>
+      <h3 style="color:var(--purple)">CbkInv — Invalid Value Received</h3>
+      <p style="font-size:13px">Called when a signal with ComDataInvalidAction=NOTIFY receives its configured ComSignalDataInvalidValue.</p>
+      <ul class="bullet-list">
+        <li>Called instead of CbkRxAck (NOT both)</li>
+        <li>Received invalid value NOT stored — last valid value preserved</li>
+        <li>No filter evaluation when invalid action=NOTIFY</li>
+        <li>RX DM timer is still restarted on invalid value receipt</li>
+        <li>For signal groups: fires if ANY group signal = invalid value</li>
+      </ul>
+      <div class="mono-small" style="margin-top:6px;">void CbkInv(CbkHandleIdType ComUserCbkHandleId)</div>
+    </div>
+    <div class="card" style="border-color:var(--red)">
+      <div class="badge-row"><span class="tag tag-red">TX side only</span><span class="tag tag-gray">Notification Class 4</span></div>
+      <h3 style="color:var(--red)">CbkTxErr — Transmission Error</h3>
+      <p style="font-size:13px">Called when I-PDU group is stopped while signals/signal groups have outstanding unconfirmed transmissions.</p>
+      <ul class="bullet-list">
+        <li>Triggered only by <code>Com_IpduGroupStop()</code> with pending TX</li>
+        <li>NOT called for TX DM timeout (that's CbkTxTOut)</li>
+        <li>Allows SWC to know that requested TX will never complete</li>
+      </ul>
+      <div class="mono-small" style="margin-top:6px;">void CbkTxErr(CbkHandleIdType ComUserCbkHandleId)</div>
+    </div>
+  </div>
+
+  <h2>Callback Summary Table</h2>
+  <table>
+    <thead><tr><th>Callback</th><th>Side</th><th>Trigger</th><th>Repeating?</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td><code>CbkRxAck</code></td><td><span class="tag tag-green">RX</span></td><td>Signal received, filter passed, value stored</td><td>Yes (every valid reception)</td><td>IMMEDIATE: Com_RxIndication / DEFERRED: MainFunctionRx</td></tr>
+      <tr><td><code>CbkTxAck</code></td><td><span class="tag tag-blue">TX</span></td><td>TX confirmed (after all N+1 confirmations for N-Times)</td><td>Yes (every successful TX)</td><td>Immediately in Com_TxConfirmation / TpTxConfirmation</td></tr>
+      <tr><td><code>CbkRxTOut</code></td><td><span class="tag tag-red">RX</span></td><td>RX deadline monitoring timer expires</td><td>YES — periodic (timer restarts)</td><td>MainFunctionRx</td></tr>
+      <tr><td><code>CbkTxTOut</code></td><td><span class="tag tag-amber">TX</span></td><td>TX deadline monitoring timer expires</td><td>NO — one-shot only</td><td>MainFunctionTx</td></tr>
+      <tr><td><code>CbkInv</code></td><td><span class="tag tag-red">RX</span></td><td>Received ComSignalDataInvalidValue with NOTIFY action</td><td>Yes (on each invalid reception)</td><td>Same as CbkRxAck (IMMEDIATE/DEFERRED)</td></tr>
+      <tr><td><code>CbkTxErr</code></td><td><span class="tag tag-amber">TX</span></td><td>IpduGroupStop() with pending TX</td><td>No (only on explicit stop)</td><td>Inside Com_IpduGroupStop()</td></tr>
+    </tbody>
+  </table>
+
+  <h2>I-PDU Callouts</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>Com_TxIpduCallout</h3>
+      <p style="font-size:13px">User-defined TX callout. Called after endianness conversion, before sending to PduR.</p>
+      <ul class="bullet-list">
+        <li>Returns <code>true</code> → I-PDU transmitted</li>
+        <li>Returns <code>false</code> → I-PDU NOT transmitted (filtered)</li>
+        <li>TX DM timer still fires even if callout returns false</li>
+        <li>Can inspect/modify I-PDU data before transmission</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Com_RxIpduCallout</h3>
+      <p style="font-size:13px">User-defined RX callout. Called after I-PDU received from PduR, before signal unpacking.</p>
+      <ul class="bullet-list">
+        <li>Returns <code>true</code> → I-PDU processed normally</li>
+        <li>Returns <code>false</code> → I-PDU discarded, no signals processed</li>
+        <li>Receives complete I-PDU data for custom validation</li>
+        <li>Use for custom authentication, CRC verification, filtering</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEC 7: API REFERENCE ===== -->
+<div class="section" id="s7">
+  <h1>API Reference</h1>
+  <p class="section-intro">COM has a rich API set. Every function has a fixed Service ID used in DET error reporting. Key principle: COM never rejects a signal write — even to a stopped I-PDU, the buffer is updated but returns COM_SERVICE_NOT_AVAILABLE.</p>
+
+  <div class="filter-bar"><input type="text" id="api-search" placeholder="Search API functions..." oninput="filterAPI(this.value)"></div>
+
+  <div id="api-list">
+  <div class="api-card" data-name="Com_Init Com_DeInit">
+    <div class="api-header"><span class="api-name">Com_Init / Com_DeInit</span><span class="tag tag-gray">Service ID: 0x01 / 0x02</span><span class="tag tag-green">Sync</span><span class="tag tag-gray">Non-Reentrant</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">Com_Init</span>(<span class="kw">const</span> <span class="type">Com_ConfigType</span>* <span class="param">config</span>);
+<span class="kw">void</span> <span class="fn">Com_DeInit</span>(<span class="kw">void</span>);</div>
+      <p style="font-size:13px"><code>Com_Init</code>: Initializes all I-PDUs (unused areas + init values), clears update-bits, shadow buffers. All I-PDU groups STOPPED. I-PDUs without group are started implicitly.<br><code>Com_DeInit</code>: Stops all I-PDU groups. No further communication.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_IpduGroupStart Com_IpduGroupStop">
+    <div class="api-header"><span class="api-name">Com_IpduGroupStart / Com_IpduGroupStop</span><span class="tag tag-gray">0x03 / 0x04</span><span class="tag tag-green">Sync</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">Com_IpduGroupStart</span>(<span class="type">Com_IpduGroupIdType</span> <span class="param">IpduGroupId</span>, <span class="type">boolean</span> <span class="param">initialize</span>);
+<span class="kw">void</span> <span class="fn">Com_IpduGroupStop</span>(<span class="type">Com_IpduGroupIdType</span> <span class="param">IpduGroupId</span>);</div>
+      <p style="font-size:13px"><strong>Start:</strong> Starts all I-PDUs in group. If initialize=true: full data re-init. Resets timers, clears update-bits. Determines TMS from current data.<br><strong>Stop:</strong> Stops all I-PDUs. Cancels TX, DM timers. Fires CbkTxErr for pending TX. Disables RX processing.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_EnableReceptionDM Com_DisableReceptionDM">
+    <div class="api-header"><span class="api-name">Com_EnableReceptionDM / Com_DisableReceptionDM</span><span class="tag tag-gray">0x06 / 0x05</span><span class="tag tag-green">Sync</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">Com_EnableReceptionDM</span>(<span class="type">Com_IpduGroupIdType</span> <span class="param">IpduGroupId</span>);
+<span class="kw">void</span> <span class="fn">Com_DisableReceptionDM</span>(<span class="type">Com_IpduGroupIdType</span> <span class="param">IpduGroupId</span>);</div>
+      <p style="font-size:13px">Enable: Sets RX DM timer to ComFirstTimeout. Silently ignores if already enabled or if TX group. Disable: Suppresses timeout notifications but does NOT stop reception. Silently ignores if already disabled or TX group.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_SendSignal">
+    <div class="api-header"><span class="api-name">Com_SendSignal</span><span class="tag tag-gray">0x0A</span><span class="tag tag-green">Sync</span><span class="tag tag-green">Reentrant (for different signals)</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">uint8</span> <span class="fn">Com_SendSignal</span>(<span class="type">Com_SignalIdType</span> <span class="param">SignalId</span>, <span class="kw">const void</span>* <span class="param">SignalDataPtr</span>);
+<span class="comment">// Returns: E_OK, COM_SERVICE_NOT_AVAILABLE (stopped), COM_BUSY (large I-PDU TX in progress)</span></div>
+      <p style="font-size:13px">Writes signal to I-PDU buffer. Sets update-bit. Re-evaluates TMS. If signal belongs to signal group: only updates shadow buffer. If I-PDU stopped: buffer still updated but returns COM_SERVICE_NOT_AVAILABLE.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_ReceiveSignal">
+    <div class="api-header"><span class="api-name">Com_ReceiveSignal</span><span class="tag tag-gray">0x0B</span><span class="tag tag-green">Sync</span><span class="tag tag-green">Reentrant</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">uint8</span> <span class="fn">Com_ReceiveSignal</span>(<span class="type">Com_SignalIdType</span> <span class="param">SignalId</span>, <span class="kw">void</span>* <span class="param">SignalDataPtr</span>);
+<span class="comment">// Returns: E_OK, COM_SERVICE_NOT_AVAILABLE (stopped)</span></div>
+      <p style="font-size:13px">Reads signal from I-PDU buffer (or shadow buffer for group signals). If stopped: returns last known value (or init) with COM_SERVICE_NOT_AVAILABLE. If DEFERRED and not yet processed: returns previous value.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_SendSignalGroup Com_ReceiveSignalGroup">
+    <div class="api-header"><span class="api-name">Com_SendSignalGroup / Com_ReceiveSignalGroup</span><span class="tag tag-gray">0x0D / 0x0E</span><span class="tag tag-green">Sync</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">uint8</span> <span class="fn">Com_SendSignalGroup</span>(<span class="type">Com_SignalGroupIdType</span> <span class="param">SignalGroupId</span>);
+<span class="type">uint8</span> <span class="fn">Com_ReceiveSignalGroup</span>(<span class="type">Com_SignalGroupIdType</span> <span class="param">SignalGroupId</span>);</div>
+      <p style="font-size:13px"><strong>Send:</strong> Atomically copies shadow buffer → I-PDU buffer. TMS re-evaluated. Sets update-bit. Triggers transmission based on transfer property.<br><strong>Receive:</strong> Atomically copies I-PDU buffer → shadow buffer. Then read individual group signals via Com_ReceiveSignal.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_InvalidateSignal Com_InvalidateSignalGroup">
+    <div class="api-header"><span class="api-name">Com_InvalidateSignal / Com_InvalidateSignalGroup</span><span class="tag tag-gray">0x10 / 0x1B</span><span class="tag tag-green">Sync</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">uint8</span> <span class="fn">Com_InvalidateSignal</span>(<span class="type">Com_SignalIdType</span> <span class="param">SignalId</span>);
+<span class="type">uint8</span> <span class="fn">Com_InvalidateSignalGroup</span>(<span class="type">Com_SignalGroupIdType</span> <span class="param">SignalGroupId</span>);</div>
+      <p style="font-size:13px">Internally performs Com_SendSignal with ComSignalDataInvalidValue. Transfer property and TMS rules apply. For signal groups: invalidates all group signals.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_SendDynSignal Com_ReceiveDynSignal">
+    <div class="api-header"><span class="api-name">Com_SendDynSignal / Com_ReceiveDynSignal</span><span class="tag tag-gray">0x20 / 0x21</span><span class="tag tag-green">Sync</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">uint8</span> <span class="fn">Com_SendDynSignal</span>(<span class="type">Com_SignalIdType</span> <span class="param">SignalId</span>, <span class="kw">const void</span>* <span class="param">SignalDataPtr</span>, <span class="type">uint16</span> <span class="param">Length</span>);
+<span class="type">uint8</span> <span class="fn">Com_ReceiveDynSignal</span>(<span class="type">Com_SignalIdType</span> <span class="param">SignalId</span>, <span class="kw">void</span>* <span class="param">SignalDataPtr</span>, <span class="type">uint16</span>* <span class="param">LengthPtr</span>);</div>
+      <p style="font-size:13px">For UINT8_DYN signals. Send: sets I-PDU length to smallest length containing the dynamic signal. Receive: returns actual received length in *LengthPtr. Formula: dynamic_len = received_PDU_len - (ComBitPosition/8).</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_TriggerIPDUSend Com_TriggerIPDUSendWithMetaData">
+    <div class="api-header"><span class="api-name">Com_TriggerIPDUSend</span><span class="tag tag-gray">0x17</span><span class="tag tag-green">Sync</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">uint8</span> <span class="fn">Com_TriggerIPDUSend</span>(<span class="type">PduIdType</span> <span class="param">PduId</span>);</div>
+      <p style="font-size:13px">Triggers transmission of the I-PDU regardless of its transmission mode. Used to force an immediate send. TX DM timer started if configured. MDT applies.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_TriggerTransmit">
+    <div class="api-header"><span class="api-name">Com_TriggerTransmit</span><span class="tag tag-gray">0x41</span><span class="tag tag-green">Sync</span><span class="tag tag-green">Reentrant</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">Com_TriggerTransmit</span>(<span class="type">PduIdType</span> <span class="param">TxPduId</span>, <span class="type">PduInfoType</span>* <span class="param">PduInfoPtr</span>);
+<span class="comment">// Returns E_NOT_OK if I-PDU is stopped</span></div>
+      <p style="font-size:13px">Called by PduR to request I-PDU data for bus-triggered transmission (LIN, FlexRay slots, NM). COM fills PduInfoPtr with current I-PDU data. Does NOT interfere with MDT. Returns E_NOT_OK for stopped I-PDUs.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_RxIndication Com_TxConfirmation">
+    <div class="api-header"><span class="api-name">Com_RxIndication / Com_TxConfirmation</span><span class="tag tag-gray">0x42 / 0x40</span><span class="tag tag-green">Reentrant</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">Com_RxIndication</span>(<span class="type">PduIdType</span> <span class="param">RxPduId</span>, <span class="kw">const</span> <span class="type">PduInfoType</span>* <span class="param">PduInfoPtr</span>);
+<span class="kw">void</span> <span class="fn">Com_TxConfirmation</span>(<span class="type">PduIdType</span> <span class="param">TxPduId</span>, <span class="type">Std_ReturnType</span> <span class="param">result</span>);</div>
+      <p style="font-size:13px"><strong>RxIndication:</strong> Called by PduR on normal I-PDU reception. COM unpacks signals (IMMEDIATE) or copies data (DEFERRED). Resets RX DM timer.<br><strong>TxConfirmation:</strong> Called by PduR on TX completion. result=E_OK → cancel TX DM, notify CbkTxAck, clear update-bits. result=E_NOT_OK → TX DM unaffected (timer not cancelled).</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_StartOfReception Com_CopyRxData Com_CopyTxData Com_TpRxIndication Com_TpTxConfirmation">
+    <div class="api-header"><span class="api-name">TP APIs (Large I-PDUs)</span><span class="tag tag-amber">For ComIPduType=TP</span><span class="tag tag-green">Reentrant</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">BufReq_ReturnType</span> <span class="fn">Com_StartOfReception</span>(<span class="type">PduIdType</span> <span class="param">id</span>, <span class="param">info</span>, <span class="type">PduLengthType</span> <span class="param">TpSduLength</span>, <span class="type">PduLengthType</span>* <span class="param">bufferSizePtr</span>);
+<span class="type">BufReq_ReturnType</span> <span class="fn">Com_CopyRxData</span>(<span class="type">PduIdType</span> <span class="param">id</span>, <span class="param">info</span>, <span class="type">PduLengthType</span>* <span class="param">bufferSizePtr</span>);
+<span class="type">BufReq_ReturnType</span> <span class="fn">Com_CopyTxData</span>(<span class="type">PduIdType</span> <span class="param">id</span>, <span class="param">info</span>, <span class="param">retry</span>, <span class="type">PduLengthType</span>* <span class="param">availableDataPtr</span>);
+<span class="kw">void</span> <span class="fn">Com_TpRxIndication</span>(<span class="type">PduIdType</span> <span class="param">id</span>, <span class="type">Std_ReturnType</span> <span class="param">result</span>);
+<span class="kw">void</span> <span class="fn">Com_TpTxConfirmation</span>(<span class="type">PduIdType</span> <span class="param">id</span>, <span class="type">Std_ReturnType</span> <span class="param">result</span>);</div>
+      <p style="font-size:13px">For fragmented large I-PDUs (CAN TP, FlexRay ISO TP). <code>StartOfReception</code> returns BUFREQ_E_OVFL if TpSduLength > configured max. Returns BUFREQ_E_NOT_OK for stopped I-PDU. <code>CopyRxData</code>/<code>CopyTxData</code> may be called in interrupt context. <code>TpRxIndication(E_NOT_OK)</code> → all signals treated as invalidated (ComDataInvalidAction applies).</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="Com_MainFunctionTx Com_MainFunctionRx Com_MainFunctionRouteSignals">
+    <div class="api-header"><span class="api-name">Scheduled Functions</span><span class="tag tag-gray">Service IDs: 0x19 / 0x18 / 0x1A</span></div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">Com_MainFunctionTx</span>(<span class="kw">void</span>);  <span class="comment">// TX cyclic, N-Times, MDT, TX DM</span>
+<span class="kw">void</span> <span class="fn">Com_MainFunctionRx</span>(<span class="kw">void</span>);  <span class="comment">// Deferred unpacking, RX DM timers, CbkRxAck</span>
+<span class="kw">void</span> <span class="fn">Com_MainFunctionRouteSignals</span>(<span class="kw">void</span>);  <span class="comment">// Signal gateway forwarding</span></div>
+      <p style="font-size:13px">All three simply return if COM not initialized. Multiple instances possible (per ComMainFunctionTx/Rx/RouteSignals config containers). COM sends an I-PDU AT MOST ONCE per Com_MainFunctionTx call.</p>
+    </div>
+  </div>
+  </div><!-- end api-list -->
+</div>
+
+<!-- ===== SEC 8: ERRORS & DET ===== -->
+<div class="section" id="s8">
+  <h1>Errors &amp; DET</h1>
+  <p class="section-intro">COM reports development errors to DET (Default Error Tracer) with ModuleId=50. Runtime errors use Det_ReportRuntimeError. No production errors (DEM) are defined for COM — bus errors are handled at lower layers.</p>
+
+  <h2>Development Errors</h2>
+  <p style="font-size:13px;color:var(--text2)">Active when <code>ComConfigurationUseDet = TRUE</code>. DET parameters: ModuleId=50, InstanceId=0.</p>
+  <div class="filter-bar"><input type="text" id="det-search" placeholder="Filter errors..." oninput="filterDET(this.value)"></div>
+  <table id="det-table">
+    <thead><tr><th>Error Name</th><th>Detected when</th><th>Triggered by</th></tr></thead>
+    <tbody>
+      <tr><td><code>COM_E_UNINIT</code></td><td>COM API called before Com_Init()</td><td>All APIs (MainFunctions silently return)</td></tr>
+      <tr><td><code>COM_E_PARAM</code></td><td>Invalid parameter (e.g., NULL pointer for SignalDataPtr)</td><td>Com_SendSignal, Com_ReceiveSignal, etc.</td></tr>
+      <tr><td><code>COM_E_PARAM_POINTER</code></td><td>NULL pointer passed where pointer required</td><td>Com_ReceiveSignal, Com_GetVersionInfo, etc.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Runtime Errors</h2>
+  <table>
+    <thead><tr><th>Error Name</th><th>Condition</th><th>Triggered by</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>COM_E_SKIPPED_TRANSMISSION</code></td>
+        <td>Large I-PDU triggered for TX while the same I-PDU is already being transmitted (TP in progress). The second TX request is skipped.</td>
+        <td>Com_MainFunctionTx when large I-PDU already in TP transmission</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Return Codes</h2>
+  <table>
+    <thead><tr><th>Return Code</th><th>Meaning</th><th>Returned by</th></tr></thead>
+    <tbody>
+      <tr><td><code>E_OK</code></td><td>Operation successful</td><td>Most APIs</td></tr>
+      <tr><td><code>E_NOT_OK</code></td><td>Operation failed (general)</td><td>Com_TriggerTransmit (stopped PDU)</td></tr>
+      <tr><td><code>COM_SERVICE_NOT_AVAILABLE</code></td><td>I-PDU group is stopped — operation partially performed (buffer updated but not sent/received normally)</td><td>Com_SendSignal, Com_ReceiveSignal, Com_SendSignalGroup, Com_ReceiveSignalGroup, Com_InvalidateSignal</td></tr>
+      <tr><td><code>COM_BUSY</code></td><td>Large I-PDU TX in progress — write rejected temporarily</td><td>Com_SendSignal for large I-PDU (while TP in progress)</td></tr>
+      <tr><td><code>BUFREQ_OK</code></td><td>Buffer operation successful</td><td>Com_StartOfReception, Com_CopyRxData, Com_CopyTxData</td></tr>
+      <tr><td><code>BUFREQ_E_NOT_OK</code></td><td>Buffer operation failed (I-PDU stopped, or other error)</td><td>Com_StartOfReception (stopped), Com_CopyRxData/TxData (stopped)</td></tr>
+      <tr><td><code>BUFREQ_E_OVFL</code></td><td>TpSduLength exceeds configured (max) I-PDU length</td><td>Com_StartOfReception (large/dynamic I-PDU too big)</td></tr>
+      <tr><td><code>BUFREQ_E_BUSY</code></td><td>Tx data not yet available for requested amount</td><td>Com_CopyTxData (TP retry scenario)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Key Configuration Flags Summary</h2>
+  <table>
+    <thead><tr><th>Parameter</th><th>Default</th><th>Effect when TRUE</th></tr></thead>
+    <tbody>
+      <tr><td><code>ComConfigurationUseDet</code></td><td>Optional</td><td>Enables DET error reporting (development builds)</td></tr>
+      <tr><td><code>ComRetryFailedTransmitRequests</code></td><td>false</td><td>COM retries failed PduR_ComTransmit in next MainFunctionTx</td></tr>
+      <tr><td><code>ComEnableMDTForCyclicTransmission</code></td><td>true</td><td>MDT applied to cyclic TX (periodic + N-Times repetitions). Set false for standard behavior where MDT only applies to event-driven TX.</td></tr>
+      <tr><td><code>ComCancellationSupport</code></td><td>true</td><td>TX cancellation via PduR_ComCancelTransmit supported when TX DM expires (if ComIPduCancellationSupport also configured)</td></tr>
+      <tr><td><code>ComEnableSignalGroupArrayApi</code></td><td>false</td><td>Enables Com_SendSignalGroupArray / Com_ReceiveSignalGroupArray APIs</td></tr>
+      <tr><td><code>ComMetaDataSupport</code></td><td>false</td><td>Enables MetaData APIs (e.g., for J1939 CAN-ID in payload)</td></tr>
+      <tr><td><code>ComVersionInfoApi</code></td><td>false</td><td>Enables Com_GetVersionInfo()</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== SEC 9: SIGNAL GATEWAY ===== -->
+<div class="section" id="s9">
+  <h1>Signal Gateway</h1>
+  <p class="section-intro">COM's integrated Signal Gateway routes signals and signal groups between I-PDUs in a 1:N fashion. A received signal can simultaneously be a local signal AND a source for gateway routing.</p>
+
+  <h2>How Signal Gateway Works</h2>
+  <div class="card">
+    <div class="flow-row">
+      <div class="flow-box" style="background:#0d1f35;border-color:#1d4380;color:var(--blue)">Source Signal (received on RX I-PDU)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="background:var(--amber-bg);border-color:var(--amber-dim);color:var(--amber)">COM Signal Gateway (ComGwMapping)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box" style="background:var(--green-bg);border-color:#1a4a1a;color:var(--green)">Destination Signal(s) on TX I-PDU(s)</div>
+    </div>
+    <ul class="bullet-list" style="margin-top:12px;">
+      <li>Gateway acts as a receiver for source signals, then immediately acts as sender for destination signals</li>
+      <li>Routing happens in <code>Com_MainFunctionRouteSignals()</code> — latency = one call period</li>
+      <li>Same signal processing rules apply: endianness, filters (if configured)</li>
+      <li>Optimizations allowed (e.g., skip unnecessary endianness conversion) as long as logical behavior is identical</li>
+      <li>1:N mapping — one source signal can route to multiple destination signals</li>
+      <li>Signal groups can also be routed</li>
+      <li>Scales to zero if no gateway is configured (<code>SWS_Com_00370</code>)</li>
+    </ul>
+  </div>
+
+  <h2>Gateway Configuration</h2>
+  <div class="card">
+    <p style="font-size:13px">Configured via <code>ComGwMapping</code> containers. Each mapping has:</p>
+    <div class="two-col" style="margin-top:8px;">
+      <div>
+        <h4 style="font-size:13px;margin-bottom:6px;">Source (ComGwSource)</h4>
+        <ul class="bullet-list">
+          <li>Reference to source signal or signal group in RX I-PDU</li>
+          <li>Can be signal (<code>ComGwSignal</code>) or signal group</li>
+          <li>Source signal is still received locally AND routed</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size:13px;margin-bottom:6px;">Destination (ComGwDestination)</h4>
+        <ul class="bullet-list">
+          <li>Reference to destination signal or signal group in TX I-PDU</li>
+          <li>Multiple destinations per source allowed (1:N)</li>
+          <li>ComGwIPduRef: for I-PDU-to-I-PDU routing without signal decomposition</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Signal Gateway Timeout Handling</h2>
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical</div>
+    <p>When a reception deadline monitoring timeout occurs for a source signal that is being gateway-routed, the Signal Gateway <strong>ignores</strong> the timeout — it does NOT propagate the timeout to the destination signal. The timeout notification goes to local RTE users only. (SWS_Com_00377, SWS_Com_00701, SRS_GTW_06089)</p>
+  </div>
+
+  <h2>Large Data Types (TP I-PDUs)</h2>
+  <div class="two-col">
+    <div class="card">
+      <h3>TX Sequence (Large I-PDU)</h3>
+      <ol style="padding-left:20px;font-size:13px;color:var(--text);">
+        <li style="margin-bottom:4px;">COM calls <code>PduR_ComTransmit()</code></li>
+        <li style="margin-bottom:4px;">PduR calls back <code>Com_CopyTxData()</code> one or more times</li>
+        <li>PduR calls <code>Com_TpTxConfirmation()</code> when done</li>
+      </ol>
+      <div class="warn-box" style="margin-top:8px;"><p>After PduR_ComTransmit succeeds, COM must NOT modify the TX buffer until TpTxConfirmation received.</p></div>
+    </div>
+    <div class="card">
+      <h3>RX Sequence (Large I-PDU)</h3>
+      <ol style="padding-left:20px;font-size:13px;color:var(--text);">
+        <li style="margin-bottom:4px;">PduR calls <code>Com_StartOfReception()</code> — COM provides buffer size</li>
+        <li style="margin-bottom:4px;">PduR calls <code>Com_CopyRxData()</code> one or more times</li>
+        <li>PduR calls <code>Com_TpRxIndication(result)</code></li>
+      </ol>
+      <div class="info-box" style="margin-top:8px;"><p>TpRxIndication(E_NOT_OK) → all signals treated as invalidated. CopyRxData/TxData may be called in interrupt context — data consistency must be ensured by implementation.</p></div>
+    </div>
+  </div>
+
+  <h2>Dynamic Length Signals</h2>
+  <div class="card">
+    <ul class="bullet-list">
+      <li>Type: <code>UINT8_DYN</code> only</li>
+      <li>Must be the <strong>LAST</strong> signal in the I-PDU</li>
+      <li>Maximum length configured at configuration time</li>
+      <li>Sent via <code>Com_SendDynSignal(signalId, ptr, length)</code> — sets actual I-PDU length</li>
+      <li>Received via <code>Com_ReceiveDynSignal(signalId, ptr, &length)</code></li>
+      <li>RX length formula: <code>dyn_signal_len = received_PDU_len - (ComBitPosition / 8)</code></li>
+      <li>Max 1 dynamic length signal per I-PDU</li>
+      <li>Update-bit allowed (must be positioned before the dynamic signal)</li>
+    </ul>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">CAN FD Note</div><p>For CAN FD dynamic length I-PDUs, using IpduM Multi PDU Mapping is recommended to avoid length misinterpretation due to CAN FD's discrete data lengths (8, 12, 16, 20, 24, 32, 48, 64 bytes).</p></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const sections=document.querySelectorAll('.section');
+const navBtns=document.querySelectorAll('.nav-tabs button');
+function showSec(n){sections.forEach((s,i)=>s.classList.toggle('active',i===n));navBtns.forEach((b,i)=>b.classList.toggle('active',i===n));window.scrollTo(0,0)}
+
+const tmDetails={
+  periodic:{title:'PERIODIC — Cyclic Transmission',color:'#3fb950',body:`
+    <p style="font-size:13px"><strong>Configuration:</strong> <code>ComTxModeMode=PERIODIC</code>, <code>ComTxModeTimePeriod</code> (cycle), <code>ComTxModeTimeOffset</code> (initial delay to stagger startup bursts)</p>
+    <p style="font-size:13px;margin-top:8px;"><strong>Behavior:</strong> I-PDU is sent every ComTxModeTimePeriod. Signal writes (PENDING or TRIGGERED) only update the buffer. The PERIODIC cycle is what drives the actual transmission. When TMS switches to PERIODIC, timer restarted — first TX immediate (no TimeOffset).</p>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Key Point</div><p>TRIGGERED property in PERIODIC mode: still triggers I-PDU, but effectively only updates the buffer for next cycle. Some implementations may send immediately — check spec carefully. MDT not applied to cyclic part by default.</p></div>
+  `},
+  direct:{title:'DIRECT — Event-Driven Transmission',color:'#58a6ff',body:`
+    <p style="font-size:13px"><strong>Configuration:</strong> <code>ComTxModeMode=DIRECT</code>, <code>ComTxModeNumberOfRepetitions</code> (N, default 0 = OSEK-original), <code>ComTxModeRepetitionPeriod</code></p>
+    <p style="font-size:13px;margin-top:8px;"><strong>Behavior:</strong> Only TRIGGERED signals drive transmission. N+1 total transmissions (1 immediately + N repetitions at RepetitionPeriod). New send request cancels remaining repetitions and restarts. If N=0: exactly 1 transmission.</p>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">N-Times detail</div><p>ComTxModeNumberOfRepetitions=0 → original OSEK DIRECT mode (1 TX, no repetition). Setting N=2 means 3 total transmissions (1 + 2 repetitions), counting successful confirmations.</p></div>
+  `},
+  mixed:{title:'MIXED — Periodic + Event-Driven',color:'#bc8cff',body:`
+    <p style="font-size:13px"><strong>Configuration:</strong> <code>ComTxModeMode=MIXED</code>, <code>ComTxModeTimePeriod</code>, <code>ComTxModeNumberOfRepetitions</code>, <code>ComTxModeRepetitionPeriod</code></p>
+    <p style="font-size:13px;margin-top:8px;"><strong>Behavior:</strong> Combines periodic baseline with event-driven bursts. Cyclic TX happens regardless of signal writes. When TRIGGERED signal fires: N+1 burst overlaid on top of cyclic. If cyclic TX and burst overlap, cyclic confirmation counts as one of the N+1.</p>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Exam Pitfall</div><p>If N-Times burst starts during pending cyclic confirmation: only N-1 additional transmissions occur (cyclic = 1st). TX DM timer reset should be configured large enough to accommodate N repetitions + possible cyclic overlap.</p></div>
+  `},
+  none:{title:'NONE — No Autonomous Transmission',color:'#8b949e',body:`
+    <p style="font-size:13px"><strong>Configuration:</strong> <code>ComTxModeMode=NONE</code></p>
+    <p style="font-size:13px;margin-top:8px;"><strong>Behavior:</strong> COM never autonomously sends this I-PDU. The only way to transmit is via <code>Com_TriggerTransmit()</code> called by PduR (LIN scheduler slot, FlexRay static slot, NM). I-PDU data always available for reading. Signal writes still update the buffer.</p>
+    <div class="info-box" style="margin-top:8px;"><p>If TMS=false maps to NONE: effectively disables sending. TX DM: if NONE is the only mode → DM timer starts on I-PDU group start. If NONE is one of two modes → DM disabled when NONE is active.</p></div>
+  `}
+};
+function showTMDetail(key){const d=tmDetails[key];document.getElementById('tm-detail').innerHTML=`<h3 style="color:${d.color};margin-bottom:10px;">${d.title}</h3>${d.body}`}
+function filterAPI(q){q=q.toLowerCase();document.querySelectorAll('#api-list .api-card').forEach(c=>{c.style.display=!q||(c.dataset.name||'').toLowerCase().includes(q)?'':'none'})}
+function filterDET(q){q=q.toLowerCase();document.querySelectorAll('#det-table tbody tr').forEach(r=>{r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none'})}
+</script>
+</body>
+</html>

@@ -1,0 +1,750 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:0 0 12px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab{padding:6px 12px;font-size:13px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px}
+.card h3{font-size:15px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary)}
+.card p,.card li{font-size:13px;line-height:1.6;color:var(--color-text-secondary)}
+.card li{margin-left:16px;margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--border-radius-md);margin:2px}
+.b-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.b-green{background:var(--color-background-success);color:var(--color-text-success)}
+.b-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.b-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--color-background-secondary);padding:6px 10px;text-align:left;font-weight:500;font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+.api-block{border-left:3px solid var(--color-border-info);padding:10px 14px;margin-bottom:10px;background:var(--color-background-secondary);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.api-block h4{font-size:13px;font-weight:500;margin-bottom:6px;font-family:var(--font-mono)}
+.api-block p{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.highlight{background:var(--color-background-warning);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:10px;font-size:12px;color:var(--color-text-primary)}
+.highlight strong{font-weight:500}
+.state-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;text-align:center;font-size:13px;font-weight:500}
+.arrow-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);margin:6px 0}
+.seq-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.seq-text{font-size:12px;color:var(--color-text-secondary);padding-top:3px}
+.warn-box{background:var(--color-background-danger);border:0.5px solid var(--color-border-danger,var(--color-border-tertiary));border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--color-text-danger)}
+.ok-box{background:var(--color-background-success);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--color-text-success)}
+.section-title{font-size:14px;font-weight:500;margin:16px 0 8px;color:var(--color-text-primary)}
+.param-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.param-row:last-child{border-bottom:none}
+.param-name{font-family:var(--font-mono);font-size:11px;color:var(--color-text-primary)}
+.param-val{color:var(--color-text-secondary)}
+</style>
+
+<div style="padding:12px 0">
+<h2 class="sr-only">AUTOSAR PORT Driver comprehensive study guide</h2>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">Overview</div>
+  <div class="tab" onclick="switchTab('state')">State machine</div>
+  <div class="tab" onclick="switchTab('functional')">Functional spec</div>
+  <div class="tab" onclick="switchTab('api')">API spec</div>
+  <div class="tab" onclick="switchTab('errors')">Errors & DET</div>
+  <div class="tab" onclick="switchTab('sequences')">Sequences</div>
+  <div class="tab" onclick="switchTab('types')">Data types</div>
+  <div class="tab" onclick="switchTab('davinci')">DaVinci config</div>
+  <div class="tab" onclick="switchTab('debug')">Test & debug</div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="panel active">
+  <div class="highlight"><strong>Core purpose:</strong> PORT driver initializes the ENTIRE port structure of the MCU. Every pin's function, direction, and level is set here before any other MCAL driver uses it.</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>What PORT driver does</h3>
+      <ul>
+        <li>Initializes ALL on-chip ports and port pins</li>
+        <li>Assigns pin functionality (GPIO, ADC, SPI, CAN, LIN, PWM…)</li>
+        <li>Sets direction (IN / OUT) per pin</li>
+        <li>Sets initial output level (HIGH / LOW)</li>
+        <li>Enables runtime direction / mode change (if configured)</li>
+        <li>Sets unused pins to a defined safe state</li>
+        <li>Provides symbolic pin names via <code>Port.h</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>What PORT driver does NOT do</h3>
+      <ul>
+        <li>Read/write pin data values → that is DIO driver</li>
+        <li>Configure pin-level inversion → IO HW Abstraction does that</li>
+        <li>Provide callback notifications → ICU or complex driver handles that</li>
+        <li>Have scheduled functions (no cyclic tasks)</li>
+        <li>Have mandatory interface dependencies (only optional DET)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Architecture position (MCAL layer)</h3>
+    <table>
+      <thead><tr><th>Driver</th><th>Port Pin term</th><th>Port subset term</th><th>Whole port term</th></tr></thead>
+      <tbody>
+        <tr><td><strong>DIO Driver</strong></td><td>Channel</td><td>Channel Group</td><td>Port</td></tr>
+        <tr><td><strong>PORT Driver</strong></td><td>Port pin</td><td>— (none)</td><td>Port</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px">Stack: IO HW Abstraction → PORT/DIO Driver → On-Chip Registers → On-Chip Hardware (PIN0…PINn)</p>
+  </div>
+  <div class="card">
+    <h3>Critical initialization rule</h3>
+    <p><strong>PORT_Init() MUST be called before any DIO function.</strong> If PORT is not initialized, DIO functions exhibit <em>undefined behaviour</em>. In AUTOSAR startup, PORT init comes immediately after MCU driver init.</p>
+    <p style="margin-top:6px">Startup order: MCU_Init → PORT_Init → other MCAL inits → OS start → application</p>
+  </div>
+  <div class="card">
+    <h3>Supported pin functionalities (modes)</h3>
+    <span class="badge b-blue">General purpose I/O (DIO)</span>
+    <span class="badge b-blue">ADC</span>
+    <span class="badge b-blue">SPI</span>
+    <span class="badge b-blue">SCI</span>
+    <span class="badge b-blue">PWM</span>
+    <span class="badge b-blue">CAN</span>
+    <span class="badge b-blue">LIN</span>
+    <span class="badge b-blue">FlexRay</span>
+    <span class="badge b-blue">ICU</span>
+    <span class="badge b-blue">MEM (external memory)</span>
+    <span class="badge b-blue">DIO_GPT (timer)</span>
+    <span class="badge b-blue">DIO_WDG (watchdog)</span>
+    <p style="margin-top:8px">Configuration and mode of port pins is <strong>microcontroller and ECU dependent</strong>.</p>
+  </div>
+  <div class="card">
+    <h3>Key constraint (exam critical)</h3>
+    <p>It is the <strong>user's responsibility</strong> to ensure the same Port/Port pin is not accessed in parallel by different entities. No built-in protection against: two tasks configuring same port, same pin, or different pins on same port simultaneously.</p>
+  </div>
+</div>
+
+<!-- STATE MACHINE -->
+<div id="state" class="panel">
+  <div class="highlight"><strong>PORT driver has 2 states: UNINIT and INIT.</strong> Simple compared to other MCAL drivers. No SLEEP state.</div>
+  
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="state-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">
+      PORT_UNINIT<br><span style="font-size:11px;font-weight:400">After reset / before Port_Init()</span>
+    </div>
+    <div class="state-box" style="background:var(--color-background-success);color:var(--color-text-success)">
+      PORT_INIT<br><span style="font-size:11px;font-weight:400">After Port_Init() succeeds</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>State transitions</h3>
+    <div class="arrow-row">
+      <span class="badge b-red">UNINIT</span>
+      <span>→</span>
+      <span style="font-size:12px;font-family:var(--font-mono)">Port_Init(ConfigPtr)</span>
+      <span>→</span>
+      <span class="badge b-green">INIT</span>
+    </div>
+    <div class="arrow-row">
+      <span class="badge b-green">INIT</span>
+      <span>→</span>
+      <span style="font-size:12px;font-family:var(--font-mono)">Port_Init(ConfigPtr) again</span>
+      <span>→</span>
+      <span class="badge b-green">INIT</span>
+      <span style="font-size:11px">(re-initialization is allowed)</span>
+    </div>
+    <div class="arrow-row">
+      <span class="badge b-red">UNINIT</span>
+      <span>→</span>
+      <span style="font-size:12px">Any other API call</span>
+      <span>→</span>
+      <span class="badge b-red">DET error: PORT_E_UNINIT (0x0F)</span>
+    </div>
+    <p style="margin-top:8px;font-size:12px;color:var(--color-text-secondary)">Note: There is NO explicit de-initialization function. Calling Port_Init() again re-initializes to a new configuration state.</p>
+  </div>
+
+  <div class="card">
+    <h3>API availability per state</h3>
+    <table>
+      <thead><tr><th>API</th><th>UNINIT state</th><th>INIT state</th></tr></thead>
+      <tbody>
+        <tr><td><code>Port_Init()</code></td><td><span class="badge b-green">Allowed (transitions to INIT)</span></td><td><span class="badge b-green">Allowed (re-init)</span></td></tr>
+        <tr><td><code>Port_SetPinDirection()</code></td><td><span class="badge b-red">PORT_E_UNINIT reported</span></td><td><span class="badge b-green">Allowed</span></td></tr>
+        <tr><td><code>Port_RefreshPortDirection()</code></td><td><span class="badge b-red">PORT_E_UNINIT reported</span></td><td><span class="badge b-green">Allowed</span></td></tr>
+        <tr><td><code>Port_GetVersionInfo()</code></td><td><span class="badge b-warn">Allowed (no UNINIT check)</span></td><td><span class="badge b-green">Allowed</span></td></tr>
+        <tr><td><code>Port_SetPinMode()</code></td><td><span class="badge b-red">PORT_E_UNINIT reported</span></td><td><span class="badge b-green">Allowed</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>State diagram exam points</h3>
+    <ul>
+      <li>Power-on reset → MCU comes up in UNINIT state</li>
+      <li><code>Port_Init()</code> called ONCE by EcuM (ECU Manager) during startup</li>
+      <li>After init, state stays INIT for entire ECU operation</li>
+      <li>Re-initialization (Port_Init again) allowed but environment must not call it during running operation if multiple callers exist</li>
+      <li>Error detection: if DET enabled and any API called in UNINIT → DET gets <code>PORT_E_UNINIT</code>, function skips execution (no side effect)</li>
+      <li>No MCU reset triggered by PORT driver state errors</li>
+    </ul>
+  </div>
+</div>
+
+<!-- FUNCTIONAL SPEC -->
+<div id="functional" class="panel">
+  <div class="card">
+    <h3>[SWS_Port_00001] Initialization</h3>
+    <p>PORT driver shall initialize the WHOLE port structure of the MCU. Defining the order in which ports and port pins are configured is the task of the configuration tool.</p>
+  </div>
+  <div class="section-title">7.1.2.1 Configuration of Port Pin Properties</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>[SWS_Port_00004] Functionality</h3>
+      <p>PORT driver shall allow configuration of different functionality per port/pin: ADC, SPI, DIO etc. Configuration is microcontroller dependent.</p>
+    </div>
+    <div class="card">
+      <h3>[SWS_Port_00079] Mandatory configs</h3>
+      <ul>
+        <li>Pin direction (input/output)</li>
+        <li>Pin level initial value</li>
+        <li>Pin direction changeable at runtime (yes/no)</li>
+        <li>Port mode changeable at runtime (yes/no)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>[SWS_Port_00081] Optional configs (if HW supports)</h3>
+    <span class="badge b-gray">Slew rate control</span>
+    <span class="badge b-gray">Internal pull-up activation</span>
+    <span class="badge b-gray">Input thresholds</span>
+    <span class="badge b-gray">Pin driven mode (push-pull / open drain)</span>
+    <span class="badge b-gray">Readback type (pin level or output register)</span>
+  </div>
+  <div class="warn-box">[SWS_Port_00082] PORT driver shall NOT configure pin level inversion. Default value (not inverted) is set. Level inversion is done by IO Hardware Abstraction layer.</div>
+
+  <div class="section-title">7.1.2.2 Switch port pin direction (runtime)</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>[SWS_Port_00137] Runtime direction change</h3>
+      <p>For pins configured as "direction changeable" in the configuration tool, PORT driver allows user to change direction at runtime via <code>Port_SetPinDirection()</code>.</p>
+    </div>
+    <div class="card">
+      <h3>[SWS_Port_00138] Output latch preservation</h3>
+      <p>If MCU has an output latch for the pin, switching direction shall NOT alter the level already set in the output latch. Critical for safety — prevents glitches.</p>
+    </div>
+  </div>
+
+  <div class="section-title">7.1.2.3 Refresh port direction</div>
+  <div class="card">
+    <h3>[SWS_Port_00066] Refresh function purpose</h3>
+    <p><code>Port_RefreshPortDirection()</code> allows user to refresh direction of those port pins whose direction is set by configuration and <strong>cannot be changed dynamically</strong>. Used to restore direction registers if corrupted (e.g. by EMI, software bug).</p>
+    <p style="margin-top:6px">[SWS_Port_00061] Pins marked as "direction changeable at runtime" are <strong>EXCLUDED</strong> from this refresh. Only static-direction pins are refreshed.</p>
+  </div>
+
+  <div class="section-title">7.1.2.4 Unused ports and pins</div>
+  <div class="card">
+    <h3>[SWS_Port_00005] Unused pin safety</h3>
+    <p>PORT driver shall configure ALL unused ports and pins (neither GPIO nor special purpose IO) to a <strong>defined state</strong>. Floating unconnected pins are a safety and EMC risk — this requirement ensures no pin is left undefined.</p>
+  </div>
+
+  <div class="section-title">7.1.2.5 Symbolic names</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>[SWS_Port_00006] [SWS_Port_00207]</h3>
+      <p>User configures symbolic names for port pins (e.g. <code>PORT_A_PIN_0</code>). These are defined in the configuration tool (DaVinci).</p>
+    </div>
+    <div class="card">
+      <h3>[SWS_Port_00208] Publication</h3>
+      <p>PORT driver implementer publishes symbolic names via <code>Port.h</code>. Application uses these symbolic names (not raw numbers) for portability.</p>
+    </div>
+  </div>
+
+  <div class="section-title">7.1.2.6 Atomicity</div>
+  <div class="card">
+    <h3>[SWS_Port_00075] Atomic port access</h3>
+    <p>PORT driver shall provide <strong>atomic access</strong> to all ports and port pins. Atomic = non-interruptible access via atomic instructions OR exclusive area (interrupt disable by BSW scheduler). Prevents race conditions on shared port registers.</p>
+  </div>
+
+  <div class="section-title">7.1.2 — Port_Init special rules</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>[SWS_Port_00055] Output latch on init</h3>
+      <p><code>Port_Init()</code> shall set output latch to configured default level BEFORE setting direction to output. Prevents pin glitch at startup (brief wrong-level output).</p>
+    </div>
+    <div class="card">
+      <h3>[SWS_Port_00043] No glitches</h3>
+      <p><code>Port_Init()</code> shall avoid glitches and spikes on affected port pins. Implementer must choose register write order carefully.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Register initialization rules (SRS_SPAL_12461)</h3>
+    <table>
+      <thead><tr><th>Register type</th><th>Initialized by</th><th>SWS ref</th></tr></thead>
+      <tbody>
+        <tr><td>Hardware allows only one usage</td><td>Driver implementing that functionality</td><td>00113</td></tr>
+        <tr><td>Affects multiple HW modules + is I/O register</td><td>PORT driver (Port_Init)</td><td>00214</td></tr>
+        <tr><td>Affects multiple HW modules + NOT I/O register</td><td>MCU driver</td><td>00215</td></tr>
+        <tr><td>One-time writable, must init after reset</td><td>Startup code</td><td>00217</td></tr>
+        <tr><td>All other registers</td><td>Startup code</td><td>00218</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- API SPEC -->
+<div id="api" class="panel">
+  <div class="highlight"><strong>5 functions total.</strong> All synchronous. No callbacks. No scheduled functions. All declared in <code>Port.h</code>.</div>
+
+  <div class="api-block">
+    <h4>Port_Init (ConfigPtr) — Service ID: 0x00</h4>
+    <p><strong>Syntax:</strong> <code>void Port_Init(const Port_ConfigType* ConfigPtr)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> void</p>
+    <p><strong>What it does:</strong> Initializes ALL ports and port pins per ConfigPtr. Sets all variables to initial state. Avoids glitches. Sets output latch before direction.</p>
+    <p><strong>ConfigPtr = NULL:</strong> Only for VARIANT-PRE-COMPILE. NULL pointer passed — configuration is in ROM, pointer not needed.</p>
+    <p><strong>Key rule:</strong> Must be called FIRST before any other PORT/DIO API. Can be called again to re-initialize. Do NOT call during running operation if multiple callers exist.</p>
+    <p><strong>DET errors:</strong> <code>PORT_E_INIT_FAILED</code> if wrong parameter passed.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>Port_SetPinDirection (Pin, Direction) — Service ID: 0x01</h4>
+    <p><strong>Syntax:</strong> <code>void Port_SetPinDirection(Port_PinType Pin, Port_PinDirectionType Direction)</code></p>
+    <p><strong>Reentrancy:</strong> Reentrant (different pins only) | <strong>Return:</strong> void</p>
+    <p><strong>What it does:</strong> Sets direction of specified pin at runtime. Only works for pins with <code>PortPinDirectionChangeable = TRUE</code>.</p>
+    <p><strong>Availability:</strong> Only compiled in if pre-compile parameter <code>PortSetPinDirectionApi = TRUE</code>. If FALSE → function does not exist.</p>
+    <p><strong>Latch preservation:</strong> Does not alter output latch value when switching direction.</p>
+    <p><strong>DET errors:</strong> <code>PORT_E_UNINIT</code>, <code>PORT_E_PARAM_PIN</code>, <code>PORT_E_DIRECTION_UNCHANGEABLE</code></p>
+  </div>
+
+  <div class="api-block">
+    <h4>Port_RefreshPortDirection (void) — Service ID: 0x02</h4>
+    <p><strong>Syntax:</strong> <code>void Port_RefreshPortDirection(void)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> void</p>
+    <p><strong>What it does:</strong> Refreshes direction of all statically-configured pins back to configured value. SKIPS pins marked as direction-changeable at runtime.</p>
+    <p><strong>Use case:</strong> Safety mechanism — if EMI or a software bug corrupted direction registers, this restores them. Typically called cyclically by BSW scheduler.</p>
+    <p><strong>DET errors:</strong> <code>PORT_E_UNINIT</code></p>
+  </div>
+
+  <div class="api-block">
+    <h4>Port_GetVersionInfo (versioninfo) — Service ID: 0x03</h4>
+    <p><strong>Syntax:</strong> <code>void Port_GetVersionInfo(Std_VersionInfoType* versioninfo)</code></p>
+    <p><strong>Reentrancy:</strong> Reentrant | <strong>Return:</strong> void (output via pointer)</p>
+    <p><strong>What it does:</strong> Returns module version info (vendor ID, module ID, SW major/minor/patch version) into caller-provided struct.</p>
+    <p><strong>Availability:</strong> Only if <code>PortVersionInfoApi = TRUE</code>.</p>
+    <p><strong>DET errors:</strong> <code>PORT_E_PARAM_POINTER</code> if NULL pointer passed (when DET enabled)</p>
+    <p><strong>Note:</strong> No PORT_E_UNINIT check — can be called in UNINIT state.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>Port_SetPinMode (Pin, Mode) — Service ID: 0x04</h4>
+    <p><strong>Syntax:</strong> <code>void Port_SetPinMode(Port_PinType Pin, Port_PinModeType Mode)</code></p>
+    <p><strong>Reentrancy:</strong> Reentrant (different pins only) | <strong>Return:</strong> void</p>
+    <p><strong>What it does:</strong> Changes operational mode of pin at runtime (e.g. from DIO to SPI). Only for pins with <code>PortPinModeChangeable = TRUE</code>.</p>
+    <p><strong>Availability:</strong> Only if <code>PortSetPinModeApi = TRUE</code>.</p>
+    <p><strong>DET errors:</strong> <code>PORT_E_UNINIT</code>, <code>PORT_E_PARAM_PIN</code>, <code>PORT_E_PARAM_INVALID_MODE</code>, <code>PORT_E_MODE_UNCHANGEABLE</code></p>
+  </div>
+
+  <div class="card">
+    <h3>API quick reference</h3>
+    <table>
+      <thead><tr><th>Function</th><th>ID</th><th>Sync</th><th>Reentrant</th><th>Conditional compile</th></tr></thead>
+      <tbody>
+        <tr><td><code>Port_Init</code></td><td>0x00</td><td>Sync</td><td>No</td><td>Always present</td></tr>
+        <tr><td><code>Port_SetPinDirection</code></td><td>0x01</td><td>Sync</td><td>Yes*</td><td><code>PortSetPinDirectionApi=TRUE</code></td></tr>
+        <tr><td><code>Port_RefreshPortDirection</code></td><td>0x02</td><td>Sync</td><td>No</td><td>Always present</td></tr>
+        <tr><td><code>Port_GetVersionInfo</code></td><td>0x03</td><td>Sync</td><td>Yes</td><td><code>PortVersionInfoApi=TRUE</code></td></tr>
+        <tr><td><code>Port_SetPinMode</code></td><td>0x04</td><td>Sync</td><td>Yes*</td><td><code>PortSetPinModeApi=TRUE</code></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:6px;font-size:11px;color:var(--color-text-secondary)">*Reentrant only if accessing DIFFERENT pins. Same pin from two tasks = user responsibility to serialize.</p>
+  </div>
+</div>
+
+<!-- ERRORS & DET -->
+<div id="errors" class="panel">
+  <div class="highlight"><strong>PORT driver has ONLY development errors.</strong> No runtime errors. No production errors. No extended production errors.</div>
+
+  <div class="card">
+    <h3>[SWS_Port_00051] Development error table</h3>
+    <table>
+      <thead><tr><th>Error code</th><th>Value</th><th>Trigger condition</th></tr></thead>
+      <tbody>
+        <tr><td><code>PORT_E_PARAM_PIN</code></td><td>0x0A</td><td>Invalid Port Pin ID requested</td></tr>
+        <tr><td><code>PORT_E_DIRECTION_UNCHANGEABLE</code></td><td>0x0B</td><td>SetPinDirection called on pin not configured as changeable</td></tr>
+        <tr><td><code>PORT_E_INIT_FAILED</code></td><td>0x0C</td><td>Port_Init called with wrong parameter</td></tr>
+        <tr><td><code>PORT_E_PARAM_INVALID_MODE</code></td><td>0x0D</td><td>SetPinMode called with invalid mode value</td></tr>
+        <tr><td><code>PORT_E_MODE_UNCHANGEABLE</code></td><td>0x0E</td><td>SetPinMode called when PortPinModeChangeable = FALSE</td></tr>
+        <tr><td><code>PORT_E_UNINIT</code></td><td>0x0F</td><td>Any API called before Port_Init()</td></tr>
+        <tr><td><code>PORT_E_PARAM_POINTER</code></td><td>0x10</td><td>GetVersionInfo called with NULL pointer</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>DET error per function mapping</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Possible DET errors</th></tr></thead>
+      <tbody>
+        <tr><td><code>Port_Init</code></td><td><code>PORT_E_INIT_FAILED</code></td></tr>
+        <tr><td><code>Port_SetPinDirection</code></td><td><code>PORT_E_UNINIT</code>, <code>PORT_E_PARAM_PIN</code>, <code>PORT_E_DIRECTION_UNCHANGEABLE</code></td></tr>
+        <tr><td><code>Port_RefreshPortDirection</code></td><td><code>PORT_E_UNINIT</code></td></tr>
+        <tr><td><code>Port_GetVersionInfo</code></td><td><code>PORT_E_PARAM_POINTER</code></td></tr>
+        <tr><td><code>Port_SetPinMode</code></td><td><code>PORT_E_UNINIT</code>, <code>PORT_E_PARAM_PIN</code>, <code>PORT_E_PARAM_INVALID_MODE</code>, <code>PORT_E_MODE_UNCHANGEABLE</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>[SWS_Port_00077] Parameter checking order (exam trap!)</h3>
+    <p>When DET is enabled, parameters are checked <strong>in the order passed</strong>. If first check fails, further parameter checking is SKIPPED.</p>
+    <p style="margin-top:6px">Example for <code>Port_SetPinDirection(Pin, Direction)</code>:</p>
+    <ol style="font-size:12px;color:var(--color-text-secondary);padding-left:16px;margin-top:4px">
+      <li>Check if module is initialized → if fail: report PORT_E_UNINIT, return</li>
+      <li>Check Pin ID validity → if fail: report PORT_E_PARAM_PIN, return</li>
+      <li>Check pin is direction changeable → if fail: report PORT_E_DIRECTION_UNCHANGEABLE, return</li>
+      <li>Execute the function</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>[SWS_Port_00087] Behavior on error detection</h3>
+    <p>If DET enabled and error detected: <strong>desired functionality is SKIPPED</strong>. Service returns without any action. No partial execution.</p>
+    <p style="margin-top:6px">DET module used: <code>Det_ReportError()</code> via <code>Det.h</code> (optional interface — only if DET enabled).</p>
+    <p style="margin-top:6px">Enable DET: set <code>PortDevErrorDetect = TRUE</code> in PortGeneral container.</p>
+  </div>
+
+  <div class="card">
+    <h3>Version check (compatibility guard)</h3>
+    <p>PORT module prevents integration of incompatible files via preprocessor checks. <code>.c</code> file checks header version: SW version numbers of <code>.c</code> and <code>.h</code> must match. If mismatch → compile error. Refer to SWS BSW General section 5.1.8.</p>
+  </div>
+</div>
+
+<!-- SEQUENCES -->
+<div id="sequences" class="panel">
+  <div class="highlight">4 key sequence diagrams in the spec. All are User ↔ PORT module interactions. All synchronous (no callbacks).</div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Seq 9.1 — Overall port configuration</h3>
+      <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">System startup (EcuM) calls <code>Port_Init(const Port_ConfigType*)</code> with pointer to configuration set</div></div>
+      <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">PORT module initializes ALL port registers per config data</div></div>
+      <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><code>Port_Init()</code> returns (void). State = INIT. Note: "All ports are initialized" state recorded internally</div></div>
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">After this: DIO, SPI, ADC etc. can be used safely.</p>
+    </div>
+    <div class="card">
+      <h3>Seq 9.2 — Set pin direction (runtime)</h3>
+      <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Precondition: Port_Init() called. Pin must have <code>PortPinDirectionChangeable=TRUE</code></div></div>
+      <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">User calls <code>Port_SetPinDirection(Port_PinType, Port_PinDirectionType)</code></div></div>
+      <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">If DET enabled: check UNINIT, check PIN_ID, check DIRECTION_UNCHANGEABLE</div></div>
+      <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">PORT module writes direction register atomically. Output latch NOT changed.</div></div>
+      <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Returns void. State: "port pin direction is set"</div></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:10px">
+    <div class="card">
+      <h3>Seq 9.3 — Refresh all port directions</h3>
+      <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Precondition: Port_Init() called</div></div>
+      <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">User (or BSW scheduler) calls <code>Port_RefreshPortDirection(void)</code></div></div>
+      <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">PORT loops through ALL configured pins</div></div>
+      <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">For pins with <code>PortPinDirectionChangeable=FALSE</code>: restore direction register to configured value</div></div>
+      <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Pins with <code>PortPinDirectionChangeable=TRUE</code>: SKIP (do not touch)</div></div>
+      <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Returns void. State: "port pin direction is refreshed"</div></div>
+    </div>
+    <div class="card">
+      <h3>Seq 9.4 — Change pin mode (runtime)</h3>
+      <div class="seq-step"><div class="seq-num">1</div><div class="seq-num" style="background:var(--color-background-warning);color:var(--color-text-warning)">!</div><div class="seq-text">Precondition: Port_Init() called. Pin must have <code>PortPinModeChangeable=TRUE</code>. <code>PortSetPinModeApi=TRUE</code></div></div>
+      <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">User calls <code>Port_SetPinMode(Port_PinType, Port_PinModeType)</code></div></div>
+      <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">DET checks: UNINIT → PIN_ID → INVALID_MODE → MODE_UNCHANGEABLE</div></div>
+      <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">PORT module configures pin multiplexing register for new mode</div></div>
+      <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Returns void. State: "port pin mode is set"</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Sequence diagram exam tips</h3>
+    <ul>
+      <li>All diagrams show User as initiator, PORT module as responder — no PORT-initiated sequences</li>
+      <li>All functions are synchronous — there is NO asynchronous completion notification</li>
+      <li>No callback from PORT → user after operations complete</li>
+      <li>DET error check happens INSIDE Port module, before register access</li>
+      <li><code>Port_RefreshPortDirection</code> is the only function with a loop internally across all pins</li>
+      <li>Reentrant functions (SetPinDirection, SetPinMode): two concurrent calls to different pins are safe; same pin from two tasks = hazard</li>
+    </ul>
+  </div>
+</div>
+
+<!-- DATA TYPES -->
+<div id="types" class="panel">
+  <div class="card">
+    <h3>Port_ConfigType [SWS_Port_00228]</h3>
+    <table>
+      <tr><th>Attribute</th><th>Value</th></tr>
+      <tr><td>Kind</td><td>Structure</td></tr>
+      <tr><td>Elements</td><td>Hardware Dependent Structure — contents MCU-specific</td></tr>
+      <tr><td>Available via</td><td><code>Port.h</code></td></tr>
+      <tr><td>Purpose</td><td>External data structure containing initialization data for Port_Init()</td></tr>
+      <tr><td>Config variant note</td><td>For VARIANT-PRE-COMPILE, NULL pointer passed; for POST-BUILD, valid pointer to configured data</td></tr>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Port_PinType [SWS_Port_00229]</h3>
+      <table>
+        <tr><th>Attribute</th><th>Value</th></tr>
+        <tr><td>Kind</td><td>Type</td></tr>
+        <tr><td>Derived from</td><td>uint</td></tr>
+        <tr><td>Concrete type</td><td><code>uint8</code>, <code>uint16</code>, or <code>uint32</code> (MCU dependent)</td></tr>
+        <tr><td>Range</td><td>0 to (number of port pins - 1)</td></tr>
+        <tr><td>Purpose</td><td>Symbolic name for a port pin (not raw number in app)</td></tr>
+        <tr><td>SWS_Port_00013</td><td>Port_PinType used for symbolic pin names</td></tr>
+        <tr><td>SWS_Port_00219</td><td>Must be uint8/uint16/uint32 per MCU platform</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Port_PinDirectionType [SWS_Port_00230]</h3>
+      <table>
+        <tr><th>Attribute</th><th>Value</th></tr>
+        <tr><td>Kind</td><td>Enumeration</td></tr>
+        <tr><td>PORT_PIN_IN</td><td>0x00 — sets pin as input</td></tr>
+        <tr><td>PORT_PIN_OUT</td><td>0x01 — sets pin as output</td></tr>
+        <tr><td>SWS_Port_00046</td><td>Type for defining direction</td></tr>
+        <tr><td>SWS_Port_00220</td><td>Enumeration with exactly these two values</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Port_PinModeType [SWS_Port_00231]</h3>
+    <table>
+      <tr><th>Attribute</th><th>Value</th></tr>
+      <tr><td>Kind</td><td>Type</td></tr>
+      <tr><td>Derived from</td><td>uint</td></tr>
+      <tr><td>Concrete type</td><td><code>uint8</code>, <code>uint16</code>, or <code>uint32</code></td></tr>
+      <tr><td>Range</td><td>Implementation specific — determined by number of modes the MCU supports</td></tr>
+      <tr><td>Multiple modes per pin</td><td>Yes — more than one mode can be configured per pin (e.g. DIO + ICU combined)</td></tr>
+      <tr><td>SWS_Port_00212</td><td>Used with Port_SetPinMode()</td></tr>
+      <tr><td>SWS_Port_00221</td><td>Must be uint8/uint16/uint32</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Imported types [SWS_Port_00129]</h3>
+    <table>
+      <thead><tr><th>Module</th><th>Header</th><th>Imported type</th></tr></thead>
+      <tbody>
+        <tr><td>Std</td><td><code>Std_Types.h</code></td><td><code>Std_ReturnType</code></td></tr>
+        <tr><td>Std</td><td><code>Std_Types.h</code></td><td><code>Std_VersionInfoType</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Predefined mode values (PortPinMode / PortPinInitialMode)</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+      <span class="badge b-blue">PORT_PIN_MODE_DIO</span>
+      <span class="badge b-blue">PORT_PIN_MODE_ADC</span>
+      <span class="badge b-blue">PORT_PIN_MODE_PWM</span>
+      <span class="badge b-blue">PORT_PIN_MODE_SPI</span>
+      <span class="badge b-blue">PORT_PIN_MODE_CAN</span>
+      <span class="badge b-blue">PORT_PIN_MODE_LIN</span>
+      <span class="badge b-blue">PORT_PIN_MODE_ICU</span>
+      <span class="badge b-blue">PORT_PIN_MODE_FLEXRAY</span>
+      <span class="badge b-blue">PORT_PIN_MODE_DIO_GPT</span>
+      <span class="badge b-blue">PORT_PIN_MODE_DIO_WDG</span>
+      <span class="badge b-blue">PORT_PIN_MODE_MEM</span>
+    </div>
+    <p style="margin-top:8px;font-size:12px;color:var(--color-text-secondary)">More HW-specific modes may be added by module implementer (e.g. SPI broken into SpiCsHw, SpicsSw).</p>
+  </div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="davinci" class="panel">
+  <div class="highlight"><strong>Vector DaVinci Developer / Configurator Pro:</strong> All PORT parameters live under the "Port" module. Config hierarchy: Port → PortGeneral + PortConfigSet → PortContainer → PortPin</div>
+
+  <div class="card">
+    <h3>Configuration hierarchy overview</h3>
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:2">
+      Port (EcucModuleDef)<br>
+      &nbsp;├── PortGeneral [1] ← module-wide feature switches<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;├── PortDevErrorDetect (bool)<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;├── PortSetPinDirectionApi (bool)<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;├── PortSetPinModeApi (bool)<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;├── PortVersionInfoApi (bool)<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;└── PortEcucPartitionRef [0..*]<br>
+      &nbsp;└── PortConfigSet [1] ← pin configuration<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── PortContainer [1..*] ← groups pins per HW port<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortNumberOfPortPins (int)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── PortPin [1..*] ← per-pin config<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinId<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinDirection<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinDirectionChangeable<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinInitialMode<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinLevelValue<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinMode [1..*]<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── PortPinModeChangeable<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── PortPinEcucPartitionRef [0..*]
+    </div>
+  </div>
+
+  <div class="section-title">PortGeneral parameters (step 1 in DaVinci)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><code>PortDevErrorDetect</code></td><td>bool</td><td>false</td><td>Enable DET error reporting. Set TRUE for development, FALSE for production builds</td></tr>
+        <tr><td><code>PortSetPinDirectionApi</code></td><td>bool</td><td>—</td><td>Compile <code>Port_SetPinDirection()</code>. Set TRUE if any pin needs runtime direction change</td></tr>
+        <tr><td><code>PortSetPinModeApi</code></td><td>bool</td><td>—</td><td>Compile <code>Port_SetPinMode()</code>. Set TRUE if any pin needs runtime mode switch</td></tr>
+        <tr><td><code>PortVersionInfoApi</code></td><td>bool</td><td>false</td><td>Compile <code>Port_GetVersionInfo()</code>. Typically TRUE for integration testing</td></tr>
+        <tr><td><code>PortEcucPartitionRef</code></td><td>ref [0..*]</td><td>—</td><td>Multicore: maps PORT module to ECUC partition(s). Post-build variant multiplicity.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">PortContainer parameters (step 2 — per HW port)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Range</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>PortNumberOfPortPins</code></td><td>int</td><td>1..65535</td><td>Number of PortPin entries in this PortContainer. Pre-compile time value.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;font-size:12px;color:var(--color-text-secondary)">Create one PortContainer per physical port on the MCU (e.g. PortA, PortB, PortC). Name it after the port for readability.</p>
+  </div>
+
+  <div class="section-title">PortPin parameters (step 3 — per pin, most important)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Meaning / Industry tip</th></tr></thead>
+      <tbody>
+        <tr><td><code>PortPinId</code></td><td>int 1..65535</td><td>Symbolic ID generated from container short name. This becomes the constant in <code>Port.h</code> used in application code.</td></tr>
+        <tr><td><code>PortPinDirection</code></td><td>enum</td><td>PORT_PIN_IN or PORT_PIN_OUT. Must match pin mode (ADC pin must be IN). Fixed if PortPinDirectionChangeable=FALSE.</td></tr>
+        <tr><td><code>PortPinDirectionChangeable</code></td><td>bool</td><td>TRUE → Port_SetPinDirection() can change this pin at runtime. FALSE → direction is fixed, RefreshPortDirection will restore it.</td></tr>
+        <tr><td><code>PortPinInitialMode</code></td><td>enum</td><td>Mode used by Port_Init(). E.g. PORT_PIN_MODE_DIO for a GPIO, PORT_PIN_MODE_CAN for CAN TX/RX.</td></tr>
+        <tr><td><code>PortPinLevelValue</code></td><td>enum</td><td>PORT_PIN_LEVEL_HIGH or PORT_PIN_LEVEL_LOW. Initial output level set BEFORE direction is set to OUT. Critical for output pins.</td></tr>
+        <tr><td><code>PortPinMode</code></td><td>enum [1..*]</td><td>All modes this pin supports. Multiple allowed (e.g. DIO + ICU). The initial mode comes from PortPinInitialMode.</td></tr>
+        <tr><td><code>PortPinModeChangeable</code></td><td>bool</td><td>TRUE → Port_SetPinMode() can switch mode at runtime. FALSE → mode is fixed (Port_SetPinMode returns PORT_E_MODE_UNCHANGEABLE).</td></tr>
+        <tr><td><code>PortPinEcucPartitionRef</code></td><td>ref [0..*]</td><td>Multicore: maps this pin to partition(s). Must be subset of PortEcucPartitionRef. Constraint: if PortEcucPartitionRef set, this must also be set (>0).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">DaVinci step-by-step for a project</div>
+  <div class="card">
+    <h3>Project configuration workflow</h3>
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>Add Port module</strong> to your project in DaVinci. It appears in the BSW module list under MCAL.</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Configure PortGeneral:</strong> Set PortDevErrorDetect=TRUE (development phase). Enable PortSetPinDirectionApi and PortSetPinModeApi based on requirements. Enable PortVersionInfoApi for integration testing.</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>Create PortContainers:</strong> Add one per HW port (e.g. PortA, PortB). Set PortNumberOfPortPins to count of pins you configure in that port.</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>Add PortPin entries:</strong> For each physical pin that needs specific config: set PortPinId (auto-generated from short name), PortPinDirection, PortPinInitialMode, PortPinLevelValue. Give short name like "LED_STATUS" — this becomes your symbolic constant in Port.h.</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>Configure unused pins:</strong> Either add them explicitly with a safe state or configure PortContainer to cover all pins including unused ones set to defined state per SWS_Port_00005.</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>Multicore (if applicable):</strong> Set PortEcucPartitionRef in PortGeneral for each core/partition. Then set PortPinEcucPartitionRef per pin. Constraint: pin partitions must be subset of module partitions.</div></div>
+    <div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><strong>Generate code:</strong> DaVinci generates Port_Cfg.h, Port_Cfg.c, Port_PBcfg.c (for POST-BUILD variant). Port.h gets symbolic pin names. Integrate generated files into your project.</div></div>
+    <div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><strong>Validate:</strong> Check for DaVinci validation errors — mismatched direction vs mode, missing partition refs, duplicate PortPinIds.</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Config variants supported</h3>
+    <table>
+      <thead><tr><th>Variant</th><th>Port_Init() call</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td>VARIANT-PRE-COMPILE</td><td><code>Port_Init(NULL_PTR)</code></td><td>Config fixed at compile time. Fastest. Most automotive use cases.</td></tr>
+        <tr><td>VARIANT-POST-BUILD</td><td><code>Port_Init(&Port_Config)</code></td><td>Config loadable at runtime (e.g. different ECU variants same software).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Multicore constraint (exam important)</h3>
+    <p>[SWS_Port_CONSTR_00233]: ECUC partitions in <code>PortPinEcucPartitionRef</code> must be a subset of partitions in <code>PortEcucPartitionRef</code>.</p>
+    <p style="margin-top:6px">[SWS_Port_CONSTR_00234]: If <code>PortEcucPartitionRef</code> references one or more partitions, <code>PortPinEcucPartitionRef</code> MUST have multiplicity > 0 and reference one or more of those partitions.</p>
+    <p style="margin-top:6px">[SWS_Port_00232]: PORT module shall reject configurations with partition mappings not supported by implementation.</p>
+  </div>
+</div>
+
+<!-- TEST & DEBUG -->
+<div id="debug" class="panel">
+  <div class="highlight"><strong>Integration testing, interface testing, and debugging — industry-level checklist.</strong></div>
+
+  <div class="section-title">Integration testing checklist</div>
+  <div class="card">
+    <h3>Boot sequence verification</h3>
+    <ul>
+      <li>Verify <code>Port_Init()</code> called BEFORE any DIO_ReadChannel, DIO_WriteChannel, SPI_Init etc.</li>
+      <li>Check startup timing: oscilloscope on critical output pins to verify correct initial level appears without glitch</li>
+      <li>Measure: time from reset to Port_Init return — should be deterministic</li>
+      <li>Verify no DET errors during normal startup (read DET error log or set breakpoint in Det_ReportError)</li>
+      <li>Confirm <code>Port_Init(NULL_PTR)</code> used for PRE-COMPILE, valid pointer for POST-BUILD</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Pin-level interface testing (oscilloscope / logic analyzer)</h3>
+    <ul>
+      <li>Output pins: verify correct initial level immediately after Port_Init (no glitch)</li>
+      <li>Input pins: verify correct pull resistor state (pull-up / pull-down / floating) per config</li>
+      <li>After <code>Port_SetPinDirection(PIN, OUTPUT)</code>: verify direction changed, output latch preserved</li>
+      <li>After <code>Port_SetPinMode()</code>: verify alternate function active (e.g. SPI clock appears on pin)</li>
+      <li>After <code>Port_RefreshPortDirection()</code>: force-corrupt direction register via debugger first, then call refresh, verify register restored</li>
+      <li>Unused pins: probe with oscilloscope — must NOT be floating. Should show defined HIGH or LOW.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>DET testing (development error detection)</h3>
+    <ul>
+      <li>Test all DET paths systematically — call each API with wrong parameters</li>
+      <li>Call any API before Port_Init → expect PORT_E_UNINIT (0x0F)</li>
+      <li>Call Port_SetPinDirection with invalid Pin ID → expect PORT_E_PARAM_PIN (0x0A)</li>
+      <li>Call Port_SetPinDirection on non-changeable pin → expect PORT_E_DIRECTION_UNCHANGEABLE (0x0B)</li>
+      <li>Call Port_SetPinMode with unsupported mode → expect PORT_E_PARAM_INVALID_MODE (0x0D)</li>
+      <li>Call Port_SetPinMode on non-mode-changeable pin → expect PORT_E_MODE_UNCHANGEABLE (0x0E)</li>
+      <li>Call Port_GetVersionInfo with NULL → expect PORT_E_PARAM_POINTER (0x10)</li>
+      <li>Verify function returns WITHOUT side effect on error (no register write occurs)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Reentrancy / concurrency testing</h3>
+    <ul>
+      <li>Verify Port_SetPinDirection called simultaneously on DIFFERENT pins from two tasks — no corruption</li>
+      <li>Verify Port_SetPinMode called simultaneously on different pins — no corruption</li>
+      <li>Verify Port_RefreshPortDirection NOT called from two tasks simultaneously (non-reentrant)</li>
+      <li>Verify Port_Init NOT called while other PORT functions running (environment responsibility — but test it)</li>
+      <li>Check atomic access: scope port data register write — no partial writes visible</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Debugging techniques</h3>
+    <ul>
+      <li><strong>Wrong pin behavior after init:</strong> Check PortPinInitialMode, PortPinDirection, PortPinLevelValue in DaVinci config. Regenerate and rebuild.</li>
+      <li><strong>DIO reads wrong value:</strong> Check PORT was initialized before DIO call. Check pin direction = IN. Check pin mode = DIO.</li>
+      <li><strong>Port_SetPinDirection silently fails:</strong> Check PortDevErrorDetect=TRUE, check PortPinDirectionChangeable=TRUE for that pin, check PortSetPinDirectionApi=TRUE in PortGeneral.</li>
+      <li><strong>Pin floats after direction change:</strong> Check output latch (PORT hardware register OLATx) — should retain previous value per SWS_Port_00138.</li>
+      <li><strong>SPI / CAN not working:</strong> Check PORT configured correct mode for those pins (PortPinInitialMode = PORT_PIN_MODE_SPI / PORT_PIN_MODE_CAN). Wrong mode = pin stuck as GPIO.</li>
+      <li><strong>Multicore crash accessing port:</strong> Check PortPinEcucPartitionRef configured for correct core. Check Port_Init called on correct core.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Common exam scenario questions</h3>
+    <table>
+      <thead><tr><th>Scenario</th><th>Answer</th></tr></thead>
+      <tbody>
+        <tr><td>DIO reads garbage after reset</td><td>Port_Init not called before DIO usage — undefined behaviour per spec</td></tr>
+        <tr><td>Output pin briefly shows wrong level at startup</td><td>Port_Init not setting latch before direction — violates SWS_Port_00055</td></tr>
+        <tr><td>RefreshPortDirection changes a runtime-changeable pin's direction unexpectedly</td><td>Impossible per spec — SWS_Port_00061 says those pins are EXCLUDED from refresh</td></tr>
+        <tr><td>Port_SetPinDirection returns but direction unchanged, no DET error</td><td>PortDevErrorDetect=FALSE — DET disabled. Check PortPinDirectionChangeable config.</td></tr>
+        <tr><td>Can Port_Init be called twice?</td><td>Yes — environment may call it again to reinitialize to different config (SWS_Port_00003)</td></tr>
+        <tr><td>Which driver does pin level inversion?</td><td>IO Hardware Abstraction — NOT PORT driver (SWS_Port_00082)</td></tr>
+        <tr><td>Which driver reads/writes pin values?</td><td>DIO driver — PORT only configures, never reads or writes data values</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="ok-box">Industry best practice: Enable PortDevErrorDetect=TRUE during development and integration testing. Disable in final production build for performance (DET calls add overhead). Version check preprocessor directives prevent shipping wrong header/source combinations.</div>
+</div>
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>

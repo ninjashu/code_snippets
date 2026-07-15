@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AUTOSAR SecOC — Complete Study Guide R24-11</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #1a1a1a;
+      background: #f0f2f5;
+      line-height: 1.6
+    }
+
+    .header {
+      background: #0a1628;
+      color: #fff;
+      padding: 20px 32px;
+      border-bottom: 3px solid #e63946
+    }
+
+    .header h1 {
+      font-size: 22px;
+      font-weight: 600
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #6e9bd6;
+      margin-top: 4px
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 12px 32px 0;
+      background: #fff;
+      border-bottom: 1px solid #e0ddd5
+    }
+
+    .tab {
+      padding: 8px 14px;
+      font-size: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      background: #f5f4f0;
+      color: #555;
+      transition: all .15s;
+      border-bottom: none
+    }
+
+    .tab.active {
+      background: #fff;
+      color: #0a1628;
+      font-weight: 700;
+      border-bottom: 1px solid #fff;
+      margin-bottom: -1px
+    }
+
+    .content {
+      padding: 24px 32px;
+      max-width: 1100px;
+      margin: 0 auto
+    }
+
+    .section {
+      display: none
+    }
+
+    .section.active {
+      display: block
+    }
+
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin: 20px 0 8px;
+      color: #0a1628
+    }
+
+    h3 {
+      font-size: 13px;
+      font-weight: 700;
+      margin: 14px 0 6px;
+      color: #222;
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    p {
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.7
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0ddd5;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-bottom: 10px
+    }
+
+    th {
+      text-align: left;
+      padding: 7px 10px;
+      background: #f5f4f0;
+      border-bottom: 2px solid #e0ddd5;
+      font-weight: 700;
+      font-size: 11px;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: .4px
+    }
+
+    td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #f0ede5;
+      vertical-align: top
+    }
+
+    tr:last-child td {
+      border-bottom: none
+    }
+
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      background: #f0ede5;
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #c7254e
+    }
+
+    .tip {
+      background: #e6f4ff;
+      border-left: 4px solid #2255cc;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 10px 0;
+      font-size: 12px
+    }
+
+    .warn {
+      background: #fffbea;
+      border-left: 4px solid #e6a817;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 10px 0;
+      font-size: 12px
+    }
+
+    .danger {
+      background: #fff0f0;
+      border-left: 4px solid #d63031;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 10px 0;
+      font-size: 12px
+    }
+
+    .good {
+      background: #edfaee;
+      border-left: 4px solid #00b894;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 10px 0;
+      font-size: 12px
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 10px
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px
+    }
+
+    .mini {
+      background: #f8f8fc;
+      border: 1px solid #e8e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.7
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f8fc;
+      border-radius: 8px
+    }
+
+    .fnode {
+      padding: 6px 14px;
+      border: 1.5px solid #aac0e8;
+      border-radius: 6px;
+      font-size: 11px;
+      background: #fff;
+      text-align: center;
+      min-width: 80px
+    }
+
+    .fnode-sec {
+      padding: 6px 14px;
+      border: 2px solid #e63946;
+      border-radius: 6px;
+      font-size: 11px;
+      background: #fff5f5;
+      text-align: center;
+      font-weight: 700
+    }
+
+    .farrow {
+      color: #666;
+      font-size: 16px;
+      flex-shrink: 0
+    }
+
+    details {
+      margin: 8px 0;
+      border: 1px solid #e0ddd5;
+      border-radius: 8px;
+      overflow: hidden
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0a1628;
+      padding: 10px 14px;
+      background: #f8f8fc;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    summary::before {
+      content: "▶";
+      font-size: 10px;
+      color: #888;
+      transition: transform .2s;
+      flex-shrink: 0
+    }
+
+    details[open] summary::before {
+      transform: rotate(90deg)
+    }
+
+    .inner {
+      padding: 16px;
+      background: #fff;
+      font-size: 12px;
+      line-height: 1.8
+    }
+
+    .step {
+      padding: 8px 14px;
+      border-left: 3px solid #dde;
+      margin: 4px 0 4px 16px;
+      font-size: 12px;
+      line-height: 1.6
+    }
+
+    .step.hi {
+      border-left-color: #2255cc;
+      background: #e6f4ff;
+      border-radius: 0 6px 6px 0
+    }
+
+    .step.warn {
+      border-left-color: #e6a817;
+      background: #fffbea;
+      border-radius: 0 6px 6px 0;
+      margin-left: 16px;
+      padding: 8px 14px
+    }
+
+    .step.danger {
+      border-left-color: #d63031;
+      background: #fff0f0;
+      border-radius: 0 6px 6px 0;
+      margin-left: 16px;
+      padding: 8px 14px
+    }
+
+    .sws {
+      font-size: 10px;
+      color: #999;
+      font-family: monospace
+    }
+
+    /* PDU layout */
+    .pdu-row {
+      display: flex;
+      gap: 3px;
+      flex-wrap: nowrap;
+      margin: 10px 0;
+      overflow-x: auto
+    }
+
+    .pdu-cell {
+      flex: 1;
+      min-width: 60px;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 5px;
+      border: 1px solid
+    }
+
+    .pdu-auth {
+      background: #e6f4ff;
+      border-color: #2255cc;
+      color: #0a3090
+    }
+
+    .pdu-fv {
+      background: #fff8e6;
+      border-color: #cc8800;
+      color: #7a5a00
+    }
+
+    .pdu-mac {
+      background: #ffe6e6;
+      border-color: #cc3333;
+      color: #7a0000
+    }
+
+    .pdu-hdr {
+      background: #edfaee;
+      border-color: #00b894;
+      color: #006b4a
+    }
+
+    /* state */
+    .st {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px solid
+    }
+
+    .st-uninit {
+      background: #f5f4f0;
+      color: #555;
+      border-color: #aaa
+    }
+
+    .st-init {
+      background: #edfaee;
+      color: #006b4a;
+      border-color: #00b894
+    }
+
+    /* verify result */
+    .vr {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .vr-ok {
+      background: #edfaee;
+      color: #006b4a
+    }
+
+    .vr-fail {
+      background: #fff0f0;
+      color: #c00
+    }
+
+    .vr-fresh {
+      background: #fff8e6;
+      color: #7a5a00
+    }
+
+    .vr-build {
+      background: #f0e6ff;
+      color: #500090
+    }
+
+    .vr-none {
+      background: #f5f4f0;
+      color: #555
+    }
+
+    .vr-over {
+      background: #ffe6f0;
+      color: #90004a
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>🔐 AUTOSAR SecOC — Secure Onboard Communication — Complete Study Guide</h1>
+    <p>Based on AUTOSAR CP R24-11 | Document ID 654 | All SWS IDs | Industry + Exam Grade</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="T('overview')">Overview</div>
+    <div class="tab" onclick="T('pdu')">PDU Structure</div>
+    <div class="tab" onclick="T('functional')">TX Auth / RX Verify</div>
+    <div class="tab" onclick="T('freshness')">Freshness &amp; Retry</div>
+    <div class="tab" onclick="T('states')">States &amp; Profiles</div>
+    <div class="tab" onclick="T('api')">API Reference</div>
+    <div class="tab" onclick="T('sequences')">Sequences</div>
+    <div class="tab" onclick="T('errors')">Errors &amp; Debug</div>
+    <div class="tab" onclick="T('davinci')">DaVinci Config</div>
+    <div class="tab" onclick="T('testing')">Integration Testing</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== OVERVIEW ===== -->
+    <div class="section active" id="s-overview">
+      <h2>What is SecOC? — "The security guard at the PDU gateway"</h2>
+      <p>SecOC (Secure Onboard Communication) adds a Message Authentication Code (MAC) and a Freshness Value to every
+        outgoing PDU, and verifies them on every incoming PDU. This protects against two attacks: <strong>data
+          manipulation</strong> (changed payload → MAC fails) and <strong>replay attacks</strong> (old recorded PDU →
+        freshness check fails).</p>
+
+      <div class="tip"><strong>Mental model:</strong> Every CAN/FlexRay/Ethernet message that passes through SecOC gets
+        a unique cryptographic stamp (MAC) that includes a freshness counter. The receiver checks the stamp. If the
+        stamp is wrong (tampered message) or the counter is stale (replayed old message) → message is dropped. Same
+        concept as HTTPS certificate + timestamp, but for vehicle bus PDUs.</div>
+
+      <h2>Stack Position</h2>
+      <div class="flow">
+        <div class="fnode">COM/DCM<br><small>upper layer</small></div>
+        <div class="farrow">↕</div>
+        <div class="fnode">PduR<br><small>router</small></div>
+        <div class="farrow">↕</div>
+        <div class="fnode-sec">SecOC<br><small>MAC + FV</small></div>
+        <div class="farrow">↕</div>
+        <div class="fnode">PduR<br><small>router</small></div>
+        <div class="farrow">↕</div>
+        <div class="fnode">CanIf/FrIf/EthIf<br><small>lower layer</small></div>
+        <div class="farrow">↕</div>
+        <div class="fnode">CSM<br><small>crypto</small></div>
+        <div class="farrow">+</div>
+        <div class="fnode">FVM<br><small>freshness mgr</small></div>
+      </div>
+      <p style="font-size:12px;margin-top:4px">SecOC sits between PduR layers. Upper PDU = Authentic I-PDU (plain data).
+        Lower PDU = Secured I-PDU (data + FV + MAC). SecOC is invisible to COM and to the bus driver.</p>
+
+      <h2>Three Core Actors</h2>
+      <div class="grid3">
+        <div class="mini"><strong>SecOC Module</strong>Orchestrates TX (authenticate) and RX (verify). Calls CSM for MAC
+          operations and FVM for freshness. Runs in MainFunctionTx and MainFunctionRx cycles.</div>
+        <div class="mini"><strong>CSM (Crypto Service Manager)</strong>Executes the actual MAC-Generate and MAC-Verify
+          using a symmetric key (AES-128 CMAC typically). Can be sync or async. SecOC provides callback for async CSM
+          jobs.</div>
+        <div class="mini"><strong>Freshness Value Manager (FVM)</strong>Provides and tracks freshness values per PDU.
+          Can be SW-C (via RTE) or C-function callouts (CFUNC). Manages counters/timestamps. Implements anti-replay
+          logic.</div>
+      </div>
+
+      <h2>Key Constraints (Exam must-know)</h2>
+      <div class="card">
+        <p>1. <strong>Big Endian only</strong> — all SecOC data (FV, MAC, DataId) encoded in Big Endian.
+          [SWS_SecOC_00011]</p>
+        <p>2. <strong>FV aligned to MSB</strong> — freshness byte array: FV MSB is in bit 7 of byte 0. Unused bits set
+          to 0. [SWS_SecOC_00220]</p>
+        <p>3. <strong>DataToAuthenticator = DataId | AuthenticIPDU | CompleteFV</strong> — exact input to MAC algorithm.
+          [SWS_SecOC_00034, 00046]</p>
+        <p>4. <strong>TX: authenticate in MainFunctionTx</strong> — SecOC_IfTransmit just copies buffer. MAC built in
+          next main function call.</p>
+        <p>5. <strong>RX: verify in MainFunctionRx</strong> — SecOC_RxIndication copies buffer. Verification in next
+          main function call.</p>
+        <p>6. <strong>No production errors</strong> — Section 7.9.3 states none. No extended production errors either.
+        </p>
+        <p>7. <strong>MAC truncation = MSB</strong> — truncated MAC always takes MOST SIGNIFICANT bits.
+          [SWS_SecOC_00036]</p>
+        <p>8. <strong>FV truncation = LSB</strong> — truncated FV takes LEAST SIGNIFICANT bits of the FV.
+          [SWS_SecOC_00094]</p>
+        <p>9. <strong>SomeIpTp constraint</strong> — SecOC must be before SomeIpTp (SecOC→PduR→SomeIpTp). Reverse not
+          supported. [Section 4.2]</p>
+        <p>10. <strong>NOT for MOST and LIN</strong> — SecOC not specified for MOST and LIN networks. [Section 4.1]</p>
+        <p>11. <strong>Asymmetric: no truncation</strong> — for signatures (RSA/ECDSA), SecOCAuthInfoTruncLength MUST
+          equal full signature length. Cannot truncate signatures. [Section 7.1.4]</p>
+      </div>
+
+      <h2>R24-11 Changes</h2>
+      <div class="tip"><strong>R24-11:</strong> Security Events naming updated for IdsM integration.
+        SEV_SECOC_MAC_VERIFICATION_FAILED (ID=44) and SEV_SECOC_FRESHNESS_NOT_AVAILABLE (ID=45). Status: DRAFT. Context
+        data for SEV_SECOC_MAC_VERIFICATION_FAILED includes DataId (uint16).</div>
+    </div>
+
+    <!-- ===== PDU STRUCTURE ===== -->
+    <div class="section" id="s-pdu">
+      <h2>PDU Structure — The Secured I-PDU layout</h2>
+
+      <h3>Basic Secured I-PDU format [SWS_SecOC_00037]</h3>
+      <div class="card">
+        <div class="pdu-row">
+          <div class="pdu-cell pdu-hdr">
+            SecuredIPDU<br>Header<br><small>(optional)<br>SecOCAuth<br>PduHeaderLength</small></div>
+          <div class="pdu-cell pdu-auth">Authentic<br>I-PDU<br><small>original<br>payload</small></div>
+          <div class="pdu-cell pdu-fv">
+            Truncated<br>Freshness<br>Value<br><small>SecOCFreshness<br>ValueTruncLength</small></div>
+          <div class="pdu-cell pdu-mac">
+            Truncated<br>Authenticator<br>(MAC/Sig)<br><small>SecOCAuthInfo<br>TruncLength</small></div>
+        </div>
+        <div class="tip"><strong>Formula:</strong> SecuredPDU = [Header] | AuthenticIPDU | FreshnessValue[TruncLength] |
+          Authenticator[TruncLength]<br>Header contains: length of Authentic I-PDU (needed for dynamic-length PDUs and
+          CAN FD with padding).</div>
+      </div>
+
+      <h3>DataToAuthenticator (MAC input) [SWS_SecOC_00034, 00046]</h3>
+      <div class="card">
+        <div class="pdu-row">
+          <div class="pdu-cell" style="background:#f0e6ff;border-color:#9b59b6;color:#500090">DataId<br><small>16-bit,
+              Big Endian<br>SecOCDataId</small></div>
+          <div class="pdu-cell pdu-auth">Secured part of<br>Authentic I-PDU<br><small>(full or partial,<br>per
+              SecuredArea config)</small></div>
+          <div class="pdu-cell pdu-fv">Complete<br>Freshness Value<br><small>full FV, not truncated</small></div>
+        </div>
+        <div class="tip"><strong>Critical exam point:</strong> The MAC is computed over the COMPLETE freshness value
+          (not the truncated one). The truncated FV is only what gets transmitted in the Secured I-PDU. The full FV is
+          used for crypto. This is how MSBits of FV provide anti-replay even when not transmitted. [SWS_SecOC_00034]
+        </div>
+        <div class="warn"><strong>MAC truncation direction:</strong> Truncated Authenticator = MOST SIGNIFICANT bits of
+          computed full MAC. [SWS_SecOC_00036]<br><strong>FV truncation direction:</strong> Transmitted FV part = LEAST
+          SIGNIFICANT bits of complete FV. [SWS_SecOC_00094]</div>
+      </div>
+
+      <h3>Secured PDU Collection (split PDU mode) [SWS_SecOC_00201]</h3>
+      <div class="card">
+        <p>When SecOCTxSecuredPduCollection (TX) or SecOCRxSecuredPduCollection (RX) is configured: the Authentic I-PDU
+          and Authentication Information are transmitted as SEPARATE I-PDUs on the bus.</p>
+        <div class="grid2">
+          <div class="mini"><strong>Authentic I-PDU (separate)</strong>Original payload data, sent as one message.</div>
+          <div class="mini"><strong>Cryptographic I-PDU (separate)</strong>Authentication data | Message Linker. Sent in
+            same main function cycle as Authentic I-PDU. [SWS_SecOC_00202]</div>
+        </div>
+        <p><strong>Message Linker [SWS_SecOC_00209, 00210]:</strong> Part of Authentic I-PDU repeated inside
+          Cryptographic I-PDU to link them together. Configured by SecOCMessageLinkPos and SecOCMessageLinkLen.</p>
+        <div class="tip">Use case: CAN frames where adding MAC would exceed 8 bytes. Send payload in one CAN frame and
+          MAC in second CAN frame. SecOC reassembles on receiver before verification.</div>
+      </div>
+
+      <h3>Secured Area — partial PDU security [SWS_SecOC_00311, 00312]</h3>
+      <div class="card">
+        <p>Not the whole Authentic I-PDU needs to be protected. Configure offset+length to protect only a portion:</p>
+        <p><code>SecOCSecuredTxPduOffset</code> / <code>SecOCSecuredRxPduOffset</code> — byte offset where security
+          starts.</p>
+        <p><code>SecOCSecuredTxPduLength</code> / <code>SecOCSecuredRxPduLength</code> — length of secured area in
+          bytes.</p>
+        <div class="warn">If offset + length &gt; received PDU length → discard PDU. [SWS_SecOC_00313, 00314]</div>
+      </div>
+    </div>
+
+    <!-- ===== FUNCTIONAL ===== -->
+    <div class="section" id="s-functional">
+      <h2>TX Authentication &amp; RX Verification — Step by Step</h2>
+
+      <h2>TX: Creating a Secured I-PDU [SWS_SecOC_00031]</h2>
+      <div class="card">
+        <h3>Six Steps of Authentication</h3>
+        <div class="step hi">Step 1: Prepare Secured I-PDU — allocate internal buffers for Authentic + Secured I-PDU +
+          intermediate data. [SWS_SecOC_00033, 00057]</div>
+        <div class="step">Step 2: Construct DataToAuthenticator = DataId(16-bit BigEndian) | SecuredPart(AuthenticIPDU)
+          | CompleteFreshnessValue [SWS_SecOC_00034]</div>
+        <div class="step">Step 3: Generate Authenticator — call CSM_MacGenerate(DataToAuthenticator) → full MAC output.
+          [SWS_SecOC_00035]</div>
+        <div class="step">Step 4: Truncate MAC to SecOCAuthInfoTruncLength (MSBits). Truncate FV to
+          SecOCFreshnessValueTruncLength (LSBits). [SWS_SecOC_00036, 00094]</div>
+        <div class="step">Step 5: Construct Secured I-PDU: [Header] | AuthenticIPDU | TruncFV | TruncMAC.
+          [SWS_SecOC_00037]</div>
+        <div class="step hi">Step 6: Broadcast via PduR_SecOCTransmit. Notify FVM via SPduTxConfirmation.
+          [SWS_SecOC_00062, 00232]</div>
+      </div>
+
+      <h3>TX Transmission types</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Type</th>
+            <th>Trigger API</th>
+            <th>How Secured PDU is delivered to bus</th>
+            <th>SWS</th>
+          </tr>
+          <tr>
+            <td><strong>Direct (CanIf style)</strong></td>
+            <td>SecOC_IfTransmit()</td>
+            <td>SecOC calls PduR_SecOCTransmit() in MainFunctionTx. Bus IF picks it up immediately.</td>
+            <td class="sws">SWS_SecOC_00060-00064</td>
+          </tr>
+          <tr>
+            <td><strong>Triggered (FrIf style)</strong></td>
+            <td>SecOC_IfTransmit()</td>
+            <td>SecOC calls PduR_SecOCTransmit(). Bus IF calls SecOC_TriggerTransmit() to pull data. SecOC copies
+              Secured I-PDU. [SWS_SecOC_00068]</td>
+            <td class="sws">SWS_SecOC_00065-00069</td>
+          </tr>
+          <tr>
+            <td><strong>TP (CanTp/FrTp style)</strong></td>
+            <td>SecOC_TpTransmit()</td>
+            <td>SecOC calls PduR_SecOCTransmit(). TP calls SecOC_CopyTxData() iteratively to get NPDUs.
+              [SWS_SecOC_00073]</td>
+            <td class="sws">SWS_SecOC_00070-00075</td>
+          </tr>
+        </table>
+        <div class="tip"><strong>Triggered TX note:</strong> If SecOC_TriggerTransmit called before any SecOC_IfTransmit
+          → E_NOT_OK returned (no Secured I-PDU available). [SWS_SecOC_00150]</div>
+        <div class="tip"><strong>Re-authentication (Triggered):</strong> If SecOCReAuthenticateAfterTriggerTransmit=TRUE
+          → after TxConfirmation, preserved Authentic I-PDU is re-authenticated in next MainFunctionTx.
+          [SWS_SecOC_00069]</div>
+      </div>
+
+      <h2>RX: Verifying a Secured I-PDU [SWS_SecOC_00040]</h2>
+      <div class="card">
+        <h3>Six Steps of Verification</h3>
+        <div class="step hi">Step 1: Parse — extract AuthenticIPDU, FV (truncated), Authenticator (truncated) from
+          Secured I-PDU. [SWS_SecOC_00042]</div>
+        <div class="step">Step 2: Get Freshness — call FVM with truncated FV and verify attempt count → FVM returns
+          complete FV candidate. [SWS_SecOC_00247/00250]</div>
+        <div class="step">Step 3: Construct DataToAuthenticator = DataId | AuthenticIPDU | CompleteFV (from FVM).
+          [SWS_SecOC_00046]</div>
+        <div class="step">Step 4: Verify Authenticator — call CSM_MacVerify(DataToAuthenticator, ReceivedMAC,
+          TruncLength). [SWS_SecOC_00047]</div>
+        <div class="step">Step 5: Notify FVM of result via VerificationStatusCallout/VerificationStatus. FVM uses result
+          to advance counter. [SWS_SecOC_00243]</div>
+        <div class="step hi">Step 6: Pass Authentic I-PDU to PduR via PduR_SecOCIfRxIndication if success. Drop if
+          failed (unless IgnoreVerificationResult=TRUE). [SWS_SecOC_00080, 00081]</div>
+      </div>
+
+      <h3>RX Reception overflow strategies [SWS_SecOC_00214-00216]</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>SecOCReceptionOverflowStrategy</th>
+            <th>Behavior when same PDU arrives while busy</th>
+            <th>SWS</th>
+          </tr>
+          <tr>
+            <td>REPLACE</td>
+            <td>Free current buffers, start fresh with new PDU. Old PDU lost.</td>
+            <td class="sws">SWS_SecOC_00214</td>
+          </tr>
+          <tr>
+            <td>REJECT</td>
+            <td>Ignore new SecOC_RxIndication. Return BUFREQ_E_NOT_OK for StartOfReception.</td>
+            <td class="sws">SWS_SecOC_00215</td>
+          </tr>
+          <tr>
+            <td>QUEUE</td>
+            <td>Receive and queue new PDU. Process after current done. Limited by SecOCReceptionQueueSize.</td>
+            <td class="sws">SWS_SecOC_00216</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Buffer rules [SWS_SecOC_00110, 00146, 00252, 00255]</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Rule</th>
+            <th>SWS</th>
+          </tr>
+          <tr>
+            <td>TX: separate buffers for Authentic I-PDU and Secured I-PDU</td>
+            <td class="sws">SWS_SecOC_00146</td>
+          </tr>
+          <tr>
+            <td>TX: new IfTransmit request overwrites Authentic I-PDU buffer WITHOUT affecting Secured I-PDU buffer
+              (in-flight)</td>
+            <td class="sws">SWS_SecOC_00110</td>
+          </tr>
+          <tr>
+            <td>TX: copy complete Authentic I-PDU to internal buffer before starting transmission</td>
+            <td class="sws">SWS_SecOC_00252</td>
+          </tr>
+          <tr>
+            <td>RX: receive complete Secured I-PDU to internal memory before copying to Authentic I-PDU buffer</td>
+            <td class="sws">SWS_SecOC_00255</td>
+          </tr>
+          <tr>
+            <td>RX (collection): separate buffers for Secured I-PDU, Cryptographic I-PDU, Authentic I-PDU</td>
+            <td class="sws">SWS_SecOC_00204</td>
+          </tr>
+          <tr>
+            <td>Buffer freed: after successful RxIndication to PduR OR after final verification failure OR after cancel
+            </td>
+            <td class="sws">SWS_SecOC_00087</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Gateway (Re-authentication) [Section 7.6]</h3>
+      <div class="card">
+        <p>Gateway ECU receives Secured I-PDU from Bus A (verify) → routes Authentic I-PDU → authenticates again for Bus
+          B (auth). Each direction configured separately. Supported use cases:</p>
+        <div class="step">Verification of incoming I-PDU from Bus A</div>
+        <div class="step">Re-authentication for Bus B (new MAC with potentially different key/FV)</div>
+        <div class="warn"><strong>"Gatewaying-on-the-fly" NOT supported</strong> — SecOC cannot re-authenticate while
+          routing without buffering the complete Authentic I-PDU first.</div>
+      </div>
+    </div>
+
+    <!-- ===== FRESHNESS & RETRY ===== -->
+    <div class="section" id="s-freshness">
+      <h2>Freshness Values &amp; Retry Logic — The anti-replay mechanism</h2>
+
+      <h2>Freshness Value Architecture</h2>
+      <div class="card">
+        <p>Each Secured I-PDU has a unique FreshnessValueId. The FVM tracks per-PDU counters or timestamps and provides
+          them to SecOC on request.</p>
+        <div class="grid2">
+          <div class="mini"><strong>SecOCQueryFreshnessValue = CFUNC</strong>SecOC calls C-function callouts directly:
+            SecOC_GetTxFreshness(), SecOC_GetRxFreshness(), SecOC_SPduTxConfirmation(). Integrator writes these
+            functions. Fastest approach.</div>
+          <div class="mini"><strong>SecOCQueryFreshnessValue = RTE</strong>SecOC calls RTE service operations:
+            FreshnessManagement.GetTxFreshness(), FreshnessManagement.GetRxFreshness(),
+            FreshnessManagement.SPduTxConfirmation(). SW-C Freshness Value Manager.</div>
+        </div>
+
+        <h3>TX freshness query variants</h3>
+        <table>
+          <tr>
+            <th>SecOCProvideTxTruncatedFreshnessValue</th>
+            <th>CFUNC query</th>
+            <th>RTE query</th>
+            <th>SWS</th>
+          </tr>
+          <tr>
+            <td>TRUE — FVM also provides truncated FV</td>
+            <td>SecOC_GetTxFreshnessTruncData()</td>
+            <td>FreshnessManagement.GetTxFreshnessTruncData</td>
+            <td class="sws">SWS_SecOC_00221, 00223</td>
+          </tr>
+          <tr>
+            <td>FALSE — SecOC does its own truncation</td>
+            <td>SecOC_GetTxFreshness()</td>
+            <td>FreshnessManagement.GetTxFreshness</td>
+            <td class="sws">SWS_SecOC_00222, 00224</td>
+          </tr>
+        </table>
+
+        <h3>RX freshness query variants</h3>
+        <table>
+          <tr>
+            <th>SecOCUseAuthDataFreshness</th>
+            <th>CFUNC query</th>
+            <th>RTE query</th>
+            <th>SWS</th>
+          </tr>
+          <tr>
+            <td>TRUE — FV extracted from Authentic I-PDU data</td>
+            <td>SecOC_GetRxFreshnessAuthData()</td>
+            <td>FreshnessManagement.GetRxFreshnessAuthData</td>
+            <td class="sws">SWS_SecOC_00246, 00244</td>
+          </tr>
+          <tr>
+            <td>FALSE — FV from Secured I-PDU FV field</td>
+            <td>SecOC_GetRxFreshness()</td>
+            <td>FreshnessManagement.GetRxFreshness</td>
+            <td class="sws">SWS_SecOC_00247, 00245</td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>TX Retry Logic [SWS_SecOC_00225–00229]</h2>
+      <div class="card">
+        <h3>Authentication Build Counter (TX)</h3>
+        <div class="step">1. New TX request → AuthenticationBuildCounter = 0. [SWS_SecOC_00226]</div>
+        <div class="step">2. If GetTxFreshness() returns E_BUSY OR CSM_MacGenerate returns E_BUSY/QUEUE_FULL → increment
+          counter. [SWS_SecOC_00227]</div>
+        <div class="step hi">3. If counter &lt; SecOCAuthenticationBuildAttempts → retry in next MainFunctionTx.
+          [SWS_SecOC_00228]</div>
+        <div class="step danger">4a. Counter reached limit OR GetTxFreshness returns E_NOT_OK OR CSM returns
+          KEY_FAILURE:<br>→ If SecOC_SendDefaultAuthenticationInformation enabled: send default pattern (0xA5A5...).
+          [SWS_SecOC_00229]<br>→ Otherwise: DROP Authentic I-PDU, cancel TX. Report SECOC_E_CRYPTO_FAILURE to DET.
+          [SWS_SecOC_00155]</div>
+        <div class="tip"><strong>E_NOT_OK is not recoverable</strong> — only E_BUSY/QUEUE_FULL trigger retry. E_NOT_OK
+          from CSM or FVM triggers failure. [SWS_SecOC_00227 Note]</div>
+      </div>
+
+      <h2>RX Retry Logic [SWS_SecOC_00234–00243, 00256]</h2>
+      <div class="card">
+        <h3>Two counters for RX: Build Counter + Verify Attempt Counter</h3>
+        <div class="step">1. New RX → AuthBuildCounter = 0, AuthVerifyAttemptCounter = 0. [SWS_SecOC_00235]</div>
+        <div class="step">2. If GetRxFreshness() returns E_BUSY → increment BuildCounter. NO MAC verification attempted.
+          [SWS_SecOC_00236]</div>
+        <div class="step">3. If CSM_MacVerify() returns E_BUSY/QUEUE_FULL → increment BuildCounter. [SWS_SecOC_00237]
+        </div>
+        <div class="step hi">4. If BuildCounter &lt; SecOCAuthenticationBuildAttempts → retry in next MainFunctionRx.
+          [SWS_SecOC_00238]</div>
+        <div class="step warn">5. If MAC verify was executed but FAILED → increment VerifyAttemptCounter, reset
+          BuildCounter to 0. [SWS_SecOC_00239]<br>Note: Reset of BuildCounter prevents premature drop even when verify
+          attempts remain.</div>
+        <div class="step danger">6a. BuildCounter reaches limit → DROP PDU. VerificationResult =
+          SECOC_AUTHENTICATIONBUILDFAILURE. [SWS_SecOC_00240]</div>
+        <div class="step danger">6b. VerifyAttemptCounter reaches SecOCAuthenticationVerifyAttempts OR CSM returns
+          E_NOT_OK/KEY_FAILURE → DROP. VerificationResult = SECOC_VERIFICATIONFAILURE. [SWS_SecOC_00241]</div>
+        <div class="step danger">6c. GetRxFreshness() returns E_NOT_OK → DROP. VerificationResult =
+          SECOC_FRESHNESSFAILURE. Report SECOC_E_FRESHNESS_FAILURE to DET. [SWS_SecOC_00256, 00248]</div>
+        <div class="step hi">7. MAC verify success → VerificationResult = SECOC_VERIFICATIONSUCCESS. Pass to PduR.
+          [SWS_SecOC_00242, 00050]</div>
+      </div>
+
+      <h2>Verification Status Override [SWS_SecOC_00122]</h2>
+      <div class="card">
+        <p>SecOC_VerifyStatusOverride() allows overriding normal verification behavior — e.g., during EOL testing or ECU
+          startup phase before FVM is synchronized.</p>
+        <table>
+          <tr>
+            <th>Override Status</th>
+            <th>Behavior</th>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_DROP_UNTIL_NOTICE</code> (0x00)</td>
+            <td>No MAC verification. PDU dropped. VerResult = NO_VERIFICATION. Forever until CANCEL.</td>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_DROP_UNTIL_LIMIT</code> (0x01)</td>
+            <td>No MAC verification. PDU dropped. For N messages (numberOfMessagesToOverride).</td>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_CANCEL</code> (0x02)</td>
+            <td>Cancel any active override.</td>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_PASS_UNTIL_NOTICE</code> (0x40)</td>
+            <td>MAC verified but PDU passed regardless of result. VerResult = VERIFICATIONFAILURE_OVERWRITTEN on fail.
+              Requires SecOCEnableForcedPassOverride=TRUE.</td>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_SKIP_UNTIL_LIMIT</code> (0x41)</td>
+            <td>No MAC verification. PDU passed. VerResult = NO_VERIFICATION. For N messages.</td>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_PASS_UNTIL_LIMIT</code> (0x42)</td>
+            <td>MAC verified. PDU passed regardless. For N messages.</td>
+          </tr>
+          <tr>
+            <td><code>SECOC_OVERRIDE_SKIP_UNTIL_NOTICE</code> (0x43)</td>
+            <td>No MAC verification. PDU passed. Forever until CANCEL.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== STATES ===== -->
+    <div class="section" id="s-states">
+      <h2>Module States &amp; Security Profiles</h2>
+
+      <h2>SecOC_StateType [SWS_SecOC_00162]</h2>
+      <div class="card">
+        <div class="flow">
+          <div class="fnode"><span class="st st-uninit">SECOC_UNINIT</span><br><small>power-on / after DeInit</small>
+          </div>
+          <div class="farrow">→ SecOC_Init() →</div>
+          <div class="fnode"><span class="st st-init">SECOC_INIT</span><br><small>operational</small></div>
+          <div class="farrow">→ SecOC_DeInit() →</div>
+          <div class="fnode"><span class="st st-uninit">SECOC_UNINIT</span></div>
+        </div>
+        <table style="margin-top:12px">
+          <tr>
+            <th>State</th>
+            <th>Behavior</th>
+            <th>MainFunctionRx/Tx</th>
+          </tr>
+          <tr>
+            <td><span class="st st-uninit">SECOC_UNINIT</span></td>
+            <td>All APIs rejected. DET SECOC_E_UNINIT. Buffers cleared.</td>
+            <td>Returns immediately if called. [SWS_SecOC_00172, 00177]</td>
+          </tr>
+          <tr>
+            <td><span class="st st-init">SECOC_INIT</span></td>
+            <td>All APIs operational. TX auth + RX verify running.</td>
+            <td>Fully active. Processing queued PDUs.</td>
+          </tr>
+        </table>
+        <p><strong>Init rules:</strong> Call SecOC_Init() before any API except GetVersionInfo. Multi-partition: may
+          have one Init per partition (implementation-specific naming). [SWS_SecOC_00106]</p>
+        <p><strong>DeInit:</strong> Clears all buffers and I-PDUs. Lost data must be re-obtained. [SWS_SecOC_00157,
+          00161]</p>
+      </div>
+
+      <h2>Verification Result Types [SWS_SecOC_00149]</h2>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Result</th>
+            <th>Value</th>
+            <th>Meaning</th>
+          </tr>
+          <tr>
+            <td><span class="vr vr-ok">SECOC_VERIFICATIONSUCCESS</span></td>
+            <td>0x00</td>
+            <td>MAC valid, freshness OK. PDU passed to upper layer.</td>
+          </tr>
+          <tr>
+            <td><span class="vr vr-fail">SECOC_VERIFICATIONFAILURE</span></td>
+            <td>0x01</td>
+            <td>MAC verification failed. PDU dropped (unless override).</td>
+          </tr>
+          <tr>
+            <td><span class="vr vr-fresh">SECOC_FRESHNESSFAILURE</span></td>
+            <td>0x02</td>
+            <td>Freshness value not available or wrong. PDU dropped.</td>
+          </tr>
+          <tr>
+            <td><span class="vr vr-build">SECOC_AUTHENTICATIONBUILDFAILURE</span></td>
+            <td>0x03</td>
+            <td>Could not build auth info (CSM busy exceeded limits). PDU dropped.</td>
+          </tr>
+          <tr>
+            <td><span class="vr vr-none">SECOC_NO_VERIFICATION</span></td>
+            <td>0x04</td>
+            <td>Verification skipped by override. PDU passed as-is.</td>
+          </tr>
+          <tr>
+            <td><span class="vr vr-over">SECOC_VERIFICATIONFAILURE_OVERWRITTEN</span></td>
+            <td>0x05</td>
+            <td>MAC failed but PDU passed by PASS_UNTIL_* override.</td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>Security Profiles [Section 7.10]</h2>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Profile</th>
+            <th>Algorithm</th>
+            <th>FV in PDU</th>
+            <th>MAC in PDU</th>
+            <th>Use case</th>
+          </tr>
+          <tr>
+            <td><strong>Profile 1</strong><br>24Bit-CMAC-8Bit-FV<br>[SWS_SecOC_00192]</td>
+            <td>AES-128 CMAC</td>
+            <td>8 bits (LSB of FV)</td>
+            <td>24 bits (MSB of MAC)</td>
+            <td>Standard CAN: compact MAC + small FV</td>
+          </tr>
+          <tr>
+            <td><strong>Profile 2</strong><br>24Bit-CMAC-No-FV<br>[SWS_SecOC_00193]</td>
+            <td>AES-128 CMAC</td>
+            <td>0 bits (none)</td>
+            <td>24 bits (MSB of MAC)</td>
+            <td>No synchronized FV. Minimal overhead. Lower security (no replay protection).</td>
+          </tr>
+          <tr>
+            <td><strong>Profile 3</strong><br>JASPAR<br>[SWS_SecOC_00194]</td>
+            <td>AES-128 CMAC</td>
+            <td>4 bits (LSB of FV)</td>
+            <td>28 bits (MSB of MAC)</td>
+            <td>CAN only. JasPar counter-based FV with master-slave sync. FV=64bits complete.</td>
+          </tr>
+        </table>
+        <div class="tip"><strong>Profile selection rule:</strong> Profile 2 only if no synchronized FV is established.
+          Profile 3 for JASPAR-compatible ECUs. Profile 1 is the most balanced standard choice.</div>
+        <div class="warn"><strong>Asymmetric approach (profiles 1-3 don't apply):</strong> For signatures (RSA, ECDSA):
+          SecOCAuthInfoTruncLength = full signature length. Cannot truncate. Different verify API (Csm_SignatureVerify).
+          [Section 7.1.4]</div>
+      </div>
+
+      <h2>Multicore Distribution [Section 7.7, SWS_SecOC_00276]</h2>
+      <div class="card">
+        <p>SecOC supports multiple partitions. Each partition can have its own MainFunctionRx/MainFunctionTx instance.
+          Each MainFunction has its own period setting. Inter-partition PduR communication managed by PduR.</p>
+        <p>Naming: SecOC_MainFunctionRx_&lt;shortName&gt;() and SecOC_MainFunctionTx_&lt;shortName&gt;() — shortName is
+          the container name from ECU configuration.</p>
+      </div>
+    </div>
+
+    <!-- ===== API ===== -->
+    <div class="section" id="s-api">
+      <h2>Complete API Reference</h2>
+
+      <h3>Service APIs</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Function</th>
+            <th>ID</th>
+            <th>S/A</th>
+            <th>Rntrt</th>
+            <th>Key behavior</th>
+          </tr>
+          <tr>
+            <td><code>SecOC_Init(config)</code></td>
+            <td>0x01</td>
+            <td>Sync</td>
+            <td>No</td>
+            <td>→ SECOC_INIT. Init all buffers. NULL pointer for config is valid (implementation-specific).
+              [SWS_SecOC_00106]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_DeInit()</code></td>
+            <td>0x05</td>
+            <td>Sync</td>
+            <td>No</td>
+            <td>→ SECOC_UNINIT. All buffers cleared. All I-PDUs lost. [SWS_SecOC_00161, 00157]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_GetVersionInfo(versioninfo)</code></td>
+            <td>0x02</td>
+            <td>Sync</td>
+            <td>Yes</td>
+            <td>No init check. NULL → DET SECOC_E_PARAM_POINTER. [SWS_SecOC_00107]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_IfTransmit(TxPduId, PduInfoPtr)</code></td>
+            <td>0x49</td>
+            <td>Sync</td>
+            <td>Yes (diff PDU)</td>
+            <td>Copy Authentic I-PDU to buffer. E_OK = accepted. Actual MAC build in MainFunctionTx. UNINIT → DET
+              SECOC_E_UNINIT. Invalid PDU → DET SECOC_E_INVALID_PDU_SDU_ID. [SWS_SecOC_00112]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TpTransmit(TxPduId, PduInfoPtr)</code></td>
+            <td>0x53</td>
+            <td>Sync</td>
+            <td>Yes (diff PDU)</td>
+            <td>Same as IfTransmit but for TP PDUs (SECOC_TPPDU type). [SWS_SecOC_91008]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_IfCancelTransmit(TxPduId)</code></td>
+            <td>0x4a</td>
+            <td>Sync</td>
+            <td>Yes (diff PDU)</td>
+            <td>Cancel ongoing IF TX. Stops internal actions, frees buffers, informs lower TP layer. [SWS_SecOC_00113,
+              00076]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TpCancelTransmit(TxPduId)</code></td>
+            <td>0x54</td>
+            <td>Sync</td>
+            <td>Yes (diff PDU)</td>
+            <td>Cancel ongoing TP TX. [SWS_SecOC_91009, 00076]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TpCancelReceive(RxPduId)</code></td>
+            <td>0x4c</td>
+            <td>Sync</td>
+            <td>No</td>
+            <td>Cancel ongoing TP RX. [SWS_SecOC_91010, 00217]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_VerifyStatusOverride(ValueID, overrideStatus, N)</code></td>
+            <td>0x0b</td>
+            <td>Sync</td>
+            <td>Yes (diff FV ID)</td>
+            <td>Override verification behavior for testing/startup. See override status table. PASS options only if
+              SecOCEnableForcedPassOverride=TRUE. [SWS_SecOC_00122]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_SendDefaultAuthenticationInformation(FVID, sendDefault)</code></td>
+            <td>0x04</td>
+            <td>Sync</td>
+            <td>Yes (diff FV ID)</td>
+            <td>Enable/disable sending default 0xA5A5 pattern when auth build fails. Optional — only if
+              SecOCDefaultAuthenticationInformationPattern configured. [SWS_SecOC_91013]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Callback APIs (PduR → SecOC)</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Callback</th>
+            <th>ID</th>
+            <th>Called by</th>
+            <th>Key action</th>
+          </tr>
+          <tr>
+            <td><code>SecOC_RxIndication(RxPduId, PduInfoPtr)</code></td>
+            <td>0x42</td>
+            <td>PduR (from bus IF)</td>
+            <td>Copy Secured I-PDU to internal buffer. Verify in next MainFunctionRx. If len &lt; configured (static, no
+              dynamic): silently discard. [SWS_SecOC_00124, 00268, 00078]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TpRxIndication(id, result)</code></td>
+            <td>0x45</td>
+            <td>PduR (from TP)</td>
+            <td>E_NOT_OK → drop PDU, free all buffers. [SWS_SecOC_00125, 00089]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TxConfirmation(TxPduId, result)</code></td>
+            <td>0x40</td>
+            <td>PduR (from bus IF)</td>
+            <td>Forward TX result to PduR for Authentic I-PDU. Free Secured I-PDU buffer. [SWS_SecOC_00126, 00063,
+              00064]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TpTxConfirmation(id, result)</code></td>
+            <td>0x48</td>
+            <td>PduR (from TP)</td>
+            <td>Forward result. Free Secured I-PDU buffer. [SWS_SecOC_00152, 00075]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_TriggerTransmit(TxPduId, PduInfoPtr)</code></td>
+            <td>0x41</td>
+            <td>PduR (triggered TX)</td>
+            <td>Copy Secured I-PDU to lower layer buffer. E_NOT_OK if no Secured I-PDU available. [SWS_SecOC_00127,
+              00068, 00150]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_CopyRxData(id, info, bufferSizePtr)</code></td>
+            <td>0x44</td>
+            <td>PduR (TP RX)</td>
+            <td>Copy RX data segment to internal buffer. [SWS_SecOC_00128, 00083]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_CopyTxData(id, info, retry, availablePtr)</code></td>
+            <td>0x43</td>
+            <td>PduR (TP TX)</td>
+            <td>Provide TX data segment. BUFREQ_E_BUSY → retry in next main func. BUFREQ_E_NOT_OK → abort TX.
+              [SWS_SecOC_00129, 00073, 00260, 00266]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_StartOfReception(id, info, TpSduLen, bufPtr)</code></td>
+            <td>0x46</td>
+            <td>PduR (TP RX start)</td>
+            <td>Allocate buffer for incoming TP PDU. TpSduLength=0 → BUFREQ_E_NOT_OK. [SWS_SecOC_00130, 00082, 00181]
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Callout APIs (SecOC → FVM, C-function style)</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Callout</th>
+            <th>ID</th>
+            <th>Direction</th>
+            <th>Key behavior</th>
+          </tr>
+          <tr>
+            <td><code>SecOC_GetTxFreshness(FVID, FVPtr, FVLenPtr)</code></td>
+            <td>0x52</td>
+            <td>SecOC → FVM</td>
+            <td>Returns complete FV (MSB in byte[0], big-endian). Returns E_OK/E_NOT_OK/E_BUSY. [SWS_SecOC_91004]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_GetTxFreshnessTruncData(FVID, FVPtr, FVLen, TruncFVPtr, TruncLen)</code></td>
+            <td>0x51</td>
+            <td>SecOC → FVM</td>
+            <td>Returns both complete FV AND truncated FV. Truncated = what goes in Secured I-PDU. [SWS_SecOC_91003]
+            </td>
+          </tr>
+          <tr>
+            <td><code>SecOC_GetRxFreshness(FVID, TruncFV, TruncLen, VerifyAttempts, FVPtr, FVLenPtr)</code></td>
+            <td>0x4f</td>
+            <td>SecOC → FVM</td>
+            <td>FVM uses truncated FV + verify attempt count to reconstruct full FV candidate for verification.
+              [SWS_SecOC_91007]</td>
+          </tr>
+          <tr>
+            <td>
+              <code>SecOC_GetRxFreshnessAuthData(FVID, TruncFV, TruncLen, AuthData, AuthLen, Attempts, FVPtr, FVLenPtr)</code>
+            </td>
+            <td>0x4e</td>
+            <td>SecOC → FVM</td>
+            <td>Like GetRxFreshness but also passes part of Authentic I-PDU as additional context for FVM.
+              [SWS_SecOC_91006]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_SPduTxConfirmation(FVID)</code></td>
+            <td>0x4d</td>
+            <td>SecOC → FVM</td>
+            <td>Notifies FVM that Secured I-PDU was initiated for TX (after PduR_SecOCTransmit accepted). FVM increments
+              counter. [SWS_SecOC_91005, 00232]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>DET Error Codes [SWS_SecOC_00101, 00114]</h3>
+      <div class="card">
+        <div class="grid2">
+          <div>
+            <h3>Development Errors</h3>
+            <table>
+              <tr>
+                <th>Code</th>
+                <th>Value</th>
+                <th>Condition</th>
+              </tr>
+              <tr>
+                <td><code>SECOC_E_PARAM_POINTER</code></td>
+                <td>0x01</td>
+                <td>NULL pointer passed</td>
+              </tr>
+              <tr>
+                <td><code>SECOC_E_UNINIT</code></td>
+                <td>0x02</td>
+                <td>API before SecOC_Init()</td>
+              </tr>
+              <tr>
+                <td><code>SECOC_E_INVALID_PDU_SDU_ID</code></td>
+                <td>0x03</td>
+                <td>Invalid PDU/SDU identifier</td>
+              </tr>
+              <tr>
+                <td><code>SECOC_E_CRYPTO_FAILURE</code></td>
+                <td>0x04</td>
+                <td>CSM crypto service failed (auth build limit reached)</td>
+              </tr>
+              <tr>
+                <td><code>SECOC_E_INIT_FAILED</code></td>
+                <td>0x07</td>
+                <td>Init failed</td>
+              </tr>
+            </table>
+          </div>
+          <div>
+            <h3>Runtime Errors</h3>
+            <table>
+              <tr>
+                <th>Code</th>
+                <th>Value</th>
+                <th>Condition</th>
+              </tr>
+              <tr>
+                <td><code>SECOC_E_FRESHNESS_FAILURE</code></td>
+                <td>0x08</td>
+                <td>Freshness value not available from FVM</td>
+              </tr>
+            </table>
+            <div class="good" style="margin-top:8px"><strong>No production errors.</strong><br><strong>No extended
+                production errors.</strong><br>(Sections 7.9.3 and 7.9.4)</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Configurable Interfaces (Verification Status)</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Interface</th>
+            <th>Mode</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>SecOC_VerificationStatusCallout</code> [SWS_SecOC_00119]</td>
+            <td>C callout</td>
+            <td>Called for each verification attempt. SecOCVerificationStatusPropagationMode: BOTH/FAILURE_ONLY/NONE.
+              [SWS_SecOC_00048]</td>
+          </tr>
+          <tr>
+            <td><code>VerificationStatus</code> sender-receiver [SWS_SecOC_00141]</td>
+            <td>RTE S/R</td>
+            <td>Write element verificationStatus via RTE. [SWS_SecOC_00148]</td>
+          </tr>
+          <tr>
+            <td><code>SecOC_VerifyStatus</code> [SWS_SecOC_91014]</td>
+            <td>Client-server</td>
+            <td>SecOCClientServerVerificationStatusPropagationMode: BOTH/FAILURE_ONLY/NONE. [SWS_SecOC_00271]</td>
+          </tr>
+        </table>
+        <p><strong>SecOCPropagateOnlyFinalVerificationStatus [SWS_SecOC_00272]:</strong> TRUE = only final result
+          reported. FALSE = every individual attempt (including intermediate failures) reported.</p>
+      </div>
+    </div>
+
+    <!-- ===== SEQUENCES ===== -->
+    <div class="section" id="s-sequences">
+      <h2>Sequence Diagrams [Section 9]</h2>
+
+      <details open>
+        <summary>Sequence 1: Direct IF Transmission (CAN typical path)</summary>
+        <div class="inner">
+          <div style="font-size:12px;line-height:2.2">
+            <div><strong>COM → PduR_ComTransmit() → SecOC_IfTransmit(TxPduId, PduInfoPtr)</strong></div>
+            <div style="padding-left:20px">SecOC: copy Authentic I-PDU to internal buffer. Return E_OK to PduR.</div>
+            <div><strong>Next MainFunctionTx call:</strong></div>
+            <div style="padding-left:20px">SecOC: GetTxFreshness() → get complete FV from FVM</div>
+            <div style="padding-left:20px">SecOC: build DataToAuthenticator = DataId | AuthenticIPDU | CompleteFV</div>
+            <div style="padding-left:20px">SecOC: Csm_MacGenerate(DataToAuth) → full MAC</div>
+            <div style="padding-left:20px">SecOC: truncate MAC (MSB), truncate FV (LSB)</div>
+            <div style="padding-left:20px">SecOC: build Secured I-PDU = [Header] | AuthenticIPDU | TruncFV | TruncMAC
+            </div>
+            <div style="padding-left:20px">SecOC → PduR_SecOCTransmit(SecuredIPDU)</div>
+            <div style="padding-left:20px">SecOC → FVM via SPduTxConfirmation(FreshnessValueID)</div>
+            <div><strong>PduR → CanIf → CAN HW (frame transmitted)</strong></div>
+            <div><strong>CanIf → PduR → SecOC_TxConfirmation(TxPduId, E_OK)</strong></div>
+            <div style="padding-left:20px">SecOC → PduR_SecOCIfTxConfirmation(TxPduId, E_OK) [Authentic I-PDU confirmed
+              to COM]</div>
+            <div style="padding-left:20px">SecOC: free Secured I-PDU buffer</div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Sequence 2: Triggered TX (FlexRay typical path)</summary>
+        <div class="inner">
+          <div style="font-size:12px;line-height:2">
+            <div><strong>COM → SecOC_IfTransmit() → copy Authentic I-PDU, return</strong></div>
+            <div><strong>MainFunctionTx: build Secured I-PDU → PduR_SecOCTransmit()</strong></div>
+            <div><strong>FrIf scheduled transmission → PduR_FrIfTriggerTransmit() → SecOC_TriggerTransmit()</strong>
+            </div>
+            <div style="padding-left:20px">SecOC copies complete Secured I-PDU to FrIf buffer. Returns E_OK.</div>
+            <div><strong>FrIf transmits frame. Confirms via SecOC_TxConfirmation()</strong></div>
+            <div style="padding-left:20px">If SecOCReAuthenticateAfterTriggerTransmit=TRUE: Preserve Authentic I-PDU →
+              re-auth in next MainFunctionTx</div>
+            <div style="padding-left:20px">If FALSE: free Authentication Information buffer only</div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Sequence 3: Direct IF Reception (CAN typical path)</summary>
+        <div class="inner">
+          <div style="font-size:12px;line-height:2">
+            <div><strong>CAN HW → CanIf → PduR → SecOC_RxIndication(RxPduId, PduInfoPtr)</strong></div>
+            <div style="padding-left:20px">SecOC: copy Secured I-PDU to internal buffer (up to min of
+              received/configured length)</div>
+            <div style="padding-left:20px">If received length &lt; configured (static PDU): silently discard</div>
+            <div><strong>Next MainFunctionRx call:</strong></div>
+            <div style="padding-left:20px">Parse: extract AuthenticIPDU, TruncFV, TruncMAC</div>
+            <div style="padding-left:20px">Call GetRxFreshness(FVID, TruncFV, TruncLen, VerifyAttempts) → complete FV
+              candidate</div>
+            <div style="padding-left:20px">Build DataToAuthenticator = DataId | AuthenticIPDU | CompleteFV</div>
+            <div style="padding-left:20px">Csm_MacVerify(DataToAuth, ReceivedMAC, TruncLength) → result</div>
+            <div style="color:#2255cc;padding-left:20px"><strong>If SUCCESS:</strong> VerResult=VERIFICATIONSUCCESS.
+              Notify FVM via VerificationStatusCallout.</div>
+            <div style="color:#2255cc;padding-left:20px">→ PduR_SecOCIfRxIndication(Authentic I-PDU). Free buffers.
+            </div>
+            <div style="color:#d63031;padding-left:20px"><strong>If FAILED:</strong> Increment VerifyAttemptCounter. If
+              limit reached → drop + VerResult=VERIFICATIONFAILURE.</div>
+            <div style="color:#d63031;padding-left:20px">Notify FVM. Do NOT call PduR. Free buffers.</div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Sequence 4: Freshness Handling — FVM retry on E_BUSY</summary>
+        <div class="inner">
+          <div style="font-size:12px;line-height:2">
+            <div><strong>MainFunctionRx: GetRxFreshness() returns E_BUSY (FVM not ready yet)</strong></div>
+            <div style="padding-left:20px">BuildCounter++. No MAC verification this cycle.</div>
+            <div><strong>Next MainFunctionRx call (PDU still buffered):</strong></div>
+            <div style="padding-left:20px">GetRxFreshness() returns E_OK → complete FV obtained</div>
+            <div style="padding-left:20px">Proceed with MAC verification: Csm_MacVerify() → E_OK (MAC matches)</div>
+            <div style="padding-left:20px">VerResult = VERIFICATIONSUCCESS. Pass to PduR.</div>
+            <div><strong>If BuildCounter reaches SecOCAuthenticationBuildAttempts:</strong></div>
+            <div style="padding-left:20px">DROP PDU. VerResult = AUTHENTICATIONBUILDFAILURE. Free buffers.</div>
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Sequence 5: PDU Collection (split Authentic + Cryptographic PDU)</summary>
+        <div class="inner">
+          <div style="font-size:12px;line-height:2">
+            <div><strong>TX side:</strong></div>
+            <div style="padding-left:20px">SecOC_IfTransmit() → copy Authentic I-PDU</div>
+            <div style="padding-left:20px">MainFunctionTx: build MAC, create Cryptographic I-PDU = Auth Info | Message
+              Linker</div>
+            <div style="padding-left:20px">Send Authentic I-PDU via PduR. Send Cryptographic I-PDU via PduR. Both in
+              same main function cycle. [SWS_SecOC_00202]</div>
+            <div style="padding-left:20px">Wait for TxConfirmation for BOTH PDUs. Forward E_OK only if both OK.
+              [SWS_SecOC_00270]</div>
+            <div><strong>RX side:</strong></div>
+            <div style="padding-left:20px">Receive Authentic I-PDU → buffer. Order doesn't matter.</div>
+            <div style="padding-left:20px">Receive Cryptographic I-PDU → buffer.</div>
+            <div style="padding-left:20px">Check Message Linker values match. [SWS_SecOC_00211]</div>
+            <div style="padding-left:20px">When BOTH received with matching linker → reconstruct Secured I-PDU → verify
+              in MainFunctionRx. [SWS_SecOC_00203]</div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ===== ERRORS ===== -->
+    <div class="section" id="s-errors">
+      <h2>Error Handling &amp; Debugging Guide</h2>
+
+      <details open>
+        <summary>Problem: MAC verification fails repeatedly (SECOC_VERIFICATIONFAILURE)</summary>
+        <div class="inner">
+          <div class="step hi">Root cause: MAC mismatch — either key mismatch, DataId mismatch, payload mismatch, or
+            wrong FV.</div>
+          <div class="step">1. Check DataId matches between TX and RX config: SecOCDataId in SecOCTxPduProcessing vs
+            SecOCRxPduProcessing. Even 1-bit difference = total MAC failure.</div>
+          <div class="step">2. Check CSM key is the SAME on both sides. Key provisioning error is common — verify key ID
+            references in CSM config.</div>
+          <div class="step">3. Check SecOCAuthInfoTruncLength identical TX and RX. TX truncates to N bits, RX must
+            verify same N bits.</div>
+          <div class="step">4. Check byte order: DataId must be Big Endian. If implementation sends Little Endian DataId
+            → MAC always wrong.</div>
+          <div class="step">5. Check if Secured Area (offset/length) configured consistently on both sides. Partial PDU
+            security: must cover same bytes.</div>
+          <div class="step">6. Check FV complete value used for MAC — not truncated FV. Common bug: implementer passes
+            truncated FV to MAC instead of complete FV.</div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Problem: SECOC_FRESHNESSFAILURE — freshness not available</summary>
+        <div class="inner">
+          <div class="step hi">FVM returned E_NOT_OK (not E_BUSY) → permanent failure for this PDU.</div>
+          <div class="step">1. FVM not initialized. Check FVM init order: FVM must init before SecOC starts receiving
+            PDUs.</div>
+          <div class="step">2. FreshnessValueID not matching — SecOCFreshnessValueId in SecOC config must match FVM's
+            configured ID for same PDU.</div>
+          <div class="step">3. FVM desynchronized: RX side counter too far behind TX counter. Need sync message from FVM
+            master.</div>
+          <div class="step">4. RX: check SecOCFreshnessValueTruncLength matches TX. If TX sends 8-bit truncated FV but
+            RX expects 4-bit → FVM gets wrong input.</div>
+          <div class="step">5. SECOC_E_FRESHNESS_FAILURE reported to DET — trace the FVID in DET to identify which PDU
+            is failing.</div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Problem: SECOC_AUTHENTICATIONBUILDFAILURE — TX auth never completes</summary>
+        <div class="inner">
+          <div class="step hi">CSM or FVM E_BUSY exceeded SecOCAuthenticationBuildAttempts times.</div>
+          <div class="step">1. CSM queue full — too many concurrent CSM jobs. Increase CSM queue or reduce SecOC PDU
+            rate.</div>
+          <div class="step">2. MainFunctionTx period too long — if SecOCAuthenticationBuildAttempts = 3 and
+            MainFunctionTx period = 20ms → 60ms before failure. Check if this is acceptable.</div>
+          <div class="step">3. FVM E_BUSY during startup synchronization — use
+            SecOC_SendDefaultAuthenticationInformation() to send 0xA5 pattern during startup phase until FVM syncs.
+          </div>
+          <div class="step">4. CSM key not valid — Csm_MacGenerate returns KEY_FAILURE which counts as non-recoverable.
+            Check key provisioning.</div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Problem: SecOC_TriggerTransmit returns E_NOT_OK</summary>
+        <div class="inner">
+          <div class="step">No Secured I-PDU available when FrIf/CanIf calls TriggerTransmit. [SWS_SecOC_00150]</div>
+          <div class="step">Check: was SecOC_IfTransmit called BEFORE the first TriggerTransmit? If not, SecOC has no
+            data to provide.</div>
+          <div class="step">Check: was Secured I-PDU consumed by previous TriggerTransmit and MainFunctionTx has not yet
+            created new one?</div>
+          <div class="step">Check: is CSM authentication taking too long? If MainFunctionTx runs and CSM is still
+            E_BUSY, SecOC cannot provide Secured I-PDU this cycle.</div>
+        </div>
+      </details>
+
+      <details>
+        <summary>Problem: PDU collection — verification never triggers</summary>
+        <div class="inner">
+          <div class="step">SecOC waits for both Authentic I-PDU and Cryptographic I-PDU with matching Message Linker.
+            [SWS_SecOC_00211]</div>
+          <div class="step">Check Message Linker config: SecOCMessageLinkPos and SecOCMessageLinkLen must extract same
+            bits from Authentic I-PDU as what TX embeds.</div>
+          <div class="step">If Message Linker = 0 bits (SecOCUseMessageLink not configured): any Authentic + Crypto pair
+            accepted as matching. [SWS_SecOC_00211 Note]</div>
+          <div class="step">Timing: Authentic and Crypto I-PDU must arrive in succession. If gap too large → FVM may
+            reject or buffer overflow.</div>
+        </div>
+      </details>
+
+      <h2>Security Events (IdsM integration) [SWS_SecOC_00273, 00115]</h2>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Event Name</th>
+            <th>ID</th>
+            <th>Trigger</th>
+          </tr>
+          <tr>
+            <td>SEV_SECOC_MAC_VERIFICATION_FAILED</td>
+            <td>44</td>
+            <td>MAC verification of a received PDU failed. Context data: DataId (uint16). [SWS_SecOC_92000]</td>
+          </tr>
+          <tr>
+            <td>SEV_SECOC_FRESHNESS_NOT_AVAILABLE</td>
+            <td>45</td>
+            <td>Failed to get freshness value from FVM.</td>
+          </tr>
+        </table>
+        <p style="font-size:11px;color:#888">Enabled by SecOCEnableSecurityEventReporting=TRUE. Reported to IdsM via
+          IdsM_SetSecurityEventWithContextData(). [SWS_SecOC_00273]</p>
+      </div>
+
+      <h2>Key Debug Variables</h2>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Variable (typical)</th>
+            <th>What to check</th>
+          </tr>
+          <tr>
+            <td>SecOC module state</td>
+            <td>SECOC_UNINIT = init not called. Check EcuM init sequence.</td>
+          </tr>
+          <tr>
+            <td>AuthBuildCounter[PduId]</td>
+            <td>Increasing → CSM or FVM returning E_BUSY. Watch limit vs rate.</td>
+          </tr>
+          <tr>
+            <td>AuthVerifyAttemptCounter[PduId]</td>
+            <td>Increasing → MAC repeatedly failing. Key/DataId/FV mismatch.</td>
+          </tr>
+          <tr>
+            <td>TX buffer content (AuthenticIPDU)</td>
+            <td>Verify COM wrote correct data before MainFunctionTx.</td>
+          </tr>
+          <tr>
+            <td>Secured I-PDU buffer content</td>
+            <td>Inspect FV (bytes at SecOCFreshnessValueTruncLength position) and MAC (last N bytes).</td>
+          </tr>
+          <tr>
+            <td>VerificationResultType per RX PDU</td>
+            <td>SUCCESS / FAILURE / FRESHNESS / BUILDFAILURE. Primary diagnostic output.</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== DAVINCI ===== -->
+    <div class="section" id="s-davinci">
+      <h2>Configuring SecOC in Vector DaVinci Developer / Configurator Pro</h2>
+
+      <div class="tip"><strong>Config hierarchy:</strong> SecOC → {SecOCGeneral + SecOCMainFunctionRx (1..*) +
+        SecOCMainFunctionTx (1..*) + SecOCRxPduProcessing (0..*) + SecOCTxPduProcessing (0..*) +
+        SecOCSameBufferPduCollection (0..*) + SecOCSecurityEventRefs}</div>
+
+      <h3>Step 1: SecOCGeneral — global switches</h3>
+      <div class="card">
+        <p><strong>Path:</strong> <code>SecOC → SecOCGeneral</code></p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Set to</th>
+            <th>Impact</th>
+          </tr>
+          <tr>
+            <td><code>SecOCDevErrorDetect</code></td>
+            <td>TRUE (dev) / FALSE (prod)</td>
+            <td>Enable DET for UNINIT, PARAM_POINTER, etc.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCVersionInfoApi</code></td>
+            <td>FALSE usually</td>
+            <td>Enable GetVersionInfo() API.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCQueryFreshnessValue</code></td>
+            <td>CFUNC or RTE</td>
+            <td>CFUNC: FVM is a C-callout. RTE: FVM is a SW-C via RTE. Determines which freshness interface is
+              generated.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCDefaultAuthenticationInformationPattern</code></td>
+            <td>e.g. 0xA5 (optional)</td>
+            <td>Default byte pattern sent when auth build fails and SendDefaultAuthInfo enabled. Required for automotive
+              startup before FVM sync.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCEnableSecurityEventReporting</code></td>
+            <td>TRUE if IdsM integration needed</td>
+            <td>Enables SEV reporting to IdsM. [SWS_SecOC_00273]</td>
+          </tr>
+          <tr>
+            <td><code>SecOCEnableForcedPassOverride</code></td>
+            <td>TRUE if PASS_UNTIL_* override options needed</td>
+            <td>Required for VerifyStatusOverride with PASS options. EOL testing.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCPropagateOnlyFinalVerificationStatus</code></td>
+            <td>TRUE = only final result. FALSE = all attempts.</td>
+            <td>FALSE useful for IDS monitoring.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCTxPduUnusedAreasDefault</code></td>
+            <td>e.g. 0xFF</td>
+            <td>Padding for unused PDU bytes. [SWS_SecOC_00269]</td>
+          </tr>
+          <tr>
+            <td><code>SecOCOverrideStatusWithDataId</code></td>
+            <td>TRUE = use DataId for VerifyStatusOverride. FALSE = use FreshnessValueId.</td>
+            <td>Determines ValueID parameter meaning in SecOC_VerifyStatusOverride().</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Step 2: SecOCMainFunctionRx / SecOCMainFunctionTx</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Container</th>
+            <th>Key parameter</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>SecOCMainFunctionRx</td>
+            <td>SecOCMainFunctionPeriodRx</td>
+            <td>Match SchM/OS period (e.g. 0.005 = 5ms). [SWS_SecOC_00173]</td>
+          </tr>
+          <tr>
+            <td>SecOCMainFunctionTx</td>
+            <td>SecOCMainFunctionPeriodTx</td>
+            <td>Match SchM/OS period. [SWS_SecOC_00178]</td>
+          </tr>
+          <tr>
+            <td>SecOCMainFunctionRx</td>
+            <td>SecOCRxPduProcessingRef</td>
+            <td>Reference(s) to SecOCRxPduProcessing configs handled by this MainFunction.</td>
+          </tr>
+          <tr>
+            <td>SecOCMainFunctionTx</td>
+            <td>SecOCTxPduProcessingRef</td>
+            <td>Reference(s) to SecOCTxPduProcessing configs. [SWS_SecOC_00276]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Step 3: SecOCTxPduProcessing — per TX PDU</h3>
+      <div class="card">
+        <p><strong>Path:</strong> <code>SecOC → SecOCTxPduProcessing</code> (one per secured TX PDU)</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Set to</th>
+            <th>Notes</th>
+          </tr>
+          <tr>
+            <td><code>SecOCDataId</code></td>
+            <td>Unique 16-bit ID for this Secured I-PDU</td>
+            <td><strong>Must match RX side exactly.</strong> Used in DataToAuthenticator. Big Endian.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCFreshnessValueId</code></td>
+            <td>ID linking to FVM counter for this PDU</td>
+            <td>Must match FVM configuration and RX side.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCFreshnessValueLength</code></td>
+            <td>Complete FV length in bits (e.g. 64)</td>
+            <td>Full counter size including non-transmitted MSbits. Profile 3: 64 bits.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCFreshnessValueTruncLength</code></td>
+            <td>Bits of FV to include in Secured I-PDU (e.g. 4 or 8)</td>
+            <td>LSBits of FV transmitted. 0 = no FV in PDU. Profile 3: 4 bits.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCAuthInfoTxLength</code></td>
+            <td>Bits of MAC to include in Secured I-PDU (e.g. 24 or 28)</td>
+            <td>MSBits of full MAC transmitted. Min 1 bit. Profile 1: 24, Profile 3: 28.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCAuthenticationBuildAttempts</code></td>
+            <td>e.g. 3</td>
+            <td>TX retry limit. After this, drop or use default pattern.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCTxAuthServiceConfigRef</code></td>
+            <td>Reference to CsmJob for MAC generation</td>
+            <td>Links to CSM job configured for CRYPTO_MACGENERATE (AES-CMAC).</td>
+          </tr>
+          <tr>
+            <td><code>SecOCProvideTxTruncatedFreshnessValue</code></td>
+            <td>TRUE if FVM provides truncated FV. FALSE if SecOC truncates.</td>
+            <td>Profile 3 (JASPAR): typically TRUE.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCPduType</code></td>
+            <td>SECOC_IFPDU or SECOC_TPPDU</td>
+            <td>IF = CAN/FlexRay/Eth normal frames. TP = diagnostic transport frames.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCAuthPduHeaderLength</code></td>
+            <td>0 or 4 (bytes)</td>
+            <td>0 = no header (static length PDU). 4 = header present (dynamic length PDU or CAN FD with padding).</td>
+          </tr>
+          <tr>
+            <td><code>SecOCReAuthenticateAfterTriggerTransmit</code></td>
+            <td>TRUE or FALSE</td>
+            <td>TRUE = re-auth Authentic I-PDU after triggered TX confirmation.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCMaxTransmitRetries</code></td>
+            <td>e.g. 3</td>
+            <td>Retry if PduR_SecOCTransmit returns not E_OK. [SWS_SecOC_00277]</td>
+          </tr>
+          <tr>
+            <td><code>SecOCTxSecuredPduRef</code></td>
+            <td>Reference to EcuC PDU (Secured I-PDU to bus)</td>
+            <td>The Secured I-PDU that goes to the bus direction (lower layer).</td>
+          </tr>
+          <tr>
+            <td><code>SecOCTxAuthenticPduRef</code></td>
+            <td>Reference to EcuC PDU (Authentic I-PDU from COM)</td>
+            <td>The plain payload PDU from upper layer.</td>
+          </tr>
+          <tr>
+            <td>SecOCTxPduSecuredArea (optional)</td>
+            <td>Offset + Length in bytes</td>
+            <td>If only partial PDU needs security. Default: full PDU.</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Step 4: SecOCRxPduProcessing — per RX PDU</h3>
+      <div class="card">
+        <p><strong>Path:</strong> <code>SecOC → SecOCRxPduProcessing</code> (one per secured RX PDU)</p>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Set to</th>
+            <th>Notes</th>
+          </tr>
+          <tr>
+            <td><code>SecOCDataId</code></td>
+            <td>Same as TX side</td>
+            <td>MUST be identical to TX SecOCDataId. Any mismatch → always VERIFICATIONFAILURE.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCFreshnessValueId</code></td>
+            <td>Same FVID as TX side</td>
+            <td>FVM uses this to look up counter state for this PDU.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCFreshnessValueLength</code></td>
+            <td>Same as TX</td>
+            <td>Complete FV length. Used by FVM to reconstruct.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCFreshnessValueTruncLength</code></td>
+            <td>Same as TX</td>
+            <td>Bits of FV extracted from Secured I-PDU for FVM input.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCAuthInfoTruncLength</code></td>
+            <td>Same as TX SecOCAuthInfoTxLength</td>
+            <td>Bits of MAC in Secured I-PDU. Passed to Csm_MacVerify as truncation length.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCAuthenticationBuildAttempts</code></td>
+            <td>e.g. 3</td>
+            <td>Max CSM/FVM E_BUSY retries per PDU before BUILD failure.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCAuthenticationVerifyAttempts</code></td>
+            <td>e.g. 3</td>
+            <td>Max MAC verify failures before VERIFICATION failure. ≥1.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCRxAuthServiceConfigRef</code></td>
+            <td>Reference to CsmJob for MAC verification</td>
+            <td>Links to CSM job configured for CRYPTO_MACVERIFY.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCIgnoreVerificationResult</code></td>
+            <td>TRUE or FALSE</td>
+            <td>TRUE = pass Authentic I-PDU regardless of MAC result. FALSE (default) = drop on failure.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCVerificationStatusPropagationMode</code></td>
+            <td>NONE / FAILURE_ONLY / BOTH</td>
+            <td>Controls SecOC_VerificationStatusCallout and RTE VerificationStatus propagation.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCClientServerVerificationStatusPropagationMode</code></td>
+            <td>NONE / FAILURE_ONLY / BOTH</td>
+            <td>Controls VerificationStatusIndication client-server RTE interface.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCReceptionOverflowStrategy</code></td>
+            <td>REPLACE / REJECT / QUEUE</td>
+            <td>What to do when same PDU arrives while previous still being processed.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCReceptionQueueSize</code></td>
+            <td>e.g. 2</td>
+            <td>Only relevant if QUEUE strategy. Queue depth.</td>
+          </tr>
+          <tr>
+            <td><code>SecOCSecuredRxPduVerification</code></td>
+            <td>TRUE (default) / FALSE</td>
+            <td>FALSE = pass Authentic I-PDU without any authentication. [SWS_SecOC_00265]</td>
+          </tr>
+          <tr>
+            <td><code>SecOCDynamicRuntimeLengthHandling</code></td>
+            <td>TRUE or FALSE</td>
+            <td>TRUE = use length from lower layer for dynamic-length PDUs. [SWS_SecOC_00258]</td>
+          </tr>
+          <tr>
+            <td><code>SecOCUseAuthDataFreshness</code></td>
+            <td>FALSE (default) / TRUE</td>
+            <td>TRUE = extract FV bits from Authentic I-PDU payload. Configure SecOCAuthDataFreshnessStartPosition and
+              SecOCAuthDataFreshnessLen. [SWS_SecOC_00219]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Step 5: PDU Collection (split message)</h3>
+      <div class="card">
+        <p>For SecOCTxSecuredPduCollection / SecOCRxSecuredPduCollection:</p>
+        <table>
+          <tr>
+            <th>Container</th>
+            <th>What to configure</th>
+          </tr>
+          <tr>
+            <td>SecOCTxSecuredPduCollection</td>
+            <td>SecOCTxSecuredPduRef (Authentic I-PDU) + SecOCTxCryptographicPduRef (Crypto I-PDU with MAC)</td>
+          </tr>
+          <tr>
+            <td>SecOCRxSecuredPduCollection</td>
+            <td>SecOCRxAuthenticPduRef + SecOCRxCryptographicPduRef. Both must arrive before verify.</td>
+          </tr>
+          <tr>
+            <td>SecOCUseMessageLink</td>
+            <td>Sub-container: SecOCMessageLinkPos (bit position in Authentic I-PDU), SecOCMessageLinkLen (bits). Value
+              copied into Cryptographic I-PDU for matching. [SWS_SecOC_00210]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>DaVinci Consistency Verification</h3>
+      <div class="card">
+        <div class="step">☐ SecOCDataId IDENTICAL in TX and RX for same PDU</div>
+        <div class="step">☐ SecOCFreshnessValueId consistent: TX, RX, and FVM all use same ID for same PDU</div>
+        <div class="step">☐ SecOCFreshnessValueTruncLength matches TX and RX</div>
+        <div class="step">☐ SecOCAuthInfoTxLength (TX) = SecOCAuthInfoTruncLength (RX)</div>
+        <div class="step">☐ SecOCMainFunctionPeriodRx and PeriodTx match OS task periods</div>
+        <div class="step">☐ CSM job ref (SecOCTxAuthServiceConfigRef, SecOCRxAuthServiceConfigRef) point to valid
+          configured CSM jobs</div>
+        <div class="step">☐ CSM TX job: CRYPTO_MACGENERATE with AES-CMAC. CSM RX job: CRYPTO_MACVERIFY with AES-CMAC
+        </div>
+        <div class="step">☐ If PDU collection: Message Linker configured consistently on TX and RX</div>
+        <div class="step">☐ SecOCSecuredTxPduOffset + SecOCSecuredTxPduLength ≤ PDU length [SWS_SecOC_00313]</div>
+        <div class="step hi">☐ Big Endian encoding verified for DataId and FV in implementation</div>
+      </div>
+    </div>
+
+    <!-- ===== TESTING ===== -->
+    <div class="section" id="s-testing">
+      <h2>Integration Testing &amp; Automotive Verification</h2>
+
+      <h3>Test Group 1: Basic TX Authentication</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>TC</th>
+            <th>Stimulus</th>
+            <th>Expected</th>
+            <th>SWS</th>
+          </tr>
+          <tr>
+            <td>TC_TX_001</td>
+            <td>SecOC_Init() then SecOC_IfTransmit() valid PDU</td>
+            <td>E_OK. MainFunctionTx builds MAC. PduR_SecOCTransmit called with Secured I-PDU. SPduTxConfirmation called
+              on FVM.</td>
+            <td>SWS_SecOC_00060, 00062, 00232</td>
+          </tr>
+          <tr>
+            <td>TC_TX_002</td>
+            <td>Capture Secured I-PDU on bus — check structure</td>
+            <td>AuthenticIPDU bytes at start. TruncFV at correct bit position. MAC at correct bit position. Verify via
+              manual calculation with known key+counter.</td>
+            <td>SWS_SecOC_00037</td>
+          </tr>
+          <tr>
+            <td>TC_TX_003</td>
+            <td>SecOC_IfTransmit() before SecOC_Init()</td>
+            <td>E_NOT_OK. DET SECOC_E_UNINIT.</td>
+            <td>SWS_SecOC_00112</td>
+          </tr>
+          <tr>
+            <td>TC_TX_004</td>
+            <td>SecOC_IfTransmit(NULL PduInfoPtr)</td>
+            <td>E_NOT_OK. DET SECOC_E_PARAM_POINTER.</td>
+            <td>SWS_SecOC_00112</td>
+          </tr>
+          <tr>
+            <td>TC_TX_005</td>
+            <td>CSM_MacGenerate returns E_BUSY for N cycles (N &lt; AuthBuildAttempts)</td>
+            <td>TX retried each MainFunctionTx. After E_OK from CSM: PDU transmitted.</td>
+            <td>SWS_SecOC_00227, 00228</td>
+          </tr>
+          <tr>
+            <td>TC_TX_006</td>
+            <td>CSM E_BUSY until AuthBuildAttempts reached</td>
+            <td>Authentic I-PDU dropped. DET SECOC_E_CRYPTO_FAILURE. No Secured I-PDU sent.</td>
+            <td>SWS_SecOC_00155, 00229</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Test Group 2: RX Verification</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>TC</th>
+            <th>Stimulus</th>
+            <th>Expected</th>
+          </tr>
+          <tr>
+            <td>TC_RX_001</td>
+            <td>Valid Secured I-PDU received (correct MAC, valid FV)</td>
+            <td>VerResult = VERIFICATIONSUCCESS. PduR_SecOCIfRxIndication called with Authentic I-PDU. FVM notified via
+              VerificationStatusCallout.</td>
+          </tr>
+          <tr>
+            <td>TC_RX_002</td>
+            <td>Modified Authentic I-PDU (1 bit flipped) in Secured I-PDU</td>
+            <td>VerResult = VERIFICATIONFAILURE (after VerifyAttempts exhausted). PDU dropped. FVM notified.</td>
+          </tr>
+          <tr>
+            <td>TC_RX_003</td>
+            <td>Replayed old Secured I-PDU (correct MAC, stale FV)</td>
+            <td>FVM returns wrong complete FV candidate → MAC verify fails → VERIFICATIONFAILURE.</td>
+          </tr>
+          <tr>
+            <td>TC_RX_004</td>
+            <td>Modified MAC in Secured I-PDU (1 bit flipped)</td>
+            <td>Csm_MacVerify fails → VERIFICATIONFAILURE (after VerifyAttempts).</td>
+          </tr>
+          <tr>
+            <td>TC_RX_005</td>
+            <td>SecOCIgnoreVerificationResult=TRUE + MAC fail</td>
+            <td>PduR_SecOCIfRxIndication still called with Authentic I-PDU despite failure. VerResult =
+              VERIFICATIONFAILURE (reported but PDU passed).</td>
+          </tr>
+          <tr>
+            <td>TC_RX_006</td>
+            <td>VerifyStatusOverride(SECOC_OVERRIDE_SKIP_UNTIL_LIMIT, N=3)</td>
+            <td>Next 3 PDUs: no MAC verification, PDU passed to PduR, VerResult = NO_VERIFICATION.</td>
+          </tr>
+          <tr>
+            <td>TC_RX_007</td>
+            <td>Received PDU length &lt; configured (static PDU)</td>
+            <td>Silently discarded. No SecOC_RxIndication processing. [SWS_SecOC_00268]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Test Group 3: Freshness and Retry</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>TC</th>
+            <th>Expected</th>
+          </tr>
+          <tr>
+            <td>GetRxFreshness() returns E_BUSY for N cycles (N &lt; BuildAttempts)</td>
+            <td>BuildCounter increments each cycle. No MAC verify. After E_OK from FVM: MAC verified.</td>
+          </tr>
+          <tr>
+            <td>GetRxFreshness() returns E_BUSY for BuildAttempts cycles</td>
+            <td>PDU dropped. VerResult = AUTHENTICATIONBUILDFAILURE. DET: none (runtime error E_FRESHNESS_FAILURE only
+              on E_NOT_OK).</td>
+          </tr>
+          <tr>
+            <td>GetRxFreshness() returns E_NOT_OK</td>
+            <td>PDU dropped immediately. VerResult = FRESHNESSFAILURE. DET SECOC_E_FRESHNESS_FAILURE. [SWS_SecOC_00256]
+            </td>
+          </tr>
+          <tr>
+            <td>MAC fails N times (N = AuthVerifyAttempts)</td>
+            <td>After N failures: VERIFICATIONFAILURE. FVM notified on each. IdsM event
+              SEV_SECOC_MAC_VERIFICATION_FAILED (ID=44) per failure.</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>Test Group 4: PDU Collection</h3>
+      <div class="card">
+        <table>
+          <tr>
+            <th>TC</th>
+            <th>Expected</th>
+          </tr>
+          <tr>
+            <td>Authentic I-PDU received, Crypto I-PDU not yet received</td>
+            <td>Verification pending. No PduR notification. Wait for Crypto I-PDU. [SWS_SecOC_00203]</td>
+          </tr>
+          <tr>
+            <td>Both PDUs received, Message Linker mismatch</td>
+            <td>Verification not attempted. Wait for matching pair. [SWS_SecOC_00211]</td>
+          </tr>
+          <tr>
+            <td>TX: verify both TxConfirmation fires before forwarding result</td>
+            <td>Only if BOTH TxConfirmation calls received → forward E_OK. If either failed → E_NOT_OK.
+              [SWS_SecOC_00270]</td>
+          </tr>
+        </table>
+      </div>
+
+      <h3>CANoe / Bus Analysis Tips</h3>
+      <div class="card">
+        <div class="grid2">
+          <div class="mini"><strong>CANoe CAPL for SecOC verification</strong>
+            <ul style="padding-left:14px;line-height:1.9">
+              <li>Log Secured I-PDU: capture last N bytes = MAC (SecOCAuthInfoTruncLength/8 bytes)</li>
+              <li>CAPL script: recompute CMAC offline with known key. Compare to captured MAC.</li>
+              <li>Check FV bits in PDU at SecOCFreshnessValueTruncLength bit position from end-of-AuthenticIPDU</li>
+              <li>Inject tampered PDU: modify one byte → verify ECU drops it (no Com signal update)</li>
+              <li>Replay test: record + resend old Secured I-PDU → verify drop</li>
+            </ul>
+          </div>
+          <div class="mini"><strong>TRACE32 Debug</strong>
+            <ul style="padding-left:14px;line-height:1.9">
+              <li>Watch AuthBuildCounter[] and AuthVerifyAttemptCounter[] per PDU ID</li>
+              <li>Break on PduR_SecOCIfRxIndication → verify Authentic I-PDU buffer</li>
+              <li>Break on VerificationStatusCallout → check result type per PDU</li>
+              <li>Watch Secured I-PDU TX buffer → manually verify FV and MAC placement</li>
+              <li>Watch SecOCFreshnessValue in GetTxFreshness return → verify counter increment</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3>Common Integration Mistakes</h3>
+      <div class="danger"><strong>1. DataId mismatch TX vs RX</strong> — Most common. Even if 0x0001 vs 0x0100 (byte
+        swap). MAC always fails. Double-check both sides in DaVinci config.</div>
+      <div class="danger"><strong>2. Full FV instead of truncated FV sent to FVM's GetRxFreshness</strong> — FVM
+        receives wrong input → wrong complete FV → MAC mismatch. SecOC must pass only the truncated bits extracted from
+        Secured I-PDU, not the full field.</div>
+      <div class="danger"><strong>3. CSM key not provisioned at SecOC_Init time</strong> — Csm_MacGenerate returns
+        KEY_FAILURE → SECOC_E_CRYPTO_FAILURE to DET. Check key provisioning order in EcuM startup.</div>
+      <div class="warn"><strong>4. FVM not synced at startup → all RX PDUs dropped</strong> — Use
+        VerifyStatusOverride(SKIP_UNTIL_NOTICE) during startup, cancel when FVM confirms sync.</div>
+      <div class="warn"><strong>5. SecOCAuthenticationBuildAttempts too low</strong> — If CSM is async and queue is
+        shared, E_BUSY is expected for 2-3 cycles. Set BuildAttempts ≥ 5 to tolerate CSM latency.</div>
+      <div class="warn"><strong>6. MainFunctionTx/Rx period mismatch with OS task</strong> — SecOC processes PDUs at
+        configured period. If OS task slower → effective period longer → freshness counter advances too fast relative to
+        processing time.</div>
+    </div>
+
+  </div><!-- content -->
+
+  <script>
+    function T(id) {
+      var ids = ['overview', 'pdu', 'functional', 'freshness', 'states', 'api', 'sequences', 'errors', 'davinci', 'testing'];
+      document.querySelectorAll('.tab').forEach(function (t, i) { t.classList.toggle('active', ids[i] === id) });
+      document.querySelectorAll('.section').forEach(function (s) { s.classList.toggle('active', s.id === 's-' + id) });
+    }
+  </script>
+</body>
+
+</html>

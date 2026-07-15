@@ -1,0 +1,738 @@
+
+<h2 class="sr-only">AUTOSAR EEPROM Abstraction (EA) Module — Complete Study Guide</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:15px;color:var(--color-text-primary);line-height:1.6}
+.tabs{display:flex;gap:4px;padding:1rem 0 0;flex-wrap:wrap;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+.tab{padding:8px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;cursor:pointer;font-size:13px;font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary)}
+.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);border-bottom:1.5px solid var(--color-background-primary);margin-bottom:-0.5px}
+.tab:hover:not(.active){background:var(--color-background-primary)}
+.panel{display:none}.panel.active{display:block}
+.section{margin-bottom:2rem}
+h3{font-size:16px;font-weight:500;margin-bottom:0.75rem;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+h4{font-size:14px;font-weight:500;margin:1rem 0 0.5rem;color:var(--color-text-primary)}
+p{margin-bottom:0.75rem;font-size:14px;color:var(--color-text-secondary)}
+ul,ol{margin:0.5rem 0 0.75rem 1.25rem;font-size:14px;color:var(--color-text-secondary)}
+li{margin-bottom:4px}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:2px 5px;border-radius:4px;color:var(--color-text-primary)}
+.chip{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;margin:2px}
+.chip-blue{background:#E6F1FB;color:#0C447C}
+.chip-red{background:#FCEBEB;color:#A32D2D}
+.chip-green{background:#EAF3DE;color:#3B6D11}
+.chip-amber{background:#FAEEDA;color:#854F0B}
+.chip-gray{background:#F1EFE8;color:#5F5E5A}
+.chip-teal{background:#E1F5EE;color:#0F6E56}
+.api-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:1rem;overflow:hidden}
+.api-header{padding:10px 14px;display:flex;align-items:center;gap:10px;background:var(--color-background-secondary);cursor:pointer;user-select:none}
+.api-body{padding:12px 14px;font-size:13px;border-top:0.5px solid var(--color-border-tertiary);display:none}
+.api-body.open{display:block}
+.api-fn{font-family:var(--font-mono);font-size:13px;font-weight:500}
+.method-row{display:grid;grid-template-columns:120px 1fr;gap:6px;margin-bottom:6px;font-size:13px}
+.method-label{color:var(--color-text-secondary);font-size:12px}
+.err-table{width:100%;border-collapse:collapse;font-size:12px;margin:0.5rem 0}
+.err-table th{text-align:left;padding:6px 8px;background:var(--color-background-secondary);font-weight:500;font-size:12px;border:0.5px solid var(--color-border-tertiary)}
+.err-table td{padding:6px 8px;border:0.5px solid var(--color-border-tertiary);vertical-align:top}
+.state-box{display:flex;flex-direction:column;align-items:center}
+.state-svg{width:100%;max-width:640px;margin:0 auto;display:block}
+.tip{background:var(--color-background-info);border-left:3px solid #185FA5;padding:10px 12px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:0.75rem 0;font-size:13px;color:var(--color-text-secondary)}
+.warn{background:#FAEEDA;border-left:3px solid #854F0B;padding:10px 12px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:0.75rem 0;font-size:13px;color:#633806}
+.danger{background:#FCEBEB;border-left:3px solid #A32D2D;padding:10px 12px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:0.75rem 0;font-size:13px;color:#501313}
+.config-row{display:grid;grid-template-columns:200px 80px 1fr;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;align-items:start}
+.config-row:last-child{border-bottom:none}
+.config-name{font-family:var(--font-mono);font-size:11px}
+.seq-step{display:flex;gap:10px;margin-bottom:8px;font-size:13px}
+.seq-num{width:22px;height:22px;border-radius:50%;background:#E6F1FB;color:#0C447C;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px}
+@media(max-width:500px){.grid2{grid-template-columns:1fr}.method-row{grid-template-columns:1fr}}
+</style>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="overview">Overview & Layer</div>
+  <div class="tab" data-tab="state">State Machine</div>
+  <div class="tab" data-tab="functional">Functional Spec</div>
+  <div class="tab" data-tab="api">API Reference</div>
+  <div class="tab" data-tab="errors">Errors & DET</div>
+  <div class="tab" data-tab="sequence">Sequence Flows</div>
+  <div class="tab" data-tab="config">DaVinci Config</div>
+  <div class="tab" data-tab="debug">Debug & Test</div>
+</div>
+
+<div id="overview" class="panel active">
+  <div class="section">
+    <h3>What is EA and where does it sit?</h3>
+    <p>EA (EEPROM Abstraction) is a BSW module in AUTOSAR Classic Platform. It hides device-specific EEPROM addressing from upper layers and provides a uniform virtual 32-bit address space.</p>
+    <svg class="state-svg" viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="10" width="600" height="60" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+      <text x="310" y="35" text-anchor="middle" font-size="13" font-weight="500" fill="#085041">NvM — NVRAM Manager</text>
+      <text x="310" y="55" text-anchor="middle" font-size="11" fill="#0F6E56">upper layer — calls EA via MemIf (Memory Abstraction Interface)</text>
+      <rect x="10" y="90" width="600" height="60" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+      <text x="310" y="115" text-anchor="middle" font-size="13" font-weight="500" fill="#0C447C">MemIf — Memory Abstraction Interface</text>
+      <text x="310" y="135" text-anchor="middle" font-size="11" fill="#185FA5">routes calls to EA or FEE based on DeviceIndex</text>
+      <rect x="10" y="170" width="290" height="60" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
+      <text x="155" y="195" text-anchor="middle" font-size="13" font-weight="500" fill="#3C3489">EA — EEPROM Abstraction</text>
+      <text x="155" y="215" text-anchor="middle" font-size="11" fill="#534AB7">YOUR MODULE — exam focus</text>
+      <rect x="320" y="170" width="290" height="60" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+      <text x="465" y="195" text-anchor="middle" font-size="13" font-weight="500" fill="#444441">FEE — Flash EEPROM Emulation</text>
+      <text x="465" y="215" text-anchor="middle" font-size="11" fill="#5F5E5A">uses flash, not EEPROM hardware</text>
+      <rect x="10" y="250" width="600" height="55" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+      <text x="310" y="272" text-anchor="middle" font-size="13" font-weight="500" fill="#633806">MemAcc — Memory Access module (R21-11+)</text>
+      <text x="310" y="292" text-anchor="middle" font-size="11" fill="#854F0B">replaces direct Eep driver calls — EA calls MemAcc_Read/Write/Erase/Cancel</text>
+      <line x1="310" y1="70" x2="310" y2="90" stroke="#888780" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="155" y1="150" x2="155" y2="170" stroke="#888780" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="465" y1="150" x2="465" y2="170" stroke="#888780" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="155" y1="230" x2="155" y2="250" stroke="#888780" stroke-width="1" marker-end="url(#arr)"/>
+      <line x1="465" y1="230" x2="465" y2="250" stroke="#888780" stroke-width="1" marker-end="url(#arr)"/>
+      <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#888780"/></marker></defs>
+    </svg>
+  </div>
+  <div class="section">
+    <h3>Key concepts to memorize</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4>Virtual address = 32 bits</h4>
+        <p>16-bit block number + 16-bit offset inside block. Block number encodes dataset/redundant copy bits (NVM_DATASET_SELECTION_BITS).</p>
+        <div><span class="chip chip-blue">block number: 16 bit</span><span class="chip chip-teal">offset: 16 bit</span></div>
+      </div>
+      <div class="card">
+        <h4>Physical address derived by EA</h4>
+        <p>EA combines block number + offset → calls MemAcc which maps to real EEPROM hardware address. Exact mapping is implementation-specific.</p>
+      </div>
+      <div class="card">
+        <h4>Virtual page size</h4>
+        <p>All blocks aligned to <code>EaVirtualPageSize</code>. Must be integer multiple of physical page size. Block sizes must be integer multiples of virtual page size.</p>
+        <div class="tip" style="margin:0.5rem 0 0">If virtual page = 8 bytes, valid block sizes: 8,16,24... NOT 10,20.</div>
+      </div>
+      <div class="card">
+        <h4>One job at a time</h4>
+        <p>EA has NO job queue. NvM must serialize jobs. EA does not check if busy before accepting — that is NvM's job. But APIs do raise EA_E_BUSY runtime error if called while busy.</p>
+      </div>
+      <div class="card">
+        <h4>Asynchronous execution</h4>
+        <p>All data ops (Read, Write, Cancel, InvalidateBlock, EraseImmediateBlock) are ASYNC. Ea_Init and GetStatus/GetJobResult/GetVersionInfo are SYNC.</p>
+      </div>
+      <div class="card">
+        <h4>Virtually unlimited erase cycles</h4>
+        <p>EA spreads writes across multiple physical areas when device endurance < required write cycles (EaNumberOfWriteCycles vs EepAllowedWriteCycles).</p>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Module dependencies</h3>
+    <ul>
+      <li><strong>MemAcc</strong> — mandatory lower layer since R21-11 (replaced direct Eep calls)</li>
+      <li><strong>NvM</strong> — upper layer caller; serializes all jobs</li>
+      <li><strong>MemIf</strong> — routing interface; NvM calls MemIf, MemIf calls EA</li>
+      <li><strong>Det</strong> — development error reporting (optional, enabled by EaDevErrorDetect)</li>
+      <li><strong>SchM_Ea.h</strong> — scheduler integration for Ea_MainFunction</li>
+    </ul>
+  </div>
+</div>
+
+<div id="state" class="panel">
+  <div class="section">
+    <h3>EA module state machine — complete</h3>
+    <svg class="state-svg" viewBox="0 0 620 480" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="a2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5F5E5A"/></marker>
+        <marker id="a3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#A32D2D"/></marker>
+        <marker id="a4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#0F6E56"/></marker>
+      </defs>
+      <rect x="230" y="20" width="160" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.5"/>
+      <text x="310" y="42" text-anchor="middle" font-size="13" font-weight="500" fill="#444441">MEMIF_UNINIT</text>
+      <text x="310" y="60" text-anchor="middle" font-size="11" fill="#888780">initial state</text>
+      <rect x="200" y="140" width="220" height="50" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="1.5"/>
+      <text x="310" y="162" text-anchor="middle" font-size="13" font-weight="500" fill="#633806">MEMIF_BUSY_INTERNAL</text>
+      <text x="310" y="180" text-anchor="middle" font-size="11" fill="#854F0B">init in progress / garbage collect</text>
+      <rect x="230" y="270" width="160" height="50" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/>
+      <text x="310" y="292" text-anchor="middle" font-size="13" font-weight="500" fill="#27500A">MEMIF_IDLE</text>
+      <text x="310" y="310" text-anchor="middle" font-size="11" fill="#3B6D11">ready for jobs</text>
+      <rect x="230" y="400" width="160" height="50" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="1.5"/>
+      <text x="310" y="422" text-anchor="middle" font-size="13" font-weight="500" fill="#791F1F">MEMIF_BUSY</text>
+      <text x="310" y="440" text-anchor="middle" font-size="11" fill="#A32D2D">processing upper-layer job</text>
+      <line x1="310" y1="70" x2="310" y2="140" stroke="#854F0B" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#a2)"/>
+      <text x="315" y="110" font-size="11" fill="#854F0B">Ea_Init() called</text>
+      <line x1="310" y1="190" x2="310" y2="270" stroke="#3B6D11" stroke-width="1.5" marker-end="url(#a4)"/>
+      <text x="315" y="235" font-size="11" fill="#3B6D11">init complete</text>
+      <line x1="390" y1="295" x2="560" y2="295" stroke="#5F5E5A" stroke-width="1" marker-end="url(#a2)"/>
+      <line x1="560" y1="295" x2="560" y2="425" stroke="#5F5E5A" stroke-width="1"/>
+      <line x1="560" y1="425" x2="390" y2="425" stroke="#5F5E5A" stroke-width="1" marker-end="url(#a2)"/>
+      <text x="570" y="365" font-size="11" fill="#5F5E5A">Read/Write/</text>
+      <text x="570" y="378" font-size="11" fill="#5F5E5A">Invalidate/Erase</text>
+      <text x="570" y="391" font-size="11" fill="#5F5E5A">accepted →</text>
+      <text x="570" y="404" font-size="11" fill="#5F5E5A">PENDING</text>
+      <line x1="230" y1="425" x2="60" y2="425" stroke="#3B6D11" stroke-width="1" marker-end="url(#a4)"/>
+      <line x1="60" y1="425" x2="60" y2="295" stroke="#3B6D11" stroke-width="1"/>
+      <line x1="60" y1="295" x2="230" y2="295" stroke="#3B6D11" stroke-width="1" marker-end="url(#a4)"/>
+      <text x="10" y="350" font-size="11" fill="#3B6D11" transform="rotate(-90,10,365)">job done → callback</text>
+      <line x1="390" y1="425" x2="520" y2="165" stroke="#A32D2D" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#a3)"/>
+      <text x="455" y="300" font-size="11" fill="#A32D2D">Ea_Cancel()</text>
+      <line x1="200" y1="295" x2="200" y2="165" stroke="#854F0B" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#a2)"/>
+      <text x="100" y="235" font-size="11" fill="#854F0B">internal mgmt</text>
+      <text x="100" y="248" font-size="11" fill="#854F0B">op starts</text>
+      <text x="100" y="262" font-size="11" fill="#854F0B">(garbage collect)</text>
+    </svg>
+    <div class="section">
+      <h4>State transition rules — exam critical</h4>
+      <table class="err-table">
+        <tr><th>From state</th><th>Trigger</th><th>To state</th><th>Notes</th></tr>
+        <tr><td><code>UNINIT</code></td><td>Ea_Init() called</td><td><code>BUSY_INTERNAL</code></td><td>immediately on start of init</td></tr>
+        <tr><td><code>BUSY_INTERNAL</code></td><td>Init finished (in Ea_Init or later in Ea_MainFunction)</td><td><code>IDLE</code></td><td>Ea_MainFunction sets IDLE if init completes async</td></tr>
+        <tr><td><code>IDLE</code> or <code>BUSY_INTERNAL</code></td><td>Read/Write/Invalidate accepted</td><td><code>BUSY</code></td><td>job result set to MEMIF_JOB_PENDING</td></tr>
+        <tr><td><code>BUSY</code></td><td>Job finishes successfully</td><td><code>IDLE</code></td><td>callback NvM_JobEndNotification called</td></tr>
+        <tr><td><code>BUSY</code></td><td>Job fails</td><td><code>IDLE</code></td><td>callback NvM_JobErrorNotification called</td></tr>
+        <tr><td><code>BUSY</code></td><td>Ea_Cancel() called</td><td><code>IDLE</code></td><td>job result = MEMIF_JOB_CANCELED</td></tr>
+        <tr><td><code>IDLE</code></td><td>Internal mgmt needed</td><td><code>BUSY_INTERNAL</code></td><td>only EA-internal jobs, not visible to NvM via GetJobResult</td></tr>
+        <tr><td><code>BUSY_INTERNAL</code></td><td>Mgmt done</td><td><code>IDLE</code></td><td></td></tr>
+      </table>
+      <div class="warn">BUSY_INTERNAL: Read/Write still accepted (EA queues internal job pause). BUSY: all job requests REJECTED with E_NOT_OK.</div>
+      <div class="tip">Ea_GetStatus() is synchronous and can be called anytime — even from UNINIT state. Returns MEMIF_UNINIT before init.</div>
+    </div>
+  </div>
+</div>
+
+<div id="functional" class="panel">
+  <div class="section">
+    <h3>Addressing scheme</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4>Virtual address structure</h4>
+        <code>[ 16-bit block number | 16-bit offset ]</code>
+        <p style="margin-top:8px">Block number encodes: actual block ID + dataset index bits (NVM_DATASET_SELECTION_BITS from MSB side). Only non-dataset bits used for address calc.</p>
+        <p>Example: 4 dataset bits → 12 bits for block, 4 bits for dataset. Max 4094 NvM blocks, 16 datasets each.</p>
+      </div>
+      <div class="card">
+        <h4>Block number rules</h4>
+        <ul>
+          <li><strong>0x0000 and 0xFFFF FORBIDDEN</strong> — never configure</li>
+          <li>Min valid: 2^NVM_DATASET_SELECTION_BITS</li>
+          <li>Max valid: 0xFFFF − 2^NVM_DATASET_SELECTION_BITS</li>
+          <li>Blocks must NOT overlap</li>
+          <li>Blocks must NOT contain one another</li>
+        </ul>
+      </div>
+    </div>
+    <h4>Block size alignment rule</h4>
+    <p>Every block size must be integer multiple of EaVirtualPageSize. Virtual page size must be integer multiple of physical page size. If block 100 bytes and page 8 bytes → 100 is NOT valid (not multiple of 8). Must round up to 104.</p>
+    <div class="tip">Block #1 size=32, page=8 → uses 4 virtual pages (block numbers 1,2,3,4 "blocked"). Block #5 size=100 → 13 pages (block numbers 5..17 blocked). Next available = block #18.</div>
+  </div>
+  <div class="section">
+    <h3>Block consistency management</h3>
+    <ul>
+      <li>When write STARTS → EA marks block <strong>inconsistent</strong> (stored in NV memory, reset-resistant)</li>
+      <li>When write SUCCEEDS → EA marks block <strong>consistent</strong></li>
+      <li>If power loss during write → block stays inconsistent → read returns MEMIF_BLOCK_INCONSISTENT</li>
+      <li>Inconsistent ≠ Invalidated: EA distinguishes these two states</li>
+      <li>Invalidated block → EA explicitly marks it invalid via Ea_InvalidateBlock</li>
+      <li>Reading invalidated → MEMIF_BLOCK_INVALID</li>
+      <li>Reading inconsistent (or block not found) → MEMIF_BLOCK_INCONSISTENT</li>
+    </ul>
+    <div class="danger">Upper layer MUST NOT use data buffer contents when job result is BLOCK_INCONSISTENT or BLOCK_INVALID.</div>
+  </div>
+  <div class="section">
+    <h3>Immediate data handling</h3>
+    <p>Immediate data blocks (EaImmediateData = TRUE) must be writable WITHOUT prior erase — pre-erased area reserved. Priority: NvM cancels any ongoing lower-priority job before writing immediate data.</p>
+    <ul>
+      <li>Ea_EraseImmediateBlock() — pre-erases area, called by diagnostics/system services</li>
+      <li>Ea_Cancel() called by NvM synchronously before immediate write</li>
+      <li>Hardware may still be completing last physical op (page write) — EA must wait for that</li>
+      <li>Immediate write cannot be delayed by internal mgmt ops</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h3>Write cycle spreading (endurance management)</h3>
+    <p>If EepAllowedWriteCycles (EEPROM hw endurance) &lt; EaNumberOfWriteCycles (required by config), EA must internally provide multiple physical areas and rotate access — wear leveling.</p>
+    <p>Example: block needs 500k cycles, EEPROM rated 100k → EA uses at least 5 physical locations, round-robin.</p>
+  </div>
+  <div class="section">
+    <h3>Buffer alignment (added R21-11)</h3>
+    <ul>
+      <li><code>EaBufferAlignmentValue</code> — internal buffers aligned to this (inherited from MemAccBufferAlignmentValue)</li>
+      <li><code>EaMinimumReadPageSize</code> — read requests aligned to this page size</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h3>Internal management vs upper-layer job result</h3>
+    <p>EA may run internal ops (garbage collection, wear leveling) during NvM-requested jobs. These internal ops must NOT affect the job result returned by Ea_GetJobResult(). EA needs a second set of internal variables for this purpose.</p>
+    <div class="tip">Exam question: "Does garbage collection affect Ea_GetJobResult()?" — Answer: NO. Only upper-layer jobs affect job result.</div>
+  </div>
+</div>
+
+<div id="api" class="panel">
+  <p style="margin-bottom:1rem">Click each function to expand. All available via <code>Ea.h</code>.</p>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x00</span><span class="chip chip-green">SYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_Init(const Ea_ConfigType* ConfigPtr)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>void</span></div>
+      <div class="method-row"><span class="method-label">ConfigPtr</span><span>MUST be NULL_PTR (currently unused)</span></div>
+      <div class="method-row"><span class="method-label">State change</span><span>UNINIT → BUSY_INTERNAL → IDLE (if init finishes in Ea_Init itself) OR BUSY_INTERNAL stays until Ea_MainFunction completes it</span></div>
+      <div class="tip" style="margin:8px 0">Do NOT call Ea_Init during a running EA operation. Called by EcuM, NOT by NvM.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x02</span><span class="chip chip-amber">ASYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_Read(BlockNumber, BlockOffset, DataBufferPtr, Length)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>E_OK (accepted) / E_NOT_OK (rejected)</span></div>
+      <div class="method-row"><span class="method-label">Accepted when</span><span>MEMIF_IDLE or MEMIF_BUSY_INTERNAL</span></div>
+      <div class="method-row"><span class="method-label">Rejected when</span><span>MEMIF_UNINIT or MEMIF_BUSY</span></div>
+      <div class="method-row"><span class="method-label">Offset</span><span>any value — can read partial block from any byte offset</span></div>
+      <div class="method-row"><span class="method-label">Execution</span><span>actual read happens asynchronously in Ea_MainFunction</span></div>
+      <h4 style="margin-top:10px">DET checks (if EaDevErrorDetect = TRUE)</h4>
+      <table class="err-table">
+        <tr><th>Check</th><th>Error raised</th></tr>
+        <tr><td>Module state = UNINIT</td><td>EA_E_UNINIT (0x01)</td></tr>
+        <tr><td>Invalid block number</td><td>EA_E_INVALID_BLOCK_NO (0x02)</td></tr>
+        <tr><td>Offset ≥ block length</td><td>EA_E_INVALID_BLOCK_OFS (0x03)</td></tr>
+        <tr><td>DataBufferPtr = NULL</td><td>EA_E_PARAM_POINTER (0x04)</td></tr>
+        <tr><td>Offset + Length > block end</td><td>EA_E_INVALID_BLOCK_LEN (0x05)</td></tr>
+      </table>
+      <div class="method-row" style="margin-top:8px"><span class="method-label">Busy check</span><span>EA_E_BUSY (0x06) raised as RUNTIME error — no DET needed</span></div>
+      <div class="warn" style="margin:8px 0">If request rejected: module status and job result UNCHANGED.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x03</span><span class="chip chip-amber">ASYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_Write(BlockNumber, const uint8* DataBufferPtr)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>E_OK / E_NOT_OK</span></div>
+      <div class="method-row"><span class="method-label">Offset</span><span>FIXED to 0 — always writes full block from start</span></div>
+      <div class="method-row"><span class="method-label">Length</span><span>set to configured EaBlockSize — always full block write</span></div>
+      <div class="method-row"><span class="method-label">Accepted when</span><span>IDLE or BUSY_INTERNAL</span></div>
+      <div class="tip" style="margin:8px 0">Write is always complete block — no partial write. On acceptance: sets BUSY + JOB_PENDING. Marks block inconsistent immediately. Marks consistent on success.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x04</span><span class="chip chip-amber">ASYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_Cancel(void)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>void</span></div>
+      <div class="method-row"><span class="method-label">If BUSY</span><span>calls MemAcc_Cancel, resets internals, sets IDLE + JOB_CANCELED</span></div>
+      <div class="method-row"><span class="method-label">If NOT BUSY</span><span>raises EA_E_INVALID_CANCEL runtime error, state unchanged</span></div>
+      <div class="tip" style="margin:8px 0">Cancel is async w.r.t. hardware — ongoing physical HW op may still complete. But EA will not issue further write commands. Since R21-11: Ea_Cancel is ASYNCHRONOUS (was sync before).</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x05</span><span class="chip chip-green">SYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_GetStatus(void)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Returns</span><span>MEMIF_UNINIT / MEMIF_IDLE / MEMIF_BUSY / MEMIF_BUSY_INTERNAL</span></div>
+      <div class="tip" style="margin:8px 0">No DET needed. Safe to call from any state. NvM uses this to poll before issuing a new job.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x06</span><span class="chip chip-green">SYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_GetJobResult(void)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Returns</span><span>MEMIF_JOB_OK / MEMIF_JOB_PENDING / MEMIF_JOB_CANCELED / MEMIF_JOB_FAILED / MEMIF_BLOCK_INCONSISTENT / MEMIF_BLOCK_INVALID</span></div>
+      <div class="method-row"><span class="method-label">DET check</span><span>if UNINIT → raises EA_E_UNINIT, returns MEMIF_JOB_FAILED</span></div>
+      <div class="warn" style="margin:8px 0">Internal management ops do NOT affect this result. Only NvM-requested jobs count.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x07</span><span class="chip chip-amber">ASYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_InvalidateBlock(uint16 BlockNumber)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>E_OK / E_NOT_OK (only if DET enabled)</span></div>
+      <div class="method-row"><span class="method-label">Accepted when</span><span>IDLE or BUSY_INTERNAL</span></div>
+      <div class="method-row"><span class="method-label">Effect</span><span>marks block invalid — either calls erase on underlying driver OR changes internal mgmt info</span></div>
+      <div class="tip" style="margin:8px 0">Invalidation info stored in NV memory — survives reset. Upper layer reading an invalidated block gets BLOCK_INVALID result.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x08</span><span class="chip chip-green">SYNC</span><span class="chip chip-teal">REENTRANT</span>
+      <span class="api-fn">Ea_GetVersionInfo(Std_VersionInfoType* VersionInfoPtr)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>void</span></div>
+      <div class="method-row"><span class="method-label">DET check</span><span>if VersionInfoPtr = NULL → EA_E_PARAM_POINTER</span></div>
+      <div class="method-row"><span class="method-label">Enabled by</span><span>EaVersionInfoApi = TRUE in config</span></div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x09</span><span class="chip chip-amber">ASYNC</span><span class="chip chip-blue">NON-REENTRANT</span>
+      <span class="api-fn">Ea_EraseImmediateBlock(uint16 BlockNumber)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Return</span><span>E_OK / E_NOT_OK (only if DET enabled)</span></div>
+      <div class="method-row"><span class="method-label">Purpose</span><span>pre-erase memory for immediate data blocks (called by diagnostics)</span></div>
+      <div class="method-row"><span class="method-label">Extra DET check</span><span>EaImmediateData must be TRUE for block — else EA_E_INVALID_BLOCK_NO</span></div>
+      <div class="danger" style="margin:8px 0">NOT called by NvM for normal operation. Only diagnostic/system services call this for pre-conditioning.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x12</span><span class="chip chip-gray">SCHEDULED</span>
+      <span class="api-fn">Ea_MainFunction(void)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Called by</span><span>BSW Scheduler (SchM) — periodic, configured via EaMainFunctionPeriod</span></div>
+      <div class="method-row"><span class="method-label">Role</span><span>executes all async jobs, checks block consistency, calls callbacks, manages internal ops</span></div>
+      <div class="method-row"><span class="method-label">Cycle time</span><span>should match underlying EEPROM driver cycle time</span></div>
+      <div class="tip" style="margin:8px 0">All data movement (actual read/write to MemAcc) happens here. API calls only SET UP the job.</div>
+    </div>
+  </div>
+
+  <div class="api-card">
+    <div class="api-header" onclick="toggle(this)">
+      <span class="chip chip-gray">0x10</span><span class="chip chip-green">CALLBACK</span>
+      <span class="api-fn">Ea_JobEndNotification(void)</span>
+    </div>
+    <div class="api-body">
+      <div class="method-row"><span class="method-label">Called by</span><span>underlying MemAcc/EEPROM driver — signals successful async op end</span></div>
+      <div class="method-row"><span class="method-label">Effect</span><span>if JOB_PENDING → set JOB_OK; call NvM_JobEndNotification or NvM_JobErrorNotification</span></div>
+      <div class="warn" style="margin:8px 0">Must be callable on interrupt level — keep runtime SHORT.</div>
+    </div>
+  </div>
+</div>
+
+<div id="errors" class="panel">
+  <div class="section">
+    <h3>Development errors (DET) — enabled by EaDevErrorDetect</h3>
+    <table class="err-table">
+      <tr><th>Error code</th><th>Value</th><th>Trigger condition</th><th>Raised by</th></tr>
+      <tr><td><code>EA_E_UNINIT</code></td><td>0x01</td><td>API called when module not initialized</td><td>All APIs except Ea_Init</td></tr>
+      <tr><td><code>EA_E_INVALID_BLOCK_NO</code></td><td>0x02</td><td>Block number out of configured range or not configured</td><td>Read, Write, InvalidateBlock, EraseImmediateBlock</td></tr>
+      <tr><td><code>EA_E_INVALID_BLOCK_OFS</code></td><td>0x03</td><td>Offset ≥ configured block length</td><td>Ea_Read</td></tr>
+      <tr><td><code>EA_E_PARAM_POINTER</code></td><td>0x04</td><td>Pointer argument is NULL</td><td>Read (DataBufferPtr), Write (DataBufferPtr), GetVersionInfo</td></tr>
+      <tr><td><code>EA_E_INVALID_BLOCK_LEN</code></td><td>0x05</td><td>Offset + Length exceeds block end address</td><td>Ea_Read</td></tr>
+    </table>
+    <div class="danger">When DET error fires AND request rejected: module status and job result MUST remain unchanged. This is critical for integration testing.</div>
+  </div>
+  <div class="section">
+    <h3>Runtime errors — always checked, no DET flag needed</h3>
+    <table class="err-table">
+      <tr><th>Error code</th><th>Value</th><th>Trigger condition</th><th>Raised by</th></tr>
+      <tr><td><code>EA_E_BUSY</code></td><td>0x06</td><td>API called while module status = MEMIF_BUSY</td><td>Read, Write, InvalidateBlock, EraseImmediateBlock</td></tr>
+      <tr><td><code>EA_E_INVALID_CANCEL</code></td><td>0x08</td><td>Ea_Cancel called when module NOT busy (no pending job)</td><td>Ea_Cancel</td></tr>
+    </table>
+    <div class="tip">Runtime errors reported via Det_ReportRuntimeError() — separate from DET development errors (Det_ReportError).</div>
+  </div>
+  <div class="section">
+    <h3>Job results (Ea_GetJobResult return values)</h3>
+    <table class="err-table">
+      <tr><th>Result</th><th>Meaning</th><th>Debug action</th></tr>
+      <tr><td><code>MEMIF_JOB_OK</code></td><td>Last job succeeded</td><td>Normal operation</td></tr>
+      <tr><td><code>MEMIF_JOB_PENDING</code></td><td>Job executing or queued</td><td>Wait for callback; check Ea_MainFunction is being called</td></tr>
+      <tr><td><code>MEMIF_JOB_CANCELED</code></td><td>Job was canceled</td><td>Ea_Cancel was called — check NvM immediate data logic</td></tr>
+      <tr><td><code>MEMIF_JOB_FAILED</code></td><td>Job failed</td><td>Check MemAcc/EEPROM hardware; check block configuration</td></tr>
+      <tr><td><code>MEMIF_BLOCK_INCONSISTENT</code></td><td>Block inconsistent or not found</td><td>Power loss during write? Block never written? Check EA management data in EEPROM</td></tr>
+      <tr><td><code>MEMIF_BLOCK_INVALID</code></td><td>Block explicitly invalidated</td><td>Ea_InvalidateBlock was called — NvM will use default values</td></tr>
+    </table>
+    <div class="warn">There are NO production errors and NO extended production errors in EA module.</div>
+  </div>
+</div>
+
+<div id="sequence" class="panel">
+  <div class="section">
+    <h3>Ea_Init sequence</h3>
+    <div class="seq-step"><span class="seq-num">1</span><span>EcuM calls <code>Ea_Init(NULL_PTR)</code></span></div>
+    <div class="seq-step"><span class="seq-num">2</span><span>EA sets module state: UNINIT → BUSY_INTERNAL</span></div>
+    <div class="seq-step"><span class="seq-num">3a</span><span>If init completes synchronously: state → IDLE (done)</span></div>
+    <div class="seq-step"><span class="seq-num">3b</span><span>If init needs async work: remains BUSY_INTERNAL until Ea_MainFunction() completes it → IDLE</span></div>
+    <div class="tip">EA_Init NOT called by NvM. EcuM calls it during startup. NvM may not start until EA is IDLE.</div>
+  </div>
+
+  <div class="section">
+    <h3>Ea_Write sequence (complete flow)</h3>
+    <div class="seq-step"><span class="seq-num">1</span><span>NvM calls MemIf_Write() → MemIf routes to Ea_Write(BlockNumber, DataBufferPtr)</span></div>
+    <div class="seq-step"><span class="seq-num">2</span><span>EA checks state (IDLE or BUSY_INTERNAL), checks block number, checks DataBufferPtr ≠ NULL</span></div>
+    <div class="seq-step"><span class="seq-num">3</span><span>EA calculates physical address (block offset fixed to 0), sets length = EaBlockSize</span></div>
+    <div class="seq-step"><span class="seq-num">4</span><span>EA copies params to internal vars, marks block INCONSISTENT, sets state = BUSY, job result = JOB_PENDING, returns E_OK to NvM</span></div>
+    <div class="seq-step"><span class="seq-num">5</span><span>NvM returns; BSW scheduler calls Ea_MainFunction() periodically</span></div>
+    <div class="seq-step"><span class="seq-num">6</span><span>Ea_MainFunction() calls MemAcc_Write() → MemAcc → Mem driver → physical EEPROM</span></div>
+    <div class="seq-step"><span class="seq-num">7</span><span>MemAcc runs its MainFunction loop; Mem performs actual write</span></div>
+    <div class="seq-step"><span class="seq-num">8</span><span>On hw complete: Ea_JobEndNotification() called by MemAcc</span></div>
+    <div class="seq-step"><span class="seq-num">9</span><span>EA: marks block CONSISTENT, sets job result = JOB_OK, state = IDLE</span></div>
+    <div class="seq-step"><span class="seq-num">10</span><span>EA calls NvM_JobEndNotification() → NvM updates its records</span></div>
+    <div class="tip">Actual data movement only in steps 6-8. Steps 1-4 just register the job. Steps 9-10 are the completion path.</div>
+  </div>
+
+  <div class="section">
+    <h3>Ea_Cancel sequence</h3>
+    <div class="seq-step"><span class="seq-num">1</span><span>NvM calls MemIf_Cancel() → MemIf calls Ea_Cancel()</span></div>
+    <div class="seq-step"><span class="seq-num">2</span><span>EA checks: if UNINIT → DET error, return. If NOT BUSY → EA_E_INVALID_CANCEL, return unchanged</span></div>
+    <div class="seq-step"><span class="seq-num">3</span><span>If BUSY: EA calls MemAcc_Cancel() to tell lower layer stop sending new commands</span></div>
+    <div class="seq-step"><span class="seq-num">4</span><span>EA resets internal vars, sets job result = JOB_CANCELED, state = IDLE</span></div>
+    <div class="seq-step"><span class="seq-num">5</span><span>Physical hardware may still complete current page write — EA does NOT abort ongoing HW op</span></div>
+    <div class="seq-step"><span class="seq-num">6</span><span>Ea_JobEndNotification may still arrive from MemAcc — EA handles this gracefully (job result already CANCELED, not PENDING, so notification left untouched)</span></div>
+    <div class="seq-step"><span class="seq-num">7</span><span>NvM can now issue immediate data write (reason for cancel)</span></div>
+    <div class="warn">Cancel is synchronous in terms of EA state reset but asynchronous w.r.t. hardware. Don't confuse these.</div>
+  </div>
+
+  <div class="section">
+    <h3>Ea_Read + consistency check sequence</h3>
+    <div class="seq-step"><span class="seq-num">1</span><span>NvM → MemIf_Read() → Ea_Read(block, offset, buffer, length)</span></div>
+    <div class="seq-step"><span class="seq-num">2</span><span>EA validates params (DET checks), calculates address, sets BUSY + JOB_PENDING, returns E_OK</span></div>
+    <div class="seq-step"><span class="seq-num">3</span><span>Ea_MainFunction: check if block was invalidated → if yes, set BLOCK_INVALID, call error notification</span></div>
+    <div class="seq-step"><span class="seq-num">4</span><span>Ea_MainFunction: call MemAcc_Read() → actual data transferred to buffer</span></div>
+    <div class="seq-step"><span class="seq-num">5</span><span>After read: EA checks block consistency markers in management data</span></div>
+    <div class="seq-step"><span class="seq-num">6a</span><span>Consistent → set JOB_OK, call NvM_JobEndNotification</span></div>
+    <div class="seq-step"><span class="seq-num">6b</span><span>Inconsistent or not found → set BLOCK_INCONSISTENT, call NvM_JobErrorNotification</span></div>
+    <div class="danger">Buffer contents are transferred even if inconsistent — but NvM MUST ignore buffer contents on error result.</div>
+  </div>
+</div>
+
+<div id="config" class="panel">
+  <div class="section">
+    <h3>Vector DaVinci Configurator — EA module step by step</h3>
+    <h4>Step 1: Add EA module to BSW configuration</h4>
+    <p>In DaVinci Developer or Configurator Pro: BSW Module Selection → add <code>Ea</code>. This creates the Ea container in ECUC dataset.</p>
+
+    <h4>Step 2: Configure EaGeneral container</h4>
+    <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:1rem">
+      <div style="background:var(--color-background-secondary);padding:8px 12px;font-size:12px;font-weight:500;border-bottom:0.5px solid var(--color-border-tertiary)">EaGeneral parameters</div>
+      <div style="padding:4px 12px">
+        <div class="config-row">
+          <span class="config-name">EaDevErrorDetect</span>
+          <span class="chip chip-amber">bool</span>
+          <span>TRUE during development/integration testing. FALSE in production. Enables DET calls and parameter validation.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaVirtualPageSize</span>
+          <span class="chip chip-blue">uint</span>
+          <span>Must match or be multiple of physical EEPROM page size. Check EEPROM datasheet. Typical values: 1, 2, 4, 8 bytes. All block sizes must be multiples of this.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaMainFunctionPeriod</span>
+          <span class="chip chip-blue">float</span>
+          <span>In seconds. Match to EEPROM driver cycle. Typical: 0.005 (5ms). Set same period in OS task that calls Ea_MainFunction.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaPollingMode</span>
+          <span class="chip chip-amber">bool</span>
+          <span>TRUE = polling (no callbacks from Eep/MemAcc). FALSE = callback mode (Ea_JobEndNotification used). Match to MemAcc/Eep config.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaNvmJobEndNotification</span>
+          <span class="chip chip-teal">fn name</span>
+          <span>Set to <code>NvM_JobEndNotification</code>. This is the callback EA calls when job succeeds. Must match NvM config.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaNvmJobErrorNotification</span>
+          <span class="chip chip-teal">fn name</span>
+          <span>Set to <code>NvM_JobErrorNotification</code>. Called on job failure. Must match NvM config.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaVersionInfoApi</span>
+          <span class="chip chip-amber">bool</span>
+          <span>TRUE to enable Ea_GetVersionInfo(). Usually FALSE in production.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaBufferAlignmentValue</span>
+          <span class="chip chip-gray">ref</span>
+          <span>Reference to MemAccAddressAreaConfiguration → inherits MemAccBufferAlignmentValue. Set in R21-11+.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaMinimumReadPageSize</span>
+          <span class="chip chip-blue">uint</span>
+          <span>Read requests aligned to this. Match to EEPROM minimum addressable read unit. Draft status in R24-11.</span>
+        </div>
+      </div>
+    </div>
+
+    <h4>Step 3: Configure EaBlockConfiguration (one per logical block)</h4>
+    <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;margin-bottom:1rem">
+      <div style="background:var(--color-background-secondary);padding:8px 12px;font-size:12px;font-weight:500;border-bottom:0.5px solid var(--color-border-tertiary)">EaBlockConfiguration parameters</div>
+      <div style="padding:4px 12px">
+        <div class="config-row">
+          <span class="config-name">EaBlockNumber</span>
+          <span class="chip chip-blue">uint</span>
+          <span>16-bit block ID. Range: [2^NVM_DATASET_SELECTION_BITS .. 0xFFFF−2^NVM_DATASET_SELECTION_BITS]. Must NOT be 0x0000 or 0xFFFF. Must match NvM block config. DaVinci generates symbolic name.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaBlockSize</span>
+          <span class="chip chip-blue">uint</span>
+          <span>Size in bytes. MUST be integer multiple of EaVirtualPageSize. DaVinci will warn if not aligned. Match to NvM configured block size.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaImmediateData</span>
+          <span class="chip chip-amber">bool</span>
+          <span>TRUE only for blocks that must be writable without erase (immediate/safety data). Pre-erased area reserved. Required for Ea_EraseImmediateBlock to work.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaNumberOfWriteCycles</span>
+          <span class="chip chip-blue">uint32</span>
+          <span>Expected write cycles for this block. If > EepAllowedWriteCycles → EA must implement wear leveling. Set realistically — overestimating wastes flash area.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaMemAccAddressArea</span>
+          <span class="chip chip-gray">ref</span>
+          <span>Reference to MemAccAddressAreaConfiguration. Used R21-11+. Replaces EaDeviceIndex (obsolete). Tells EA which MemAcc address area this block lives in.</span>
+        </div>
+        <div class="config-row">
+          <span class="config-name">EaDeviceIndex</span>
+          <span class="chip chip-red">obsolete</span>
+          <span>Old reference to EepGeneral. Now obsolete — use EaMemAccAddressArea instead. DaVinci may show this as deprecated.</span>
+        </div>
+      </div>
+    </div>
+
+    <h4>Step 4: Published Information (EaPublishedInformation — read-only)</h4>
+    <p>Set by EA vendor/implementer, not by user:</p>
+    <ul>
+      <li><code>EaBlockOverhead</code> — management bytes per block (vendor specifies)</li>
+      <li><code>EaPageOverhead</code> — management bytes per page (vendor specifies)</li>
+    </ul>
+    <p>These values needed by NvM to calculate total EEPROM memory layout. Import from vendor delivery.</p>
+
+    <h4>Step 5: OS task / scheduling setup</h4>
+    <ul>
+      <li>Create BSW task or use existing 5ms/10ms task</li>
+      <li>Add <code>Ea_MainFunction()</code> call in that task</li>
+      <li>Period must match EaMainFunctionPeriod value</li>
+      <li>In DaVinci: SchM_Ea.h included automatically; configure in OS/RTE settings</li>
+    </ul>
+
+    <h4>Step 6: MemIf / NvM cross-references</h4>
+    <ul>
+      <li>In NvM config: NvMBlockDescriptor → NvMDeviceId must reference MemIf slot pointing to EA</li>
+      <li>In MemIf: device 0 (or N) mapped to EA module</li>
+      <li>Block numbers must be consistent: EaBlockNumber = NvM block number × 2^NVM_DATASET_SELECTION_BITS</li>
+      <li>EaBlockSize must equal NvMNvBlockLength (× dataset count for datasets)</li>
+    </ul>
+
+    <h4>Step 7: Generate code</h4>
+    <p>DaVinci generates: <code>Ea_Cfg.h</code>, <code>Ea_Cfg.c</code> with block table, address calculations, config structs. Do NOT hand-edit generated files.</p>
+
+    <div class="danger">Common DaVinci mistakes: EaBlockSize not multiple of EaVirtualPageSize (config error), EaBlockNumber overlapping with another block, callback function name mismatch between EA and NvM configs, EaMainFunctionPeriod not matching OS task period.</div>
+  </div>
+</div>
+
+<div id="debug" class="panel">
+  <div class="section">
+    <h3>Integration testing checklist</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4>Startup / init verification</h4>
+        <ul>
+          <li>Poll Ea_GetStatus() after EcuM init — must reach MEMIF_IDLE before NvM starts</li>
+          <li>If stuck at BUSY_INTERNAL: Ea_MainFunction not called / wrong period</li>
+          <li>MemAcc not initialized before EA? → EA write will fail</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Write/Read round-trip test</h4>
+        <ul>
+          <li>Write pattern to block → read back → compare</li>
+          <li>Check job result after each operation via Ea_GetJobResult()</li>
+          <li>Verify NvM_JobEndNotification fires after each op</li>
+          <li>Verify status returns IDLE after each completed job</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Consistency check testing</h4>
+        <ul>
+          <li>Force power-off mid-write (HW bench or simulation)</li>
+          <li>On next startup: read same block</li>
+          <li>Expected: MEMIF_BLOCK_INCONSISTENT</li>
+          <li>NvM must use default values — trace NvM_JobErrorNotification call</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>DET testing</h4>
+        <ul>
+          <li>Call Ea_Read before Ea_Init → expect EA_E_UNINIT</li>
+          <li>Call with invalid block number → EA_E_INVALID_BLOCK_NO</li>
+          <li>Call with NULL buffer → EA_E_PARAM_POINTER</li>
+          <li>Call Ea_Write while busy → EA_E_BUSY (runtime error)</li>
+          <li>Verify Det_ReportError / Det_ReportRuntimeError called with correct args</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Cancel testing</h4>
+        <ul>
+          <li>Issue Ea_Write, immediately call Ea_Cancel before MainFunction runs</li>
+          <li>Job result must become JOB_CANCELED</li>
+          <li>Status must return to IDLE</li>
+          <li>Call Ea_Cancel with no pending job → EA_E_INVALID_CANCEL</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Immediate data test</h4>
+        <ul>
+          <li>Long write in progress (Ea_Write 200-byte block)</li>
+          <li>Trigger immediate data write condition</li>
+          <li>Verify NvM calls Ea_Cancel first</li>
+          <li>Verify immediate block write starts without delay after cancel</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Common debugging scenarios</h3>
+    <table class="err-table">
+      <tr><th>Symptom</th><th>Root cause</th><th>Fix</th></tr>
+      <tr><td>EA stays in BUSY_INTERNAL forever</td><td>Ea_MainFunction not called, wrong task period, MemAcc not ready</td><td>Check OS task, verify EaMainFunctionPeriod, check MemAcc init order</td></tr>
+      <tr><td>All reads return BLOCK_INCONSISTENT</td><td>First time EEPROM use (blank), or power loss during write, or management data corrupted</td><td>Check if NvM default values applied; format EEPROM if fresh; check write cycle</td></tr>
+      <tr><td>NvM_JobEndNotification never called</td><td>Callback name mismatch in DaVinci config, EaPollingMode mismatch, MainFunction not running</td><td>Cross-check EaNvmJobEndNotification vs NvM expected function name</td></tr>
+      <tr><td>Write fails (JOB_FAILED)</td><td>EEPROM hardware fault, address out of range, MemAcc config error, EaBlockSize misaligned</td><td>Check MemAcc/hardware; verify block address calculation; check DaVinci alignment</td></tr>
+      <tr><td>Ea_Write returns E_NOT_OK</td><td>Module BUSY (another job running) or UNINIT</td><td>Check if NvM is serializing correctly; check init order</td></tr>
+      <tr><td>Ea_Cancel raises EA_E_INVALID_CANCEL</td><td>Called when no job was pending (status not BUSY)</td><td>Check NvM logic — should check status before canceling</td></tr>
+      <tr><td>Block read returns wrong data</td><td>Block number mismatch between NvM and EA config, wrong offset calculation</td><td>Verify EaBlockNumber == NvM block mapping; check dataset selection bits</td></tr>
+      <tr><td>DET not firing despite bad params</td><td>EaDevErrorDetect = FALSE in config</td><td>Enable during integration testing</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h3>Key exam traps</h3>
+    <ul>
+      <li><strong>Ea_Init called by EcuM, NOT NvM</strong></li>
+      <li><strong>Write offset always 0; Read offset can be anything</strong></li>
+      <li><strong>BUSY_INTERNAL accepts new jobs; BUSY does not</strong></li>
+      <li><strong>Block 0x0000 and 0xFFFF never valid</strong></li>
+      <li><strong>Internal ops (garbage collection) do NOT affect Ea_GetJobResult()</strong></li>
+      <li><strong>Ea_Cancel is async w.r.t. HW but sync w.r.t. EA state reset</strong></li>
+      <li><strong>EaDeviceIndex is OBSOLETE — use EaMemAccAddressArea</strong></li>
+      <li><strong>Ea_SetMode() was removed in R21-11</strong></li>
+      <li><strong>Ea_Cancel() became asynchronous in R21-11</strong></li>
+      <li><strong>No production errors in EA — none, zero</strong></li>
+      <li><strong>Config variant: VARIANT-PRE-COMPILE only (no post-build variant support)</strong></li>
+      <li><strong>Ea_JobEndNotification must be callable on interrupt level</strong></li>
+      <li><strong>Block size must be integer multiple of EaVirtualPageSize — not just ≤</strong></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function toggle(header){
+  var body=header.nextElementSibling;
+  body.classList.toggle('open');
+}
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active')});
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  });
+});
+</script>

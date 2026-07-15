@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR NvM Manager – Complete Study Guide</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1f2937;
+  --border: #30363d;
+  --border2: #444c56;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --amber: #f0a500;
+  --amber-dim: #7d5800;
+  --amber-bg: #1f1600;
+  --green: #3fb950;
+  --green-bg: #0d1f0f;
+  --red: #f85149;
+  --red-bg: #1f0d0d;
+  --blue: #58a6ff;
+  --blue-bg: #0d1f35;
+  --purple: #bc8cff;
+  --purple-bg: #1a0d35;
+  --teal: #39d353;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* --- TOP NAV --- */
+header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+header .logo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+header .logo span { color: var(--text2); font-weight: 400; }
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.nav-tabs button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 5px 12px;
+  border-radius: 20px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.nav-tabs button:hover { border-color: var(--border2); color: var(--text); }
+.nav-tabs button.active {
+  background: var(--amber-bg);
+  border-color: var(--amber);
+  color: var(--amber);
+  font-weight: 600;
+}
+
+/* --- MAIN LAYOUT --- */
+main { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* --- TYPOGRAPHY --- */
+h1 { font-size: 22px; font-weight: 700; color: var(--amber); margin-bottom: 4px; }
+h2 { font-size: 17px; font-weight: 600; color: var(--text); margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 14px; font-weight: 600; color: var(--text); margin: 16px 0 8px; }
+p { margin-bottom: 10px; color: var(--text); }
+code { font-family: var(--mono); background: var(--bg3); color: var(--amber); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+
+/* --- CARDS --- */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.card-grid { display: grid; gap: 12px; }
+.card-grid.cols2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.card-grid.cols3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* --- EXAM TIP --- */
+.exam-tip {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-dim);
+  border-left: 3px solid var(--amber);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 14px 0;
+}
+.exam-tip .tip-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.exam-tip p { color: #d4a55a; margin: 0; font-size: 13px; }
+
+/* --- INFO BOX --- */
+.info-box {
+  background: var(--blue-bg);
+  border: 1px solid #1d4380;
+  border-left: 3px solid var(--blue);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 14px 0;
+}
+.info-box p { color: #90c4ff; margin: 0; font-size: 13px; }
+
+/* --- WARNING BOX --- */
+.warn-box {
+  background: var(--red-bg);
+  border: 1px solid #5a1d1d;
+  border-left: 3px solid var(--red);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 14px 0;
+}
+.warn-box p { color: #f9a09a; margin: 0; font-size: 13px; }
+
+/* --- TABLES --- */
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+thead tr { background: var(--bg3); }
+th { padding: 8px 10px; text-align: left; font-weight: 600; color: var(--text2); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid var(--border); }
+td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .3px;
+}
+.tag-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-dim); }
+.tag-green { background: var(--green-bg); color: var(--green); border: 1px solid #1a4a1a; }
+.tag-red { background: var(--red-bg); color: var(--red); border: 1px solid #5a1d1d; }
+.tag-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid #1d4380; }
+.tag-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid #3d1d70; }
+.tag-gray { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+
+/* --- STATE MACHINE --- */
+.state-box {
+  border-radius: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all .2s;
+  border: 2px solid transparent;
+}
+.state-box:hover { transform: translateY(-1px); }
+.state-box.valid-unc { background: #0d2210; border-color: #3fb950; }
+.state-box.valid-chg { background: #1f1a00; border-color: #f0a500; }
+.state-box.invalid { background: #1f0d0d; border-color: #f85149; }
+.state-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+.state-valid-unc .state-title, .state-box.valid-unc .state-title { color: var(--green); }
+.state-box.valid-chg .state-title { color: var(--amber); }
+.state-box.invalid .state-title { color: var(--red); }
+.state-box ul { list-style: none; padding: 0; }
+.state-box li { font-size: 12px; color: var(--text2); padding: 2px 0; }
+.state-box li::before { content: '→ '; color: var(--text2); }
+
+/* --- FLOW STEPPER --- */
+.stepper { display: flex; gap: 0; flex-direction: column; }
+.step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+}
+.step-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 32px;
+}
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.step-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: var(--border);
+  margin: 2px 0;
+}
+.step-content {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  flex: 1;
+}
+.step-content h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.step-content p { font-size: 12px; color: var(--text2); margin: 0; }
+.step.startup .step-dot { background: var(--blue-bg); color: var(--blue); border: 2px solid var(--blue); }
+.step.normal .step-dot { background: var(--green-bg); color: var(--green); border: 2px solid var(--green); }
+.step.shutdown .step-dot { background: var(--amber-bg); color: var(--amber); border: 2px solid var(--amber); }
+.step.error .step-dot { background: var(--red-bg); color: var(--red); border: 2px solid var(--red); }
+
+/* --- API FUNCTION CARD --- */
+.api-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.api-header {
+  background: var(--bg3);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.api-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--blue); }
+.api-body { padding: 12px 14px; }
+.api-sig { font-family: var(--mono); font-size: 12px; background: var(--bg); padding: 10px 12px; border-radius: 6px; margin-bottom: 10px; overflow-x: auto; white-space: pre; color: var(--text); line-height: 1.5; }
+.api-sig .kw { color: #ff7b72; }
+.api-sig .type { color: var(--amber); }
+.api-sig .fn { color: var(--blue); }
+.api-sig .param { color: #cba6f7; }
+.api-sig .comment { color: var(--text2); }
+
+/* --- LAYER DIAGRAM --- */
+.layer-stack { display: flex; flex-direction: column; gap: 4px; }
+.layer {
+  border-radius: 6px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid transparent;
+  cursor: default;
+  transition: border-color .15s;
+}
+.layer:hover { border-color: var(--border2); }
+.layer-name { font-weight: 600; font-size: 13px; }
+.layer-sub { font-size: 11px; opacity: .7; }
+.layer-app { background: linear-gradient(90deg,#0d2210,#0d1f35); border-color: #1d4a30; }
+.layer-app .layer-name { color: #7ee787; }
+.layer-nvm { background: var(--amber-bg); border-color: var(--amber-dim); }
+.layer-nvm .layer-name { color: var(--amber); }
+.layer-memif { background: #1a1d35; border-color: #2d3060; }
+.layer-memif .layer-name { color: #9d9fff; }
+.layer-abs { background: #1a1a1a; border-color: #333; }
+.layer-abs .layer-name { color: var(--text2); }
+.layer-hw { background: #10100a; border-color: #333; }
+.layer-hw .layer-name { color: #888; }
+.layer-arrow { text-align: center; color: var(--border2); font-size: 16px; }
+
+/* --- BLOCK TYPE VISUAL --- */
+.block-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: 6px;
+  margin-top: 8px;
+}
+.bv-row { display: flex; gap: 3px; }
+.bv-cell {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  flex: 1;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bv-nv { background: #1a2f3a; color: #58d4ff; border: 1px solid #1d5575; }
+.bv-ram { background: var(--green-bg); color: var(--green); border: 1px solid #1a4a1a; }
+.bv-rom { background: var(--purple-bg); color: var(--purple); border: 1px solid #3d1d70; }
+.bv-adm { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-dim); }
+
+/* --- SEARCH / FILTER --- */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-bar input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: var(--font);
+}
+.filter-bar input:focus { outline: none; border-color: var(--amber); }
+
+/* --- MISC --- */
+.badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.section-intro { color: var(--text2); font-size: 13px; margin-bottom: 20px; line-height: 1.7; }
+.two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.mono-small { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+ul.bullet-list { padding-left: 20px; margin-bottom: 10px; }
+ul.bullet-list li { margin-bottom: 4px; color: var(--text); font-size: 13px; }
+.chip {
+  display: inline-block;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--text2);
+}
+.progress-bar-outer { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.progress-bar-inner { height: 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">AUTOSAR NvM <span>R24-11 — Study Guide</span></div>
+  <div class="nav-tabs">
+    <button class="active" onclick="showSection(0)">🏗 Architecture</button>
+    <button onclick="showSection(1)">📦 Block Types</button>
+    <button onclick="showSection(2)">🔄 State Machine</button>
+    <button onclick="showSection(3)">🚀 Startup/Shutdown</button>
+    <button onclick="showSection(4)">📋 API Reference</button>
+    <button onclick="showSection(5)">⚡ Queue &amp; Priority</button>
+    <button onclick="showSection(6)">🚨 Error Handling</button>
+    <button onclick="showSection(7)">🔒 Advanced Features</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ===== SECTION 0: ARCHITECTURE ===== -->
+<div class="section active" id="sec0">
+  <h1>Architecture Overview</h1>
+  <p class="section-intro">The NvM (Non-Volatile Memory) Manager is an AUTOSAR Basic Software (BSW) module that provides hardware-independent services to store, read, and maintain non-volatile data. It sits between application SW-Cs and the underlying memory abstraction stack.</p>
+
+  <h2>Layer Stack</h2>
+  <div class="layer-stack">
+    <div class="layer layer-app">
+      <div><div class="layer-name">Application / SW-Components</div><div class="layer-sub">Uses NvM services to store/read persistent data. Accesses via RAM blocks.</div></div>
+      <div class="tag tag-green">Top</div>
+    </div>
+    <div class="layer-arrow">↕</div>
+    <div class="layer layer-nvm">
+      <div><div class="layer-name">NvM — NVRAM Manager</div><div class="layer-sub">Manages NV data. Provides init/read/write/control. Queues jobs, handles CRC, retries, recovery.</div></div>
+      <div class="tag tag-amber">★ This Module</div>
+    </div>
+    <div class="layer-arrow">↕ MemIf</div>
+    <div class="layer layer-memif">
+      <div><div class="layer-name">MemIf — Memory Abstraction Interface</div><div class="layer-sub">Translates block-level requests to device-specific driver calls. Routes to EA or FEE.</div></div>
+      <div class="tag tag-gray">BSW</div>
+    </div>
+    <div class="layer-arrow">↕</div>
+    <div class="layer layer-abs" style="display:flex;gap:8px;">
+      <div style="flex:1">
+        <div class="layer-name" style="color:#9d9fff">EA — EEPROM Abstraction</div>
+        <div class="layer-sub">For physical EEPROM devices. Block-level interface.</div>
+      </div>
+      <div style="width:1px;background:var(--border);"></div>
+      <div style="flex:1">
+        <div class="layer-name" style="color:#9d9fff">FEE — Flash EEPROM Emulation</div>
+        <div class="layer-sub">Emulates EEPROM on Flash memory.</div>
+      </div>
+    </div>
+    <div class="layer-arrow">↕</div>
+    <div class="layer layer-hw">
+      <div><div class="layer-name">Hardware Drivers (EEPROM Driver / Flash Driver)</div><div class="layer-sub">Actual read/write to physical NV memory (internal/external EEPROM or Flash).</div></div>
+      <div class="tag tag-gray">HW</div>
+    </div>
+  </div>
+
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical</div>
+    <p><strong>NvM is hardware-independent.</strong> It never accesses hardware directly — always via MemIf → EA/FEE → Driver. It uses a virtual 32-bit address space: upper 16 bits = block number, lower 16 bits = offset within block. This is configured per block via <code>NvMNvBlockBaseNumber</code> and <code>NvMDatasetSelectionBits</code>.</p>
+  </div>
+
+  <h2>Key External Interactions</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <div class="badge-row">
+        <span class="tag tag-blue">BswM</span>
+        <span class="tag tag-gray">BSW Mode Manager</span>
+      </div>
+      <h3>Controls NvM lifecycle</h3>
+      <ul class="bullet-list">
+        <li>Calls <code>NvM_Init()</code> exclusively at startup</li>
+        <li>Calls <code>NvM_ReadAll()</code> exclusively at startup</li>
+        <li>Calls <code>NvM_WriteAll()</code> exclusively at shutdown</li>
+        <li>Uses <code>NvM_CancelWriteAll()</code> to abort WriteAll</li>
+        <li>Receives job status via <code>BswM_NvM_CurrentBlockMode()</code> and <code>BswM_NvM_CurrentJobMode()</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row">
+        <span class="tag tag-red">DEM</span>
+        <span class="tag tag-gray">Diagnostic Event Manager</span>
+      </div>
+      <h3>Receives production errors</h3>
+      <ul class="bullet-list">
+        <li><code>NVM_E_HARDWARE</code> — hardware read/write failure</li>
+        <li><code>NVM_E_INTEGRITY_FAILED</code> — CRC mismatch on read</li>
+        <li><code>NVM_E_REQ_FAILED</code> — lower-layer job failed</li>
+        <li><code>NVM_E_WRONG_BLOCK_ID</code> — Static Block ID mismatch</li>
+        <li><code>NVM_E_VERIFY_FAILED</code> — write verification failed</li>
+        <li><code>NVM_E_LOSS_OF_REDUNDANCY</code> — redundant block recovery failed</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row">
+        <span class="tag tag-amber">DET</span>
+        <span class="tag tag-gray">Default Error Tracer</span>
+      </div>
+      <h3>Receives development errors</h3>
+      <ul class="bullet-list">
+        <li>Wrong block ID, wrong pointer, NvM not initialized</li>
+        <li>Block pending (already queued or in progress)</li>
+        <li>Block write-protected, WriteBlockOnce status unknown</li>
+        <li>Queue full (<code>NVM_E_QUEUE_FULL</code> runtime error)</li>
+        <li>Only active when <code>NvMDevErrorDetect = TRUE</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row">
+        <span class="tag tag-purple">CRC Module</span>
+        <span class="tag tag-gray">Integrity Check</span>
+      </div>
+      <h3>Provides CRC routines</h3>
+      <ul class="bullet-list">
+        <li>8-bit, 16-bit, or 32-bit CRC generation</li>
+        <li>Used optionally per block via <code>NvMBlockUseCrc</code></li>
+        <li>Also calculated over RAM block if <code>NvMCalcRamBlockCrc = TRUE</code></li>
+        <li>For ciphered blocks: CRC is over encrypted data, not plaintext</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Virtual Address Scheme</h2>
+  <p>NvM uses a virtual 16-bit block number split into two fields to address MemIf blocks:</p>
+  <div class="card">
+    <div style="font-family:var(--mono);font-size:13px;color:var(--text2);margin-bottom:12px;">
+      FEE/EA_BLOCK_NUMBER = (NvMNvBlockBaseNumber &lt;&lt; NvMDatasetSelectionBits) + DataIndex
+    </div>
+    <table>
+      <thead><tr><th>Field</th><th>Bits</th><th>Range (if DatasetSelectionBits=2)</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>NvMNvBlockBaseNumber</code></td><td>16 − DatasetBits</td><td>0x1 .. 0x3FFE</td><td>Unique block identifier configured at tool time</td></tr>
+        <tr><td>DataIndex</td><td>DatasetSelectionBits</td><td>0x0 .. 0x3 (4 datasets max)</td><td>Selects which NV/ROM copy within a Dataset/Redundant block</td></tr>
+      </tbody>
+    </table>
+    <div class="exam-tip" style="margin-top:10px;">
+      <div class="tip-label">🎯 Exam Critical — Address Formula Example</div>
+      <p>If <code>NvMDatasetSelectionBits=4</code>: block range 0x1..0xFFE, data index 0x0..0xF. Native block BaseNum=2 → EA_BLOCK_NUMBER = 2&lt;&lt;4 = 32. Redundant block BaseNum=3 → copy0=48, copy1=49.</p>
+    </div>
+  </div>
+
+  <h2>Header File Structure</h2>
+  <div class="card">
+    <ul class="bullet-list">
+      <li>NvM module includes: <code>NvM.h</code>, <code>Dem.h</code>, <code>MemIf.h</code></li>
+      <li>Upper layers include only: <code>NvM.h</code> (not MemIf or Dem directly)</li>
+      <li><code>NvM_Externals.h</code> is provided conditionally</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== SECTION 1: BLOCK TYPES ===== -->
+<div class="section" id="sec1">
+  <h1>Storage Objects &amp; Block Types</h1>
+  <p class="section-intro">Every NvM block is composed of Basic Storage Objects. Understanding each type and how they combine into block management types is fundamental to NvM design and testing.</p>
+
+  <h2>4 Basic Storage Objects</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-blue">Mandatory</span><span class="tag tag-gray">NV Memory</span></div>
+      <h3 style="color:#58d4ff">NV Block</h3>
+      <p style="font-size:13px">Resides in non-volatile memory (EEPROM/Flash). Contains: <code>User Data</code> + optional <code>CRC</code> + optional <code>NV Block Header</code> (if Static Block ID enabled). This is the actual persistent storage.</p>
+      <div class="exam-tip" style="margin-top:8px;">
+        <div class="tip-label">Requirement</div>
+        <p>SWS_NvM_00125 — mandatory part of every NVRAM block.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-green">Mandatory</span><span class="tag tag-gray">RAM</span></div>
+      <h3 style="color:var(--green)">RAM Block</h3>
+      <p style="font-size:13px">Resides in RAM. The application reads/writes this block directly. Contains: <code>User Data</code> + optional <code>CRC</code>. The address may be permanently assigned (config time) or temporarily passed at runtime.</p>
+      <ul class="bullet-list" style="margin-top:6px;">
+        <li>Permanent RAM: address known at configuration time</li>
+        <li>Temporary RAM: address passed via API parameter at runtime</li>
+        <li>CRC type on RAM must match the corresponding NV block</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-purple">Optional</span><span class="tag tag-gray">ROM/Flash</span></div>
+      <h3 style="color:var(--purple)">ROM Block</h3>
+      <p style="font-size:13px">Resides in ROM (Flash). Provides default data for initialization or recovery when NV block is damaged/empty. Only readable — NvM treats a write to a ROM block like a write to a write-protected NV block.</p>
+      <div class="info-box" style="margin-top:8px;">
+        <p>If no ROM block and no <code>NvMInitBlockCallback</code>, the application must provide default data. Use <code>NvM_GetErrorStatus()</code> to distinguish first-init from corruption.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge-row"><span class="tag tag-amber">Mandatory</span><span class="tag tag-gray">RAM (internal)</span></div>
+      <h3 style="color:var(--amber)">Administrative Block</h3>
+      <p style="font-size:13px">Resides in RAM. Invisible to the application — used exclusively by NvM. Contains:</p>
+      <ul class="bullet-list">
+        <li><strong>Block Index</strong> — for Dataset block dataset selection</li>
+        <li><strong>Error/Status field</strong> — result of last NvM request</li>
+        <li><strong>Attribute field</strong> — write protection flag, validity flag</li>
+      </ul>
+      <div class="exam-tip" style="margin-top:8px;">
+        <div class="tip-label">Testing Tip</div>
+        <p>Application must NOT call <code>NvM_SetDataIndex</code>, <code>NvM_SetBlockProtection</code>, or <code>NvM_SetRamBlockStatus</code> while a pending job exists for that block.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>3 Block Management Types</h2>
+  <div class="card-grid cols3">
+    <div class="card">
+      <h3 style="color:var(--green)">NATIVE</h3>
+      <p style="font-size:12px;color:var(--text2)">Simplest type. Minimum overhead.</p>
+      <div class="block-visual">
+        <div class="bv-row"><div class="bv-cell bv-nv">NV Block ×1</div></div>
+        <div class="bv-row"><div class="bv-cell bv-ram">RAM Block ×1</div></div>
+        <div class="bv-row"><div class="bv-cell bv-rom">ROM Block (opt)</div></div>
+        <div class="bv-row"><div class="bv-cell bv-adm">Admin Block ×1</div></div>
+      </div>
+      <p style="font-size:12px;margin-top:8px;color:var(--text2)">Use case: simple calibration data, odometer, seat positions.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--amber)">REDUNDANT</h3>
+      <p style="font-size:12px;color:var(--text2)">Enhanced fault tolerance. Two physical NV copies.</p>
+      <div class="block-visual">
+        <div class="bv-row">
+          <div class="bv-cell bv-nv">NV Block #0</div>
+          <div class="bv-cell bv-nv">NV Block #1</div>
+        </div>
+        <div class="bv-row"><div class="bv-cell bv-ram">RAM Block ×1</div></div>
+        <div class="bv-row"><div class="bv-cell bv-rom">ROM Block (opt)</div></div>
+        <div class="bv-row"><div class="bv-cell bv-adm">Admin Block ×1</div></div>
+      </div>
+      <div class="exam-tip" style="margin-top:8px;">
+        <div class="tip-label">Recovery</div>
+        <p>If one NV block is invalid, NvM recovers using the other. If both fail → <code>NVM_E_LOSS_OF_REDUNDANCY</code> reported to DEM.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--purple)">DATASET</h3>
+      <p style="font-size:12px;color:var(--text2)">Array of equally-sized blocks. App accesses one at a time via index.</p>
+      <div class="block-visual">
+        <div class="bv-row">
+          <div class="bv-cell bv-nv">NV[0]</div>
+          <div class="bv-cell bv-nv">NV[1]</div>
+          <div class="bv-cell bv-nv">NV[n]</div>
+        </div>
+        <div class="bv-row">
+          <div class="bv-cell bv-rom">ROM[0]</div>
+          <div class="bv-cell bv-rom">ROM[m]</div>
+        </div>
+        <div class="bv-row"><div class="bv-cell bv-ram">RAM Block ×1</div></div>
+        <div class="bv-row"><div class="bv-cell bv-adm">Admin Block (holds index)</div></div>
+      </div>
+      <p style="font-size:12px;margin-top:8px;color:var(--text2)">Use case: multi-variant calibration, DTC-indexed fault data, adaptive driving profiles.</p>
+      <div class="warn-box" style="margin-top:8px;">
+        <p>Not supported in API class 1. Total datasets (NV+ROM) must be 1..255. NvM does NOT store the dataset index persistently — application must manage this.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Block Management Type Comparison</h2>
+  <table>
+    <thead><tr><th>Property</th><th>NATIVE</th><th>REDUNDANT</th><th>DATASET</th></tr></thead>
+    <tbody>
+      <tr><td>NV Blocks</td><td>1</td><td>2</td><td>1..255</td></tr>
+      <tr><td>RAM Blocks</td><td>1</td><td>1</td><td>1</td></tr>
+      <tr><td>ROM Blocks</td><td>0..1</td><td>0..1</td><td>0..n</td></tr>
+      <tr><td>Admin Blocks</td><td>1</td><td>1</td><td>1</td></tr>
+      <tr><td>Fault tolerance</td><td><span class="tag tag-gray">None</span></td><td><span class="tag tag-green">Single-copy failure</span></td><td><span class="tag tag-gray">None</span></td></tr>
+      <tr><td>Index managed by</td><td>N/A</td><td>N/A (internal)</td><td>Application via SetDataIndex</td></tr>
+      <tr><td>API Class 1 support</td><td><span class="tag tag-green">Yes</span></td><td><span class="tag tag-green">Yes</span></td><td><span class="tag tag-red">No</span></td></tr>
+      <tr><td>DEM: Loss of Redundancy</td><td>N/A</td><td><code>NVM_E_LOSS_OF_REDUNDANCY</code></td><td>N/A</td></tr>
+    </tbody>
+  </table>
+
+  <h2>NVRAM Block Descriptor Table</h2>
+  <div class="card">
+    <p style="font-size:13px">Each configured NVRAM block has a descriptor entry in ROM (generated at configuration time). It contains:</p>
+    <div class="card-grid cols2">
+      <ul class="bullet-list">
+        <li>Block ID (unique, assigned sequentially)</li>
+        <li>Block management type (Native/Redundant/Dataset)</li>
+        <li>Block size in bytes</li>
+        <li>Device ID (which MemIf device)</li>
+        <li>NvMNvBlockBaseNumber</li>
+        <li>Number of NV blocks (<code>NvMNvBlockNum</code>)</li>
+      </ul>
+      <ul class="bullet-list">
+        <li>Number of ROM blocks (<code>NvMRomBlockNum</code>)</li>
+        <li>RAM block start address (if permanent)</li>
+        <li>ROM block start address (if present)</li>
+        <li>CRC configuration (<code>NvMBlockUseCrc</code>, type)</li>
+        <li>Single/multi block callback pointers</li>
+        <li>Write protection, WriteOnce, priority settings</li>
+      </ul>
+    </div>
+    <div class="exam-tip">
+      <div class="tip-label">🎯 Exam Critical</div>
+      <p>Block ID 0 is reserved — used with <code>NvM_GetErrorStatus(0)</code> to query global multi-block operation status (ReadAll/WriteAll). Application blocks start from ID 1.</p>
+    </div>
+  </div>
+
+  <h2>API Configuration Classes</h2>
+  <table>
+    <thead><tr><th>Class</th><th>Type 1 (sync)</th><th>Type 2 (async single)</th><th>Type 3 (async multi)</th><th>Type 4 (init)</th><th>Use case</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Class 3</strong> <span class="tag tag-green">Full</span></td>
+        <td>All incl. SetBlockProtection</td>
+        <td>All incl. Erase, Invalidate, CancelJobs</td>
+        <td>ReadAll, WriteAll, CancelWriteAll, ValidateAll, FirstInitAll</td>
+        <td>NvM_Init</td>
+        <td>Full-featured ECU</td>
+      </tr>
+      <tr>
+        <td><strong>Class 2</strong> <span class="tag tag-amber">Medium</span></td>
+        <td>No SetBlockProtection</td>
+        <td>No EraseNvBlock, InvalidateNvBlock</td>
+        <td>ReadAll, WriteAll, CancelWriteAll, ValidateAll</td>
+        <td>NvM_Init</td>
+        <td>Mid-range ECU</td>
+      </tr>
+      <tr>
+        <td><strong>Class 1</strong> <span class="tag tag-red">Minimal</span></td>
+        <td>GetErrorStatus, SetRamBlockStatus only</td>
+        <td>None (no queues!)</td>
+        <td>ReadAll, WriteAll, CancelWriteAll</td>
+        <td>NvM_Init</td>
+        <td>Limited-resource ECU. No Dataset type.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== SECTION 2: STATE MACHINE ===== -->
+<div class="section" id="sec2">
+  <h1>RAM Block State Machine</h1>
+  <p class="section-intro">Each RAM block has an internal state tracked by NvM in the Administrative block. Understanding state transitions is critical for debugging NvM behavior and writing correct application code.</p>
+
+  <h2>The 3 States</h2>
+  <div class="card-grid cols3">
+    <div class="state-box valid-unc" onclick="showStateDetail('vu')">
+      <div class="state-title">VALID / UNCHANGED</div>
+      <p style="font-size:12px;color:#7ee787">RAM matches NV (or untouched since last successful R/W). Last operation was successful. Block not invalidated.</p>
+      <ul>
+        <li>WriteAll is NOT triggered for this block</li>
+        <li>Left when SetRamBlockStatus(TRUE) called</li>
+      </ul>
+    </div>
+    <div class="state-box valid-chg" onclick="showStateDetail('vc')">
+      <div class="state-title">VALID / CHANGED</div>
+      <p style="font-size:12px;color:#d4a55a">RAM potentially differs from NV. Block data is valid for use by application but NvM knows it may need writing.</p>
+      <ul>
+        <li>WriteAll WILL write this block to NV</li>
+        <li>Left when write completes successfully</li>
+      </ul>
+    </div>
+    <div class="state-box invalid" onclick="showStateDetail('iu')">
+      <div class="state-title">INVALID / UNCHANGED</div>
+      <p style="font-size:12px;color:#f9a09a">Block data is invalid. Could be: post-init, corrupted NV, failed read, after erase/invalidate.</p>
+      <ul>
+        <li>WriteAll does NOT write this block</li>
+        <li>Application must provide valid data before next write</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <p><strong>INVALID/CHANGED state does NOT exist</strong> — the combination is logically unreachable. NvM uses only the 3 states above.</p>
+  </div>
+
+  <h2>State Transition Details</h2>
+  <div id="state-detail" class="card" style="border-color:var(--border2);">
+    <p style="color:var(--text2);font-style:italic;">Click a state box above to see its transition details.</p>
+  </div>
+
+  <h2>What Causes Each Transition?</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Event / API Call</th>
+        <th>→ VALID/UNCHANGED</th>
+        <th>→ VALID/CHANGED</th>
+        <th>→ INVALID/UNCHANGED</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>After <code>NvM_Init()</code></td>
+        <td></td>
+        <td></td>
+        <td>✓ (initial state for all blocks)</td>
+      </tr>
+      <tr>
+        <td><code>NvM_ReadAll()</code> — success</td>
+        <td>✓</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_ReadAll()</code> — default data loaded</td>
+        <td></td>
+        <td>✓</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_ReadAll()</code> — no default, read fails</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><code>NvM_ReadBlock()</code> — success</td>
+        <td>✓</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_ReadBlock()</code> — default data loaded</td>
+        <td></td>
+        <td>✓</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_ReadBlock()</code> — corruption, no default</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><code>NvM_WriteBlock()</code> — success</td>
+        <td>✓ (after write)</td>
+        <td>✓ (when queued)</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_WriteBlock()</code> — fails</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><code>NvM_WriteAll()</code> — success</td>
+        <td>✓</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_SetRamBlockStatus(TRUE)</code></td>
+        <td></td>
+        <td>✓</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_SetRamBlockStatus(FALSE)</code></td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><code>NvM_InvalidateNvBlock()</code> — success</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><code>NvM_EraseNvBlock()</code> — success</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><code>NvM_RestoreBlockDefaults()</code> — success</td>
+        <td></td>
+        <td>✓</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><code>NvM_ValidateAll()</code> — processed block</td>
+        <td></td>
+        <td>✓</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>CRC error on RAM block revalidation</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td>Static Block ID check fails on read</td>
+        <td></td>
+        <td></td>
+        <td>✓</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical — SetRamBlockStatus disabled case</div>
+    <p>If <code>NvMSetRamBlockStatusApi = FALSE</code> or <code>NvMBlockUseSetRamBlockStatus = FALSE</code>, NvM treats all permanent RAM blocks as VALID/CHANGED when writing → <code>NvM_WriteAll()</code> always writes every permanent block. And as INVALID when reading → <code>NvM_ReadAll()</code> always reads every permanent block from NV.</p>
+  </div>
+
+  <h2>After Successful Write — Key Rule</h2>
+  <div class="card">
+    <p><strong>SWS_NvM_00472:</strong> After a RAM block is successfully copied to NV memory (via WriteBlock or WriteAll), the RAM block state is set to <span style="color:var(--green)">VALID/UNCHANGED</span>. This means a subsequent WriteAll will skip this block (unless SetRamBlockStatus(TRUE) is called again).</p>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: STARTUP/SHUTDOWN ===== -->
+<div class="section" id="sec3">
+  <h1>Startup &amp; Shutdown Flow</h1>
+  <p class="section-intro">The NvM lifecycle is strictly managed by BswM. Understanding the exact sequence, who calls what, and what happens to each block during ReadAll is critical for system-level testing and debugging.</p>
+
+  <h2>Complete ECU Lifecycle</h2>
+  <div class="stepper">
+    <div class="step startup">
+      <div class="step-line">
+        <div class="step-dot">1</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <h4 style="color:var(--blue)">Power-On: NvM_Init() called by BswM [Sync]</h4>
+        <p>Resets all internal variables (queues, state machines, request flags) to initial values. Sets all Dataset block indices to 0. Does NOT read any NV data. Does NOT initialize underlying drivers. Signals "INIT DONE" internally to enable job processing.</p>
+        <div class="exam-tip" style="margin-top:8px;">
+          <div class="tip-label">Critical</div>
+          <p><code>NvM_Init(ConfigPtr)</code> — ConfigPtr shall ALWAYS be NULL_PTR (unused for now). Called exclusively by BswM. RAM blocks are still INVALID/UNCHANGED after this step.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step startup">
+      <div class="step-line">
+        <div class="step-dot">2</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <h4 style="color:var(--blue)">NvM_ReadAll() called by BswM [Async]</h4>
+        <p>Initializes all configured permanent RAM blocks from NV. Processed in block ID order (lowest first). For each block, one of the following outcomes occurs:</p>
+        <table style="margin-top:8px;">
+          <thead><tr><th>Condition</th><th>Action</th><th>Resulting State</th></tr></thead>
+          <tbody>
+            <tr><td>RAM block CRC valid (revalidation)</td><td>Skip reading from NV — use existing RAM</td><td>VALID/UNCHANGED</td></tr>
+            <tr><td>NV block reads successfully, CRC OK</td><td>Copy NV → RAM</td><td>VALID/UNCHANGED</td></tr>
+            <tr><td>NV fails but ROM/callback available</td><td>Copy default → RAM</td><td>VALID/CHANGED</td></tr>
+            <tr><td>NV fails, no default data</td><td>Leave RAM invalid</td><td>INVALID/UNCHANGED</td></tr>
+            <tr><td>NvMResistantToChangedSw=FALSE + config mismatch</td><td>Load defaults regardless of NV validity</td><td>VALID/CHANGED</td></tr>
+          </tbody>
+        </table>
+        <div class="info-box" style="margin-top:8px;">
+          <p><strong>Note 1:</strong> To ensure DEM data is ready early, configure DEM-related NVRAM blocks with low block IDs — they are processed first.<br>
+          <strong>Note 2:</strong> Single-block callbacks fire after each block completes → RTE can start SW-Cs individually without waiting for full ReadAll.<br>
+          <strong>Note 3:</strong> Multi-block callback fires when the entire ReadAll finishes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step normal">
+      <div class="step-line">
+        <div class="step-dot">3</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <h4 style="color:var(--green)">Normal Operation: SW-C reads/writes via NvM APIs</h4>
+        <p>Applications use single-block APIs. Requests are queued (FCFS or priority-based). NvM processes requests in NvM_MainFunction() context. Application uses polling or callbacks for completion notification. RAM blocks may be modified by app between NvM operations.</p>
+        <ul class="bullet-list" style="margin-top:8px;">
+          <li>App fills RAM → calls <code>NvM_WriteBlock(blockId, ramPtr)</code> → waits for NVM_REQ_OK</li>
+          <li>App calls <code>NvM_ReadBlock(blockId, ramPtr)</code> → waits → reads updated RAM</li>
+          <li>App can call <code>NvM_SetRamBlockStatus(blockId, TRUE)</code> to mark block as CHANGED</li>
+        </ul>
+      </div>
+    </div>
+    <div class="step shutdown">
+      <div class="step-line">
+        <div class="step-dot">4</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <h4 style="color:var(--amber)">Shutdown: NvM_WriteAll() called by BswM [Async]</h4>
+        <p>Writes all VALID/CHANGED RAM blocks to NV. Skips INVALID and VALID/UNCHANGED blocks. After each successful write → block becomes VALID/UNCHANGED. Generates a single-block callback per block, and multi-block callback at end.</p>
+        <div class="warn-box" style="margin-top:8px;">
+          <p>During WriteAll: new write requests are queued and processed after WriteAll. New read requests are also queued. No SW-C should modify RAM blocks during shutdown — this is enforced by application design, not NvM itself.</p>
+        </div>
+      </div>
+    </div>
+    <div class="step shutdown">
+      <div class="step-line">
+        <div class="step-dot">5</div>
+        <div class="step-connector"></div>
+      </div>
+      <div class="step-content">
+        <h4 style="color:var(--amber)">Optional: NvM_CancelWriteAll() called by BswM</h4>
+        <p>Aborts an ongoing WriteAll. The current block being written completes fully, but no further blocks are written. Only BswM may call this. After CancelWriteAll, the multi-block result is NVM_REQ_OK if the cancellation itself was clean (not a write failure).</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Dynamic Configuration (Software Update)</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Config Parameter</th><th>Value</th><th>Behavior on ReadAll</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>NvMDynamicConfiguration</code></td>
+          <td>FALSE (default)</td>
+          <td>Ignore stored configuration ID. Normal runtime preparation: check RAM CRC → read NV → load defaults on failure.</td>
+        </tr>
+        <tr>
+          <td><code>NvMDynamicConfiguration</code></td>
+          <td>TRUE</td>
+          <td>Check configuration ID against stored ID. If mismatch detected → extended runtime preparation for blocks with <code>NvMResistantToChangedSw=FALSE</code>: load defaults regardless of NV validity.</td>
+        </tr>
+        <tr>
+          <td><code>NvMResistantToChangedSw</code></td>
+          <td>TRUE</td>
+          <td>Block is NOT re-initialized on software update. Existing NV data is used even after config ID mismatch.</td>
+        </tr>
+        <tr>
+          <td><code>NvMResistantToChangedSw</code></td>
+          <td>FALSE</td>
+          <td>Block IS re-initialized on software update (config mismatch). Defaults loaded unconditionally.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="exam-tip">
+      <div class="tip-label">🎯 Testing Scenario</div>
+      <p>This is the mechanism that handles OTA software updates. After a new software image is flashed, blocks with <code>NvMResistantToChangedSw=FALSE</code> will get fresh default values — preventing old calibration data from being used with a new SW version that expects different data layout.</p>
+    </div>
+  </div>
+
+  <h2>Status Polling</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <h3>Single Block Status</h3>
+      <ul class="bullet-list">
+        <li><code>NvM_GetErrorStatus(blockId, &amp;result)</code></li>
+        <li><code>NVM_REQ_PENDING</code> — job queued or in progress</li>
+        <li><code>NVM_REQ_OK</code> — last operation succeeded</li>
+        <li><code>NVM_REQ_NOT_OK</code> — last operation failed</li>
+        <li><code>NVM_REQ_INTEGRITY_FAILED</code> — CRC mismatch</li>
+        <li><code>NVM_REQ_BLOCK_SKIPPED</code> — block skipped (WriteAll)</li>
+        <li><code>NVM_REQ_NV_INVALIDATED</code> — block was invalidated</li>
+        <li><code>NVM_REQ_RESTORED_FROM_ROM</code> — default data used</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Multi-Block Status</h3>
+      <ul class="bullet-list">
+        <li><code>NvM_GetErrorStatus(0, &amp;result)</code> — Block ID 0 = reserved for global status</li>
+        <li><code>NVM_REQ_PENDING</code> — ReadAll/WriteAll in progress</li>
+        <li><code>NVM_REQ_OK</code> — all blocks processed successfully</li>
+        <li><code>NVM_REQ_NOT_OK</code> — at least one block had an error</li>
+        <li>Individual block status still readable via block-specific block ID</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: API REFERENCE ===== -->
+<div class="section" id="sec4">
+  <h1>API Reference</h1>
+  <p class="section-intro">NvM provides 4 types of API functions. Understanding each function's behavior, error conditions, and synchronization requirements is essential for both development and testing.</p>
+
+  <div class="filter-bar">
+    <input type="text" id="api-search" placeholder="Search API functions..." oninput="filterAPI(this.value)">
+  </div>
+
+  <div id="api-list">
+
+  <div class="api-card" data-name="NvM_Init">
+    <div class="api-header">
+      <span class="api-name">NvM_Init</span>
+      <span class="tag tag-amber">Type 4</span>
+      <span class="tag tag-green">Sync</span>
+      <span class="tag tag-gray">Non-Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x00</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">NvM_Init</span>(<span class="kw">const</span> <span class="type">NvM_ConfigType</span>* <span class="param">ConfigPtr</span>);
+<span class="comment">// ConfigPtr SHALL always be NULL_PTR</span></div>
+      <p style="font-size:13px">Resets all internal variables, queues, state machines. Does NOT read NV data. Does NOT initialize drivers. Called exclusively by BswM at startup.</p>
+      <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">DET errors</div><p>No DET errors (it's the initializer). But all other APIs report <code>NVM_E_UNINIT</code> if called before NvM_Init.</p></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_ReadAll">
+    <div class="api-header">
+      <span class="api-name">NvM_ReadAll</span>
+      <span class="tag tag-amber">Type 3</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-gray">Non-Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x0C</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">NvM_ReadAll</span>(<span class="kw">void</span>);</div>
+      <p style="font-size:13px">Initializes all permanent RAM blocks from NV. Called exclusively by BswM. Not interrupted by single-block requests (except immediate-priority writes which preempt, then resume). Queues read/write requests received during processing.</p>
+      <table style="margin-top:8px;font-size:12px;">
+        <thead><tr><th>DET Condition</th><th>Error Code</th></tr></thead>
+        <tbody>
+          <tr><td>NvM not initialized</td><td><code>NVM_E_UNINIT</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_WriteAll">
+    <div class="api-header">
+      <span class="api-name">NvM_WriteAll</span>
+      <span class="tag tag-amber">Type 3</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-gray">Non-Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x0D</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">NvM_WriteAll</span>(<span class="kw">void</span>);</div>
+      <p style="font-size:13px">Writes all VALID/CHANGED blocks to NV. Called exclusively by BswM at shutdown. Queues read/write requests received during processing. Can be aborted with <code>NvM_CancelWriteAll()</code>.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_ReadBlock">
+    <div class="api-header">
+      <span class="api-name">NvM_ReadBlock</span>
+      <span class="tag tag-amber">Type 2</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x16</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_ReadBlock</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>, <span class="kw">void</span>* <span class="param">NvM_DstPtr</span>);
+<span class="comment">// NvM_DstPtr: NULL if permanent RAM block configured</span></div>
+      <p style="font-size:13px">Reads NV block data to RAM. Returns E_OK if enqueued successfully, E_NOT_OK otherwise. Actual result available via GetErrorStatus() or callback.</p>
+      <table style="margin-top:8px;font-size:12px;">
+        <thead><tr><th>DET Condition</th><th>Error Code</th></tr></thead>
+        <tbody>
+          <tr><td>NvM not initialized</td><td><code>NVM_E_UNINIT</code></td></tr>
+          <tr><td>Block already queued/in-progress</td><td><code>NVM_E_BLOCK_PENDING</code></td></tr>
+          <tr><td>BlockId out of range</td><td><code>NVM_E_PARAM_BLOCK_ID</code></td></tr>
+          <tr><td>No permanent RAM, no sync, NULL pointer</td><td><code>NVM_E_PARAM_ADDRESS</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_WriteBlock">
+    <div class="api-header">
+      <span class="api-name">NvM_WriteBlock</span>
+      <span class="tag tag-amber">Type 2</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x17</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_WriteBlock</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>, <span class="kw">const void</span>* <span class="param">NvM_SrcPtr</span>);</div>
+      <p style="font-size:13px">Writes RAM block to NV. Enqueues the request (standard or immediate priority). Application must not modify RAM block until completion (for implicit sync).</p>
+      <table style="margin-top:8px;font-size:12px;">
+        <thead><tr><th>DET Condition</th><th>Error Code</th></tr></thead>
+        <tbody>
+          <tr><td>Block write-protected</td><td><code>NVM_E_WRITE_PROTECTED</code></td></tr>
+          <tr><td>WriteBlockOnce=TRUE, no prior read</td><td><code>NVM_E_WRITE_ONCE_STATUS_UNKNOWN</code></td></tr>
+          <tr><td>NvM not initialized</td><td><code>NVM_E_UNINIT</code></td></tr>
+          <tr><td>Block already queued/in-progress</td><td><code>NVM_E_BLOCK_PENDING</code></td></tr>
+          <tr><td>BlockId out of range</td><td><code>NVM_E_PARAM_BLOCK_ID</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_GetErrorStatus">
+    <div class="api-header">
+      <span class="api-name">NvM_GetErrorStatus</span>
+      <span class="tag tag-amber">Type 1</span>
+      <span class="tag tag-green">Sync</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x04</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_GetErrorStatus</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>, <span class="type">NvM_RequestResultType</span>* <span class="param">RequestResultPtr</span>);
+<span class="comment">// BlockId = 0: global multi-block status (ReadAll/WriteAll)</span></div>
+      <p style="font-size:13px">Returns current error/status of a specific block or global multi-block operation. Most used API for polling-based status checks.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_SetRamBlockStatus">
+    <div class="api-header">
+      <span class="api-name">NvM_SetRamBlockStatus</span>
+      <span class="tag tag-amber">Type 1</span>
+      <span class="tag tag-green">Sync</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x05</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_SetRamBlockStatus</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>, <span class="type">boolean</span> <span class="param">BlockChanged</span>);
+<span class="comment">// TRUE → VALID/CHANGED. FALSE → INVALID/UNCHANGED</span></div>
+      <p style="font-size:13px">Marks RAM block as potentially modified (TRUE) or invalid (FALSE). Critical for controlling which blocks WriteAll writes. Also works for explicit synchronization blocks.</p>
+      <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Exam Tip</div><p>Application MUST call <code>NvM_SetRamBlockStatus(id, TRUE)</code> after modifying RAM data for WriteAll to pick it up — IF <code>NvMSetRamBlockStatusApi</code> is enabled.</p></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_SetDataIndex">
+    <div class="api-header">
+      <span class="api-name">NvM_SetDataIndex</span>
+      <span class="tag tag-amber">Type 1</span>
+      <span class="tag tag-green">Sync</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x01</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_SetDataIndex</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>, <span class="type">uint8</span> <span class="param">DataIndex</span>);</div>
+      <p style="font-size:13px">Selects which dataset (NV or ROM copy) to access for a DATASET block. Index is stored in the Administrative block. On init: all dataset indices = 0. Does NOT modify RAM contents.</p>
+      <div class="warn-box" style="margin-top:8px;"><p>Returns E_NOT_OK (silently in production mode) for non-DATASET blocks. NOT permitted while a pending job exists for this block.</p></div>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_InvalidateNvBlock NvM_EraseNvBlock">
+    <div class="api-header">
+      <span class="api-name">NvM_InvalidateNvBlock</span>
+      <span class="tag tag-amber">Type 2</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x19</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_InvalidateNvBlock</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>);
+<span class="comment">// Marks NV block as invalid in underlying memory layer</span>
+<span class="comment">// Result: block becomes INVALID/UNCHANGED in RAM state</span></div>
+      <p style="font-size:13px">Tells lower memory layers that this block's data is no longer valid. On next ReadAll, the block will be treated as unreadable → defaults will be loaded if available. Use to prevent lower layers from delivering old/stale data.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_RestoreBlockDefaults">
+    <div class="api-header">
+      <span class="api-name">NvM_RestoreBlockDefaults</span>
+      <span class="tag tag-amber">Type 2</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x18</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_RestoreBlockDefaults</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>, <span class="kw">void</span>* <span class="param">NvM_DstPtr</span>);
+<span class="comment">// Copies ROM default data → RAM block. Does NOT modify NV.</span></div>
+      <p style="font-size:13px">Explicit recovery. Copies ROM block data to RAM block. Does NOT modify the NV block content. Result → block becomes VALID/CHANGED. DET error if no ROM block and no NvMInitBlockCallback configured.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_CancelJobs">
+    <div class="api-header">
+      <span class="api-name">NvM_CancelJobs</span>
+      <span class="tag tag-amber">Type 2</span>
+      <span class="tag tag-green">Sync</span>
+      <span class="tag tag-green">Reentrant</span>
+      <span class="tag tag-gray">Service ID: 0x10</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="type">Std_ReturnType</span> <span class="fn">NvM_CancelJobs</span>(<span class="type">NvM_BlockIdType</span> <span class="param">BlockId</span>);</div>
+      <p style="font-size:13px">Removes all unprocessed requests for a specific block from the queue. Cannot cancel a job already in progress.</p>
+    </div>
+  </div>
+
+  <div class="api-card" data-name="NvM_ValidateAll NvM_FirstInitAll">
+    <div class="api-header">
+      <span class="api-name">NvM_ValidateAll</span>
+      <span class="tag tag-amber">Type 3</span>
+      <span class="tag tag-blue">Async</span>
+      <span class="tag tag-gray">Service ID: 0x19</span>
+    </div>
+    <div class="api-body">
+      <div class="api-sig"><span class="kw">void</span> <span class="fn">NvM_ValidateAll</span>(<span class="kw">void</span>);</div>
+      <p style="font-size:13px">Marks all configured permanent RAM blocks as VALID/CHANGED (without reading from NV). Used for forced initialization of all blocks. All blocks will be written by subsequent WriteAll.</p>
+    </div>
+  </div>
+
+  </div><!-- end api-list -->
+
+  <h2>API Type Classification</h2>
+  <table>
+    <thead><tr><th>Type</th><th>Description</th><th>Functions</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag tag-green">Type 1</span></td><td>Synchronous, management</td><td>SetDataIndex, GetDataIndex, SetBlockProtection, GetErrorStatus, SetRamBlockStatus</td></tr>
+      <tr><td><span class="tag tag-blue">Type 2</span></td><td>Async, single-block</td><td>ReadBlock, WriteBlock, RestoreBlockDefaults, EraseNvBlock, InvalidateNvBlock, CancelJobs, ReadPRAMBlock, WritePRAMBlock, RestorePRAMBlockDefaults</td></tr>
+      <tr><td><span class="tag tag-amber">Type 3</span></td><td>Async, multi-block</td><td>ReadAll, WriteAll, CancelWriteAll, ValidateAll, FirstInitAll</td></tr>
+      <tr><td><span class="tag tag-purple">Type 4</span></td><td>Initialization</td><td>NvM_Init</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== SECTION 5: QUEUE & PRIORITY ===== -->
+<div class="section" id="sec5">
+  <h1>Job Queue &amp; Priority</h1>
+  <p class="section-intro">NvM processes all requests asynchronously and serially. Understanding the queuing mechanism and priority system is crucial for timing analysis and debugging "why didn't my write happen?" issues.</p>
+
+  <h2>Queue Architecture</h2>
+  <div class="card-grid cols2">
+    <div class="card" style="border-color:var(--red);background:var(--red-bg);">
+      <h3 style="color:var(--red)">Immediate Write Queue</h3>
+      <p style="font-size:13px;color:#f9a09a">For crash data — safety-critical writes that must preempt ongoing operations.</p>
+      <ul class="bullet-list" style="color:#f9a09a;">
+        <li>Only write jobs with <strong>immediate priority</strong></li>
+        <li>Preempts any currently running job</li>
+        <li>Preempted job is resumed/restarted after completion</li>
+        <li>Only available if <code>NvMJobPrioritization = TRUE</code></li>
+      </ul>
+      <div class="warn-box" style="margin-top:8px;"><p>SWS_NvM_00182: Immediate-priority write preempts even ReadAll and WriteAll jobs. The preempted job resumes from where it was interrupted.</p></div>
+    </div>
+    <div class="card" style="border-color:var(--green);background:var(--green-bg);">
+      <h3 style="color:var(--green)">Standard Queue</h3>
+      <p style="font-size:13px;color:#7ee787">For all other single-block requests (read, write, erase, invalidate, restore defaults, etc.)</p>
+      <ul class="bullet-list" style="color:#7ee787;">
+        <li>Processed in priority order (if enabled) or FCFS</li>
+        <li>Multiple concurrent requests allowed until queue full</li>
+        <li>Same block cannot be queued twice simultaneously</li>
+        <li>On queue overflow → returns E_NOT_OK + DET <code>NVM_E_QUEUE_FULL</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:var(--amber);margin-top:4px;">
+    <h3 style="color:var(--amber)">Multi-Block Request Queue</h3>
+    <p style="font-size:13px">For ReadAll, WriteAll, ValidateAll, FirstInitAll. <strong>Queue length = 1</strong> (only one multi-block operation can be queued at a time).</p>
+  </div>
+
+  <h2>Priority-Based Job Processing</h2>
+  <table>
+    <thead><tr><th>Setting</th><th>Behavior</th><th>Queues Active</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>NvMJobPrioritization = TRUE</code></td>
+        <td>Priority-based. Higher priority jobs processed first. Immediate writes preempt. Same block same priority → FCFS within priority level.</td>
+        <td>Immediate + Standard + Multi-block</td>
+      </tr>
+      <tr>
+        <td><code>NvMJobPrioritization = FALSE</code></td>
+        <td>Pure FCFS. No immediate writes. All single-block jobs processed in order received.</td>
+        <td>Standard (FCFS) + Multi-block</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Request Queuing Rules</h2>
+  <div class="card">
+    <ul class="bullet-list">
+      <li>NvM sets block status to <code>NVM_REQ_PENDING</code> immediately on successful enqueueing</li>
+      <li>Same block ID cannot be queued again while already queued or in progress → DET <code>NVM_E_BLOCK_PENDING</code></li>
+      <li>Obsolete queued requests may be dequeued if the block completes by other means</li>
+      <li>CancelJobs() removes all pending requests for a block (cannot cancel in-progress job)</li>
+    </ul>
+  </div>
+
+  <h2>ReadAll / WriteAll Interaction with Single-Block Requests</h2>
+  <table>
+    <thead><tr><th>Ongoing Operation</th><th>Read Request Received</th><th>Write Request Received</th><th>Immediate Write Received</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>NvM_ReadAll()</code></td>
+        <td>Queued → executed after ReadAll</td>
+        <td>Queued → executed after ReadAll</td>
+        <td><strong>Preempts</strong> ReadAll! Resumes after.</td>
+      </tr>
+      <tr>
+        <td><code>NvM_WriteAll()</code></td>
+        <td>Queued → executed after WriteAll</td>
+        <td>Queued → executed after WriteAll</td>
+        <td><strong>Preempts</strong> WriteAll! Resumes after.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical — Preemption</div>
+    <p>An immediate-priority write (e.g., crash data from an accelerometer) CAN interrupt ReadAll/WriteAll. This is the ONLY exception to the rule that ReadAll/WriteAll cannot be interrupted. After the immediate write completes, the interrupted multi-block job RESUMES from the block it was processing. SWS_NvM_00182, SWS_NvM_00570.</p>
+  </div>
+
+  <h2>CRC Processing</h2>
+  <div class="card">
+    <p style="font-size:13px">CRC calculation is done in multiple steps if the block length exceeds <code>NvMCrcNumOfBytes</code> bytes. This prevents long NvM_MainFunction() execution times for large blocks. NvM uses the initial values published by the CRC module.</p>
+    <div class="exam-tip" style="margin-top:8px;">
+      <div class="tip-label">Performance Note</div>
+      <p>For large blocks, CRC is computed incrementally across multiple MainFunction calls. This is why NvM jobs can take many scheduler cycles to complete — the CRC chunking spreads the computational load.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION 6: ERROR HANDLING ===== -->
+<div class="section" id="sec6">
+  <h1>Error Handling</h1>
+  <p class="section-intro">NvM has 4 layers of error reporting: Development Errors (DET), Runtime Errors, Production Errors (DEM hardware), and Extended Production Errors (DEM application errors). Understanding when each fires is critical for validation and debugging.</p>
+
+  <h2>Layer 1: Development Errors (DET)</h2>
+  <p style="font-size:13px;color:var(--text2)">Only active when <code>NvMDevErrorDetect = TRUE</code>. These detect programmer mistakes during development.</p>
+  <div class="filter-bar">
+    <input type="text" id="det-search" placeholder="Filter DET errors..." oninput="filterDET(this.value)">
+  </div>
+  <table id="det-table">
+    <thead><tr><th>Error Code</th><th>Value</th><th>Condition</th><th>Triggered by</th></tr></thead>
+    <tbody>
+      <tr><td><code>NVM_E_PARAM_BLOCK_ID</code></td><td>0x0A</td><td>BlockId parameter is out of range (zero or exceeds max configured blocks)</td><td>All block-specific APIs</td></tr>
+      <tr><td><code>NVM_E_PARAM_BLOCK_DATA_IDX</code></td><td>0x0C</td><td>DataIndex exceeds total number of configured datasets</td><td>SetDataIndex</td></tr>
+      <tr><td><code>NVM_E_PARAM_ADDRESS</code></td><td>0x0D</td><td>NULL pointer passed when no permanent RAM and no explicit sync configured</td><td>ReadBlock, WriteBlock, RestoreBlockDefaults</td></tr>
+      <tr><td><code>NVM_E_PARAM_DATA</code></td><td>0x0E</td><td>NULL pointer passed for output parameter (e.g., RequestResultPtr)</td><td>GetErrorStatus, GetDataIndex</td></tr>
+      <tr><td><code>NVM_E_PARAM_POINTER</code></td><td>0x0F</td><td>NULL pointer passed for versioninfo parameter</td><td>GetVersionInfo</td></tr>
+      <tr><td><code>NVM_E_BLOCK_WITHOUT_DEFAULTS</code></td><td>0x11</td><td>RestoreBlockDefaults called for block with no ROM data and no NvMInitBlockCallback</td><td>RestoreBlockDefaults, RestorePRAMBlockDefaults</td></tr>
+      <tr><td><code>NVM_E_UNINIT</code></td><td>0x14</td><td>Any API called before NvM_Init()</td><td>ALL APIs except NvM_Init</td></tr>
+      <tr><td><code>NVM_E_BLOCK_PENDING</code></td><td>0x15</td><td>Block already queued or currently in progress for this BlockId</td><td>ReadBlock, WriteBlock, EraseNvBlock, InvalidateNvBlock, SetDataIndex, SetBlockProtection, SetRamBlockStatus, CancelJobs</td></tr>
+      <tr><td><code>NVM_E_BLOCK_CONFIG</code></td><td>0x18</td><td>(a) SetBlockProtection called for WriteBlockOnce=TRUE block; (b) EraseNvBlock called for block without immediate priority</td><td>SetBlockProtection, EraseNvBlock</td></tr>
+      <tr><td><code>NVM_E_WRITE_ONCE_STATUS_UNKNOWN</code></td><td>0x1A</td><td>Write/Erase/Invalidate called for NvMWriteBlockOnce=TRUE block without a prior read request</td><td>WriteBlock, WritePRAMBlock, WriteAll (for that block), EraseNvBlock, InvalidateNvBlock</td></tr>
+      <tr><td><code>NVM_E_WRITE_PROTECTED</code></td><td>0x1B</td><td>Write attempt on a write-protected block (static or runtime protection)</td><td>WriteBlock, WritePRAMBlock, EraseNvBlock, InvalidateNvBlock</td></tr>
+      <tr><td><code>NVM_E_BLOCK_CHIPHER_LENGTH_MISSMATCH</code></td><td>0x1B</td><td>Encryption/decryption returned different length than configured</td><td>Blocks with NvMBlockCipheringRef</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Layer 2: Runtime Errors (DET)</h2>
+  <table>
+    <thead><tr><th>Error Code</th><th>Value</th><th>Condition</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>NVM_E_QUEUE_FULL</code></td>
+        <td>0xA0</td>
+        <td>A read/write/control request cannot be enqueued because the related queue (standard or immediate) is full. Reported to DET. API returns E_NOT_OK.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Layer 3: Production Error (DEM)</h2>
+  <div class="card" style="border-color:#3d1d1d;">
+    <table>
+      <thead><tr><th>Error Code</th><th>Fail Condition</th><th>Pass Condition</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>NVM_E_HARDWARE</code></td>
+          <td>MemIf reports <code>MEMIF_JOB_FAILED</code>, <code>MEMIF_BLOCK_INCONSISTENT</code>, or CRC mismatch during any read/write/erase/invalidate</td>
+          <td>Operation completes without MemIf failure and no CRC mismatch</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="info-box" style="margin-top:8px;"><p>NVM_E_HARDWARE is monitored continuously — reported every time the condition changes (pass→fail or fail→pass). There is no timeout monitoring in NvM.</p></div>
+  </div>
+
+  <h2>Layer 4: Extended Production Errors (DEM)</h2>
+  <p style="font-size:13px;color:var(--text2)">These have DEM-assigned event IDs (configured via <code>NvmDemEventParameterRefs</code>). Active only in production build mode.</p>
+  <table>
+    <thead><tr><th>Error Code</th><th>Short Description</th><th>Fail Condition (SWS)</th><th>Pass Condition</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>NVM_E_INTEGRITY_FAILED</code></td>
+        <td>CRC check failed on read</td>
+        <td>Read completed at MemIf level but CRC verification of user data+CRC fails (SWS_NvM_00864)</td>
+        <td>Read completed with no CRC corruption detected (SWS_NvM_00872)</td>
+      </tr>
+      <tr>
+        <td><code>NVM_E_REQ_FAILED</code></td>
+        <td>Request failed in lower layer after all retries</td>
+        <td>Underlying layer reports JobErrorNotification after all retries exhausted; or explicit sync callback returns E_NOT_OK after NvMRepeatMirrorOperations retries (SWS_NvM_00865)</td>
+        <td>Request accepted and completed successfully (SWS_NvM_00873)</td>
+      </tr>
+      <tr>
+        <td><code>NVM_E_WRONG_BLOCK_ID</code></td>
+        <td>Static Block ID mismatch on read</td>
+        <td>Block header read from NV contains a Block ID that doesn't match the requested block's configured ID (SWS_NvM_00525)</td>
+        <td>Block ID in header matches configured ID</td>
+      </tr>
+      <tr>
+        <td><code>NVM_E_VERIFY_FAILED</code></td>
+        <td>Write verification failed</td>
+        <td>Data read back after write doesn't match original RAM content (SWS_NvM_00528). Reported on initial write AND all retries failing.</td>
+        <td>Read-back data matches RAM content</td>
+      </tr>
+      <tr>
+        <td><code>NVM_E_LOSS_OF_REDUNDANCY</code></td>
+        <td>Redundant block: both copies failed</td>
+        <td>Recovery from the healthy NV block of a REDUNDANT type fails (SWS_NvM_00546)</td>
+        <td>At least one NV copy is valid and recovery succeeds</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="exam-tip">
+    <div class="tip-label">🎯 Exam Critical — Error Routing Summary</div>
+    <p>
+      <strong>DET:</strong> Parameter errors, uninit calls, pending block calls, configuration errors → development builds only.<br>
+      <strong>DEM NVM_E_HARDWARE:</strong> MemIf job failure / MEMIF_BLOCK_INCONSISTENT / CRC mismatch → always (both dev and prod builds).<br>
+      <strong>DEM Extended (NVM_E_INTEGRITY_FAILED, etc.):</strong> Application-level integrity issues, verified write failures, loss of redundancy → production builds.<br>
+      <strong>Key distinction:</strong> NVM_E_HARDWARE fires on MemIf-level failure. NVM_E_INTEGRITY_FAILED fires when MemIf succeeds but the CRC check on the data fails.
+    </p>
+  </div>
+
+  <h2>Error Recovery Mechanisms</h2>
+  <table>
+    <thead><tr><th>Error Type</th><th>Recovery Mechanism</th><th>Block Type</th></tr></thead>
+    <tbody>
+      <tr><td>Read failure</td><td>Load ROM defaults if configured (implicit recovery)</td><td>All types</td></tr>
+      <tr><td>Read failure on REDUNDANT</td><td>Try reading second NV copy first, then defaults</td><td>REDUNDANT only</td></tr>
+      <tr><td>Write failure</td><td>Write retries (configured by <code>NVM_MAX_NUM_OF_WRITE_RETRIES</code>)</td><td>All types</td></tr>
+      <tr><td>Read failure + retries</td><td>Up to <code>NVM_MAX_NUM_OF_READ_RETRIES</code> additional read attempts</td><td>All types</td></tr>
+      <tr><td>Explicit: corrupt/missing NV</td><td>Application calls <code>NvM_RestoreBlockDefaults()</code></td><td>All types (if ROM configured)</td></tr>
+      <tr><td>Incomplete write detection</td><td>Out of scope for NvM — handled by MemIf/EA/FEE layer</td><td>All types</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== SECTION 7: ADVANCED FEATURES ===== -->
+<div class="section" id="sec7">
+  <h1>Advanced Features</h1>
+  <p class="section-intro">These features are critical for real-world automotive applications: security (encryption), reliability (CRC, redundancy, static IDs), write optimization, and synchronization patterns.</p>
+
+  <h2>CRC-Based Data Integrity</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <h3>NV Block CRC (<code>NvMBlockUseCrc</code>)</h3>
+      <ul class="bullet-list">
+        <li>Appended to NV block: [User Data | CRC]</li>
+        <li>Recalculated on every read to verify NV integrity</li>
+        <li>8, 16, or 32-bit depending on <code>NvMBlockCrcType</code></li>
+        <li>Failure → <code>NVM_E_INTEGRITY_FAILED</code> to DEM</li>
+        <li>Failure → read retry and recovery mechanisms triggered</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>RAM Block CRC (<code>NvMCalcRamBlockCrc</code>)</h3>
+      <ul class="bullet-list">
+        <li>CRC stored alongside RAM data in RAM itself</li>
+        <li>Used during <code>NvM_ReadAll()</code> for <em>RAM revalidation</em></li>
+        <li>If RAM CRC is valid → skip reading from NV (optimization!)</li>
+        <li>Provides protection against RAM corruption across resets</li>
+        <li>Failure → read error recovery triggered</li>
+        <li>Must be same CRC type as NV block CRC</li>
+      </ul>
+    </div>
+  </div>
+  <div class="exam-tip">
+    <div class="tip-label">🎯 CRC Interaction Rules</div>
+    <p>For blocks with <code>NvMWriteBlockOnce=TRUE</code>: enable CRC (<code>NvMBlockUseCrc=TRUE</code>) but disable static write protection (<code>NvMBlockWriteProt=FALSE</code>). This allows the application to write the block initially (on blank device) but CRC verification prevents accidental overwrites. <strong>CRC is computed in multiple steps if block size > NvMCrcNumOfBytes.</strong></p>
+  </div>
+
+  <h2>Write Protection</h2>
+  <table>
+    <thead><tr><th>Mechanism</th><th>Config</th><th>Changeable at runtime?</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Static Default Protection</td>
+        <td><code>NvMBlockWriteProt = TRUE</code></td>
+        <td>Yes (via SetBlockProtection)</td>
+        <td>Block is write-protected by default but app can disable it</td>
+      </tr>
+      <tr>
+        <td>Runtime Protection</td>
+        <td><code>NvM_SetBlockProtection(id, TRUE)</code></td>
+        <td>Yes</td>
+        <td>Stored in Administrative block. Cleared on power cycle (reset clears Admin block).</td>
+      </tr>
+      <tr>
+        <td>Write-Once</td>
+        <td><code>NvMWriteBlockOnce = TRUE</code></td>
+        <td><strong>No</strong></td>
+        <td>Can ONLY write on blank device. After first write: permanently protected. SetBlockProtection CANNOT disable this protection.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="warn-box">
+    <p>After a reset, the write protection flag of a <code>NvMWriteBlockOnce=TRUE</code> block is CLEARED (Admin block is RAM-based). To reactivate: the block must be READ (single or as part of ReadAll) before any write/erase/invalidate. This read sets the write protection if the block is valid and consistent.</p>
+  </div>
+
+  <h2>Static Block ID Check</h2>
+  <div class="card">
+    <p>When <code>NvMStaticBlockIDCheck</code> is enabled, NvM stores a Block ID field in the NV Block Header. On every read, NvM compares the stored Block ID against the requested Block ID.</p>
+    <ul class="bullet-list" style="margin-top:8px;">
+      <li><strong>Purpose:</strong> Detect hardware failures that cause a wrong physical block to be read (address line fault, wear-leveling error)</li>
+      <li><strong>On mismatch:</strong> Report <code>NVM_E_WRONG_BLOCK_ID</code> to DEM. Trigger read error recovery (read retries → load defaults).</li>
+      <li><strong>NV Block Header layout:</strong> [Block ID Header | User Data | CRC]</li>
+      <li><strong>Requirement:</strong> All Static Block IDs must be unique (verified at configuration time)</li>
+    </ul>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Automotive Context</div><p>Critical for Flash-based storage where FEE wear-leveling could, in case of corruption, return data from a different logical block. The Static Block ID acts as a sanity check independent of the address-based access.</p></div>
+  </div>
+
+  <h2>Read Retry &amp; Write Verification</h2>
+  <div class="card-grid cols2">
+    <div class="card">
+      <h3>Read Retry</h3>
+      <p style="font-size:13px">On read failure (MemIf fails or CRC error): up to <code>NVM_MAX_NUM_OF_READ_RETRIES</code> additional read attempts before giving up and trying the redundant copy or ROM defaults.</p>
+      <div class="info-box" style="margin-top:8px;"><p>Also applies to Static Block ID check failures on REDUNDANT blocks. After all retries: proceed to read the second NV copy for REDUNDANT blocks, or ROM block for all types.</p></div>
+    </div>
+    <div class="card">
+      <h3>Write Verification</h3>
+      <p style="font-size:13px">When <code>NvMWriteVerification = TRUE</code>: after writing, NvM reads the written data back from NV and compares it to the original RAM content.</p>
+      <ul class="bullet-list" style="margin-top:6px;">
+        <li>Comparison in steps: max <code>NVM_WRITE_VERIFICATION_DATA_SIZE</code> bytes at a time</li>
+        <li>Mismatch → <code>NVM_E_VERIFY_FAILED</code> to DEM + write retry</li>
+        <li>Read-back failure → no read retries (different from normal read retry)</li>
+        <li>All retries fail → <code>NVM_REQ_NOT_OK</code> result</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Implicit vs Explicit Synchronization</h2>
+  <div class="card-grid cols2">
+    <div class="card" style="border-color:var(--green);">
+      <h3 style="color:var(--green)">Implicit Synchronization (default)</h3>
+      <p style="font-size:13px">NvM accesses the application's RAM block directly. Application is responsible for not modifying the RAM block while a job is pending.</p>
+      <h4 style="margin-top:10px;font-size:13px;">Write sequence:</h4>
+      <ol style="padding-left:20px;font-size:12px;color:var(--text2);">
+        <li>App fills RAM block with data</li>
+        <li>App calls <code>NvM_WriteBlock()</code></li>
+        <li>App must NOT modify RAM until job completes</li>
+        <li>App polls <code>GetErrorStatus()</code> or waits for callback</li>
+        <li>After completion, RAM is freely modifiable again</li>
+      </ol>
+    </div>
+    <div class="card" style="border-color:var(--amber);">
+      <h3 style="color:var(--amber)">Explicit Synchronization (<code>NvMBlockUseSyncMechanism=TRUE</code>)</h3>
+      <p style="font-size:13px">NvM maintains an internal RAM mirror. Data exchanged via callbacks.</p>
+      <ul class="bullet-list" style="margin-top:6px;">
+        <li>NvM allocates ONE shared mirror for all sync blocks (sized to largest)</li>
+        <li><code>NvMWriteRamBlockToNvCallback</code>: app copies data TO mirror</li>
+        <li><code>NvMReadRamBlockFromNvCallback</code>: app copies data FROM mirror</li>
+        <li>App can modify RAM even while job is processing (until callback)</li>
+        <li>Callback returns E_NOT_OK → NvM retries <code>NvMRepeatMirrorOperations</code> times</li>
+        <li>Explicit sync block CANNOT have a permanent RAM image</li>
+      </ul>
+      <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Use case</div><p>Shared NVRAM blocks accessed by multiple applications. The "owner" app manages the callback and ensures consistent data snapshot.</p></div>
+    </div>
+  </div>
+
+  <h2>CRC-Based Compare Mechanism</h2>
+  <div class="card">
+    <p>Enabled per block via <code>NvMBlockUseCRCCompMechanism=TRUE</code> (requires <code>NvMBlockUseCrc=TRUE</code>). Before writing, NvM computes the RAM block CRC and compares it to the stored NV CRC. If they match → <strong>write is skipped</strong> (saves NV write cycles!).</p>
+    <div class="warn-box" style="margin-top:8px;">
+      <p><strong>Risk:</strong> Different data may produce the same CRC (collision). Only use this for blocks where occasional skipped writes are tolerable. Not suitable for safety-critical data.</p>
+    </div>
+  </div>
+
+  <h2>Block Ciphering (Security)</h2>
+  <div class="card">
+    <p>When <code>NvMBlockCipheringRef</code> is configured, NvM uses the CSM (Crypto Service Manager) module for transparent encryption/decryption. Application always works with plain data.</p>
+    <div class="card-grid cols2" style="margin-top:10px;">
+      <div style="background:var(--bg);border-radius:6px;padding:12px;">
+        <h4 style="color:var(--blue);font-size:13px;">Write flow</h4>
+        <p style="font-size:12px;color:var(--text2);">Plain data → <code>Csm_Encrypt()</code> → CRC over encrypted data → write ciphered data to NV</p>
+      </div>
+      <div style="background:var(--bg);border-radius:6px;padding:12px;">
+        <h4 style="color:var(--green);font-size:13px;">Read flow</h4>
+        <p style="font-size:12px;color:var(--text2);">Read from NV → CRC check over encrypted data → <code>Csm_Decrypt()</code> → plain data to app. If CRC fails → abort, no decryption.</p>
+      </div>
+    </div>
+    <ul class="bullet-list" style="margin-top:10px;">
+      <li>Supports symmetric algorithms (e.g., AES128, 16-byte aligned)</li>
+      <li><code>CRYPTO_E_BUSY</code>: retry up to <code>NvMCsmRetryCounter</code> times</li>
+      <li>Any other error → abort with <code>NVM_REQ_NOT_OK</code></li>
+      <li>Length mismatch → DET <code>NVM_E_BLOCK_CHIPHER_LENGTH_MISSMATCH</code></li>
+    </ul>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Automotive Context</div><p>Used for storing secret keys, security tokens, or sensitive calibration data that must not be readable from raw NV dumps. Integrator must ensure CSM is initialized before NvM uses it (timing dependency).</p></div>
+  </div>
+
+  <h2>Block Compression</h2>
+  <div class="card">
+    <p>When <code>NvMBlockUseCompression=TRUE</code>: NvM compresses block data before writing to NV. Compression algorithm is vendor-specific (block split, delta, lossless compression).</p>
+    <p style="font-size:13px;color:var(--text2);">Use case: large blocks where only small portions change per drive cycle (e.g., drive-cycle logging, usage counters) — reduces total NV write cycles.</p>
+    <div class="warn-box" style="margin-top:8px;"><p>Drawback: Higher runtime for read/write operations due to compression/decompression overhead.</p></div>
+  </div>
+
+  <h2>BswM Interaction</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Condition</th><th>NvM API called</th><th>Parameter</th></tr></thead>
+      <tbody>
+        <tr><td>Multi-block operation accepted</td><td><code>BswM_NvM_CurrentJobMode()</code></td><td>Request type + NVM_REQ_PENDING</td></tr>
+        <tr><td>Multi-block operation finished/canceled</td><td><code>BswM_NvM_CurrentJobMode()</code></td><td>Request type + outcome</td></tr>
+        <tr><td>Single-block operation accepted</td><td><code>BswM_NvM_CurrentBlockMode()</code></td><td>Block ID + NVM_REQ_PENDING</td></tr>
+        <tr><td>Single-block operation finished</td><td><code>BswM_NvM_CurrentBlockMode()</code></td><td>Block ID + outcome</td></tr>
+        <tr><td>Each block processed during multi-block</td><td><code>BswM_NvM_CurrentBlockMode()</code></td><td>Block ID + NVM_REQ_PENDING (start), outcome (end)</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box" style="margin-top:8px;"><p>If <code>NvMBswMMultiBlockJobStatusInformation=TRUE</code>: NvM does NOT call the configured multiblock callback — BswM API replaces it. Similarly, if <code>NvMBswMBlockStatusInformation=TRUE</code>: per-block BswM notifications are active.</p></div>
+  </div>
+
+  <h2>PRAM API Variants</h2>
+  <div class="card">
+    <p style="font-size:13px">APIs ending in <code>PRAM</code> (e.g., <code>NvM_ReadPRAMBlock</code>, <code>NvM_WritePRAMBlock</code>, <code>NvM_RestorePRAMBlockDefaults</code>) work only with <strong>permanently assigned RAM blocks</strong> — blocks that have a static RAM address configured at tool time. They don't accept a RAM pointer parameter since the address is already known.</p>
+    <div class="exam-tip" style="margin-top:8px;"><div class="tip-label">Difference</div><p><code>NvM_ReadBlock(id, ramPtr)</code> allows a temporary RAM address. <code>NvM_ReadPRAMBlock(id)</code> uses the permanent RAM address configured in the block descriptor. Both trigger the same underlying job — only the pointer source differs.</p></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// Section navigation
+const sections = document.querySelectorAll('.section');
+const navBtns = document.querySelectorAll('.nav-tabs button');
+function showSection(n) {
+  sections.forEach((s,i) => s.classList.toggle('active', i === n));
+  navBtns.forEach((b,i) => b.classList.toggle('active', i === n));
+  window.scrollTo(0, 0);
+}
+
+// State detail popup
+const stateDetails = {
+  vu: {
+    title: 'VALID / UNCHANGED — Transition Details',
+    color: '#3fb950',
+    entering: [
+      'NvM_ReadAll() reads block successfully from NV',
+      'NvM_ReadBlock() completes successfully',
+      'NvM_WriteBlock() completes successfully',
+      'NvM_WriteAll() writes block successfully',
+    ],
+    preserved: [
+      'Last read or write was successful (no error, no ROM defaults used)',
+      'AND application has not called SetRamBlockStatus(TRUE) since last R/W',
+    ],
+    implications: 'WriteAll SKIPS this block — RAM and NV are in sync. No unnecessary writes.'
+  },
+  vc: {
+    title: 'VALID / CHANGED — Transition Details',
+    color: '#f0a500',
+    entering: [
+      'NvM_SetRamBlockStatus(blockId, TRUE)',
+      'NvM_WriteBlock() called (when enqueued — before actual write)',
+      'NvM_WriteAll() will also process this block',
+      'NvM_ReadBlock() returns default data (ROM or callback)',
+      'NvM_RestoreBlockDefaults() succeeds',
+      'NvM_ReadAll() provides default data for this block',
+      'NvM_ValidateAll() processes this block',
+    ],
+    preserved: [
+      'Application has indicated potential RAM change (SetRamBlockStatus=TRUE)',
+      'OR default data was retrieved on last read',
+    ],
+    implications: 'WriteAll WILL write this block. Data in RAM may differ from NV.'
+  },
+  iu: {
+    title: 'INVALID / UNCHANGED — Transition Details',
+    color: '#f85149',
+    entering: [
+      'NvM_SetRamBlockStatus(blockId, FALSE)',
+      'NvM_ReadBlock() — block invalidated by user request',
+      'NvM_ReadBlock() — corrupted data (CRC failure)',
+      'NvM_ReadBlock() — wrong Static Block ID',
+      'NvM_WriteBlock() fails',
+      'NvM_WriteAll() — block write fails',
+      'NvM_InvalidateNvBlock() succeeds',
+      'NvM_EraseNvBlock() succeeds',
+      'After NvM_Init() — INITIAL STATE for all blocks',
+      'RAM CRC error during ReadAll revalidation',
+    ],
+    preserved: [
+      'Block state unknown (before ReadAll or first operation)',
+      'Block detected as corrupted or wrong Static ID',
+      'Last successful operation was an invalidation or erase',
+      'Read failed with no default data available',
+    ],
+    implications: 'WriteAll SKIPS this block. Application MUST provide valid data before next write attempt (SWS_NvM_00696).'
+  }
+};
+function showStateDetail(key) {
+  const d = stateDetails[key];
+  document.getElementById('state-detail').innerHTML = `
+    <h3 style="color:${d.color};margin-bottom:10px;">${d.title}</h3>
+    <div class="two-col">
+      <div>
+        <h4 style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Enters this state when:</h4>
+        <ul class="bullet-list">${d.entering.map(e=>`<li style="font-size:12px;">${e}</li>`).join('')}</ul>
+      </div>
+      <div>
+        <h4 style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">State preserved while:</h4>
+        <ul class="bullet-list">${d.preserved.map(e=>`<li style="font-size:12px;">${e}</li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="exam-tip" style="margin-top:12px;"><div class="tip-label">Implication</div><p>${d.implications}</p></div>
+  `;
+}
+
+// API search
+function filterAPI(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#api-list .api-card').forEach(card => {
+    const name = (card.dataset.name || '').toLowerCase();
+    card.style.display = !q || name.includes(q) ? '' : 'none';
+  });
+}
+
+// DET table filter
+function filterDET(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#det-table tbody tr').forEach(row => {
+    row.style.display = !q || row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

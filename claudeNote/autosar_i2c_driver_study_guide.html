@@ -1,0 +1,744 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:0 0 12px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab{padding:6px 11px;font-size:12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px}
+.card h3{font-size:15px;font-weight:500;margin-bottom:8px}
+.card p,.card li{font-size:13px;line-height:1.6;color:var(--color-text-secondary)}
+.card li{margin-left:16px;margin-bottom:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--border-radius-md);margin:2px}
+.b-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.b-green{background:var(--color-background-success);color:var(--color-text-success)}
+.b-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.b-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--color-background-secondary);padding:6px 10px;text-align:left;font-weight:500;font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+td{padding:6px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+.api-block{border-left:3px solid var(--color-border-info);padding:10px 14px;margin-bottom:10px;background:var(--color-background-secondary);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.api-block h4{font-size:13px;font-weight:500;margin-bottom:6px;font-family:var(--font-mono)}
+.api-block p{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.highlight{background:var(--color-background-warning);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:10px;font-size:12px}
+.highlight strong{font-weight:500}
+.warn-box{background:var(--color-background-danger);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--color-text-danger)}
+.ok-box{background:var(--color-background-success);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--color-text-success)}
+.seq-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.seq-text{font-size:12px;color:var(--color-text-secondary);padding-top:3px}
+.section-title{font-size:14px;font-weight:500;margin:16px 0 8px}
+.state-row{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.state-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;text-align:center;font-size:13px;font-weight:500;min-width:120px}
+.arrow-label{font-size:11px;color:var(--color-text-secondary);font-family:var(--font-mono)}
+.flow-box{display:inline-block;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;font-family:var(--font-mono);background:var(--color-background-secondary)}
+</style>
+
+<div style="padding:12px 0">
+<h2 class="sr-only">AUTOSAR I2C Driver comprehensive study guide</h2>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">Overview</div>
+  <div class="tab" onclick="switchTab('concepts')">Job &amp; Sequence</div>
+  <div class="tab" onclick="switchTab('state')">State machine</div>
+  <div class="tab" onclick="switchTab('api')">API spec</div>
+  <div class="tab" onclick="switchTab('errors')">Errors</div>
+  <div class="tab" onclick="switchTab('sequences')">Seq diagrams</div>
+  <div class="tab" onclick="switchTab('types')">Data types</div>
+  <div class="tab" onclick="switchTab('davinci')">DaVinci config</div>
+  <div class="tab" onclick="switchTab('debug')">Test &amp; debug</div>
+  <div class="tab" onclick="switchTab('compare')">I2C vs PORT</div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="panel active">
+  <div class="highlight"><strong>Brand new in R24-11 (initial release).</strong> I2C Driver is a MCAL module providing hardware-independent API for I2C bus communication to upper layers. Both Controller (Master) and Target (Slave) modes supported.</div>
+  <div class="card">
+    <h3>What I2C driver does</h3>
+    <ul>
+      <li>Reads from and writes to devices on I2C bus (EEPROMs, sensors, transceivers etc.)</li>
+      <li>Supports synchronous (blocking) and asynchronous (interrupt-driven) data transfers</li>
+      <li>Implements Controller mode (initiates transfers, generates SCL) and Target mode (responds to Controller)</li>
+      <li>Queues multiple Sequences on same channel (FIFO-based, async mode)</li>
+      <li>Reports bus-level errors: NACK, arbitration loss, bus failure, FIFO overflow</li>
+      <li>Provides callback <code>I2C_SeqEndNotification</code> on sequence completion (async)</li>
+      <li>Permanent listening mode for Target — <code>I2C_MainFunction</code> drives polling</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>What I2C driver does NOT do</h3>
+    <ul>
+      <li>Does NOT configure clock, prescaler(s), PLL — MCU driver handles that</li>
+      <li>Does NOT have mandatory interfaces from other modules (no DET mandatory, only optional)</li>
+      <li>Does NOT produce Production Errors or Extended Production Errors</li>
+      <li>No callback functions to lower layers (it IS the lowest MCAL layer)</li>
+    </ul>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>I2C bus basics (exam context)</h3>
+      <ul>
+        <li>2-wire: <strong>SDA</strong> (Serial Data) + <strong>SCL</strong> (Serial Clock)</li>
+        <li>Controller = old "Master" — initiates, generates clock, terminates</li>
+        <li>Target = old "Slave" — responds to Controller address</li>
+        <li>7-bit addressing (≤0x7F) or 10-bit extended addressing (>0x7F)</li>
+        <li>Frame: START → TARGET_ADDR + R/W̄ → ACK → DATA → ACK/NACK → STOP</li>
+        <li>I2C speeds: 100 kbit/s (Standard), 400 kbit/s (Fast), 1 Mbit/s (Fast-Plus), 3.4 Mbit/s (High-Speed)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Architecture position</h3>
+      <p>I2C Driver sits in <strong>MCAL layer</strong> (same as PORT, DIO, SPI). Upper layers (e.g. complex drivers, IoHwAb) call I2C APIs.</p>
+      <p style="margin-top:6px">MCU Driver must be initialized first — MCU sets up clock/PLL that I2C peripheral depends on.</p>
+      <p style="margin-top:6px">Standard: NXP UM10204 (I2C-bus specification) is the reference norm for bus behavior.</p>
+      <p style="margin-top:6px">Header file: <code>I2c.h</code> (all types and functions)</p>
+      <p style="margin-top:4px">Callback file: <code>I2c_Externals.h</code> (SeqEndNotification)</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Key terminology quick reference</h3>
+    <table>
+      <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+      <tbody>
+        <tr><td>EB (Externally Buffered)</td><td>Data buffers live OUTSIDE the driver — user provides Tx/Rx pointers. All jobs in this spec are EB type.</td></tr>
+        <tr><td>Job</td><td>One I2C transaction: same config params, same target address, specific data pointer and length. Unit = one I2C frame (START…STOP).</td></tr>
+        <tr><td>Sequence</td><td>Ordered collection of one or more Jobs to execute consecutively. Single ID passed to Async/SyncTransmit.</td></tr>
+        <tr><td>Channel (I2cChannel)</td><td>One physical I2C hardware peripheral (HW unit) on the MCU. Has its own baud rate and base address.</td></tr>
+        <tr><td>Controller mode</td><td>MCU acts as bus master — initiates all transfers, generates SCL.</td></tr>
+        <tr><td>Target mode</td><td>MCU acts as bus slave — waits for Controller to address it, responds.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- JOB & SEQUENCE CONCEPTS -->
+<div id="concepts" class="panel">
+  <div class="highlight"><strong>Core concept: Sequence → Jobs → I2C frames on bus.</strong> This hierarchy is the heart of the I2C driver. Understand it deeply.</div>
+  <div class="card">
+    <h3>Job explained</h3>
+    <p>A Job is the smallest configurable unit of I2C transfer. It defines:</p>
+    <ul style="margin-top:6px">
+      <li><code>I2cJobId</code> — numeric ID (0..255)</li>
+      <li><code>I2cDeviceAddress</code> — target address (0..1023). Values >0x7F → extended 10-bit addressing.</li>
+      <li>Data pointers and length are set at runtime via <code>I2C_SetupEB()</code></li>
+      <li>Direction (Read or Write) determined by which buffer pointer is NULL in SetupEB</li>
+    </ul>
+    <p style="margin-top:8px"><strong>Controller mode buffer rules (exam critical):</strong></p>
+    <ul>
+      <li>RxDataBufferPtr = NULL → <strong>WRITE</strong> operation (Tx data → bus)</li>
+      <li>TxDataBufferPtr = NULL → <strong>READ</strong> operation (bus data → Rx buffer)</li>
+      <li>Both NULL or both non-NULL → DET error <code>I2C_E_PARAM_POINTER</code></li>
+    </ul>
+    <p style="margin-top:8px"><strong>Target mode buffer rules:</strong></p>
+    <ul>
+      <li>TxDataBufferPtr = NULL → <strong>READ</strong> (Target receives from Controller → into RxBuffer)</li>
+      <li>RxDataBufferPtr = NULL → <strong>WRITE</strong> (Target sends to Controller ← from TxBuffer)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Sequence explained</h3>
+    <p>A Sequence groups multiple Jobs that execute in order on one I2cChannel. Key properties:</p>
+    <ul style="margin-top:6px">
+      <li><code>I2cSequenceId</code> — numeric ID (0..254)</li>
+      <li><code>I2cAssignedChannel</code> — reference to one I2cChannel (which HW peripheral)</li>
+      <li><code>I2cAssignedJob</code> — ordered list of Job references (1 to many, requiresIndex=true)</li>
+      <li><code>I2cEndNotification</code> — name of callback function to invoke when sequence completes</li>
+    </ul>
+    <p style="margin-top:8px">Execution order: Job[0] → Job[1] → Job[2] → ... → Job[N] → callback fires</p>
+    <p style="margin-top:4px">Direction can change between jobs in a sequence (first job write, second job read — typical for register read pattern).</p>
+  </div>
+  <div class="card">
+    <h3>SetupEB — the link between config and runtime</h3>
+    <p><code>I2C_SetupEB(JobId, NodeAddress, TxPtr, RxPtr, Length)</code> must be called before transmit. It:</p>
+    <ul style="margin-top:6px">
+      <li>Links the configured Job to runtime buffers</li>
+      <li>Sets the data length for this transfer</li>
+      <li>Optionally overrides target address (NodeAddress≠0 → use it; NodeAddress=0 → use configured I2cDeviceAddress)</li>
+      <li>Determines direction (read vs write) by which pointer is NULL</li>
+    </ul>
+    <p style="margin-top:8px"><strong>Important:</strong> SetupEB does NOT need to be called every time before AsyncTransmit/SyncTransmit. If parameters haven't changed, one prior SetupEB is sufficient. The spec explicitly states this.</p>
+  </div>
+  <div class="card">
+    <h3>I2C frame structure (what hits the bus)</h3>
+    <div style="font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);overflow-x:auto;white-space:nowrap">
+      [S] [TARGET_ADDR + R/W̄] [A] [DATA byte 0] [A/Ā] [DATA byte 1] [A/Ā] ... [DATA byte N] [A/Ā] [P]
+    </div>
+    <p style="margin-top:8px">S=START, P=STOP, A=ACK, Ā=NACK. One Job = one such frame. Multiple Jobs in a Sequence can use Repeated START (Sr) instead of STOP+START between jobs.</p>
+  </div>
+  <div class="card">
+    <h3>Async queuing mechanism (FIFO)</h3>
+    <p>When <code>I2C_AsyncTransmit()</code> called while another Sequence already PENDING on same channel:</p>
+    <ul style="margin-top:6px">
+      <li>New request queued in FIFO → state becomes <code>I2C_SEQ_QUEUED</code> → returns <code>E_OK</code></li>
+      <li>After current sequence completes → driver auto-starts next queued element</li>
+      <li>If SAME sequence already PENDING → rejected → returns <code>E_NOT_OK</code></li>
+    </ul>
+    <p style="margin-top:6px">SyncTransmit does NOT support queuing — if async pending on same channel → returns <code>E_NOT_OK</code> immediately.</p>
+  </div>
+</div>
+
+<!-- STATE MACHINE -->
+<div id="state" class="panel">
+  <div class="highlight"><strong>I2C driver has 3 module-level states + 5 sequence-level result states.</strong> Know both layers — exams test them separately.</div>
+
+  <div class="section-title">Module-level states</div>
+  <div class="state-row">
+    <div class="state-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">UNINIT<br><span style="font-size:10px;font-weight:400">After reset</span></div>
+    <span style="font-size:18px;color:var(--color-text-secondary)">→</span>
+    <div style="text-align:center"><div class="arrow-label">I2C_Init(ConfigPtr)</div></div>
+    <span style="font-size:18px;color:var(--color-text-secondary)">→</span>
+    <div class="state-box" style="background:var(--color-background-success);color:var(--color-text-success)">INIT<br><span style="font-size:10px;font-weight:400">Ready for use</span></div>
+    <span style="font-size:18px;color:var(--color-text-secondary)">→</span>
+    <div style="text-align:center"><div class="arrow-label">I2C_DeInit()</div></div>
+    <span style="font-size:18px;color:var(--color-text-secondary)">→</span>
+    <div class="state-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">UNINIT<br><span style="font-size:10px;font-weight:400">Power-on-reset state</span></div>
+  </div>
+
+  <div class="card">
+    <h3>Critical module-state rules</h3>
+    <ul>
+      <li><strong>Re-initialization requires DeInit first.</strong> Calling I2C_Init again without DeInit is NOT allowed. This differs from PORT driver (which allows re-init directly).</li>
+      <li>I2C_DeInit in UNINIT state → DET error <code>I2C_E_UNINIT</code> (if dev error detect enabled)</li>
+      <li>I2C_DeInit puts peripheral back to Power-On-Reset state</li>
+      <li>All other APIs called in UNINIT → <code>I2C_E_UNINIT</code> DET error</li>
+    </ul>
+  </div>
+
+  <div class="section-title">Sequence-level result states (I2C_SequenceResultType)</div>
+  <div class="grid2">
+    <div class="card">
+      <h3>All 5 sequence result values</h3>
+      <table>
+        <thead><tr><th>Value</th><th>Hex</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>I2C_SEQ_OK</code></td><td>0x00</td><td>Sequence completed successfully. Initial value set by I2C_Init for all sequences.</td></tr>
+          <tr><td><code>I2C_SEQ_PENDING</code></td><td>0x01</td><td>Sequence currently executing on bus. Also = I2C_BUSY.</td></tr>
+          <tr><td><code>I2C_SEQ_QUEUED</code></td><td>0x02</td><td>Async only — queued in FIFO, waiting for current sequence to finish.</td></tr>
+          <tr><td><code>I2C_SEQ_NACK</code></td><td>0x03</td><td>Target responded with NACK — address not acknowledged or data rejected.</td></tr>
+          <tr><td><code>I2C_SEQ_FAILED</code></td><td>0x04</td><td>Bus failure, arbitration loss, or other fatal error during sequence.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Sequence state transitions</h3>
+      <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">After I2C_Init: all sequences → <code>I2C_SEQ_OK</code></div></div>
+      <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">AsyncTransmit called, channel free → <code>I2C_SEQ_PENDING</code>, return E_OK</div></div>
+      <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">AsyncTransmit called, channel busy → <code>I2C_SEQ_QUEUED</code>, return E_OK</div></div>
+      <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">AsyncTransmit same seq already PENDING → stays PENDING, return E_NOT_OK</div></div>
+      <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">After last job done + all OK → <code>I2C_SEQ_OK</code> + callback fires</div></div>
+      <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">After last job done + NACK → <code>I2C_SEQ_NACK</code> + callback fires</div></div>
+      <div class="seq-step"><div class="seq-num">7</div><div class="seq-text">After last job done + any error → <code>I2C_SEQ_FAILED</code> + callback fires</div></div>
+      <div class="seq-step"><div class="seq-num">8</div><div class="seq-text">QUEUED sequence becomes PENDING after preceding sequence finishes</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Target mode state (I2C_StartListening)</h3>
+    <ul>
+      <li>StartListening on idle channel → <code>I2C_SEQ_PENDING</code>, return E_OK</li>
+      <li>StartListening while already listening → return E_NOT_OK (cannot double-start)</li>
+      <li>After last message or error received → sequence state set (OK/NACK/FAILED) + callback</li>
+      <li><code>I2cTargetListening=TRUE</code> → permanent listening — <code>I2C_MainFunction</code> keeps re-arming after each message, callback fires per message</li>
+      <li>StartListening while I2cTargetListening=TRUE set → runtime error <code>I2C_E_WRONG_MODE</code> (can't manually start when always-on)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>SyncTransmit vs AsyncTransmit state behavior comparison</h3>
+    <table>
+      <thead><tr><th>Condition</th><th>AsyncTransmit</th><th>SyncTransmit</th></tr></thead>
+      <tbody>
+        <tr><td>Channel idle (no PENDING)</td><td>Start → PENDING, E_OK</td><td>Start → PENDING, E_OK</td></tr>
+        <tr><td>Other sequence PENDING on channel</td><td>Queue → QUEUED, E_OK</td><td>Reject → E_NOT_OK</td></tr>
+        <tr><td>Same sequence already PENDING</td><td>Reject → E_NOT_OK</td><td>Reject → E_NOT_OK</td></tr>
+        <tr><td>Completion notification</td><td>Callback I2C_SeqEndNotification</td><td>None — function blocks until done</td></tr>
+        <tr><td>Supports queuing</td><td>Yes (FIFO)</td><td>No</td></tr>
+        <tr><td>Return type</td><td>Std_ReturnType (E_OK/E_NOT_OK)</td><td>Std_ReturnType (E_OK/E_NOT_OK)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- API SPEC -->
+<div id="api" class="panel">
+  <div class="highlight"><strong>8 functions + 1 scheduled function + 1 callback.</strong> More complex than PORT. Critical: SetupEB must come before Transmit/Listen.</div>
+
+  <div class="api-block">
+    <h4>I2C_Init (ConfigPtr) — Service ID: 0x00</h4>
+    <p><strong>Syntax:</strong> <code>void I2C_Init(const I2C_ConfigType* ConfigPtr)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> void | <strong>Sync</strong></p>
+    <p><strong>Does:</strong> Initializes all I2C HW channels (I2cHwUnitBaseAddress + I2cBaudRate per channel). Sets ALL sequence results to I2C_SEQ_OK.</p>
+    <p><strong>Critical rule:</strong> Re-initialization requires DeInit first. Cannot call Init again without DeInit.</p>
+    <p><strong>DET errors:</strong> None explicitly listed for Init itself (I2C_E_UNINIT via DeInit if Init not called).</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_DeInit (void) — Service ID: 0x01</h4>
+    <p><strong>Syntax:</strong> <code>void I2C_DeInit(void)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> void | <strong>Sync</strong></p>
+    <p><strong>Does:</strong> De-initializes all I2C peripherals to Power-On-Reset state.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_UNINIT</code> if called before Init (when I2cDevErrorDetect=TRUE).</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_SetupEB (JobId, NodeAddress, TxPtr, RxPtr, Length) — Service ID: 0x02</h4>
+    <p><strong>Syntax:</strong> <code>Std_ReturnType I2C_SetupEB(I2C_JobType, I2C_AddressType, I2C_DataConstPtrType*, I2C_DataPtrType*, I2C_NumberOfDataType)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> E_OK / E_NOT_OK | <strong>Sync</strong></p>
+    <p><strong>Does:</strong> Configures the runtime buffer setup for a Job. Determines direction by NULL pointer. NodeAddress=0 → use configured address; nonzero → override address.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_PARAM_POINTER</code> (both NULL or both non-NULL), <code>I2C_E_PARAM_JOB</code> (invalid JobId)</p>
+    <p><strong>Call frequency:</strong> Does NOT need calling every time — only when parameters change.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_AsyncTransmit (SequenceId) — Service ID: 0x03</h4>
+    <p><strong>Syntax:</strong> <code>Std_ReturnType I2C_AsyncTransmit(I2C_SequenceType SequenceId)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> E_OK / E_NOT_OK | <strong>Async (interrupt-driven)</strong></p>
+    <p><strong>Does:</strong> Starts async transfer. If channel idle → PENDING, E_OK. If other seq PENDING → queue → QUEUED, E_OK. If same seq PENDING → E_NOT_OK. On completion → I2C_SeqEndNotification callback.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_PARAM_SEQUENCE</code> (invalid SequenceId or SetupEB not called for all Jobs in sequence)</p>
+    <p><strong>Callback note:</strong> I2C_SeqEndNotification may be called at interrupt level.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_SyncTransmit (SequenceId) — Service ID: 0x04</h4>
+    <p><strong>Syntax:</strong> <code>Std_ReturnType I2C_SyncTransmit(I2C_SequenceType SequenceId)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> E_OK / E_NOT_OK | <strong>Sync (blocking)</strong></p>
+    <p><strong>Does:</strong> Blocking transfer — function does not return until all Jobs in sequence complete. If async PENDING on same channel → E_NOT_OK (no queuing). No callback fired.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_PARAM_SEQUENCE</code> (invalid SequenceId or SetupEB not called)</p>
+    <p><strong>Use case:</strong> Simple scenarios where task can afford to block. Not suitable for time-critical tasks.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_GetVersionInfo (VersionInfo) — Service ID: 0x07</h4>
+    <p><strong>Syntax:</strong> <code>void I2C_GetVersionInfo(Std_VersionInfoType* VersionInfo)</code></p>
+    <p><strong>Reentrancy:</strong> Reentrant | <strong>Return:</strong> void | <strong>Sync</strong></p>
+    <p><strong>Does:</strong> Returns vendor ID, module ID, SW version. Enabled by <code>I2cVersionInfoApi=TRUE</code>.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_PARAM_POINTER</code> if NULL pointer passed.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_GetSequenceResult (SequenceId) — Service ID: 0x09</h4>
+    <p><strong>Syntax:</strong> <code>I2C_SequenceResultType I2C_GetSequenceResult(I2C_SequenceType SequenceId)</code></p>
+    <p><strong>Reentrancy:</strong> Reentrant | <strong>Return:</strong> I2C_SequenceResultType | <strong>Sync</strong></p>
+    <p><strong>Does:</strong> Returns current state: OK, PENDING, QUEUED, NACK, or FAILED. Key function for polling in SyncTransmit scenario or checking async result after callback.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_PARAM_SEQUENCE</code> if invalid SequenceId.</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_StartListening (SequenceId) — Service ID: 0x0A</h4>
+    <p><strong>Syntax:</strong> <code>Std_ReturnType I2C_StartListening(I2C_SequenceType SequenceId)</code></p>
+    <p><strong>Reentrancy:</strong> Non-reentrant | <strong>Return:</strong> E_OK / E_NOT_OK | <strong>Sync</strong></p>
+    <p><strong>Does:</strong> Target mode only. Makes channel available for incoming transfers from a Controller. Channel → PENDING. On message receive → copy data per direction → callback.</p>
+    <p><strong>DET errors:</strong> <code>I2C_E_PARAM_SEQUENCE</code> (SetupEB not called), <code>I2C_E_WRONG_CONDITION</code> (channel not in Target mode / I2cHwUnitMode ≠ TARGET)</p>
+    <p><strong>Runtime error:</strong> <code>I2C_E_WRONG_MODE</code> if I2cTargetListening=TRUE (always-on mode conflicts with on-demand StartListening)</p>
+  </div>
+
+  <div class="api-block">
+    <h4>I2C_MainFunction (void) — Service ID: 0x10 [Scheduled]</h4>
+    <p><strong>Syntax:</strong> <code>void I2C_MainFunction(void)</code></p>
+    <p><strong>Does:</strong> Used for permanent Target listening mode (I2cTargetListening=TRUE). Called cyclically by BSW scheduler. After each received message, fires SeqEndNotification and re-arms listening automatically.</p>
+    <p><strong>When to use:</strong> Target device that must always be responsive — e.g. ECU acting as I2C slave to external Controller.</p>
+  </div>
+
+  <div class="card">
+    <h3>Callback: I2C_SeqEndNotification — Configurable interface</h3>
+    <p><strong>Syntax:</strong> <code>void (*I2C_SeqEndNotification)(I2C_SequenceType SequenceId, I2C_SequenceResultType Result)</code></p>
+    <p style="margin-top:6px">User-provided function configured per Sequence via <code>I2cEndNotification</code> in I2cSequence container. Passes which sequence finished and what result (OK/NACK/FAILED). May execute at interrupt level for async. Located in <code>I2c_Externals.h</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>API quick reference table</h3>
+    <table>
+      <thead><tr><th>Function</th><th>ID</th><th>Sync/Async</th><th>Reentrant</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2C_Init</code></td><td>0x00</td><td>Sync</td><td>No</td><td>void</td></tr>
+        <tr><td><code>I2C_DeInit</code></td><td>0x01</td><td>Sync</td><td>No</td><td>void</td></tr>
+        <tr><td><code>I2C_SetupEB</code></td><td>0x02</td><td>Sync</td><td>No</td><td>Std_ReturnType</td></tr>
+        <tr><td><code>I2C_AsyncTransmit</code></td><td>0x03</td><td>Async</td><td>No</td><td>Std_ReturnType</td></tr>
+        <tr><td><code>I2C_SyncTransmit</code></td><td>0x04</td><td>Sync</td><td>No</td><td>Std_ReturnType</td></tr>
+        <tr><td><code>I2C_GetVersionInfo</code></td><td>0x07</td><td>Sync</td><td>Yes</td><td>void</td></tr>
+        <tr><td><code>I2C_GetSequenceResult</code></td><td>0x09</td><td>Sync</td><td>Yes</td><td>I2C_SequenceResultType</td></tr>
+        <tr><td><code>I2C_StartListening</code></td><td>0x0A</td><td>Sync</td><td>No</td><td>Std_ReturnType</td></tr>
+        <tr><td><code>I2C_MainFunction</code></td><td>0x10</td><td>—</td><td>—</td><td>void</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ERRORS -->
+<div id="errors" class="panel">
+  <div class="highlight"><strong>I2C has BOTH development errors AND runtime errors.</strong> This is different from PORT (dev only). Runtime errors go to DEM/Det_ReportRuntimeError. No production errors.</div>
+
+  <div class="card">
+    <h3>Development errors (DET) — 5 types</h3>
+    <table>
+      <thead><tr><th>Error code</th><th>Value</th><th>Trigger</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2C_E_PARAM_JOB</code></td><td>0x00</td><td>Invalid JobId passed to SetupEB (not in I2cJobId)</td></tr>
+        <tr><td><code>I2C_E_PARAM_SEQUENCE</code></td><td>0x01</td><td>Invalid SequenceId, OR SetupEB not called for all Jobs in sequence before Async/Sync/StartListening</td></tr>
+        <tr><td><code>I2C_E_PARAM_POINTER</code></td><td>0x02</td><td>SetupEB: both Rx+Tx NULL, or both non-NULL. GetVersionInfo: NULL pointer.</td></tr>
+        <tr><td><code>I2C_E_UNINIT</code></td><td>0x03</td><td>Any API called before I2C_Init(), or DeInit called when not initialized</td></tr>
+        <tr><td><code>I2C_E_WRONG_CONDITION</code></td><td>0x04</td><td>StartListening called when I2cHwUnitMode ≠ I2C_HW_UNIT_MODE_TARGET</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Runtime errors (DEM/Det_ReportRuntimeError) — 5 types</h3>
+    <table>
+      <thead><tr><th>Error code</th><th>Value</th><th>Cause / Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2C_E_NACK_RECEIVED</code></td><td>0x00</td><td>Target did not acknowledge address or data. Target absent, wrong address, or target busy.</td></tr>
+        <tr><td><code>I2C_E_ARBITRATION_FAILURE</code></td><td>0x01</td><td>Another Controller on bus won arbitration. SDA stuck low or multi-master conflict.</td></tr>
+        <tr><td><code>I2C_E_FIFO_HANDLING</code></td><td>0x02</td><td>FIFO overflow (if HW has FIFO). Data was lost. Only if HW supports FIFO.</td></tr>
+        <tr><td><code>I2C_E_BUS_FAILURE</code></td><td>0x03</td><td>SCL line stuck low (bus lockup). Bus recovery procedure needed.</td></tr>
+        <tr><td><code>I2C_E_WRONG_MODE</code></td><td>0x04</td><td>StartListening called while I2cTargetListening=TRUE (always-listening mode active — manual call forbidden).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Error per function mapping</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Development errors</th><th>Runtime errors</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2C_Init</code></td><td>None specified</td><td>None</td></tr>
+        <tr><td><code>I2C_DeInit</code></td><td><code>I2C_E_UNINIT</code></td><td>None</td></tr>
+        <tr><td><code>I2C_SetupEB</code></td><td><code>I2C_E_PARAM_POINTER</code>, <code>I2C_E_PARAM_JOB</code></td><td>None</td></tr>
+        <tr><td><code>I2C_AsyncTransmit</code></td><td><code>I2C_E_PARAM_SEQUENCE</code></td><td>NACK, ARBITRATION_FAILURE, BUS_FAILURE, FIFO_HANDLING</td></tr>
+        <tr><td><code>I2C_SyncTransmit</code></td><td><code>I2C_E_PARAM_SEQUENCE</code></td><td>NACK, ARBITRATION_FAILURE, BUS_FAILURE, FIFO_HANDLING</td></tr>
+        <tr><td><code>I2C_GetVersionInfo</code></td><td><code>I2C_E_PARAM_POINTER</code></td><td>None</td></tr>
+        <tr><td><code>I2C_GetSequenceResult</code></td><td><code>I2C_E_PARAM_SEQUENCE</code></td><td>None</td></tr>
+        <tr><td><code>I2C_StartListening</code></td><td><code>I2C_E_PARAM_SEQUENCE</code>, <code>I2C_E_WRONG_CONDITION</code></td><td><code>I2C_E_WRONG_MODE</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Optional interfaces for error reporting</h3>
+    <table>
+      <thead><tr><th>Function</th><th>Header</th><th>When used</th></tr></thead>
+      <tbody>
+        <tr><td><code>Dem_SetEventStatus</code></td><td>Dem.h</td><td>Report monitor status (runtime errors to DEM). Only if DemEventReportingType=STANDARD_REPORTING.</td></tr>
+        <tr><td><code>Det_ReportRuntimeError</code></td><td>Det.h</td><td>Report runtime errors. If callout configured, callout is called.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:6px;font-size:12px;color:var(--color-text-secondary)">No mandatory interfaces — I2C driver is lowest MCAL layer, no required upstream functions.</p>
+  </div>
+</div>
+
+<!-- SEQUENCE DIAGRAMS -->
+<div id="sequences" class="panel">
+  <div class="highlight"><strong>3 key sequence diagrams.</strong> All start with Init and end with DeInit. SetupEB always comes before Async/Sync/StartListening.</div>
+
+  <div class="card">
+    <h3>Seq 9.1 — SetupEB + AsyncTransmit (3-Job Sequence)</h3>
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">User calls <code>I2C_Init(ConfigPtr)</code> → I2C module initializes all channels, all seq results = I2C_SEQ_OK</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Loop Job:=0..2</strong> — For each of 3 Jobs: User calls <code>I2C_SetupEB(JobId, NodeAddr, TxPtr, RxPtr, Length)</code> → returns E_OK, parameters saved internally</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">User calls <code>I2C_AsyncTransmit(SequenceId)</code> → driver sets Seq PENDING, returns E_OK immediately (non-blocking!)</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Driver executes: Seq0.Job0() → Seq0.Job1() → Seq0.Job2() asynchronously (interrupt-driven)</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">After Job2 completes: driver sets state (OK/NACK/FAILED) and fires <code>&lt;I2C_Seq0EndNotification&gt;()</code> callback</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Driver becomes IDLE. User may call <code>I2C_DeInit()</code> to shut down.</div></div>
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Key point: between step 3 and 5, user's task continues running — async means non-blocking.</p>
+  </div>
+
+  <div class="card">
+    <h3>Seq 9.2 — SetupEB + SyncTransmit (2 Sequences of 2 Jobs each)</h3>
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">User calls <code>I2C_Init(ConfigPtr)</code></div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Loop Job:=0..3</strong> — SetupEB called for all 4 Jobs (2 per sequence)</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">User calls <code>I2C_SyncTransmit(Sequence0)</code> → driver starts Seq0.Job0(), then Seq0.Job1() — ALL BLOCKING</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><code>I2C_SyncTransmit</code> returns E_OK only after both jobs done. NO callback. User checks return value.</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">User calls <code>I2C_SyncTransmit(Sequence1)</code> → Seq1.Job0(), Seq1.Job1() blocking</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Returns. Driver IDLE. User calls <code>I2C_DeInit()</code></div></div>
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Key difference from async: no callback, task blocks at SyncTransmit call. Second SyncTransmit only starts after first returns.</p>
+  </div>
+
+  <div class="card">
+    <h3>Seq 9.3 — SetupEB + StartListening (Target mode, 3-Job Sequence)</h3>
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">User calls <code>I2C_Init(ConfigPtr)</code> — channel configured as I2C_HW_UNIT_MODE_TARGET</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Loop Job:=0..2</strong> — SetupEB called for each Job (set RxPtr for read jobs, TxPtr for write jobs)</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">User calls <code>I2C_StartListening(SequenceId)</code> → channel → PENDING, waits for Controller to address it</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">External Controller sends messages. Driver handles: Seq0.Job0(), Seq0.Job1(), Seq0.Job2() — ASYNCHRONOUSLY as messages arrive</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">After last Job received / error: state set → <code>&lt;I2C_Seq0EndNotification&gt;()</code> callback fires</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Driver becomes IDLE. If I2cTargetListening=TRUE, MainFunction re-arms automatically for next message.</div></div>
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Read message received → driver copies data into RxDataBufferPtr. Write message → driver sends from TxDataBufferPtr.</p>
+  </div>
+
+  <div class="card">
+    <h3>Async queuing sequence (FIFO case)</h3>
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text">SetupEB for Seq0 and Seq1 Jobs</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text">AsyncTransmit(Seq0) → Seq0 PENDING, bus busy, E_OK returned</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text">AsyncTransmit(Seq1) → Seq0 still PENDING → Seq1 queued → I2C_SEQ_QUEUED, E_OK returned</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Seq0 finishes → callback(Seq0, OK) fires → driver checks FIFO → Seq1 found</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Seq1 dequeued → PENDING → executes → callback(Seq1, OK) fires</div></div>
+    <p style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">AsyncTransmit(Seq0) again while Seq0 PENDING → E_NOT_OK (same seq can't be double-queued).</p>
+  </div>
+</div>
+
+<!-- DATA TYPES -->
+<div id="types" class="panel">
+  <div class="card">
+    <h3>All type definitions — complete reference</h3>
+    <table>
+      <thead><tr><th>Type</th><th>Kind</th><th>Underlying type</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2C_ConfigType</code></td><td>Structure</td><td>Implementation specific</td><td>Init data structure — MCU-specific contents. Pointer passed to I2C_Init.</td></tr>
+        <tr><td><code>I2C_AddressType</code></td><td>Type</td><td>uint16</td><td>Target device address. 0..0x7F = 7-bit. >0x7F = 10-bit extended addressing.</td></tr>
+        <tr><td><code>I2C_DataType</code></td><td>Type</td><td>uint8</td><td>Single data byte for I2C transfer. Unit of bus data.</td></tr>
+        <tr><td><code>I2C_DataPtrType</code></td><td>Pointer</td><td>uint8*</td><td>Mutable pointer — used for RxDataBufferPtr (receive buffer, written by driver).</td></tr>
+        <tr><td><code>I2C_DataConstPtrType</code></td><td>Const Pointer</td><td>const uint8*</td><td>Read-only pointer — used for TxDataBufferPtr (transmit buffer, read by driver).</td></tr>
+        <tr><td><code>I2C_SequenceResultType</code></td><td>Enum</td><td>—</td><td>SEQ_OK(0), PENDING(1), QUEUED(2), NACK(3), FAILED(4)</td></tr>
+        <tr><td><code>I2C_HwUnitType</code></td><td>Type</td><td>uint8</td><td>ID of physical I2C HW peripheral on MCU.</td></tr>
+        <tr><td><code>I2C_JobType</code></td><td>Type</td><td>uint8</td><td>Job identifier. Range 0..255.</td></tr>
+        <tr><td><code>I2C_SequenceType</code></td><td>Type</td><td>uint8</td><td>Sequence identifier. Range 0..254.</td></tr>
+        <tr><td><code>I2C_NumberOfDataType</code></td><td>Type</td><td>uint16</td><td>Number of data bytes to send/receive in one Job. uint16 allows larger transfers.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Imported types</h3>
+    <table>
+      <thead><tr><th>Module</th><th>Header</th><th>Type</th></tr></thead>
+      <tbody>
+        <tr><td>Dem</td><td>Rte_Dem_Type.h</td><td>Dem_EventIdType, Dem_EventStatusType</td></tr>
+        <tr><td>Std</td><td>Std_Types.h</td><td>Std_ReturnType, Std_VersionInfoType</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;font-size:12px;color:var(--color-text-secondary)">Note: I2C imports from DEM (for event status reporting) — unlike PORT which only imports from Std. This reflects I2C having runtime errors that go to DEM.</p>
+  </div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="davinci" class="panel">
+  <div class="highlight"><strong>DaVinci config hierarchy:</strong> I2c → I2cGeneral + I2cConfigSet[1..*] → I2cChannel[1..*] + I2cJob[1..*] + I2cSequence[1..*]</div>
+
+  <div class="card">
+    <h3>Configuration hierarchy</h3>
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:2">
+      I2c (EcucModuleDef)<br>
+      &nbsp;├── I2cGeneral [1]<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;├── I2cDevErrorDetect (bool, default=false)<br>
+      &nbsp;│&nbsp;&nbsp;&nbsp;└── I2cVersionInfoApi (bool, default=false)<br>
+      &nbsp;└── I2cConfigSet [1..*] ← supports multiple config sets<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── I2cChannel [1..*] ← one per HW peripheral<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── I2cBaudRate (int, default=100 kbit/s)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── I2cHwUnitBaseAddress (int) ← peripheral register base<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── I2cHwUnitMode (enum: CONTROLLER/TARGET)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── I2cTargetListening (bool, default=false)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── I2cJob [1..*] ← one per transfer unit<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── I2cJobId (int, 0..255) ← symbolic name generated<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── I2cDeviceAddress (int, 0..1023) ← target address<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── I2cSequence [1..*] ← one per transfer group<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── I2cSequenceId (int, 0..254) ← symbolic name generated<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── I2cEndNotification (function name string)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── I2cAssignedChannel → ref to I2cChannel<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── I2cAssignedJob [1..*] → ordered refs to I2cJob (requiresIndex=true)
+    </div>
+  </div>
+
+  <div class="section-title">I2cChannel parameters (step 1 — configure HW)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Range/Default</th><th>Industry tip</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2cBaudRate</code></td><td>int (kbit/s)</td><td>default=100</td><td>Standard: 100. Fast: 400. Fast-Plus: 1000. Must match pull-up resistor sizing. MCU clock must be configured first by MCU driver.</td></tr>
+        <tr><td><code>I2cHwUnitBaseAddress</code></td><td>int</td><td>MCU-specific</td><td>Base register address of I2C peripheral (e.g. 0x40005400 for STM32 I2C1). Get from MCU reference manual.</td></tr>
+        <tr><td><code>I2cHwUnitMode</code></td><td>enum</td><td>CONTROLLER</td><td>I2C_HW_UNIT_MODE_CONTROLLER: MCU initiates. I2C_HW_UNIT_MODE_TARGET: MCU responds. StartListening only works in TARGET mode.</td></tr>
+        <tr><td><code>I2cTargetListening</code></td><td>bool</td><td>false</td><td>TRUE: Always-listening Target — MainFunction drives, no manual StartListening calls. FALSE: On-demand — call StartListening when ready.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">I2cJob parameters (step 2 — define transactions)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Range</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2cJobId</code></td><td>int (symbolic name)</td><td>0..255</td><td>Numeric ID for this job. DaVinci generates symbolic constant (e.g. I2cConf_I2cJob_EEPROM_WRITE_JOB) in I2c.h.</td></tr>
+        <tr><td><code>I2cDeviceAddress</code></td><td>int</td><td>0..1023</td><td>Default target address. Values >127 → extended 10-bit addressing. Can be overridden at runtime via SetupEB NodeAddress parameter.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px;font-size:12px;color:var(--color-text-secondary)">Data buffers and length are NOT configured here — they are runtime parameters set via I2C_SetupEB(). This is the EB (Externally Buffered) pattern.</p>
+  </div>
+
+  <div class="section-title">I2cSequence parameters (step 3 — group jobs)</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Parameter</th><th>Type</th><th>Range</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>I2cSequenceId</code></td><td>int (symbolic)</td><td>0..254</td><td>ID used in AsyncTransmit/SyncTransmit/StartListening calls. DaVinci generates symbolic constant.</td></tr>
+        <tr><td><code>I2cEndNotification</code></td><td>function name</td><td>—</td><td>Name of the user callback function (e.g. "MyApp_I2C_Seq0Done"). Must match a function you implement. Called on sequence end.</td></tr>
+        <tr><td><code>I2cAssignedChannel</code></td><td>reference</td><td>[1]</td><td>Which I2cChannel (HW peripheral) this sequence runs on. Single channel per sequence.</td></tr>
+        <tr><td><code>I2cAssignedJob</code></td><td>reference [1..*]</td><td>ordered</td><td>Ordered list of Job references. requiresIndex=true means order matters — index determines execution sequence.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">DaVinci step-by-step project workflow</div>
+  <div class="card">
+    <div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>Add I2c module</strong> to BSW in DaVinci. Appears under MCAL. Note: this is a NEW module (R24-11 initial release) — may need manual module addition in older tool versions.</div></div>
+    <div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>I2cGeneral:</strong> Set I2cDevErrorDetect=TRUE for dev phase. Set I2cVersionInfoApi=TRUE for testing.</div></div>
+    <div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>I2cConfigSet:</strong> Create one I2cConfigSet (or multiple for variant support).</div></div>
+    <div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>I2cChannel:</strong> Add one entry per physical I2C peripheral. Set BaudRate (match hardware design), HwUnitBaseAddress (from MCU datasheet), HwUnitMode (CONTROLLER or TARGET), TargetListening.</div></div>
+    <div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>I2cJob:</strong> Add one job per distinct I2C transaction type. Set I2cJobId (auto or manual), I2cDeviceAddress (target IC address from hardware schematic).</div></div>
+    <div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>I2cSequence:</strong> Add one sequence per logical communication scenario. Assign channel, assign ordered jobs (click "Add" for each I2cAssignedJob and set index), set EndNotification function name string.</div></div>
+    <div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><strong>Generate code.</strong> DaVinci generates I2c_Cfg.h, I2c_Cfg.c with symbolic constants for all IDs. Implement the I2cEndNotification callback in your application code.</div></div>
+    <div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><strong>Validate.</strong> Check for errors: unassigned channels, missing job references, duplicate IDs, TargetListening=TRUE on CONTROLLER-mode channel (invalid combination).</div></div>
+  </div>
+</div>
+
+<!-- TEST & DEBUG -->
+<div id="debug" class="panel">
+  <div class="highlight"><strong>Integration testing, interface testing, debugging — industry-level checklist for I2C driver.</strong></div>
+
+  <div class="card">
+    <h3>Integration testing — boot sequence verification</h3>
+    <ul>
+      <li>Verify MCU_Init called before I2C_Init — I2C clock comes from MCU PLL configuration</li>
+      <li>Verify I2C_Init called before any SetupEB/AsyncTransmit/SyncTransmit</li>
+      <li>Verify DeInit called before re-Init (unlike PORT driver which allows direct re-init)</li>
+      <li>Check I2C_GetSequenceResult returns I2C_SEQ_OK for all sequences immediately after Init</li>
+      <li>Monitor DET error log — no errors should appear during normal startup</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Bus-level testing (logic analyzer / oscilloscope)</h3>
+    <ul>
+      <li>Verify START condition: SDA falling while SCL high</li>
+      <li>Verify correct target address transmitted (7-bit or 10-bit per I2cDeviceAddress config)</li>
+      <li>Verify correct R/W̄ bit: 0=write, 1=read</li>
+      <li>Verify ACK from target: SDA pulled low by target on 9th clock</li>
+      <li>Verify data bytes count matches I2C_NumberOfDataType Length from SetupEB</li>
+      <li>Verify STOP condition: SDA rising while SCL high</li>
+      <li>Test NACK scenario: disconnect target → verify I2C_E_NACK_RECEIVED reported, sequence result = I2C_SEQ_NACK</li>
+      <li>Multi-job sequence: verify Repeated START (Sr) between consecutive jobs (no STOP+START)</li>
+      <li>Verify baud rate matches I2cBaudRate config (measure SCL period with scope)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>DET testing (development error coverage)</h3>
+    <ul>
+      <li>Call any API before I2C_Init → expect I2C_E_UNINIT (0x03)</li>
+      <li>Call I2C_SetupEB with both TxPtr and RxPtr non-NULL → expect I2C_E_PARAM_POINTER (0x02)</li>
+      <li>Call I2C_SetupEB with both TxPtr and RxPtr NULL → expect I2C_E_PARAM_POINTER (0x02)</li>
+      <li>Call I2C_SetupEB with invalid JobId → expect I2C_E_PARAM_JOB (0x00)</li>
+      <li>Call I2C_AsyncTransmit without prior SetupEB for all Jobs → expect I2C_E_PARAM_SEQUENCE (0x01)</li>
+      <li>Call I2C_AsyncTransmit with invalid SequenceId → expect I2C_E_PARAM_SEQUENCE (0x01)</li>
+      <li>Call I2C_StartListening on CONTROLLER-mode channel → expect I2C_E_WRONG_CONDITION (0x04)</li>
+      <li>Call I2C_StartListening when I2cTargetListening=TRUE → expect runtime I2C_E_WRONG_MODE (0x04)</li>
+      <li>Call I2C_GetVersionInfo with NULL → expect I2C_E_PARAM_POINTER (0x02)</li>
+      <li>Call I2C_DeInit without prior Init → expect I2C_E_UNINIT (0x03)</li>
+      <li>For each: verify function returns WITHOUT executing (no side effects)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Runtime error testing</h3>
+    <ul>
+      <li><strong>NACK test:</strong> Configure wrong target address → AsyncTransmit → verify I2C_E_NACK_RECEIVED via DEM, sequence result = I2C_SEQ_NACK, callback fires with Result=NACK</li>
+      <li><strong>Bus lockup test:</strong> Pull SCL low externally → verify I2C_E_BUS_FAILURE reported → implement bus recovery (9 clocks + STOP sequence)</li>
+      <li><strong>Arbitration test (multi-master):</strong> If using multi-master setup, drive conflicting SDA → verify I2C_E_ARBITRATION_FAILURE reported</li>
+      <li><strong>FIFO overflow:</strong> If HW has FIFO, overflow condition → I2C_E_FIFO_HANDLING reported</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Async vs Sync behavioral testing</h3>
+    <ul>
+      <li>Async: verify I2C_AsyncTransmit returns immediately (before bus transfer completes)</li>
+      <li>Async: verify callback fires asynchronously after bus transfer done</li>
+      <li>Async: verify I2C_GetSequenceResult returns PENDING during transfer</li>
+      <li>Async FIFO: call AsyncTransmit twice for different sequences → verify QUEUED state → both callbacks fire in order</li>
+      <li>Sync: verify I2C_SyncTransmit blocks until complete, returns E_OK</li>
+      <li>Sync while async pending: verify E_NOT_OK returned (no bus access attempted)</li>
+      <li>Callback interrupt level: verify callback executes at ISR priority, no task-level blocking</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Target mode testing</h3>
+    <ul>
+      <li>Verify I2cHwUnitMode = TARGET configured for the channel</li>
+      <li>Verify SetupEB called before StartListening (I2C_E_PARAM_SEQUENCE if not)</li>
+      <li>StartListening: external Controller sends message → verify data copied to RxDataBufferPtr</li>
+      <li>StartListening: external Controller reads → verify data sent from TxDataBufferPtr</li>
+      <li>Permanent listening (I2cTargetListening=TRUE): verify I2C_MainFunction called cyclically, verify callback fires per message, verify StartListening cannot be manually called</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Common debugging scenarios</h3>
+    <table>
+      <thead><tr><th>Symptom</th><th>Root cause / fix</th></tr></thead>
+      <tbody>
+        <tr><td>AsyncTransmit returns E_NOT_OK</td><td>Same sequence already PENDING — wait for callback before re-triggering. Or check SequenceId validity.</td></tr>
+        <tr><td>No data on bus after AsyncTransmit</td><td>SetupEB not called before transmit. Check I2C_E_PARAM_SEQUENCE in DET. Or Init not called.</td></tr>
+        <tr><td>Callback never fires</td><td>DET error silently skipped (DET disabled). Sequence state stuck PENDING — check for bus lockup. Verify SeqEndNotification function name matches configured I2cEndNotification.</td></tr>
+        <tr><td>Wrong baud rate on bus</td><td>I2cBaudRate config mismatch with MCU prescaler. MCU clock changed by MCU driver after I2C init — re-init I2C needed after clock change.</td></tr>
+        <tr><td>Wrong target responding</td><td>I2cDeviceAddress wrong. Check schematic. Address bits shifted — 7-bit addr may need shift in some HW (implementer-specific).</td></tr>
+        <tr><td>SyncTransmit hangs</td><td>Target not responding (no ACK) → bus stuck waiting. Check physical connections, pull-up resistors. I2C_E_NACK_RECEIVED should terminate (check timeout implementation).</td></tr>
+        <tr><td>StartListening returns E_NOT_OK</td><td>Channel already PENDING (already listening). Or HwUnitMode = CONTROLLER, not TARGET. Or I2cTargetListening=TRUE blocking manual calls.</td></tr>
+        <tr><td>Re-init fails</td><td>Called Init without DeInit first. Per spec: re-init requires DeInit → Init sequence.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- I2C vs PORT COMPARISON -->
+<div id="compare" class="panel">
+  <div class="highlight"><strong>Exam trap:</strong> Both are MCAL modules but have key structural differences. Know them cold.</div>
+  <div class="card">
+    <h3>I2C Driver vs PORT Driver — key differences</h3>
+    <table>
+      <thead><tr><th>Aspect</th><th>PORT Driver</th><th>I2C Driver</th></tr></thead>
+      <tbody>
+        <tr><td>First introduced</td><td>R1.0 (2005)</td><td>R24-11 (brand new, 2024)</td></tr>
+        <tr><td>Module states</td><td>2: UNINIT, INIT</td><td>3: UNINIT, INIT + sequence result states</td></tr>
+        <tr><td>Re-initialization</td><td>Call Init again directly (allowed)</td><td>Must call DeInit first, then Init</td></tr>
+        <tr><td>Runtime errors</td><td>None</td><td>Yes: NACK, ARBITRATION, BUS_FAILURE, FIFO, WRONG_MODE</td></tr>
+        <tr><td>Callbacks</td><td>None</td><td>I2C_SeqEndNotification per sequence</td></tr>
+        <tr><td>Scheduled functions</td><td>None</td><td>I2C_MainFunction (for Target permanent listen)</td></tr>
+        <tr><td>Async operation</td><td>No (all sync)</td><td>Yes (I2C_AsyncTransmit)</td></tr>
+        <tr><td>Queuing</td><td>No</td><td>Yes (FIFO for async sequences)</td></tr>
+        <tr><td>DEM dependency</td><td>None</td><td>Optional: Dem_SetEventStatus</td></tr>
+        <tr><td>Mandatory interfaces</td><td>None</td><td>None</td></tr>
+        <tr><td>Header file</td><td>Port.h</td><td>I2c.h + I2c_Externals.h</td></tr>
+        <tr><td>DaVinci key config</td><td>PortPin × N</td><td>Channel + Job + Sequence (3-level)</td></tr>
+        <tr><td>Init sets sequence result</td><td>N/A</td><td>All sequences → I2C_SEQ_OK</td></tr>
+        <tr><td>MCU clock dependency</td><td>Not mentioned explicitly</td><td>MCU driver must configure clock first</td></tr>
+        <tr><td>Atomic access</td><td>Required (SWS_Port_00075)</td><td>Not specified (bus protocol handles it)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>What both share</h3>
+    <ul>
+      <li>Both MCAL layer drivers in AUTOSAR Classic Platform</li>
+      <li>Both UNINIT state on reset, INIT after initialization</li>
+      <li>Both have I2C_E_UNINIT / PORT_E_UNINIT for calling APIs without init</li>
+      <li>Both have GetVersionInfo (conditional on config flag)</li>
+      <li>Both support pre-compile and post-build config variants</li>
+      <li>Both declared in their respective .h files (Port.h, I2c.h)</li>
+      <li>Both require DET enabled to report errors (I2cDevErrorDetect / PortDevErrorDetect)</li>
+      <li>Neither has mandatory interfaces from other modules</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>

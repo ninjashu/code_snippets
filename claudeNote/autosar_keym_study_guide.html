@@ -1,0 +1,826 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:1rem}
+.nav button{font-size:12px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font-sans)}
+.nav button.active,.nav button:hover{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.section{display:none}.section.active{display:block}
+h2{font-size:18px;font-weight:500;margin-bottom:1rem}
+h3{font-size:15px;font-weight:500;margin:1.25rem 0 .6rem}
+h4{font-size:12px;font-weight:500;margin:.75rem 0 .4rem;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+p{font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:.75rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.75rem;margin-bottom:1rem}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+pre{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:.75rem 1rem;border-radius:var(--border-radius-md);overflow-x:auto;line-height:1.6;margin:.5rem 0 .75rem;border:0.5px solid var(--color-border-tertiary)}
+.api-row{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.api-name{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);min-width:210px;flex-shrink:0;line-height:1.5}
+.api-desc{color:var(--color-text-secondary);line-height:1.5;font-size:12px}
+.info-box{background:var(--color-background-info);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-info);line-height:1.6}
+.warn-box{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-warning);line-height:1.6}
+.danger-box{background:var(--color-background-danger);border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-danger);line-height:1.6}
+.success-box{background:var(--color-background-success);border:0.5px solid var(--color-border-success);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-success);line-height:1.6}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:.5rem 0}
+th{text-align:left;font-weight:500;padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-secondary);font-size:12px;color:var(--color-text-secondary)}
+td{padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.5}
+.seq-step{display:flex;gap:.75rem;margin-bottom:.6rem;align-items:flex-start}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.seq-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:var(--border-radius-md);font-weight:500;margin-right:3px}
+.badge-sync{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-async{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-opt{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-secondary)}
+.cert-status{display:flex;align-items:center;gap:8px;padding:.4rem .75rem;border-radius:var(--border-radius-md);margin:3px 0;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-tertiary);transition:all .15s}
+.cert-status:hover{background:var(--color-background-secondary)}
+.status-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.clickable-api{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--font-mono);cursor:pointer;margin:2px;border:0.5px solid var(--color-border-secondary);transition:all .15s}
+.clickable-api:hover{background:var(--color-background-secondary)}
+#api-detail{margin-top:.75rem;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;min-height:60px;color:var(--color-text-secondary);line-height:1.7}
+</style>
+
+<div style="padding:1rem 0">
+<h2 style="margin-bottom:.5rem">AUTOSAR CP Key Manager (KeyM) — Complete Study Guide</h2>
+<p style="margin-bottom:1rem;font-size:13px">R24-11 · Document ID 907 · Classic Platform · For exam, integration, interface testing & DaVinci configuration</p>
+
+<div class="nav">
+  <button class="active" onclick="show('overview')">Overview</button>
+  <button onclick="show('architecture')">Architecture</button>
+  <button onclick="show('cryptokey')">Crypto Key Submodule</button>
+  <button onclick="show('certstate')">Certificate State Machine</button>
+  <button onclick="show('certops')">Certificate Operations</button>
+  <button onclick="show('api')">API Reference</button>
+  <button onclick="show('callbacks')">Callbacks & Handlers</button>
+  <button onclick="show('sequences')">Sequence Diagrams</button>
+  <button onclick="show('errors')">Errors & Security Events</button>
+  <button onclick="show('config')">Config & DaVinci</button>
+  <button onclick="show('debug')">Testing & Debug</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="section-overview" class="section active">
+<h2>What is the AUTOSAR KeyM module?</h2>
+<p>The Key Manager (KeyM) is an AUTOSAR Classic Platform Basic Software module responsible for managing cryptographic key material and certificates on an ECU. It acts as a <b>key client</b> — receiving key material from a <b>key master</b> (either an in-vehicle ECU or a cloud backend) and provisioning it securely into the Crypto Service Manager (CSM) and optionally into NvM. It consists of two independent sub-modules.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <h4>Crypto key submodule</h4>
+    <p>Introduces, updates, and maintains cryptographic key material. Receives key data from a key server (typically via diagnostic services), validates it, and stores it in CSM key slots. Used for SecOC session keys, SHE keys, derived keys, etc.</p>
+    <p><code>Enabled by: KeyMCryptoKeyManagerEnabled = TRUE</code></p>
+  </div>
+  <div class="card">
+    <h4>Certificate submodule</h4>
+    <p>Manages X.509, CVC, and CRL certificates. Configures a PKI hierarchy (root → intermediate → working certificates), parses, validates, and stores certificates. Extracts public keys into CSM for use by crypto jobs.</p>
+    <p><code>Enabled by: KeyMCertificateManagerEnabled = TRUE</code></p>
+  </div>
+</div>
+
+<h3>Why KeyM exists — the automotive use case</h3>
+<p>Modern automotive ECUs need cryptographic keys for SecOC (Secure On-Board Communication), TLS, diagnostic authentication, and OTA update signing. These keys cannot be hardcoded — they must be provisioned at the end of the production line or updated in the field. KeyM provides the standard AUTOSAR interface for this operation, abstracting away the OEM-specific key provisioning protocol through configurable key handlers (KeyM_KH_*).</p>
+
+<div class="info-box">💡 Key design principle: KeyM is a <b>key client</b>, not a key server. It does not generate keys independently — it receives them from an external key server (often via UDS diagnostic commands 0x27/0x2E or OEM-specific services) and provisions them into the CSM/crypto driver. The key server logic lives outside KeyM, optionally in a configurable Key Handler.</div>
+
+<h3>Module dependencies</h3>
+<table>
+  <tr><th>Dependency</th><th>Purpose</th><th>Which APIs used</th></tr>
+  <tr><td><b>Crypto Service Manager (CSM)</b></td><td>Mandatory — all key operations and signature verifications</td><td><code>Csm_KeyElementSet</code>, <code>Csm_KeySetValid</code>, <code>Csm_KeyDerive</code>, <code>Csm_SignatureVerify</code>, <code>Csm_KeyElementGet</code></td></tr>
+  <tr><td><b>Non-Volatile Memory (NvM)</b></td><td>Optional — persistent key/certificate storage</td><td><code>NvM_ReadBlock</code>, <code>NvM_WriteBlock</code></td></tr>
+  <tr><td><b>Synchronized Time Base Manager (StbM)</b></td><td>Optional — certificate validity period checking</td><td><code>StbM_GetCurrentTime</code></td></tr>
+  <tr><td><b>Intrusion Detection System Manager (IdsM)</b></td><td>Optional — security event reporting</td><td><code>IdsM_SetSecurityEventWithContextData</code></td></tr>
+  <tr><td><b>Default Error Tracer (DET)</b></td><td>Optional — development error reporting</td><td><code>Det_ReportError</code></td></tr>
+</table>
+</div>
+
+<!-- ===== ARCHITECTURE ===== -->
+<div id="section-architecture" class="section">
+<h2>KeyM in the AUTOSAR architecture</h2>
+
+<svg width="100%" viewBox="0 0 680 440" role="img"><title>KeyM module architecture diagram showing position in AUTOSAR stack</title><desc>Diagram showing KeyM between application/diagnostic layer and the CSM/NvM/StbM BSW modules</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<!-- External Key Server (outside ECU) -->
+<rect x="30" y="20" width="150" height="44" rx="8" fill="#FAECE7" stroke="#F5C4B3" stroke-width="1"/>
+<text class="th" x="105" y="40" text-anchor="middle" fill="#712B13">Key Server</text>
+<text class="ts" x="105" y="56" text-anchor="middle" fill="#993C1D">Cloud / vehicle ECU</text>
+
+<!-- Diagnostic / Application Layer -->
+<rect x="200" y="20" width="440" height="44" rx="8" fill="#EAF3DE" stroke="#C0DD97" stroke-width="0.5"/>
+<text class="th" x="420" y="40" text-anchor="middle" fill="#27500A">Application / Diagnostic SWC</text>
+<text class="ts" x="420" y="56" text-anchor="middle" fill="#3B6D11">calls KeyM C-API or via RTE service interface</text>
+
+<!-- Arrow from key server to KeyM -->
+<line x1="155" y1="52" x2="248" y2="130" stroke="#993C1D" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+<text class="ts" x="170" y="100" fill="#993C1D">Diag/OEM</text>
+<text class="ts" x="170" y="113" fill="#993C1D">protocol</text>
+
+<!-- KeyM module (center) -->
+<rect x="200" y="115" width="440" height="80" rx="10" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1.5"/>
+<text class="th" x="420" y="143" text-anchor="middle" fill="#0C447C">KeyM — Key Manager</text>
+<text class="ts" x="310" y="162" text-anchor="middle" fill="#185FA5">Crypto Key Submodule</text>
+<text class="ts" x="530" y="162" text-anchor="middle" fill="#185FA5">Certificate Submodule</text>
+<line x1="418" y1="130" x2="418" y2="190" stroke="#B5D4F4" stroke-width="0.5" stroke-dasharray="3 2"/>
+<text class="ts" x="310" y="178" text-anchor="middle" fill="#378ADD">KeyM_Start/Update/Finalize/Verify</text>
+<text class="ts" x="530" y="178" text-anchor="middle" fill="#378ADD">SetCert/VerifyCert/CertElementGet</text>
+
+<!-- Arrow down from app to KeyM -->
+<line x1="420" y1="64" x2="420" y2="114" stroke="#3B6D11" stroke-width="1" marker-end="url(#arrow)"/>
+
+<!-- Key Handler (configurable) -->
+<rect x="30" y="145" width="155" height="48" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.5"/>
+<text class="th" x="107" y="165" text-anchor="middle" fill="#633806">Key Handler</text>
+<text class="ts" x="107" y="181" text-anchor="middle" fill="#BA7517">OEM-specific logic</text>
+<line x1="200" y1="155" x2="186" y2="165" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+<text class="ts" x="193" y="145" fill="#BA7517">KH_* calls</text>
+
+<!-- CSM -->
+<rect x="200" y="230" width="150" height="48" rx="8" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+<text class="th" x="275" y="250" text-anchor="middle" fill="#085041">CSM</text>
+<text class="ts" x="275" y="266" text-anchor="middle" fill="#0F6E56">Crypto Service Mgr</text>
+
+<!-- NvM -->
+<rect x="370" y="230" width="120" height="48" rx="8" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+<text class="th" x="430" y="250" text-anchor="middle" fill="#085041">NvM</text>
+<text class="ts" x="430" y="266" text-anchor="middle" fill="#0F6E56">Persistent storage</text>
+
+<!-- StbM -->
+<rect x="510" y="230" width="130" height="48" rx="8" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="0.5"/>
+<text class="th" x="575" y="250" text-anchor="middle" fill="#085041">StbM</text>
+<text class="ts" x="575" y="266" text-anchor="middle" fill="#0F6E56">Time Base Mgr</text>
+
+<!-- IdsM -->
+<rect x="200" y="298" width="120" height="40" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text class="ts" x="260" y="322" text-anchor="middle" fill="#5F5E5A">IdsM (Security Events)</text>
+
+<!-- DET -->
+<rect x="340" y="298" width="80" height="40" rx="6" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="0.5"/>
+<text class="ts" x="380" y="322" text-anchor="middle" fill="#5F5E5A">DET (Errors)</text>
+
+<!-- Crypto Driver / HSM -->
+<rect x="200" y="358" width="440" height="40" rx="8" fill="#EEEDFE" stroke="#CECBF6" stroke-width="0.5"/>
+<text class="th" x="420" y="382" text-anchor="middle" fill="#3C3489">Crypto Driver / HSM (SHE, TPM, etc.)</text>
+
+<!-- Arrows KeyM → BSW -->
+<line x1="350" y1="195" x2="275" y2="229" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="420" y1="195" x2="430" y2="229" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="490" y1="195" x2="560" y2="229" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<line x1="275" y1="278" x2="275" y2="357" stroke="#534AB7" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arrow)"/>
+
+<!-- Legend -->
+<line x1="30" y1="415" x2="60" y2="415" stroke="#185FA5" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="65" y="419" fill="#5F5E5A">Mandatory API call</text>
+<line x1="160" y1="415" x2="190" y2="415" stroke="#BA7517" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+<text class="ts" x="195" y="419" fill="#5F5E5A">Optional/configurable call</text>
+</svg>
+
+<h3>Key architectural rules</h3>
+<div class="card-grid">
+  <div class="card"><h4>Only one KeyElement per CsmKey</h4><p>The spec mandates: only a single KeyElement with ID=1 per CsmKey is currently supported. This is a known limitation of R24-11.</p></div>
+  <div class="card"><h4>Fully configurable scope</h4><p>Either sub-module can be independently enabled/disabled. An ECU needing only certificate management can disable the crypto key sub-module entirely — saving RAM and code.</p></div>
+  <div class="card"><h4>Custom handling via HSM</h4><p>Certificate operations can be proxied to a Crypto Driver (HSM) via <code>Csm_CustomService</code>/<code>Csm_CustomSync</code>. KeyM then acts as a proxy with no local certificate processing.</p></div>
+  <div class="card"><h4>RTE service interface</h4><p>KeyM exposes all its functions both as direct C-API and as AUTOSAR service interfaces (via RTE) for access from application SWCs. Both interfaces have the same behaviour.</p></div>
+</div>
+</div>
+
+<!-- ===== CRYPTO KEY SUBMODULE ===== -->
+<div id="section-cryptokey" class="section">
+<h2>Crypto key submodule — session-based key update</h2>
+<p>The crypto key submodule uses a <b>session-based</b> protocol for key updates. A session is opened with <code>KeyM_Start()</code> and closed with <code>KeyM_Finalize()</code>. Between them, key material is loaded using <code>KeyM_Update()</code> and optionally prepared using <code>KeyM_Prepare()</code>.</p>
+
+<h3>Session lifecycle state diagram</h3>
+<svg width="100%" viewBox="0 0 680 200" role="img"><title>KeyM crypto key session state diagram</title><desc>State machine showing IDLE, SESSION_ACTIVE, UPDATING, FINALIZING states</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+<rect x="30" y="70" width="120" height="50" rx="8" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1"/>
+<text class="th" x="90" y="91" text-anchor="middle" fill="#0C447C">IDLE</text>
+<text class="ts" x="90" y="107" text-anchor="middle" fill="#185FA5">init / finalized</text>
+
+<rect x="200" y="70" width="130" height="50" rx="8" fill="#EAF3DE" stroke="#C0DD97" stroke-width="1"/>
+<text class="th" x="265" y="91" text-anchor="middle" fill="#27500A">SESSION</text>
+<text class="ts" x="265" y="107" text-anchor="middle" fill="#3B6D11">ACTIVE</text>
+
+<rect x="390" y="30" width="130" height="50" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+<text class="th" x="455" y="52" text-anchor="middle" fill="#633806">UPDATING</text>
+<text class="ts" x="455" y="68" text-anchor="middle" fill="#BA7517">key data loading</text>
+
+<rect x="390" y="110" width="130" height="50" rx="8" fill="#FAECE7" stroke="#F5C4B3" stroke-width="1"/>
+<text class="th" x="455" y="131" text-anchor="middle" fill="#712B13">FINALIZING</text>
+<text class="ts" x="455" y="147" text-anchor="middle" fill="#993C1D">Csm_KeySetValid()</text>
+
+<rect x="570" y="70" width="90" height="50" rx="8" fill="#EAF3DE" stroke="#C0DD97" stroke-width="1.5"/>
+<text class="th" x="615" y="91" text-anchor="middle" fill="#27500A">IDLE</text>
+<text class="ts" x="615" y="107" text-anchor="middle" fill="#3B6D11">keys valid</text>
+
+<!-- Arrows -->
+<line x1="150" y1="95" x2="198" y2="95" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="174" y="88" text-anchor="middle" fill="#5F5E5A">KeyM_Start()</text>
+
+<path d="M330 80 L388 55" fill="none" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="358" y="60" text-anchor="middle" fill="#5F5E5A">KeyM_Update()</text>
+
+<path d="M388 140 L330 110" fill="none" stroke="#993C1D" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="358" y="140" text-anchor="middle" fill="#993C1D">KeyM_Finalize()</text>
+
+<line x1="455" y1="80" x2="455" y2="110" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="490" y="100" fill="#5F5E5A">done</text>
+
+<line x1="520" y1="135" x2="568" y2="100" stroke="#888780" stroke-width="1" marker-end="url(#arrow)"/>
+<text class="ts" x="558" y="125" fill="#5F5E5A">done</text>
+
+<!-- Optional path: no Start/Finalize -->
+<path d="M90 165 Q265 185 265 120" fill="none" stroke="#888780" stroke-width="0.5" stroke-dasharray="4 2" marker-end="url(#arrow)"/>
+<text class="ts" x="160" y="185" fill="#5F5E5A">KeyMCryptoKeyStartFinalizeFunctionEnabled=FALSE: KeyM_Update() always allowed</text>
+</svg>
+
+<h3>Key generation types — how keys are stored</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>KEYM_STORED_KEY</h4>
+    <p>Raw key material is provided directly in the KeyM_Update() call. KeyM calls <code>Csm_KeyElementSet()</code> to push the data into the CSM key slot. The key element ID is always 1.</p>
+    <p>Typical use: SHE keys (AES-128), asymmetric public keys, pre-shared symmetric keys.</p>
+    <pre>KeyM_Update("MyKey", ...) →
+  Csm_KeyElementSet(CsmKeyRef, 1, data, len) →
+  [if no session] Csm_KeySetValid(CsmKeyRef)</pre>
+  </div>
+  <div class="card">
+    <h4>KEYM_DERIVE_KEY</h4>
+    <p>A password/salt is provided; KeyM calls <code>Csm_KeyDerive()</code> to derive a new key from a source key. The source key is configured in <code>KeyMCryptoKeyCsmKeySourceDeriveRef</code>.</p>
+    <p>Typical use: Deriving session keys from a master key using KDF (HKDF, etc.)</p>
+    <pre>KeyM_Update("DerivedKey", password_data) →
+  Csm_KeyDerive(SourceKeyRef, TargetKeyRef) →
+  [if no session] Csm_KeySetValid(TargetKeyRef)</pre>
+  </div>
+</div>
+
+<h3>SHE key identification (keyNameLength = 0)</h3>
+<p>When <code>KeyNameLength = 0</code> and <code>KeyMCryptoKeyCryptoProps</code> is configured, KeyM interprets the data as SHE M1/M2/M3 values. It extracts bits 121-124 from the input data to identify the SHE key slot and triggers the key update operation. The result data contains M4/M5 values for proof-of-correctness.</p>
+<div class="info-box">💡 SHE (Secure Hardware Extension) is an automotive hardware security standard. M1/M2/M3 are inputs for key programming; M4/M5 are the MAC-based proof that the key was programmed correctly. This is the classic automotive HSM key provisioning protocol.</div>
+
+<h3>Start type values</h3>
+<table>
+  <tr><th>Value</th><th>Name</th><th>Meaning</th></tr>
+  <tr><td><code>0x01</code></td><td><code>KEYM_START_OEM_PRODUCTIONMODE</code></td><td>Higher privilege — used in vehicle production. Allows all key operations.</td></tr>
+  <tr><td><code>0x02</code></td><td><code>KEYM_START_WORKSHOPMODE</code></td><td>Workshop/aftermarket access. May have more restrictions at handler level.</td></tr>
+  <tr><td><code>0x80-0x9F</code></td><td>User-specific</td><td>Reserved range for OEM extensions.</td></tr>
+</table>
+
+<h3>Verify function</h3>
+<p><code>KeyM_Verify()</code> is independent of the session — it can be called at any time (not inside a Start/Finalize session). It runs a configured CSM job (referenced by <code>KeyMCryptoKeyCsmVerifyJobRef</code>) on the provided input data and returns the result — either synchronously or asynchronously. Used by the key server to confirm a key was programmed correctly.</p>
+</div>
+
+<!-- ===== CERTIFICATE STATE MACHINE ===== -->
+<div id="section-certstate" class="section">
+<h2>Certificate state machine (KeyM_CertificateStatusType)</h2>
+<p>Every configured certificate slot in KeyM has a status maintained by the certificate submodule. The state machine defines exactly which operations trigger which transitions. Click any state to see details.</p>
+
+<div style="margin:1rem 0">
+  <div class="cert-status" onclick="showCertState('not_avail')"><div class="status-dot" style="background:#888780"></div><span style="font-weight:500;color:var(--color-text-primary)">NOT_AVAILABLE (0x04)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Initial state</span></div>
+  <div class="cert-status" onclick="showCertState('not_parsed')"><div class="status-dot" style="background:#BA7517"></div><span style="font-weight:500;color:var(--color-text-primary)">NOT_PARSED (0x02)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Parsing in progress</span></div>
+  <div class="cert-status" onclick="showCertState('invalid_format')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">INVALID_FORMAT (0x09)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Bad ASN.1/TLV encoding</span></div>
+  <div class="cert-status" onclick="showCertState('invalid_type')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">INVALID_TYPE (0x08)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Missing mandatory fields</span></div>
+  <div class="cert-status" onclick="showCertState('parsed_not_val')"><div class="status-dot" style="background:#185FA5"></div><span style="font-weight:500;color:var(--color-text-primary)">PARSED_NOT_VALIDATED (0x03)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Parsing OK, verification pending</span></div>
+  <div class="cert-status" onclick="showCertState('chain_fail')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">INVALID_CHAIN_OF_TRUST (0x07)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Subject/issuer mismatch</span></div>
+  <div class="cert-status" onclick="showCertState('sig_fail')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">SIGNATURE_FAIL (0x06)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Cryptographic signature invalid</span></div>
+  <div class="cert-status" onclick="showCertState('revoked')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">REVOKED (0x0B)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Found in CRL</span></div>
+  <div class="cert-status" onclick="showCertState('period_fail')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">VALIDITY_PERIOD_FAIL (0x05)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Current time outside NotBefore/NotAfter</span></div>
+  <div class="cert-status" onclick="showCertState('invalid_content')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">INVALID_CONTENT (0x0A)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Certificate element rule violation</span></div>
+  <div class="cert-status" onclick="showCertState('valid')"><div class="status-dot" style="background:#27500A"></div><span style="font-weight:500;color:var(--color-text-primary)">VALID (0x00)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">All checks passed</span></div>
+  <div class="cert-status" onclick="showCertState('invalid')"><div class="status-dot" style="background:#A32D2D"></div><span style="font-weight:500;color:var(--color-text-primary)">INVALID (0x01)</span><span style="margin-left:auto;font-size:11px;color:var(--color-text-secondary)">Unspecified failure</span></div>
+</div>
+<div id="cert-state-detail" style="padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;color:var(--color-text-secondary);line-height:1.7;min-height:50px">Click any state above to see transition details.</div>
+
+<h3>Verification order — sequential steps (exam critical)</h3>
+<p>When verification is triggered, KeyM processes these checks in order. If any step fails, verification stops and the corresponding status is set:</p>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Check all upper hierarchy certificates (KeyMCertUpperHierarchicalCertRef) are VALID. If NOT_PARSED or PARSED_NOT_VALIDATED, trigger their parse/verify first (top-down recursion).</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Verify subject field of current certificate matches issuer field of the upper certificate (chain-of-trust linkage). Failure → <code>INVALID_CHAIN_OF_TRUST</code></div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Verify the certificate signature using the CSM job referenced in <code>KeyMCertCsmSignatureVerifyJobRef</code>. For self-signed (root) certificates, the public key must be set first. Failure → <code>SIGNATURE_FAIL</code></div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Check CRL if available — is the certificate revoked? Failure → <code>REVOKED</code></div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Compare current time (from StbM) against certificate NotBefore and NotAfter fields. Failure → <code>VALIDITY_PERIOD_FAIL</code></div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Check all configured certificate element rules (KeyMCertCertificateElementRuleRef). Failure → <code>INVALID_CONTENT</code></div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text">All steps passed → Set public key in CSM (Csm_KeyElementSet + Csm_KeySetValid) → Status = <code>KEYM_CERTIFICATE_VALID</code> → Callback fired</div></div>
+
+<div class="warn-box">⚠️ Exam trap: verification goes <b>top-down</b> (root first, then intermediates, then working cert). You cannot verify a certificate if its upper hierarchy is not yet VALID. The KeyM will recursively trigger verification of the entire chain before proceeding.</div>
+</div>
+
+<!-- ===== CERTIFICATE OPERATIONS ===== -->
+<div id="section-certops" class="section">
+<h2>Certificate operations & formats</h2>
+
+<h3>Supported certificate formats</h3>
+<table>
+  <tr><th>Format</th><th>Standard</th><th>KeyMCertFormatType</th><th>Used for</th></tr>
+  <tr><td><b>X.509</b></td><td>RFC 5280 / ITU-T X.509</td><td><code>X509</code></td><td>TLS, code signing, ECU authentication</td></tr>
+  <tr><td><b>CVC</b></td><td>BSI TR-03110</td><td><code>CVC</code></td><td>German automotive (ePassport PKI style), EVCC/SECC in ISO 15118</td></tr>
+  <tr><td><b>CRL</b></td><td>RFC 5280</td><td><code>CRL</code></td><td>Certificate Revocation List</td></tr>
+</table>
+
+<h3>X.509 certificate elements mapping (KeyMCertificateElementOfStructure)</h3>
+<table>
+  <tr><th>X.509 field (RFC 5280)</th><th>KeyM config enum value</th></tr>
+  <tr><td>Version</td><td><code>CertificateVersionNumber</code></td></tr>
+  <tr><td>Certificate Serial Number</td><td><code>CertificateSerialNumber</code></td></tr>
+  <tr><td>Signature Algorithm Identifier</td><td><code>CertificateSignatureAlgorithmID</code></td></tr>
+  <tr><td>Issuer Name</td><td><code>CertificateIssuerName</code></td></tr>
+  <tr><td>Validity Not Before Time</td><td><code>CertificateValidityPeriodNotBefore</code></td></tr>
+  <tr><td>Validity Not After Time</td><td><code>CertificateValidityPeriodNotAfter</code></td></tr>
+  <tr><td>Subject Name</td><td><code>CertificateSubjectName</code></td></tr>
+  <tr><td>Subject Public Key Algorithm</td><td><code>CertificateSubjectPublicKeyInfo_PublicKeyAlgorithm</code></td></tr>
+  <tr><td>Subject Public Key</td><td><code>CertificateSubjectPublicKeyInfo_SubjectPublicKey</code></td></tr>
+  <tr><td>Extensions</td><td><code>CertificateExtension</code></td></tr>
+</table>
+
+<h3>ServiceCertificate operations (KeyM_ServiceCertificateType)</h3>
+<p>The <code>KeyM_ServiceCertificate()</code> function handles all permanent certificate management operations. The type of operation is passed as the first parameter:</p>
+<table>
+  <tr><th>Value</th><th>Service type</th><th>What happens</th><th>Input</th></tr>
+  <tr><td>0x01</td><td><code>REQUEST_CSR</code></td><td>KeyM generates a key pair and a Certificate Signing Request. Output is the CSR data.</td><td>—</td></tr>
+  <tr><td>0x02</td><td><code>UPDATE_SIGNED_CSR</code></td><td>The CA has signed the CSR. The signed cert is stored permanently.</td><td>Signed certificate</td></tr>
+  <tr><td>0x03</td><td><code>SET_ROOT</code></td><td>Install a root certificate. Slot must be empty. Validates self-signed cert first.</td><td>Root certificate</td></tr>
+  <tr><td>0x04</td><td><code>UPDATE_ROOT</code></td><td>Update existing root. Validates new root against existing. Requires existing root.</td><td>New root certificate</td></tr>
+  <tr><td>0x05</td><td><code>SET_INTERMEDIATE</code></td><td>Install an intermediate CA cert. Root must already be valid.</td><td>Intermediate certificate</td></tr>
+  <tr><td>0x06</td><td><code>UPDATE_INTERMEDIATE</code></td><td>Update an existing intermediate cert. Must verify against chain.</td><td>New intermediate certificate</td></tr>
+  <tr><td>0x07</td><td><code>UPDATE_CRL</code></td><td>Install or update a Certificate Revocation List. Signature is checked.</td><td>CRL data</td></tr>
+</table>
+
+<h3>SetCertificate vs ServiceCertificate</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>KeyM_SetCertificate()</h4>
+    <p><b>Temporary</b> storage — typically in RAM. Used to provide a certificate for verification against the already-installed chain. The certificate is parsed automatically but not permanently stored. Call with length=0 to reset the slot back to NOT_AVAILABLE.</p>
+    <pre>KeyM_SetCertificate(CertId, &certData)
+/* Triggers parsing in background */
+/* Then call KeyM_VerifyCertificate() */</pre>
+  </div>
+  <div class="card">
+    <h4>KeyM_ServiceCertificate()</h4>
+    <p><b>Permanent</b> storage — in NvM or CSM key slot. Used for root, intermediate, or working certificates that survive ECU reset. Must be triggered by key master. Security events are reported to IdsM for root/intermediate cert changes.</p>
+    <pre>KeyM_ServiceCertificate(
+  KEYM_SERVICE_CERT_SET_ROOT,
+  certName, nameLen,
+  certData, certLen,
+  resp, &respLen)</pre>
+  </div>
+</div>
+</div>
+
+<!-- ===== API REFERENCE ===== -->
+<div id="section-api" class="section">
+<h2>API reference — interactive</h2>
+<p>Click any function to see full details including signature, service ID, sync/async, and parameters.</p>
+
+<h4>General lifecycle APIs</h4>
+<span class="clickable-api" onclick="showApi('KeyM_Init')">KeyM_Init</span>
+<span class="clickable-api" onclick="showApi('KeyM_Deinit')">KeyM_Deinit</span>
+<span class="clickable-api" onclick="showApi('KeyM_GetVersionInfo')">KeyM_GetVersionInfo</span>
+<span class="clickable-api" onclick="showApi('KeyM_MainFunction')">KeyM_MainFunction</span>
+<span class="clickable-api" onclick="showApi('KeyM_MainBackgroundFunction')">KeyM_MainBackgroundFunction</span>
+
+<h4>Crypto key operation APIs</h4>
+<span class="clickable-api" onclick="showApi('KeyM_Start')">KeyM_Start</span>
+<span class="clickable-api" onclick="showApi('KeyM_Prepare')">KeyM_Prepare</span>
+<span class="clickable-api" onclick="showApi('KeyM_Update')">KeyM_Update</span>
+<span class="clickable-api" onclick="showApi('KeyM_Finalize')">KeyM_Finalize</span>
+<span class="clickable-api" onclick="showApi('KeyM_Verify')">KeyM_Verify</span>
+
+<h4>Certificate handling APIs</h4>
+<span class="clickable-api" onclick="showApi('KeyM_ServiceCertificate')">KeyM_ServiceCertificate</span>
+<span class="clickable-api" onclick="showApi('KeyM_ServiceCertificateByCertId')">KeyM_ServiceCertificateByCertId</span>
+<span class="clickable-api" onclick="showApi('KeyM_SetCertificate')">KeyM_SetCertificate</span>
+<span class="clickable-api" onclick="showApi('KeyM_GetCertificate')">KeyM_GetCertificate</span>
+<span class="clickable-api" onclick="showApi('KeyM_VerifyCertificate')">KeyM_VerifyCertificate</span>
+<span class="clickable-api" onclick="showApi('KeyM_VerifyCertificates')">KeyM_VerifyCertificates</span>
+<span class="clickable-api" onclick="showApi('KeyM_VerifyCertificateChain')">KeyM_VerifyCertificateChain</span>
+<span class="clickable-api" onclick="showApi('KeyM_CertGetStatus')">KeyM_CertGetStatus</span>
+<span class="clickable-api" onclick="showApi('KeyM_CertElementGet')">KeyM_CertElementGet</span>
+<span class="clickable-api" onclick="showApi('KeyM_CertElementGetFirst')">KeyM_CertElementGetFirst</span>
+<span class="clickable-api" onclick="showApi('KeyM_CertElementGetNext')">KeyM_CertElementGetNext</span>
+<span class="clickable-api" onclick="showApi('KeyM_CertElementGetByIndex')">KeyM_CertElementGetByIndex</span>
+<span class="clickable-api" onclick="showApi('KeyM_CertElementGetCount')">KeyM_CertElementGetCount</span>
+
+<div id="api-detail">Click any function above to see details.</div>
+
+<h3>Return value quick reference</h3>
+<table>
+  <tr><th>Return code</th><th>Value</th><th>Meaning</th></tr>
+  <tr><td><code>E_OK</code></td><td>0x00</td><td>Success (standard)</td></tr>
+  <tr><td><code>E_NOT_OK</code></td><td>0x01</td><td>Generic failure</td></tr>
+  <tr><td><code>KEYM_E_BUSY</code></td><td>0x02</td><td>KeyM is busy with another operation — retry later</td></tr>
+  <tr><td><code>KEYM_E_PENDING</code></td><td>0x03</td><td>Async operation accepted — wait for callback</td></tr>
+  <tr><td><code>KEYM_E_KEY_CERT_SIZE_MISMATCH</code></td><td>0x04</td><td>Parameter size does not match expected</td></tr>
+  <tr><td><code>KEYM_E_PARAMETER_MISMATCH</code></td><td>0x05</td><td>Parameter value does not match expected (e.g. key name not found)</td></tr>
+  <tr><td><code>KEYM_E_KEY_CERT_INVALID</code></td><td>0x06</td><td>Key or certificate invalid, cannot be used</td></tr>
+  <tr><td><code>KEYM_E_KEY_CERT_WRITE_FAIL</code></td><td>0x07</td><td>Write operation to storage failed</td></tr>
+  <tr><td><code>KEYM_E_KEY_CERT_UPDATE_FAIL</code></td><td>0x08</td><td>Key or certificate update failed</td></tr>
+  <tr><td><code>KEYM_E_KEY_CERT_READ_FAIL</code></td><td>0x09</td><td>Read/access denied</td></tr>
+  <tr><td><code>KEYM_E_KEY_CERT_EMPTY</code></td><td>0x0A</td><td>Slot is empty — no data has been set</td></tr>
+  <tr><td><code>KEYM_E_CERT_INVALID_CHAIN_OF_TRUST</code></td><td>0x0B</td><td>Certificate chain validation failed</td></tr>
+</table>
+</div>
+
+<!-- ===== CALLBACKS & HANDLERS ===== -->
+<div id="section-callbacks" class="section">
+<h2>Callback notifications & key handlers</h2>
+
+<h3>Callback notification functions (called by KeyM → application)</h3>
+<p>Since most KeyM operations are asynchronous, the application provides callback functions. These are called from within the background task or main function when the operation completes.</p>
+<div class="api-row"><span class="api-name">KeyM_CryptoKeyUpdateCallbackNotification(Result, ResultDataLength, ResultDataPtr)</span><span class="api-desc">Called after <code>KeyM_Update()</code> completes asynchronously. Result indicates success or failure. ResultDataPtr points to the same buffer provided with the KeyM_Update call (e.g. M4/M5 for SHE).</span></div>
+<div class="api-row"><span class="api-name">KeyM_CryptoKeyFinalizeCallbackNotification(Result, ResultDataLength, ResultDataPtr)</span><span class="api-desc">Called after <code>KeyM_Finalize()</code> completes. If at least one Csm_KeySetValid() failed, overall result is failure but all keys are still attempted. Only called if KeyMCryptoKeyStartFinalizeFunctionEnabled=TRUE.</span></div>
+<div class="api-row"><span class="api-name">KeyM_CryptoKeyVerifyCallbackNotification(Result, KeyId, ResultDataLength, ResultDataPtr)</span><span class="api-desc">Called after <code>KeyM_Verify()</code> completes in async mode. Provides KeyId of the verified key and crypto operation result.</span></div>
+<div class="api-row"><span class="api-name">KeyM_ServiceCertificateCallbackNotification(CertId, Result)</span><span class="api-desc">Called after <code>KeyM_ServiceCertificate{ByCertId}()</code> completes. Provides CertId and result. Function name is configured by <code>KeyMServiceCertificateCallbackNotificationFunc</code>.</span></div>
+<div class="api-row"><span class="api-name">KeyM_CertificateVerifyCallbackNotification(CertId, Result)</span><span class="api-desc">Called after <code>KeyM_VerifyCertificate()</code>, <code>VerifyCertificates()</code>, or <code>VerifyCertificateChain()</code> completes. Result is of type KeyM_CertificateStatusType (the final status). Configured by KeyMCertificateVerifyCallbackNotificationFunc.</span></div>
+
+<h3>Key handler functions (called by KeyM → OEM handler)</h3>
+<p>Key handlers are OEM-specific callback functions that extend KeyM's behavior. They are enabled/disabled individually via configuration flags. All key handlers are called <b>synchronously</b> from within the KeyM background task.</p>
+<div class="api-row"><span class="api-name">KeyM_KH_Start(StartType, RequestData, RequestDataLength, ResponseData, ResponseDataLength)</span><span class="api-desc">Called by KeyM_Start() if KeyMCryptoKeyHandlerStartFinalizeEnabled=TRUE. OEM can verify signatures, check authorization, or perform custom negotiation. Return E_OK to allow the session.</span></div>
+<div class="api-row"><span class="api-name">KeyM_KH_Prepare(RequestData, RequestDataLength, ResponseData, ResponseDataLength)</span><span class="api-desc">Called by KeyM_Prepare() if KeyMCryptoKeyHandlerPrepareEnabled=TRUE. Used to exchange info with the key server (e.g. SHE challenge data, key exchange parameters).</span></div>
+<div class="api-row"><span class="api-name">KeyM_KH_Update(RequestData, RequestDataLength, KeyName, KeyNameLength, KeymId, ResultDataPtr, ResultDataMaxLength)</span><span class="api-desc">Called by KeyM_Update() if KeyMCryptoKeyHandlerUpdateEnabled=TRUE. The handler can process OEM-specific key containers. Returns KEYM_KH_UPDATE_KEY_UPDATE_REPEAT to provide more data, or KEYM_KH_UPDATE_FINISH when done.</span></div>
+<div class="api-row"><span class="api-name">KeyM_KH_Finalize(RequestData, RequestDataLength, ResponseData, ResponseDataLength)</span><span class="api-desc">Called by KeyM_Finalize() BEFORE Csm_KeySetValid(). If it returns E_NOT_OK, no key validation is performed. Used for final authorization checks.</span></div>
+<div class="api-row"><span class="api-name">KeyM_KH_Verify(KeyName, KeyNameLength, RequestData, RequestDataLength, ResponseData, ResponseDataLength)</span><span class="api-desc">Called by KeyM_Verify() if KeyMCryptoKeyHandlerVerifyEnabled=TRUE. OEM handles the verify operation directly.</span></div>
+<div class="api-row"><span class="api-name">KeyM_KH_ServiceCertificate(Service, CertName, CertNameLength, RequestData, RequestDataLength, ResponseData, ResponseDataLength)</span><span class="api-desc">Called by KeyM_ServiceCertificate() if KeyMCryptoKeyHandlerServiceCertificateEnabled=TRUE. If this handler is configured, it replaces KeyM's built-in certificate service logic entirely.</span></div>
+
+<h3>KeyM_ResultType — used in callbacks</h3>
+<table>
+  <tr><th>Value</th><th>Name</th><th>Meaning</th></tr>
+  <tr><td>0x00</td><td><code>KEYM_RT_OK</code></td><td>Operation successful</td></tr>
+  <tr><td>0x01</td><td><code>KEYM_RT_NOT_OK</code></td><td>General error</td></tr>
+  <tr><td>0x02</td><td><code>KEYM_RT_KEY_CERT_INVALID</code></td><td>Invalid key or certificate</td></tr>
+  <tr><td>0x03</td><td><code>KEYM_RT_KEY_CERT_WRITE_FAIL</code></td><td>Storage write failed</td></tr>
+  <tr><td>0x04</td><td><code>KEYM_RT_KEY_CERT_UPDATE_FAIL</code></td><td>Update operation failed</td></tr>
+  <tr><td>0x05</td><td><code>KEYM_RT_CERT_INVALID_CHAIN_OF_TRUST</code></td><td>Chain of trust invalid</td></tr>
+</table>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div id="section-sequences" class="section">
+<h2>Sequence diagrams</h2>
+<div class="nav" style="border:none;padding:0;margin-bottom:1rem">
+  <button class="active" id="sq-btn-1" onclick="showSeq('s1')">Store single key</button>
+  <button id="sq-btn-2" onclick="showSeq('s2')">Store multiple keys</button>
+  <button id="sq-btn-3" onclick="showSeq('s3')">Derive key</button>
+  <button id="sq-btn-4" onclick="showSeq('s4')">Add working cert</button>
+  <button id="sq-btn-5" onclick="showSeq('s5')">Add root/intermediate cert</button>
+</div>
+
+<div id="seq-s1">
+<h3>Store single key (KeyMCryptoKeyStartFinalizeFunctionEnabled = FALSE)</h3>
+<p>No session needed. Key update can happen at any time. Optional Prepare step via key handler for OEM-specific info exchange.</p>
+<pre style="line-height:1.9">App                    KeyM                   KeyHandler                CSM
+ |                      |                          |                       |
+ |-- KeyM_Prepare() --> |                          |                       |
+ |   (opt, if configured)|-- KeyM_KH_Prepare() --> |                       |
+ |                      | <------- E_OK ---------- |                       |
+ | <---- E_OK --------- |                          |                       |
+ |                      |                          |                       |
+ |-- KeyM_Update("KeyName", keyData) --> |         |                       |
+ |   (async: E_OK returned immediately) |         |                       |
+ |                      |-- Csm_KeyElementSet(CsmKeyRef, 1, data, len) --> |
+ |                      |   <--------------- E_OK ----------------------- |
+ |                      |                          |                       |
+ |                      |-- Csm_KeySetValid(CsmKeyRef) -----------------> |
+ |                      |   [immediately, since no session]               |
+ |                      |   <--------------- E_OK ----------------------- |
+ |                      |                          |                       |
+ | <-- KeyM_CryptoKeyUpdateCallbackNotification(KEYM_RT_OK, M4M5data) --  |
+ |   [result M4/M5 provided back to app for SHE keys]                     |</pre>
+</div>
+
+<div id="seq-s2" style="display:none">
+<h3>Store multiple keys with session (KeyMCryptoKeyStartFinalizeFunctionEnabled = TRUE)</h3>
+<p>Session wraps multiple key updates. All keys are only set valid during Finalize. Useful for atomic multi-key provisioning.</p>
+<pre style="line-height:1.9">App                    KeyM                   KeyHandler                CSM
+ |                      |                          |                       |
+ |-- KeyM_Start(PRODUCTIONMODE, ...) -----------> |                       |
+ |                      |-- [optional KH_Start] -> |                       |
+ |                      | <- E_OK ---------------- |                       |
+ | <---- E_OK --------- |                          |                       |
+ |                      |                          |                       |
+ |-- KeyM_Prepare(...) ->|-- KeyM_KH_Prepare() --> |                       |
+ | <---- E_OK --------- | <- E_OK ----------------|                       |
+ |                      |                          |                       |
+ |-- KeyM_Update("Key1", data1) --> |              |                       |
+ |                      |-- Csm_KeyElementSet(Key1Ref, ...) ------------> |
+ |                      |   [flag set: Key1 needs finalization]           |
+ | <- callback(RT_OK) - |                          |                       |
+ |                      |                          |                       |
+ |-- KeyM_Update("Key2", data2) --> |              |                       |
+ | <- callback(RT_OK) - |-- Csm_KeyElementSet(Key2Ref, ...) ------------> |
+ |                      |                          |                       |
+ |-- KeyM_Finalize(...) -----------> |             |                       |
+ |                      |-- [optional KH_Finalize] -> |                   |
+ |                      |-- Csm_KeySetValid(Key1Ref) ------------------>  |
+ |                      |-- Csm_KeySetValid(Key2Ref) ------------------>  |
+ |                      |   [both attempted even if one fails]            |
+ | <- KeyM_CryptoKeyFinalizeCallbackNotification(RT_OK) ----------------  |
+ |   [session cleared — no more updates until next KeyM_Start]            |</pre>
+<div class="warn-box">⚠️ Critical: during Finalize, ALL flagged keys have Csm_KeySetValid() called even if one fails. The callback result is FAIL if at least one key failed validation. Check individual key validity separately if needed.</div>
+</div>
+
+<div id="seq-s3" style="display:none">
+<h3>Derive key (KeyMCryptoKeyGenerationType = KEYM_DERIVE_KEY)</h3>
+<pre style="line-height:1.9">App                    KeyM                   KeyHandler                CSM
+ |                      |                          |                       |
+ |-- KeyM_Prepare(...) ->|-- KeyM_KH_Prepare() --> |                       |
+ |   [handler may store common key in CSM]         |                       |
+ | <-- E_OK ----------- | <- E_OK ----------------|                       |
+ |                      |                          |                       |
+ |-- KeyM_Update("DerivedKey", password_data) --> |                       |
+ |                      |-- Csm_KeyDerive(SourceKeyRef, TargetKeyRef) --> |
+ |                      |   [password → CRYPTO_KE_KEYDERIVATION_PASSWORD] |
+ |                      |   [salt → CRYPTO_KE_KEYDERIVATION_SALT if cfg]  |
+ |                      | <- E_OK ----------------------------------------|
+ |                      |-- Csm_KeySetValid(TargetKeyRef) ---------------> |
+ | <- callback(RT_OK) - |                          |                       |</pre>
+</div>
+
+<div id="seq-s4" style="display:none">
+<h3>Add working certificate (temporary verification flow)</h3>
+<pre style="line-height:1.9">App                    KeyM                   StbM             NvM              CSM
+ |                      |                       |                 |               |
+ |-- KeyM_CertGetStatus(CertId, &status) -----> |                               |
+ | <- E_OK, status=NOT_AVAILABLE -------------- |                               |
+ |                      |                       |                 |               |
+ |-- KeyM_SetCertificate(CertId, &certData) --> |                               |
+ |   [stores in RAM slot, triggers parsing]     |                               |
+ | <- E_OK ------------------------------------ |                               |
+ |                      |-- [background: parse ASN.1 / TLV]                    |
+ |                      |   status → NOT_PARSED → PARSED_NOT_VALIDATED          |
+ |                      |                       |                 |               |
+ |-- KeyM_CertGetStatus(CertId) → PARSED_NOT_VALIDATED -------->                |
+ |                      |                       |                 |               |
+ |-- KeyM_VerifyCertificate(CertId) ----------> |                               |
+ | <- E_OK (accepted, async) ----------------- |                               |
+ |                      |-- [verify chain: check root VALID]                    |
+ |                      |-- subject check vs issuer of upper cert               |
+ |                      |-- [if cert in NvM]: NvM_ReadBlock() --> |             |
+ |                      |-- Csm_KeyElementSet(UpperKey) -------> ----> CSM     |
+ |                      |-- Csm_KeySetValid(UpperKey) ----------> ----> CSM    |
+ |                      |-- Csm_SignatureVerify(signature...) --> ----> CSM    |
+ |                      |-- StbM_GetCurrentTime() -----------> |               |
+ |                      |   [check NotBefore ≤ now ≤ NotAfter]                 |
+ |                      |-- [element rule checks]                               |
+ |                      |-- Csm_KeyElementSet(workingKeyRef...) --> ----> CSM  |
+ |                      |-- Csm_KeySetValid(workingKeyRef) ------> ----> CSM   |
+ |                      |   status → KEYM_CERTIFICATE_VALID                     |
+ | <- KeyM_CertificateVerifyCallbackNotification(CertId, VALID)                |</pre>
+</div>
+
+<div id="seq-s5" style="display:none">
+<h3>Add root/intermediate certificate (permanent storage via ServiceCertificate)</h3>
+<pre style="line-height:1.9">App                    KeyM                   StbM             NvM              CSM
+ |                      |                       |                 |               |
+ |-- KeyM_ServiceCertificate(SET_ROOT, certName, nameLen,         |               |
+ |     certData, dataLen, resp, &respLen) -----> |                               |
+ | <- E_OK (async accepted) ------------------- |                               |
+ |                      |-- search for KeyMCertificate by name                  |
+ |                      |-- parse certificate (ASN.1/TLV)                       |
+ |                      |-- subject/issuer check (self-signed for root)         |
+ |                      |-- StbM_GetCurrentTime() -> time period check         |
+ |                      |-- Csm_KeyElementSet(rootKey) ---------> ----> CSM    |
+ |                      |-- Csm_KeySetValid(rootKey) -----------> ----> CSM    |
+ |                      |-- Csm_SignatureVerify(self-sign) ------> ----> CSM   |
+ |                      |                       |                 |               |
+ |                      |-- [if verification successful]:                        |
+ |                      |   alt [NvM storage]:                                   |
+ |                      |     NvM_WriteBlock(certNvmBlock) ----> |              |
+ |                      |   alt [CSM storage]:                                   |
+ |                      |     Csm_KeyElementSet(certKey) ------> ----> CSM     |
+ |                      |     Csm_KeySetValid(certKey) ---------> ----> CSM    |
+ |                      |                                                        |
+ | <- KeyM_ServiceCertificateCallbackNotification(CertId, RT_OK)               |
+ |   [IdsM security event SEV_CERT_ROOT_INST_REQ also reported]                |</pre>
+<div class="info-box">💡 Security events are always reported to IdsM for root/intermediate cert install/update attempts, regardless of success or failure. This enables intrusion detection if an unauthorized entity tries to inject a rogue certificate.</div>
+</div>
+</div>
+
+<!-- ===== ERRORS & SECURITY EVENTS ===== -->
+<div id="section-errors" class="section">
+<h2>Errors & security events</h2>
+
+<h3>Development errors (reported to DET)</h3>
+<table>
+  <tr><th>Error code</th><th>Value</th><th>Trigger condition</th></tr>
+  <tr><td><code>KEYM_E_PARAM_POINTER</code></td><td>0x01</td><td>NULL pointer passed where a valid pointer is required</td></tr>
+  <tr><td><code>KEYM_E_SMALL_BUFFER</code></td><td>0x02</td><td>Provided output buffer is too small for the result</td></tr>
+  <tr><td><code>KEYM_E_UNINIT</code></td><td>0x03</td><td>Any API called before KeyM_Init() or after KeyM_Deinit()</td></tr>
+  <tr><td><code>KEYM_E_INIT_FAILED</code></td><td>0x04</td><td>Initialization failed internally (e.g. NvM read error during init)</td></tr>
+  <tr><td><code>KEYM_E_CONFIG_FAILURE</code></td><td>0x05</td><td>Configuration inconsistency detected (e.g. wrong storage type for SetCertificate)</td></tr>
+</table>
+
+<div class="warn-box">⚠️ Runtime errors, production errors, and extended production errors: <b>none defined</b> in KeyM R24-11. All error types are either development errors (DET) or return value-based errors. No DEM event IDs are assigned to KeyM.</div>
+
+<h3>Security events (reported to IdsM)</h3>
+<p>When <code>KeyMEnableSecurityEventReporting = TRUE</code>, these events are reported via the AUTOSAR IdsM interface with context data:</p>
+<table>
+  <tr><th>Event name</th><th>ID</th><th>Trigger</th><th>Context data</th></tr>
+  <tr><td><code>SEV_CERT_ROOT_INST_REQ</code></td><td>1</td><td>Attempt to install a root certificate (SET_ROOT service call)</td><td>Result (pass/fail), HashedID8 of cert, Issuer name (32 bytes UTF-8)</td></tr>
+  <tr><td><code>SEV_CERT_ROOT_UPD_REQ</code></td><td>2</td><td>Attempt to update an existing root certificate (UPDATE_ROOT service call)</td><td>Result, HashedID8, Issuer name</td></tr>
+  <tr><td><code>SEV_CERT_INTERMEDIATE_INST_REQ</code></td><td>3</td><td>Attempt to install an intermediate certificate (SET_INTERMEDIATE)</td><td>Result, HashedID8, Issuer name</td></tr>
+  <tr><td><code>SEV_CERT_INTERMEDIATE_UPD_REQ</code></td><td>4</td><td>Attempt to update an intermediate certificate (UPDATE_INTERMEDIATE)</td><td>Result, HashedID8, Issuer name</td></tr>
+  <tr><td><code>SEV_CERT_VERIF_FAILED</code></td><td>5</td><td>A certificate verification request failed</td><td>Error code (KEYM_E_BUSY, PARAMETER_MISMATCH, KEY_CERT_EMPTY, CERT_INVALID_CHAIN_OF_TRUST), HashedID8, Issuer name</td></tr>
+</table>
+
+<div class="info-box">💡 Security events are marked as DRAFT in R24-11. They are intended for IdsM integration to detect anomalous certificate provisioning — e.g. an attacker attempting to install a rogue root certificate via diagnostic access. The HashedID8 provides a compact certificate identifier without exposing the full cert data.</div>
+
+<h3>Error detection rules</h3>
+<p>If <code>KeyMDevErrorDetect = TRUE</code>, KeyM checks on every function call:</p>
+<ul style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;padding-left:1.2rem">
+  <li>Module initialized (KEYM_E_UNINIT if not)</li>
+  <li>All pointer parameters are non-NULL (KEYM_E_PARAM_POINTER if NULL)</li>
+  <li>All output buffers are large enough (KEYM_E_SMALL_BUFFER if too small)</li>
+  <li>Configuration is consistent (KEYM_E_CONFIG_FAILURE on mismatch)</li>
+</ul>
+</div>
+
+<!-- ===== CONFIG & DAVINCI ===== -->
+<div id="section-config" class="section">
+<h2>Configuration & DaVinci setup</h2>
+
+<h3>Step-by-step DaVinci Configurator Pro workflow</h3>
+
+<h4>Step 1 — Enable submodules (KeyMGeneral)</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Open <b>KeyM → KeyMGeneral</b>. Set <code>KeyMCryptoKeyManagerEnabled = TRUE</code> to enable crypto key management and/or <code>KeyMCertificateManagerEnabled = TRUE</code> for certificate management. Disabling either completely removes the associated code and RAM.</div></div>
+
+<h4>Step 2 — Configure optional features</h4>
+<table style="margin-bottom:1rem">
+  <tr><th>Parameter</th><th>Default</th><th>When to enable</th></tr>
+  <tr><td><code>KeyMCryptoKeyStartFinalizeFunctionEnabled</code></td><td>FALSE</td><td>Enable for atomic multi-key update sessions (production use cases)</td></tr>
+  <tr><td><code>KeyMCryptoKeyPrepareFunctionEnabled</code></td><td>FALSE</td><td>Enable if key server needs challenge-response before key update</td></tr>
+  <tr><td><code>KeyMCryptoKeyVerifyFunctionEnabled</code></td><td>FALSE</td><td>Enable if key server needs to verify installed keys</td></tr>
+  <tr><td><code>KeyMCryptoKeyVerifyAsyncMode</code></td><td>FALSE</td><td>Set TRUE if the CSM verify job is asynchronous</td></tr>
+  <tr><td><code>KeyMServiceCertificateFunctionEnabled</code></td><td>FALSE</td><td>Enable for runtime certificate provisioning (SET_ROOT, SET_INTERMEDIATE etc.)</td></tr>
+  <tr><td><code>KeyMDevErrorDetect</code></td><td>—</td><td>TRUE for development builds — reports null pointer and uninit errors to DET</td></tr>
+  <tr><td><code>KeyMEnableSecurityEventReporting</code></td><td>FALSE</td><td>TRUE for IdsM-enabled vehicles — reports cert install/verify events</td></tr>
+  <tr><td><code>KeyMMainFunctionPeriod</code></td><td>—</td><td>Period in seconds for KeyM_MainFunction scheduling (e.g. 0.01 = 10ms)</td></tr>
+  <tr><td><code>KeyMCertificateChainMaxDepth</code></td><td>—</td><td>Max depth of PKI hierarchy (1..255). Affects stack size during verification.</td></tr>
+  <tr><td><code>KeyMKeyCertNameMaxLength</code></td><td>—</td><td>Max length of key/cert name strings — affects RTE data type sizing</td></tr>
+</table>
+
+<h4>Step 3 — Configure key handler flags</h4>
+<table style="margin-bottom:1rem">
+  <tr><th>Parameter</th><th>Enable if</th></tr>
+  <tr><td><code>KeyMCryptoKeyHandlerStartFinalizeEnabled</code></td><td>OEM needs to authorize/validate the start or finalize operations (signature check, access control)</td></tr>
+  <tr><td><code>KeyMCryptoKeyHandlerPrepareEnabled</code></td><td>SHE challenge-response or OEM key negotiation needed before key update</td></tr>
+  <tr><td><code>KeyMCryptoKeyHandlerUpdateEnabled</code></td><td>OEM container format for key data (handles multiple keys in one call)</td></tr>
+  <tr><td><code>KeyMCryptoKeyHandlerVerifyEnabled</code></td><td>OEM-specific key verification logic</td></tr>
+  <tr><td><code>KeyMCryptoKeyHandlerServiceCertificateEnabled</code></td><td>Certificate operations handled by HSM/Crypto Driver (proxy mode)</td></tr>
+</table>
+
+<h4>Step 4 — Configure KeyMCryptoKey containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">For each crypto key managed by KeyM, create a <code>KeyMCryptoKey</code> container. Set <code>KeyMCryptoKeyName</code> (UTF-8 string used to identify the key in KeyM_Update() calls).</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Set <code>KeyMCryptoKeyGenerationType</code>: <code>KEYM_STORED_KEY</code> for direct key data, or <code>KEYM_DERIVE_KEY</code> for derived keys.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Set <code>KeyMCryptoKeyCsmKeyTargetRef</code> to the CSM key ID that will receive this key material.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">For derived keys: set <code>KeyMCryptoKeyCsmKeySourceDeriveRef</code> (the master/source key) and optionally <code>KeyMCryptoKeyGenerationInfo</code> (salt).</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Set <code>KeyMCryptoKeyStorage</code>: <code>KEYM_STORAGE_IN_NVM</code> or <code>KEYM_STORAGE_IN_CSM</code>. If NVM: add a <code>KeyMNvmBlock</code> container referencing the NvM block ID.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">If KeyM_Verify() is needed: set <code>KeyMCryptoKeyVerifyFunctionEnabled = TRUE</code> in General and configure <code>KeyMCryptoKeyCsmVerifyJobRef</code>.</div></div>
+
+<h4>Step 5 — Configure KeyMCertificate containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Create one <code>KeyMCertificate</code> container per certificate slot. Set <code>KeyMCertificateId</code> (uint16 handle), <code>KeyMCertFormatType</code> (X509/CVC/CRL), and <code>KeyMCertEncodingType</code>.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Configure the certificate hierarchy: set <code>KeyMCertUpperHierarchicalCertRef</code>. For root certificates, this reference points to itself (self-signed). For intermediate/working certs, it points to the issuing cert's container.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Set <code>KeyMCertCsmSignatureVerifyJobRef</code> — the CSM job to use for signature verification of this certificate's issuer's signature.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Set <code>KeyMCertCsmSignatureVerifyKeyRef</code> — the CSM key holding the issuer's public key. For self-signed root: this key must be populated by KeyM during init or verification.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Configure <code>KeyMCertificateStorage</code>: <code>KEYM_STORAGE_IN_RAM</code> (for temporary certs), <code>KEYM_STORAGE_IN_NVM</code>, or <code>KEYM_STORAGE_IN_CSM</code>.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">If time-based validation needed: set <code>KeyMCertTimebaseRef</code> to a StbM time base ID.</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text">Optionally add <code>KeyMCertificateElement</code> sub-containers for each certificate field to extract, and <code>KeyMCertificateElementRule</code> sub-containers for validation constraints.</div></div>
+
+<h4>Step 6 — OS / SchM scheduling</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Map <code>KeyM_MainFunction</code> to a periodic OS task (e.g. 10ms). It handles all asynchronous state machine processing.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Map <code>KeyM_MainBackgroundFunction</code> to a background/idle-priority task. This is where the time-consuming synchronous key handler calls (KeyM_KH_Update()) are executed. This avoids blocking the main 10ms task.</div></div>
+
+<div class="danger-box">🔴 Common DaVinci mistake: not mapping KeyM_MainBackgroundFunction to any task. Without this, asynchronous key operations (update, finalize) will never complete — they get accepted (E_OK returned) but the callback is never called. Symptoms: application waits forever for the callback notification.</div>
+<div class="danger-box">🔴 Common DaVinci mistake: KeyMCertTimebaseRef not set when X.509 certs are used. Certificate validity period check will fail with VALIDITY_PERIOD_FAIL at runtime. Always configure StbM and set the timebase reference.</div>
+<div class="warn-box">⚠️ KeyMCertUpperHierarchicalCertRef misconfiguration is the #1 source of chain-of-trust errors. Draw the PKI hierarchy on paper first, then set references from bottom to top. Always verify: the root cert's upper ref must point to itself.</div>
+</div>
+
+<!-- ===== TESTING & DEBUG ===== -->
+<div id="section-debug" class="section">
+<h2>Integration, interface testing & debugging</h2>
+
+<h3>Common integration bugs</h3>
+<div class="card">
+  <h4>Bug: KeyM_VerifyCertificate returns E_OK but callback never fires</h4>
+  <p>Root cause: KeyM_MainFunction or KeyM_MainBackgroundFunction is not scheduled, or the OS task mapping is incorrect in DaVinci.</p>
+  <p>Debug: Add a trace to KeyM_MainFunction entry. Verify it is called periodically. Check SchM task mapping for KeyM main functions.</p>
+</div>
+<div class="card">
+  <h4>Bug: Certificate always in VALIDITY_PERIOD_FAIL</h4>
+  <p>Root causes: (1) StbM time base not synchronized — StbM returns invalid/zero time. (2) KeyMCertTimebaseRef not set or set to wrong time base. (3) Certificate has expired.</p>
+  <p>Debug: Call StbM_GetCurrentTime() manually and check the returned timestamp and status flags. Verify the status flag indicates SYNCED. Check NotBefore/NotAfter fields of the certificate against the current time.</p>
+</div>
+<div class="card">
+  <h4>Bug: INVALID_CHAIN_OF_TRUST on working certificate</h4>
+  <p>Root cause: Root or intermediate certificate not in VALID state when working cert verification is triggered. Common if boot order causes KeyM_VerifyCertificate for root to fail before working cert verification.</p>
+  <p>Debug: Call KeyM_CertGetStatus() for every certificate in the chain from root to leaf. Fix the first non-VALID state you find. Remember: verification is top-down.</p>
+</div>
+<div class="card">
+  <h4>Bug: KeyM_Update returns KEYM_E_PARAMETER_MISMATCH</h4>
+  <p>Root causes: (1) Key name string does not exactly match KeyMCryptoKeyName configured in DaVinci (case sensitive, UTF-8). (2) KeyNameLength is wrong. (3) SHE mode: bit 121-124 of the M1 data don't match any configured KeyMCryptoKeyCryptoProps value.</p>
+  <p>Debug: Add DET development error detection and log all DET calls. Print the key name bytes being passed and compare with configuration.</p>
+</div>
+<div class="card">
+  <h4>Bug: Callback fires with KEYM_RT_KEY_CERT_WRITE_FAIL</h4>
+  <p>Root cause: NvM write failed — NvM block not configured, NvM busy, or NvM write-protection active. Or CSM key element set failed due to key size mismatch.</p>
+  <p>Debug: Trace NvM_WriteBlock return value. Check NvM block configuration (size must accommodate the full certificate or key element data). Check NvM DEM events.</p>
+</div>
+<div class="card">
+  <h4>Bug: SIGNATURE_FAIL during certificate verification</h4>
+  <p>Root causes: (1) Wrong CSM job configured in KeyMCertCsmSignatureVerifyJobRef. (2) Issuer public key not loaded into KeyMCertCsmSignatureVerifyKeyRef. (3) Certificate data corrupted. (4) Algorithm mismatch (RSA vs ECC configured wrong in crypto driver).</p>
+  <p>Debug: Verify the CSM job is configured for the right algorithm (ECDSA/RSA-PSS etc.). Use XCP to read back the key bytes from the CSM key slot and verify against the expected issuer public key. Check crypto driver logs.</p>
+</div>
+
+<h3>Interface testing checklist</h3>
+<table>
+  <tr><th>Test area</th><th>What to verify</th><th>Tool/method</th></tr>
+  <tr><td>Key provisioning (positive)</td><td>KeyM_Update() + callback = KEYM_RT_OK; key actually usable in a CSM job</td><td>Diagnostic test tool + CSM MAC job test</td></tr>
+  <tr><td>Key provisioning (negative)</td><td>Invalid key name → KEYM_E_PARAMETER_MISMATCH; wrong size → SIZE_MISMATCH</td><td>Boundary value testing</td></tr>
+  <tr><td>Session management</td><td>KeyM_Update() without KeyM_Start() rejected (if StartFinalize enabled)</td><td>Sequence test</td></tr>
+  <tr><td>SHE M4/M5 proof</td><td>Callback returns correct M4/M5 values matching SHE specification</td><td>Compare with SHE reference implementation</td></tr>
+  <tr><td>Certificate parsing</td><td>SetCertificate triggers parse; status moves to PARSED_NOT_VALIDATED in background</td><td>Poll CertGetStatus after SetCertificate</td></tr>
+  <tr><td>Certificate verification chain</td><td>Full chain: Root → Intermediate → Working all reach VALID status</td><td>Status polling + callback tracing</td></tr>
+  <tr><td>Validity period</td><td>Expired cert → VALIDITY_PERIOD_FAIL; not-yet-valid cert same behavior</td><td>Time manipulation via StbM override</td></tr>
+  <tr><td>Certificate element extraction</td><td>CertElementGet() returns correct Subject CN bytes after VALID state</td><td>Compare extracted bytes with cert viewer tool</td></tr>
+  <tr><td>Concurrent operations</td><td>Second KeyM_Update() during active operation → KEYM_E_BUSY returned</td><td>Multi-request sequence test</td></tr>
+  <tr><td>Security events</td><td>Root cert install → SEV_CERT_ROOT_INST_REQ reported to IdsM with correct context data</td><td>IdsM logging / trace</td></tr>
+  <tr><td>Deinitialization</td><td>KeyM_Deinit() clears all symmetric key RAM → verify key bytes zeroed</td><td>Memory dump before/after Deinit</td></tr>
+  <tr><td>DET errors</td><td>NULL pointer → KEYM_E_PARAM_POINTER; API before init → KEYM_E_UNINIT</td><td>DET mock + boundary testing</td></tr>
+</table>
+
+<h3>Key debugging tips for CAN/diagnostic-based key provisioning</h3>
+<div class="info-box">💡 In production ECUs, KeyM_Start/Update/Finalize are typically triggered by UDS service 0x27 (Security Access) + 0x2E (Write Data By Identifier) sequences. Capture the CAN bus traffic and verify: (1) the UDS security access grants the correct privilege level that maps to KEYM_START_OEM_PRODUCTIONMODE or WORKSHOPMODE, (2) the key data in 0x2E request matches expected format, (3) the ECU response 0x6E confirms acceptance, (4) M4/M5 response is returned for SHE keys.</div>
+<div class="info-box">💡 Use the AUTOSAR XCP protocol with the generated A2L file to read back CSM key element values and certificate slot status during development — but note that symmetric key data should be protected and not accessible via XCP in production software (configure access protection on the measurement objects).</div>
+</div>
+
+</div><!-- end widget -->
+
+<script>
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const certStates={
+  not_avail:'<b>NOT_AVAILABLE (0x04)</b> — Initial state after KeyM_Init(). Also entered by calling KeyM_SetCertificate() with certDataLength=0 (reset). No certificate data is present in this slot.',
+  not_parsed:'<b>NOT_PARSED (0x02)</b> — Certificate data has been provided (via SetCertificate or ServiceCertificate) but parsing is still in progress in the background. The caller should poll CertGetStatus() or wait for a callback.',
+  invalid_format:'<b>INVALID_FORMAT (0x09)</b> — Certificate data has a structural encoding error (bad ASN.1 BER/DER, invalid TLV structure, or encoding type violation). No further parsing or validation is performed. Reset by calling SetCertificate with length=0.',
+  invalid_type:'<b>INVALID_TYPE (0x08)</b> — Certificate is well-formed ASN.1 but is missing mandatory fields required by the configured KeyMCertFormatType (e.g. a Subject field is missing in X.509). Reset by calling SetCertificate with length=0.',
+  parsed_not_val:'<b>PARSED_NOT_VALIDATED (0x03)</b> — Certificate was successfully parsed. All mandatory fields are present and the encoding is valid. The certificate is now ready for verification. Verification is triggered by KeyM_VerifyCertificate(), VerifyCertificates(), or VerifyCertificateChain().',
+  chain_fail:'<b>INVALID_CHAIN_OF_TRUST (0x07)</b> — Verification step 2 failed: the Subject field of this certificate does not match the Issuer field of the next upper certificate in the configured hierarchy. Check that KeyMCertUpperHierarchicalCertRef points to the correct issuing certificate.',
+  sig_fail:'<b>SIGNATURE_FAIL (0x06)</b> — Cryptographic signature verification failed. The certificate\'s signature byte(s) could not be verified using the issuer\'s public key. Check: correct CSM job configured, correct public key in the verify key slot, correct algorithm (ECDSA/RSA).',
+  revoked:'<b>REVOKED (0x0B)</b> — The certificate serial number was found in a loaded Certificate Revocation List (CRL). The certificate has been revoked by the issuing CA.',
+  period_fail:'<b>VALIDITY_PERIOD_FAIL (0x05)</b> — The current time obtained from StbM is outside the certificate\'s NotBefore–NotAfter window. Either the certificate has expired, or the time base is not synchronized/correct. Requires StbM time base properly set up.',
+  invalid_content:'<b>INVALID_CONTENT (0x0A)</b> — All structural and cryptographic checks passed, but at least one configured certificate element rule (KeyMCertCertificateElementRuleRef) was violated. Check OID-based element rule conditions.',
+  valid:'<b>VALID (0x00)</b> — All verification steps completed successfully. The public key from this certificate has been set and validated in the configured CSM key slot (Csm_KeySetValid called). The key is now usable for crypto jobs. Callback fired with KEYM_CERTIFICATE_VALID.',
+  invalid:'<b>INVALID (0x01)</b> — An unspecified failure occurred during parsing or verification. Catch-all for errors not covered by more specific status codes.'
+};
+
+function showCertState(id){
+  document.getElementById('cert-state-detail').innerHTML=certStates[id]||'';
+}
+
+const apis={
+  KeyM_Init:'<b>void KeyM_Init(const KeyM_ConfigType* ConfigPtr)</b><br>Service ID: 0x01 | Sync | Non-reentrant<br>Initializes the KeyM module. ConfigPtr shall always be NULL_PTR (config currently unused). During init: (1) permanently stored certificates are loaded for background parsing (cert submodule), (2) NvM keys are read and loaded into CSM RAM key slots (crypto key submodule). Dev error KEYM_E_INIT_FAILED reported to DET if initialization fails.',
+  KeyM_Deinit:'<b>void KeyM_Deinit(void)</b><br>Service ID: 0x02 | Sync | Non-reentrant<br>Resets KeyM to uninitialized state. CRITICAL: actively destroys all symmetric key material in RAM (sets to zero/initial value). Intermediate results and session keys are also cleared. This is a security requirement.',
+  KeyM_GetVersionInfo:'<b>void KeyM_GetVersionInfo(Std_VersionInfoType* VersionInfo)</b><br>Service ID: 0x03 | Sync | Non-reentrant<br>Standard BSW version info function. Returns VendorId, ModuleId, SW version.',
+  KeyM_MainFunction:'<b>void KeyM_MainFunction(void)</b><br>Service ID: 0x19 | Scheduled function (no params, no return)<br>Called periodically by SchM according to KeyMMainFunctionPeriod. Drives all asynchronous state machine processing — processes pending certificate parsing, verification state transitions, and calls callbacks. Must be scheduled or async operations never complete.',
+  KeyM_MainBackgroundFunction:'<b>void KeyM_MainBackgroundFunction(void)</b><br>Service ID: 0x1A | Background scheduled function<br>Called by OS when no other task is running (idle/background task). Used for time-consuming synchronous operations like KeyM_KH_Update() calls. Prevents blocking the main periodic task.',
+  KeyM_Start:'<b>Std_ReturnType KeyM_Start(KeyM_StartType StartType, const uint8* RequestData, uint16 RequestDataLength, uint8* ResponseData, uint16* ResponseDataLength)</b><br>Service ID: 0x04 | Sync | Non-reentrant<br>Optional (only if KeyMCryptoKeyStartFinalizeFunctionEnabled=TRUE). Opens a key update session. StartType: OEM_PRODUCTIONMODE (0x01) or WORKSHOPMODE (0x02). Returns E_OK on success — key operations are now allowed. If session already active with same params, returns E_OK and continues. Calls KeyM_KH_Start() if KeyMCryptoKeyHandlerStartFinalizeEnabled=TRUE.',
+  KeyM_Prepare:'<b>Std_ReturnType KeyM_Prepare(const uint8* RequestData, uint16 RequestDataLength, uint8* ResponseData, uint16* ResponseDataLength)</b><br>Service ID: 0x05 | Sync | Non-reentrant<br>Optional (only if KeyMCryptoKeyPrepareFunctionEnabled=TRUE). Currently no built-in behavior — always calls KeyM_KH_Prepare() if handler is enabled, otherwise returns E_NOT_OK. Used for challenge-response, SHE challenge data exchange, or OEM key negotiation before update.',
+  KeyM_Update:'<b>Std_ReturnType KeyM_Update(const uint8* KeyNamePtr, uint16 KeyNameLength, const uint8* RequestDataPtr, uint16 RequestDataLength, uint8* ResultDataPtr, uint16 ResultDataMaxLength)</b><br>Service ID: 0x06 | Async | Non-reentrant<br>Initiates key update. KeyName selects the key (must match KeyMCryptoKeyName config). RequestData contains the key material. Returns E_OK immediately if accepted — result via callback. ResultDataPtr buffer must not be touched until callback fires. For SHE: set KeyNameLength=0 and provide M1/M2/M3; M4/M5 returned in callback result.',
+  KeyM_Finalize:'<b>Std_ReturnType KeyM_Finalize(const uint8* RequestDataPtr, uint16 RequestDataLength, uint8* ResponseDataPtr, uint16 ResponseMaxDataLength)</b><br>Service ID: 0x07 | Async | Non-reentrant<br>Only if KeyMCryptoKeyStartFinalizeFunctionEnabled=TRUE. Closes the key update session. Calls Csm_KeySetValid() for ALL keys flagged during the session (even if one fails). Calls KH_Finalize BEFORE key validation. After this call, no more key updates until KeyM_Start() is called again. Result via callback.',
+  KeyM_Verify:'<b>Std_ReturnType KeyM_Verify(const uint8* KeyNamePtr, uint16 KeyNameLength, const uint8* RequestData, uint16 RequestDataLength, uint8* ResponseData, uint16* ResponseDataLength)</b><br>Service ID: 0x08 | Sync or Async (config-dependent) | Non-reentrant<br>Optional (KeyMCryptoKeyVerifyFunctionEnabled=TRUE). NOT bound to session — can be called at any time. Runs a configured CSM crypto job to verify the key. In async mode: returns KEYM_E_PENDING, result via KeyM_CryptoKeyVerifyCallbackNotification. In sync mode: returns E_OK with result data.',
+  KeyM_ServiceCertificate:'<b>Std_ReturnType KeyM_ServiceCertificate(KeyM_ServiceCertificateType Service, const uint8* CertNamePtr, uint32 CertNameLength, const uint8* RequestData, uint32 RequestDataLength, uint8* ResponseData, uint32* ResponseDataLength)</b><br>Service ID: 0x09 | Async | Non-reentrant<br>For permanent certificate provisioning. Service types: REQUEST_CSR, UPDATE_SIGNED_CSR, SET_ROOT, UPDATE_ROOT, SET_INTERMEDIATE, UPDATE_INTERMEDIATE, UPDATE_CRL. If KeyMCryptoKeyStartFinalizeFunctionEnabled=TRUE, a key session must be active first. Result via callback.',
+  KeyM_ServiceCertificateByCertId:'<b>Std_ReturnType KeyM_ServiceCertificateByCertId(KeyM_CertificateIdType CertId, KeyM_ServiceCertificateType Service, ...)</b><br>Service ID: 0x13 | Async | Non-reentrant<br>Identical to KeyM_ServiceCertificate but uses numeric CertId instead of name string — avoids name search overhead. Useful when the caller already knows the certificate slot ID.',
+  KeyM_SetCertificate:'<b>Std_ReturnType KeyM_SetCertificate(KeyM_CertificateIdType CertId, const KeyM_CertDataType* CertificateDataPtr)</b><br>Service ID: 0x0A | Sync | Non-reentrant<br>Provides certificate data to a RAM slot for temporary verification. Triggers background parsing. Does NOT permanently store the certificate. Call with certDataLength=0 to reset slot to NOT_AVAILABLE. Returns E_OK if cert data was accepted — does not imply parsing success.',
+  KeyM_GetCertificate:'<b>Std_ReturnType KeyM_GetCertificate(KeyM_CertificateIdType CertId, KeyM_CertDataType* CertificateDataPtr)</b><br>Service ID: 0x0B | Sync | Non-reentrant<br>Retrieves DER-encoded certificate data from a slot. Caller provides a buffer of sufficient size. Returns KEYM_E_KEY_CERT_EMPTY if no cert is set, KEYM_E_KEY_CERT_SIZE_MISMATCH if buffer too small.',
+  KeyM_VerifyCertificate:'<b>Std_ReturnType KeyM_VerifyCertificate(KeyM_CertificateIdType CertId)</b><br>Service ID: 0x0D | Async | Non-reentrant<br>Verifies the certificate at CertId against the configured PKI hierarchy (top-down: root first). Certificate must be in PARSED_NOT_VALIDATED state. If upper certs not yet verified, triggers their verification first. On success: public key stored in CSM, status=VALID. Result via KeyM_CertificateVerifyCallbackNotification.',
+  KeyM_VerifyCertificates:'<b>Std_ReturnType KeyM_VerifyCertificates(KeyM_CertificateIdType CertId, KeyM_CertificateIdType CertUpperId)</b><br>Service ID: 0x0C | Async | Non-reentrant<br>Verifies only two specific certificates against each other. CertId is signed by CertUpperId. CertUpperId must already be in VALID state. More targeted than KeyM_VerifyCertificate. Result via callback.',
+  KeyM_VerifyCertificateChain:'<b>Std_ReturnType KeyM_VerifyCertificateChain(KeyM_CertificateIdType CertId, const KeyM_CertDataType[] certChainData, uint8 NumberOfCertificates)</b><br>Service ID: 0x0E | Async | Non-reentrant<br>Verifies a certificate against a temporarily-provided chain array. Useful when intermediate certificates are not permanently installed — they are provided in certChainData buffer. Chain processed top-to-bottom. Buffer not touched until callback fires.',
+  KeyM_CertGetStatus:'<b>Std_ReturnType KeyM_CertGetStatus(KeyM_CertificateIdType CertId, KeyM_CertificateStatusType* Status)</b><br>Service ID: 0x12 | Sync | Non-reentrant<br>Returns the current status of the certificate slot. Returns KEYM_E_PARAMETER_MISMATCH if CertId invalid. Use this to poll parsing/verification progress when no callback is configured.',
+  KeyM_CertElementGet:'<b>Std_ReturnType KeyM_CertElementGet(KeyM_CertificateIdType CertId, KeyM_CertElementIdType CertElementId, uint8* CertElementData, uint32* CertElementDataLength)</b><br>Service ID: 0x0F | Sync | Non-reentrant<br>Extracts a single certificate element (identified by OID). Certificate must be in VALID state. Returns KEYM_E_KEY_CERT_INVALID if cert not valid. Use for elements where only one occurrence is expected.',
+  KeyM_CertElementGetFirst:'<b>Std_ReturnType KeyM_CertElementGetFirst(CertId, CertElementId, KeyM_CertElementIteratorType* iter, uint8* data, uint32* len)</b><br>Service ID: 0x10 | Sync | Reentrant (for one iterator)<br>Initializes an iterator for a certificate element that may have multiple values (KeyMCertificateElementHasIteration=TRUE). Returns first element. Iterator must not be modified until all elements retrieved.',
+  KeyM_CertElementGetNext:'<b>Std_ReturnType KeyM_CertElementGetNext(KeyM_CertElementIteratorType* iter, uint8* data, uint32* len)</b><br>Service ID: 0x11 | Sync | Reentrant (for one iterator)<br>Returns next element using initialized iterator. Returns E_NOT_OK when no more elements. Must call GetFirst() successfully before calling GetNext().',
+  KeyM_CertElementGetByIndex:'<b>Std_ReturnType KeyM_CertificateElementGetByIndex(CertId, CertElementId, uint16 Index, uint8* data, uint32* len)</b><br>Service ID: 0x1B | Sync | Non-reentrant<br>Direct index-based access to elements of a multi-value certificate element. Equivalent to iterator approach but simpler for known-index access. Index 0..N.',
+  KeyM_CertElementGetCount:'<b>Std_ReturnType KeyM_CertificateElementGetCount(CertId, CertElementId, uint16* CountPtr)</b><br>Service ID: 0x1C | Sync | Non-reentrant<br>Returns the total number of values available for a multi-value certificate element. Use before GetByIndex() loop to determine iteration range.'
+};
+
+function showApi(name){
+  const d=document.getElementById('api-detail');
+  d.innerHTML=apis[name]||'Not found';
+  document.querySelectorAll('.clickable-api').forEach(e=>{e.style.background='';e.style.color='';e.style.borderColor='';});
+  event.target.style.background='var(--color-background-info)';
+  event.target.style.color='var(--color-text-info)';
+  event.target.style.borderColor='var(--color-border-info)';
+}
+
+function showSeq(id){
+  ['s1','s2','s3','s4','s5'].forEach(s=>{
+    const el=document.getElementById('seq-'+s);
+    if(el) el.style.display=s===id?'block':'none';
+  });
+  document.querySelectorAll('[id^="sq-btn-"]').forEach(b=>b.classList.remove('active'));
+  const map={s1:'1',s2:'2',s3:'3',s4:'4',s5:'5'};
+  const btn=document.getElementById('sq-btn-'+map[id]);
+  if(btn) btn.classList.add('active');
+}
+</script>

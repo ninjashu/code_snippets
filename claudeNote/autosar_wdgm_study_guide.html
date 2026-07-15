@@ -1,0 +1,545 @@
+
+<style>
+:root{--tab-active:#1D9E75;--tab-border:var(--color-border-tertiary)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:1.5rem;overflow-x:auto;flex-wrap:nowrap}
+.tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none}
+.tab.active{color:var(--tab-active);border-bottom-color:var(--tab-active)}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.section{display:none;padding:0 0 2rem}
+.section.active{display:block}
+h2{font-size:17px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary)}
+h3{font-size:14px;font-weight:500;margin:1.2rem 0 0.5rem;color:var(--color-text-primary)}
+p,li{font-size:13px;line-height:1.7;color:var(--color-text-secondary)}
+ul,ol{padding-left:1.2rem;margin-bottom:0.75rem}
+li{margin-bottom:3px}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:0.75rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-bottom:1rem}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;margin-right:4px}
+.badge-ok{background:#E1F5EE;color:#085041}
+.badge-failed{background:#FAEEDA;color:#633806}
+.badge-expired{background:#FAECE7;color:#4A1B0C}
+.badge-stopped{background:#FCEBEB;color:#501313}
+.badge-deact{background:#F1EFE8;color:#2C2C2A}
+.state-machine{margin:1rem 0}
+.sm-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.sm-state{border:1px solid var(--color-border-tertiary);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;min-width:140px;text-align:center}
+.sm-arrow{font-size:12px;color:var(--color-text-tertiary)}
+.sm-cond{font-size:11px;color:var(--color-text-secondary);font-style:italic;margin-left:4px}
+.ok-state{background:#E1F5EE;border-color:#0F6E56;color:#085041}
+.fail-state{background:#FAEEDA;border-color:#854F0B;color:#633806}
+.exp-state{background:#FAECE7;border-color:#993C1D;color:#4A1B0C}
+.stop-state{background:#FCEBEB;border-color:#A32D2D;color:#501313}
+.deact-state{background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A}
+.api-entry{border-left:3px solid #1D9E75;padding:0.5rem 0.75rem;margin-bottom:0.75rem;background:var(--color-background-secondary);border-radius:0 6px 6px 0}
+.api-sig{font-family:var(--font-mono);font-size:11.5px;color:var(--color-text-primary);font-weight:500;margin-bottom:4px;word-break:break-all}
+.api-id{font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px}
+.api-desc{font-size:12px;color:var(--color-text-secondary)}
+.api-note{font-size:11px;color:var(--color-text-secondary);margin-top:4px;border-top:0.5px solid var(--color-border-tertiary);padding-top:4px}
+.err-row{display:grid;grid-template-columns:180px 60px 1fr;gap:8px;font-size:12px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:start}
+.err-hdr{font-weight:500;color:var(--color-text-primary)}
+.tip-box{background:var(--color-background-secondary);border-left:3px solid #378ADD;border-radius:0 6px 6px 0;padding:0.6rem 0.75rem;margin:0.75rem 0;font-size:12px;color:var(--color-text-secondary)}
+.warn-box{background:#FAEEDA;border-left:3px solid #BA7517;border-radius:0 6px 6px 0;padding:0.6px 0.75rem;margin:0.75rem 0;font-size:12px;color:#412402}
+.seq-step{display:flex;gap:10px;margin-bottom:6px;align-items:flex-start}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:#1D9E75;color:#fff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.seq-text{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.param-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:4px}
+.param-key{font-weight:500;color:var(--color-text-primary)}
+.param-val{color:var(--color-text-secondary)}
+.config-container{background:var(--color-background-secondary);border-radius:6px;padding:0.75rem;margin-bottom:0.75rem;font-size:12px}
+.config-name{font-weight:500;color:#185FA5;margin-bottom:4px}
+table.compact{width:100%;border-collapse:collapse;font-size:12px;margin:0.5rem 0}
+table.compact th{text-align:left;font-weight:500;color:var(--color-text-primary);padding:5px 8px;border-bottom:1px solid var(--color-border-tertiary);font-size:12px}
+table.compact td{padding:4px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.trans-flow{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:4px 0}
+.t-box{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.t-arr{font-size:11px;color:var(--color-text-tertiary)}
+</style>
+
+<div style="padding:1rem 0">
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="showTab(0)">Overview</button>
+  <button class="tab" onclick="showTab(1)">State Diagrams</button>
+  <button class="tab" onclick="showTab(2)">Supervision</button>
+  <button class="tab" onclick="showTab(3)">API Spec</button>
+  <button class="tab" onclick="showTab(4)">Sequences</button>
+  <button class="tab" onclick="showTab(5)">Errors</button>
+  <button class="tab" onclick="showTab(6)">DaVinci Config</button>
+</div>
+
+<div id="s0" class="section active">
+<h2>What is WdgM? — Architecture overview</h2>
+<p>WdgM (Watchdog Manager) sits between SW-Cs/BSW and the hardware watchdog. It does NOT trigger the watchdog directly — it monitors software health, then tells WdgIf to keep triggering (or stop, causing a reset).</p>
+<div class="tip-box">Core idea: SW-C calls <code>WdgM_CheckpointReached()</code> → WdgM judges health → <code>WdgM_MainFunction()</code> tells <code>WdgIf_SetTriggerCondition()</code> → HW watchdog lives or resets ECU.</div>
+
+<div class="card-grid">
+<div class="card">
+<h3>Layer position</h3>
+<div class="seq-step"><div class="seq-num">↑</div><div class="seq-text"><strong>SW-Cs / CDDs</strong> — call CheckpointReached via RTE ports</div></div>
+<div class="seq-step"><div class="seq-num">M</div><div class="seq-text"><strong>WdgM</strong> — evaluates Alive/Deadline/Logical supervision</div></div>
+<div class="seq-step"><div class="seq-num">I</div><div class="seq-text"><strong>WdgIf</strong> — abstracts multiple watchdog drivers</div></div>
+<div class="seq-step"><div class="seq-num">D</div><div class="seq-text"><strong>Wdg Driver</strong> — HW watchdog trigger</div></div>
+</div>
+<div class="card">
+<h3>Key dependencies</h3>
+<ul>
+<li><strong>EcuM</strong> — initializes Wdg driver BEFORE WdgM_Init</li>
+<li><strong>OS</strong> — provides <code>GetElapsedValue()</code> for deadline timestamps, task scheduling</li>
+<li><strong>DEM</strong> — receives <code>WDGM_E_SUPERVISION</code> after reset-due-to-WdgM</li>
+<li><strong>DET</strong> — receives dev/runtime error codes</li>
+<li><strong>RTE</strong> — routes CheckpointReached calls, mode notifications</li>
+<li><strong>MCU</strong> — optional immediate reset via <code>Mcu_PerformReset()</code></li>
+</ul>
+</div>
+<div class="card">
+<h3>Key constraints (exam critical)</h3>
+<ul>
+<li>WdgM_MainFunction task must NOT contain supervised entities</li>
+<li>WdgM_Init/DeInit/SetMode must NOT be called concurrently with MainFunction</li>
+<li>Supervision starts at FIRST call to MainFunction after Init</li>
+<li>WdgM can't use RTE APIs before first MainFunction call</li>
+<li>Mode switch only allowed in GLOBAL_OK or GLOBAL_FAILED</li>
+</ul>
+</div>
+<div class="card">
+<h3>Three supervision types</h3>
+<ul>
+<li><strong>Alive</strong> — "Is it running often enough?" Counts checkpoint calls per reference cycle window</li>
+<li><strong>Deadline</strong> — "Is the timing between events correct?" Checks min/max time between Start→End checkpoints</li>
+<li><strong>Logical</strong> — "Is execution order correct?" Validates checkpoint sequence against a graph</li>
+</ul>
+<p style="margin-top:6px">All three results combine per Supervised Entity → Local Status → Global Status</p>
+</div>
+</div>
+
+<h3>Supervised Entity (SE) structure</h3>
+<p>Each SE has one or more Checkpoints. Checkpoints connect via Transitions. SE gets a unique <code>WdgMSupervisedEntityId</code> (uint16). Checkpoint identified by <em>pair</em> of SEID + CheckpointID.</p>
+<div class="tip-box"><strong>Internal Graph</strong>: transitions within one SE, mode-independent. <strong>External Graph</strong>: transitions across SEs, mode-dependent. External graphs enable cross-SE sequence validation.</div>
+</div>
+
+<div id="s1" class="section">
+<h2>State diagrams</h2>
+
+<h3>Local Supervision Status — per Supervised Entity</h3>
+<p>Computed in every MainFunction call. Based on Alive/Deadline/Logical results.</p>
+
+<div class="card">
+<p style="font-size:12px;font-weight:500;margin-bottom:8px">States (SWS_WdgM_91006)</p>
+<div class="sm-row">
+  <div class="sm-state deact-state">DEACTIVATED (init)</div>
+  <div class="sm-arrow">→ (10) Init, SE active</div>
+  <div class="sm-state ok-state">OK</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state ok-state">OK</div>
+  <div class="sm-arrow">→ (1) stay</div>
+  <div class="sm-state ok-state">OK</div>
+  <div class="sm-cond">all supervisions correct</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state ok-state">OK</div>
+  <div class="sm-arrow">→ (2)</div>
+  <div class="sm-state exp-state">EXPIRED</div>
+  <div class="sm-cond">Deadline/Logical fail OR Alive fail + tolerance=0</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state ok-state">OK</div>
+  <div class="sm-arrow">→ (3)</div>
+  <div class="sm-state fail-state">FAILED</div>
+  <div class="sm-cond">Alive fail + tolerance&gt;0, Deadline/Logical OK</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state fail-state">FAILED</div>
+  <div class="sm-arrow">→ (4) stay</div>
+  <div class="sm-state fail-state">FAILED</div>
+  <div class="sm-cond">counter &lt; tolerance, Deadline/Logical still OK</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state fail-state">FAILED</div>
+  <div class="sm-arrow">→ (5)</div>
+  <div class="sm-state ok-state">OK</div>
+  <div class="sm-cond">Alive recovered, counter=1, Deadline/Logical OK</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state fail-state">FAILED</div>
+  <div class="sm-arrow">→ (6)</div>
+  <div class="sm-state exp-state">EXPIRED</div>
+  <div class="sm-cond">Alive fail + counter = tolerance OR Deadline/Logical fail</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state ok-state">OK/FAILED</div>
+  <div class="sm-arrow">→ (7/12)</div>
+  <div class="sm-state deact-state">DEACTIVATED</div>
+  <div class="sm-cond">SetMode deactivates this SE</div>
+</div>
+<div class="sm-row">
+  <div class="sm-state deact-state">DEACTIVATED</div>
+  <div class="sm-arrow">→ (9)</div>
+  <div class="sm-state ok-state">OK</div>
+  <div class="sm-cond">SetMode activates this SE</div>
+</div>
+<div class="warn-box"><p><strong>Critical:</strong> EXPIRED is a terminal local state — cannot leave it (except re-init). FAILED can heal back to OK if Alive recovers within tolerance. Deadline/Logical failures go directly to EXPIRED, no FAILED stop.</p></div>
+</div>
+
+<h3>Global Supervision Status — one for the whole ECU</h3>
+<p>Computed after all Local statuses. Based on worst local status across all active SEs.</p>
+
+<div class="card">
+<p style="font-size:12px;font-weight:500;margin-bottom:8px">States (SWS_WdgM_91005) — WdgIf trigger behavior per state</p>
+<table class="compact">
+<tr><th>State</th><th>WdgIf trigger</th><th>Transitions in (from)</th></tr>
+<tr><td><span class="badge badge-deact">DEACTIVATED</span></td><td>No trigger (not init)</td><td>Static init; DeInit from any</td></tr>
+<tr><td><span class="badge badge-ok">OK</span></td><td>✅ Normal trigger</td><td>Init (13); FAILED if all locals OK/DEACT (6)</td></tr>
+<tr><td><span class="badge badge-failed">FAILED</span></td><td>✅ Normal trigger</td><td>OK if any local FAILED, none EXPIRED (2); stays if still FAILED (5)</td></tr>
+<tr><td><span class="badge badge-expired">EXPIRED</span></td><td>✅ Still triggers (tolerance window)</td><td>OK/FAILED if local EXPIRED + tolerance&gt;0 (3,7); stays while counter &lt; tolerance (9)</td></tr>
+<tr><td><span class="badge badge-stopped">STOPPED</span></td><td>❌ Trigger=0 → HW watchdog fires → ECU reset</td><td>EXPIRED counter = tolerance (10); OK/FAILED + local EXPIRED + tolerance=0 (4,8); WdgIf_SetMode fails (12)</td></tr>
+</table>
+<div class="tip-box">STOPPED is the terminal failure state. WdgM stops setting trigger condition → hardware watchdog expires → ECU resets. If <code>WdgMImmediateReset=TRUE</code>, calls <code>Mcu_PerformReset()</code> immediately instead of waiting for HW timeout.</div>
+
+<h3>Expired Supervision Tolerance — the delay buffer</h3>
+<p>Config param <code>WdgMExpiredSupervisionCycleTol</code>: number of MainFunction cycles to stay in GLOBAL_EXPIRED before going to GLOBAL_STOPPED. Use-case: allow SW-Cs to perform cleanup (NVRAM flush, DEM reporting) before reset.</p>
+<div class="trans-flow">
+  <div class="t-box ok-state">LOCAL_EXPIRED detected</div>
+  <div class="t-arr">→</div>
+  <div class="t-box exp-state">GLOBAL_EXPIRED</div>
+  <div class="t-arr">→ (N cycles)</div>
+  <div class="t-box stop-state">GLOBAL_STOPPED</div>
+  <div class="t-arr">→</div>
+  <div class="t-box" style="background:#FCEBEB;color:#501313;border-radius:4px;font-size:11px;font-weight:500;padding:3px 8px">ECU RESET</div>
+</div>
+</div>
+</div>
+
+<div id="s2" class="section">
+<h2>Supervision functions</h2>
+
+<div class="card">
+<h3>Alive supervision</h3>
+<p>Checks cyclic execution reliability. Did this checkpoint get called the right number of times per supervision cycle?</p>
+<h3>Configuration params (per checkpoint, per mode)</h3>
+<div class="param-row"><div class="param-key">WdgMExpectedAliveIndications (EAI)</div><div class="param-val">Expected count of WdgM_CheckpointReached calls per WdgMSupervisionReferenceCycle</div></div>
+<div class="param-row"><div class="param-key">WdgMMinMargin</div><div class="param-val">Acceptable negative variation: min acceptable = EAI - MinMargin</div></div>
+<div class="param-row"><div class="param-key">WdgMMaxMargin</div><div class="param-val">Acceptable positive variation: max acceptable = EAI + MaxMargin</div></div>
+<div class="param-row"><div class="param-key">WdgMSupervisionReferenceCycle</div><div class="param-val">Multiple of MainFunction period at which counter is evaluated</div></div>
+<div class="param-row"><div class="param-key">WdgMFailedAliveSupervisionRefCycleTol</div><div class="param-val">How many consecutive FAILED reference cycles tolerated before EXPIRED. 0 = immediate EXPIRED</div></div>
+<h3>Algorithm</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">SW-C calls <code>WdgM_CheckpointReached(SEID, CPID)</code> → alive counter for that checkpoint increments</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">At each WdgMSupervisionReferenceCycle, MainFunction evaluates counter</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">If counter within [EAI-Min, EAI+Max] → result=correct; else → result=incorrect</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Incorrect result triggers FAILED counter increment (or EXPIRED if tolerance=0)</div></div>
+<div class="tip-box"><strong>Only Alive has tolerance (FAILED state buffer).</strong> Deadline and Logical failures go straight to EXPIRED with no FAILED stop.</div>
+</div>
+
+<div class="card">
+<h3>Deadline supervision</h3>
+<p>Checks non-cyclic timing: time between a Start checkpoint and End checkpoint must be within [Min, Max].</p>
+<h3>Configuration params (per transition, per mode)</h3>
+<div class="param-row"><div class="param-key">WdgMDeadlineStartRef</div><div class="param-val">Reference to Start Checkpoint</div></div>
+<div class="param-row"><div class="param-key">WdgMDeadlineStopRef</div><div class="param-val">Reference to End Checkpoint</div></div>
+<div class="param-row"><div class="param-key">WdgMDeadlineMin</div><div class="param-val">Minimum allowed time between Start and End (seconds). Early arrival = fail</div></div>
+<div class="param-row"><div class="param-key">WdgMDeadlineMax</div><div class="param-val">Maximum allowed time. 'INF' disables upper check. Late/missing arrival = fail</div></div>
+<div class="param-row"><div class="param-key">WdgMOSCounter</div><div class="param-val">OS counter used for timestamp (GetElapsedValue). Required when any Deadline configured</div></div>
+<div class="param-row"><div class="param-key">WdgMEnableTimeoutDetection</div><div class="param-val">If true: MainFunction also checks if End never arrives (timeout detection)</div></div>
+<h3>Algorithm (SWS_WdgM_00228–00299)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Start checkpoint reached → timestamp saved (OS ticks)</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Start reached again before End → timestamp overwritten (NOT an error)</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">End checkpoint reached + timestamp ≠ 0 → time diff measured, timestamp cleared</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">End reached with timestamp = 0 → ignored silently (no error)</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Time diff outside [Min, Max] → result=incorrect (→ immediate EXPIRED)</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Timeout detection: MainFunction checks if timestamp ≠ 0 and elapsed > Max → incorrect</div></div>
+<div class="warn-box"><p>Deadline uses OS ticks scaled by OsSecondsPerTick. OS counter must be accessible from both the SE's OsApplication AND the WdgM_MainFunction's OsApplication when timeout detection is enabled.</p></div>
+</div>
+
+<div class="card">
+<h3>Logical supervision</h3>
+<p>Verifies execution sequence correctness. Checkpoints form a graph; WdgM validates each reported checkpoint is a valid successor of the previous one.</p>
+<h3>Key concepts</h3>
+<div class="param-row"><div class="param-key">Internal Graph</div><div class="param-val">Transitions within one SE. Mode-independent (always same graph, activation toggled by mode)</div></div>
+<div class="param-row"><div class="param-key">External Graph</div><div class="param-val">Transitions across multiple SEs. Mode-dependent (configured per WdgMMode)</div></div>
+<div class="param-row"><div class="param-key">Initial Checkpoint</div><div class="param-val">First valid checkpoint in a graph. Activates the Activity Flag for that graph</div></div>
+<div class="param-row"><div class="param-key">Final Checkpoint</div><div class="param-val">Resets Activity Flag to false (graph ready to restart)</div></div>
+<div class="param-row"><div class="param-key">Activity Flag</div><div class="param-val">One per graph. False = waiting for initial checkpoint. True = actively checking sequence</div></div>
+<h3>Algorithm</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Activity Flag = false → only Initial Checkpoint is valid. Non-initial = incorrect</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Initial Checkpoint reached → Activity Flag = true, stored as current checkpoint</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Next checkpoint reached → verify transition (stored→new) exists in graph. Valid → correct, store new. Invalid → incorrect (and stays incorrect)</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Final Checkpoint valid → Activity Flag = false</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Checkpoint not in any graph → ignored by Logical (may still affect Alive/Deadline)</div></div>
+<div class="tip-box">Incorrect External Transition: the SE that <em>reported</em> the wrong checkpoint is marked as erroneous — not the SE that sent the previous checkpoint.</div>
+</div>
+</div>
+
+<div id="s3" class="section">
+<h2>API specification</h2>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x00 | Sync | Non-Reentrant</div>
+<div class="api-sig">void WdgM_Init(const WdgM_ConfigType* ConfigPtr)</div>
+<div class="api-desc">Initializes WdgM. Sets all Local statuses: active SEs → OK, inactive → DEACTIVATED. Global → OK. Failed ref cycle counters → 0. Clears non-init RAM (first expired SEID).</div>
+<div class="api-note">Precondition: WdgIf and OS must be initialized first (EcuM responsibility). Supervision starts at FIRST MainFunction call, not here. If WdgIf_SetMode fails during Init → GLOBAL_STOPPED immediately.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x01 | Sync | Non-Reentrant</div>
+<div class="api-sig">void WdgM_DeInit(void)</div>
+<div class="api-desc">De-initializes WdgM. Performs a mode switch to update watchdog trigger conditions (for windowed watchdog compatibility). Global status → DEACTIVATED. Stops all supervision.</div>
+<div class="api-note">Cannot be called when in EXPIRED or STOPPED — risks blocking error recovery. EcuM calls this during SLEEP entry.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x02 | Sync | Reentrant</div>
+<div class="api-sig">void WdgM_GetVersionInfo(Std_VersionInfoType* VersionInfo)</div>
+<div class="api-desc">Returns module version info. NULL pointer → DET error WDGM_E_INV_POINTER.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x03 | Sync | Non-Reentrant | Returns Std_ReturnType</div>
+<div class="api-sig">Std_ReturnType WdgM_SetMode(WdgM_ModeType Mode)</div>
+<div class="api-desc">Switches WdgM mode. Updates supervision parameters and watchdog trigger conditions. Returns E_OK on success, E_NOT_OK on failure.</div>
+<div class="api-note">Only executes if Global = OK or FAILED. In other states → returns without action (SWS_WdgM_00316). WdgIf_SetMode failure → Global_STOPPED (runtime error WDGM_E_SET_MODE). Mode disabling watchdog when WdgMOffModeEnabled=FALSE → E_NOT_OK + WDGM_E_DISABLE_NOT_ALLOWED.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x0b | Sync | Reentrant | Returns Std_ReturnType</div>
+<div class="api-sig">Std_ReturnType WdgM_GetMode(WdgM_ModeType* Mode)</div>
+<div class="api-desc">Returns current active mode. If SetMode is in progress, returns previous mode until new mode fully activated.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x0e | Sync | Reentrant | Returns Std_ReturnType</div>
+<div class="api-sig">Std_ReturnType WdgM_CheckpointReached(WdgM_SupervisedEntityIdType SEID, WdgM_CheckpointIdType CheckpointID)</div>
+<div class="api-desc">Called by SW-C when code reaches a checkpoint. Does three things: (1) increment alive counter, (2) execute Deadline supervision (early arrival + delay detection), (3) execute Logical supervision.</div>
+<div class="api-note">Reentrant — safe to call from multiple SEs concurrently. Returns E_NOT_OK if SE is deactivated in current mode (WDGM_E_SEDEACTIVATED). Timeout detection (missing End) is handled in MainFunction, not here.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x0c | Sync | Reentrant | Returns Std_ReturnType</div>
+<div class="api-sig">Std_ReturnType WdgM_GetLocalStatus(WdgM_SupervisedEntityIdType SEID, WdgM_LocalStatusType* Status)</div>
+<div class="api-desc">Returns current local supervision status for a specific SE. Used by SW-Cs for self-diagnostics or by integrators for testing.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x0d | Sync | Reentrant | Returns Std_ReturnType</div>
+<div class="api-sig">Std_ReturnType WdgM_GetGlobalStatus(WdgM_GlobalStatusType* Status)</div>
+<div class="api-desc">Returns current global supervision status. Key API for integration testing — confirms WdgM health at system level.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x0f | Sync | Non-Reentrant | Returns void</div>
+<div class="api-sig">void WdgM_PerformReset(void)</div>
+<div class="api-desc">Forces immediate watchdog reset. Sets all watchdog trigger conditions to 0. After this call, WdgM stops all further trigger updates regardless of Global Status.</div>
+<div class="api-note">Use for deliberate forced reset. Not the same as letting GLOBAL_STOPPED happen — this is an explicit API call. No RTE mode notification is sent.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x10 | Sync | Reentrant | Returns Std_ReturnType</div>
+<div class="api-sig">Std_ReturnType WdgM_GetFirstExpiredSEID(WdgM_SupervisedEntityIdType* SEID)</div>
+<div class="api-desc">Returns the SEID that first went EXPIRED in the current operating cycle. Read from non-initialized RAM (persists across reset). Stored as double-inverted value for data integrity check.</div>
+<div class="api-note">Available BEFORE WdgM_Init — critical for post-reset diagnosis. If value and ~value don't match → E_NOT_OK, SEID=0. Call this in startup to determine why last reset occurred.</div>
+</div>
+
+<div class="api-entry">
+<div class="api-id">Service ID: 0x08 | Called by BSW Scheduler</div>
+<div class="api-sig">void WdgM_MainFunction(void)</div>
+<div class="api-desc">Core periodic function. Executes: (1) Alive supervision evaluation, (2) Deadline timeout detection, (3) Local Status state machine update for all active SEs, (4) Global Status update, (5) WdgIf_SetTriggerCondition call.</div>
+<div class="api-note">Must be in a task that contains NO supervised entities. Supervision starts at first call after Init. Multiple partitions → WdgM_MainFunction_&lt;shortName&gt; naming.</div>
+</div>
+
+<h3>Key data types</h3>
+<table class="compact">
+<tr><th>Type</th><th>Base</th><th>Purpose</th></tr>
+<tr><td><code>WdgM_SupervisedEntityIdType</code></td><td>uint16</td><td>SE identifier, unique per WdgM config</td></tr>
+<tr><td><code>WdgM_CheckpointIdType</code></td><td>uint16</td><td>CP identifier, unique within SE</td></tr>
+<tr><td><code>WdgM_LocalStatusType</code></td><td>uint8</td><td>OK=0, FAILED=1, EXPIRED=2, DEACTIVATED=4</td></tr>
+<tr><td><code>WdgM_GlobalStatusType</code></td><td>uint8</td><td>OK=0, FAILED=1, EXPIRED=2, STOPPED=3, DEACTIVATED=4</td></tr>
+<tr><td><code>WdgM_ModeType</code></td><td>uint8</td><td>Mode ID, 0 to N configured modes</td></tr>
+<tr><td><code>WdgM_ConfigType</code></td><td>struct</td><td>Post-build config pointer passed to Init</td></tr>
+</table>
+</div>
+
+<div id="s4" class="section">
+<h2>Sequence diagrams</h2>
+
+<div class="card">
+<h3>Normal operation sequence</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>EcuM startup:</strong> Wdg driver init → WdgIf init → <code>WdgM_Init(ConfigPtr)</code> called. Global=OK, all active SEs=LOCAL_OK.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>BSW Scheduler:</strong> <code>WdgM_MainFunction()</code> called periodically (first call activates supervision)</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>SW-C Runnable:</strong> <code>WdgM_CheckpointReached(SEID, CPID)</code> at each code checkpoint → counters updated, Deadline/Logical evaluated</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>MainFunction cycle:</strong> Evaluate Alive counters at reference cycle → compute Local Status → compute Global Status → call <code>WdgIf_SetTriggerCondition(deviceIdx, timeout)</code></div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>Mode switch (e.g. BswM):</strong> <code>WdgM_SetMode(newMode)</code> → updates SE activation, watchdog params</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>EcuM sleep:</strong> <code>WdgM_DeInit()</code> → performs internal mode switch for windowed WDG, deactivates WdgM</div></div>
+</div>
+
+<div class="card">
+<h3>Failure detection and reset sequence</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">SE fails supervision → CheckpointReached returns Deadline/Logical incorrect result</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">MainFunction: Local status → EXPIRED (for Deadline/Logical); or FAILED→EXPIRED for Alive</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Global status update: one SE EXPIRED + WdgMExpiredSupervisionCycleTol=0 → GLOBAL_STOPPED</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><code>WdgIf_SetTriggerCondition(deviceIdx, 0)</code> → HW watchdog stop being fed</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">If <code>WdgMImmediateReset=TRUE</code>: <code>Mcu_PerformReset()</code> called immediately</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">RTE mode mechanism: SW-Cs notified of SUPERVISION_STOPPED via mode port</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text">HW watchdog expires → ECU reset</div></div>
+<div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><strong>After reset:</strong> Before WdgM_Init, call <code>WdgM_GetFirstExpiredSEID()</code> to identify culprit SE</div></div>
+<div class="seq-step"><div class="seq-num">9</div><div class="seq-text">First MainFunction call after Init: checks reset cause → reports <code>WDGM_E_SUPERVISION FAILED</code> to DEM, then reports PASSED</div></div>
+</div>
+
+<div class="card">
+<h3>Alive supervision internal sequence (per MainFunction call)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Check if current cycle is a supervision reference cycle for this checkpoint</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">If yes: read alive counter, compare to [EAI-Min, EAI+Max]</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Counter in range → result=correct, reset counter for next window</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Counter out of range → result=incorrect</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">If tolerance>0 and result=incorrect: FAILED state + increment failed cycle counter</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">If counter reaches tolerance limit → EXPIRED</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text">If SE was FAILED and result=correct: decrement counter; if counter=0 → OK</div></div>
+</div>
+
+<div class="card">
+<h3>Logical supervision sequence (per CheckpointReached)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Determine which Graph(s) the reported CPID belongs to</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">For each Graph: check Activity Flag</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Flag=false: only Initial Checkpoint valid → if initial, set Flag=true, store CP. If non-initial → incorrect</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Flag=true: check if transition (stored→reported) exists in graph</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Valid transition → correct, update stored CP</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Invalid transition → incorrect, result stays incorrect for remainder</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text">If reported CP is Final: set Flag=false (graph ready to restart)</div></div>
+</div>
+</div>
+
+<div id="s5" class="section">
+<h2>Error classification</h2>
+
+<h3>Development errors (DET) — WdgMDevErrorDetect must be enabled</h3>
+<div class="card">
+<div class="err-row"><div class="err-hdr">Error Code</div><div class="err-hdr">Value</div><div class="err-hdr">Trigger condition</div></div>
+<div class="err-row"><div><code>WDGM_E_UNINIT</code></div><div>0x10</div><div>API called before WdgM_Init (Global=DEACTIVATED)</div></div>
+<div class="err-row"><div><code>WDGM_E_PARAM_CONFIG</code></div><div>0x11</div><div>WdgM_Init called with invalid config (post-build variant)</div></div>
+<div class="err-row"><div><code>WDGM_E_PARAM_MODE</code></div><div>0x12</div><div>SetMode called with mode ID out of range</div></div>
+<div class="err-row"><div><code>WDGM_E_PARAM_SEID</code></div><div>0x13</div><div>CheckpointReached/GetLocalStatus called with invalid SEID</div></div>
+<div class="err-row"><div><code>WDGM_E_INV_POINTER</code></div><div>0x14</div><div>NULL pointer passed to output parameter</div></div>
+<div class="err-row"><div><code>WDGM_E_CPID</code></div><div>0x16</div><div>CheckpointReached called with invalid CheckpointID for given SEID</div></div>
+<div class="err-row"><div><code>WDGM_E_NO_DEINIT</code></div><div>0x1A</div><div>WdgM_Init called when not in DEACTIVATED (not properly deinitialized)</div></div>
+<div class="err-row"><div><code>WDGM_E_INIT_FAILED</code></div><div>0x1B</div><div>Config set doesn't exist / init failure</div></div>
+<div class="err-row"><div><code>WDGM_E_PARAM_POINTER</code></div><div>0x1C</div><div>NULL pointer parameter passed</div></div>
+</div>
+
+<h3>Runtime errors (DET) — always active</h3>
+<div class="card">
+<div class="err-row"><div><code>WDGM_E_DISABLE_NOT_ALLOWED</code></div><div>0x15</div><div>Attempt to switch watchdog to WDGIF_OFF_MODE when WdgMOffModeEnabled=FALSE</div></div>
+<div class="err-row"><div><code>WDGM_E_SEDEACTIVATED</code></div><div>0x19</div><div>CheckpointReached for SE that is deactivated in current mode</div></div>
+<div class="err-row"><div><code>WDGM_E_SET_MODE</code></div><div>0x1D</div><div>WdgIf_SetMode call failed during WdgM_SetMode</div></div>
+</div>
+
+<h3>Production error (DEM)</h3>
+<div class="card">
+<div class="err-row"><div><code>WDGM_E_SUPERVISION</code></div><div>—</div><div>Global reached STOPPED → watchdog reset occurred. Reported FAILED in first MainFunction after restart. Then reported PASSED immediately after.</div></div>
+<div class="tip-box">DTC from WDGM_E_SUPERVISION never shows "confirmed" — it resets every startup. Post-reset diagnosis: use WdgM_GetFirstExpiredSEID() + DEM event status.</div>
+</div>
+
+<h3>Debugging checklist</h3>
+<div class="card">
+<ul>
+<li>WdgM reset happening? → Check <code>WdgM_GetFirstExpiredSEID()</code> before Init, then DEM for WDGM_E_SUPERVISION</li>
+<li>CheckpointReached returning E_NOT_OK? → SE may be deactivated in current mode; check WdgM_GetMode() and config</li>
+<li>Alive supervision failing spuriously? → Check task jitter vs WdgMSupervisionReferenceCycle; check Min/MaxMargin tolerances</li>
+<li>Deadline supervision triggering? → Check OS counter resolution (OsSecondsPerTick); check timestamp = 0 edge cases</li>
+<li>Logical supervision incorrect? → Trace CheckpointReached call sequence vs configured graph; check Initial Checkpoint is called first</li>
+<li>Mode switch failing? → Verify Global is OK or FAILED; check WdgMOffModeEnabled; check WdgIf_SetMode return</li>
+<li>MainFunction task deadlock? → WdgM_MainFunction task must not contain any supervised runnables</li>
+</ul>
+</div>
+</div>
+
+<div id="s6" class="section">
+<h2>Vector DaVinci Configurator — WdgM project setup</h2>
+
+<div class="card">
+<h3>Configuration hierarchy</h3>
+<div class="config-container">
+<div class="config-name">WdgMGeneral</div>
+<p>Module-level switches: WdgMDevErrorDetect, WdgMOffModeEnabled, WdgMImmediateReset, WdgMVersionInfoApi, WdgMDemEventParameterRefs (link to DEM event for WDGM_E_SUPERVISION)</p>
+</div>
+<div class="config-container">
+<div class="config-name">WdgMGeneral → WdgMSupervisedEntity [1..N]</div>
+<p>One container per SE. Parameters: WdgMSupervisedEntityId (unique uint16), and nested WdgMCheckpoint containers.</p>
+<div class="config-container" style="margin-top:6px">
+<div class="config-name">WdgMCheckpoint [1..N per SE]</div>
+<p>WdgMCheckpointId (unique within SE), WdgMIsInitialCheckpoint (bool), WdgMIsFinalCheckpoint (bool)</p>
+</div>
+<div class="config-container" style="margin-top:4px">
+<div class="config-name">WdgMInternalTransition [0..N per SE]</div>
+<p>WdgMInternalTransitionSourceRef → Checkpoint, WdgMInternalTransitionDestRef → Checkpoint (both in same SE)</p>
+</div>
+</div>
+<div class="config-container">
+<div class="config-name">WdgMConfigSet</div>
+<p>Top-level configuration set. Contains WdgMInitialMode reference + all WdgMMode containers.</p>
+<div class="config-container" style="margin-top:6px">
+<div class="config-name">WdgMMode [1..N]</div>
+<p>WdgMModeId (unique), and per-mode supervision settings:</p>
+<div class="config-container" style="margin-top:4px">
+<div class="config-name">WdgMLocalStatusParams [per active SE]</div>
+<p>WdgMLocalStatusSupervisedEntityRef → SE, WdgMFailedAliveSupervisionRefCycleTol, WdgMExpiredSupervisionCycleTol</p>
+<div class="config-container" style="margin-top:4px">
+<div class="config-name">WdgMAliveSupervision [per checkpoint with alive]</div>
+<p>WdgMAliveCheckpointRef, WdgMExpectedAliveIndications, WdgMMinMargin, WdgMMaxMargin, WdgMSupervisionReferenceCycle</p>
+</div>
+<div class="config-container" style="margin-top:4px">
+<div class="config-name">WdgMDeadlineSupervision [per deadline transition]</div>
+<p>WdgMDeadlineStartRef, WdgMDeadlineStopRef, WdgMDeadlineMin, WdgMDeadlineMax, WdgMOSCounter ref, WdgMEnableTimeoutDetection</p>
+</div>
+<div class="config-container" style="margin-top:4px">
+<div class="config-name">WdgMExternalLogicalSupervision [per external graph]</div>
+<p>WdgMExternalTransition containers: WdgMExternalTransitionSourceRef, WdgMExternalTransitionDestRef, WdgMExternalCheckpointInitialRef, WdgMExternalCheckpointFinalRef</p>
+</div>
+</div>
+<div class="config-container" style="margin-top:4px">
+<div class="config-name">WdgMTrigger [per watchdog instance]</div>
+<p>WdgMWatchdogDeviceRef → Wdg device, WdgMWatchdogMode (WDGIF_OFF_MODE / FAST / SLOW), WdgMTriggerConditionValue</p>
+</div>
+</div>
+</div>
+</div>
+
+<h3>Step-by-step DaVinci setup</h3>
+<div class="card">
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text"><strong>Add WdgM BSW module</strong> to your ECU configuration. DaVinci auto-creates WdgMGeneral and WdgMConfigSet.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text"><strong>Enable WdgMDevErrorDetect</strong> during development. Set WdgMOffModeEnabled=FALSE for safety-relevant systems.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text"><strong>Create Supervised Entities</strong>: Right-click WdgMSupervisedEntity → Add. Assign unique WdgMSupervisedEntityId. Add checkpoints under each SE.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text"><strong>Configure Internal Transitions</strong> for Logical supervision of internal graphs. Mark initial/final checkpoints.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text"><strong>Create Modes</strong> under WdgMConfigSet. Set WdgMInitialMode reference. Modes define: which SEs active, supervision params, watchdog modes.</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text"><strong>Configure WdgMLocalStatusParams</strong> per active SE per mode. Link SE reference. Set alive tolerance, expired tolerance.</div></div>
+<div class="seq-step"><div class="seq-num">7</div><div class="seq-text"><strong>Configure supervision functions per mode:</strong> Add WdgMAliveSupervision (link checkpoint, set EAI/margins/refcycle), WdgMDeadlineSupervision (link Start/End CPs, set timing, link OS counter), WdgMExternalLogicalSupervision (define external graph transitions).</div></div>
+<div class="seq-step"><div class="seq-num">8</div><div class="seq-text"><strong>Configure WdgMTrigger</strong>: link watchdog device, set mode (FAST/SLOW/OFF) and trigger condition value per mode.</div></div>
+<div class="seq-step"><div class="seq-num">9</div><div class="seq-text"><strong>Link DEM event</strong>: In WdgMGeneral → WdgMDemEventParameterRefs, reference the DEM event for WDGM_E_SUPERVISION.</div></div>
+<div class="seq-step"><div class="seq-num">10</div><div class="seq-text"><strong>Configure OS counters</strong> (in OS configurator): Add OsCounter, set OsSecondsPerTick. Reference in WdgMDeadlineSupervision → WdgMOSCounter. Ensure OsCounterAccessingApplication includes both SE's partition and MainFunction's partition.</div></div>
+<div class="seq-step"><div class="seq-num">11</div><div class="seq-text"><strong>Generate code</strong>. DaVinci generates WdgM_Cfg.h/c with all IDs and parameters. SW-C port connections auto-generate SEID/CPID constants.</div></div>
+<div class="seq-step"><div class="seq-num">12</div><div class="seq-text"><strong>OS task configuration</strong>: Map WdgM_MainFunction to a separate task from all supervised entities. Set period to match supervision cycle requirements.</div></div>
+</div>
+
+<h3>Integration testing checklist</h3>
+<div class="card">
+<ul>
+<li>Verify WdgM_GetGlobalStatus() = WDGM_GLOBAL_STATUS_OK after full system startup</li>
+<li>Test: disable one SE's checkpoint call → verify local EXPIRED → global STOPPED → ECU reset within expected time</li>
+<li>Test: call checkpoint too fast/slow → verify Alive supervision response</li>
+<li>Test: call checkpoint out of order → verify Logical supervision EXPIRED</li>
+<li>Test: WdgM_GetFirstExpiredSEID() post-reset → correct SEID returned</li>
+<li>Test: DEM event WDGM_E_SUPERVISION FAILED present after WDG reset, PASSED after normal start</li>
+<li>Test: mode switch changes supervision params and watchdog trigger condition</li>
+<li>Verify WdgM_MainFunction task never contains supervised runnables</li>
+<li>Verify OS counter accessible from both partitions (if deadline supervision across partitions)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+function showTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.section').forEach((s,i)=>s.classList.toggle('active',i===n));
+}
+</script>

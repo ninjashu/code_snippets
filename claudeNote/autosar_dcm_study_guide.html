@@ -1,0 +1,964 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.4rem;border-bottom:.5px solid var(--color-border-tertiary);padding-bottom:.9rem}
+.nav button{font-size:11px;padding:4px 10px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font-sans)}
+.nav button.active,.nav button:hover{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.section{display:none}.section.active{display:block}
+h2{font-size:17px;font-weight:500;margin-bottom:.9rem}
+h3{font-size:14px;font-weight:500;margin:1.1rem 0 .5rem}
+h4{font-size:11px;font-weight:500;margin:.6rem 0 .3rem;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+p{font-size:13px;line-height:1.65;color:var(--color-text-secondary);margin-bottom:.6rem}
+.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.9rem 1.1rem;margin-bottom:.6rem}
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.6rem;margin-bottom:.8rem}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+pre{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:.65rem .9rem;border-radius:var(--border-radius-md);overflow-x:auto;line-height:1.6;margin:.4rem 0 .6rem;border:.5px solid var(--color-border-tertiary)}
+.ar{display:flex;align-items:flex-start;gap:.5rem;padding:.45rem 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:12px}
+.an{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);min-width:220px;flex-shrink:0;line-height:1.5}
+.ad{color:var(--color-text-secondary);line-height:1.5;font-size:12px}
+.ib{background:var(--color-background-info);border:.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:.65rem .9rem;margin:.4rem 0;font-size:12px;color:var(--color-text-info);line-height:1.55}
+.wb{background:var(--color-background-warning);border:.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:.65rem .9rem;margin:.4rem 0;font-size:12px;color:var(--color-text-warning);line-height:1.55}
+.db{background:var(--color-background-danger);border:.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:.65rem .9rem;margin:.4rem 0;font-size:12px;color:var(--color-text-danger);line-height:1.55}
+.sb{background:var(--color-background-success);border:.5px solid var(--color-border-success);border-radius:var(--border-radius-md);padding:.65rem .9rem;margin:.4rem 0;font-size:12px;color:var(--color-text-success);line-height:1.55}
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:.4rem 0}
+th{text-align:left;font-weight:500;padding:.35rem .55rem;border-bottom:.5px solid var(--color-border-secondary);font-size:11px;color:var(--color-text-secondary)}
+td{padding:.35rem .55rem;border-bottom:.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.45}
+.ss{display:flex;gap:.6rem;margin-bottom:.5rem;align-items:flex-start}
+.sn{min-width:20px;height:20px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:2px}
+.st{font-size:12px;color:var(--color-text-secondary);line-height:1.55}
+.cl{cursor:pointer;display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--font-mono);margin:2px;border:.5px solid var(--color-border-secondary);transition:all .15s}
+.cl:hover{background:var(--color-background-secondary)}
+#apid{margin-top:.65rem;padding:.65rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:12px;min-height:48px;color:var(--color-text-secondary);line-height:1.7}
+.nrc-row{display:flex;gap:.5rem;padding:.3rem 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:11px;align-items:flex-start}
+.nrc-code{font-family:var(--font-mono);color:var(--color-text-danger);min-width:55px;flex-shrink:0;font-weight:500}
+.nrc-name{color:var(--color-text-primary);min-width:220px;flex-shrink:0}
+.nrc-desc{color:var(--color-text-secondary);line-height:1.45}
+.badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:500;margin:1px}
+.pill-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.pill-green{background:var(--color-background-success);color:var(--color-text-success)}
+.pill-orange{background:var(--color-background-warning);color:var(--color-text-warning)}
+.pill-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+</style>
+
+<div style="padding:.8rem 0">
+<h2 style="margin-bottom:.3rem">AUTOSAR CP DCM — Diagnostic Communication Manager — Complete Study Guide</h2>
+<p style="margin-bottom:.9rem;font-size:12px">R24-11 · Doc ID 18 · ISO 14229-1 (UDS) / ISO 15031-5 (OBD) · OSI layers 5–7 · Exam + Integration + DaVinci Config</p>
+
+<div class="nav">
+  <button class="active" onclick="show('ov')">Overview</button>
+  <button onclick="show('arch')">Architecture</button>
+  <button onclick="show('dsl')">DSL — Session & Security</button>
+  <button onclick="show('session')">Session State Machine</button>
+  <button onclick="show('security')">Security Access (0x27)</button>
+  <button onclick="show('dsd')">DSD — Dispatcher</button>
+  <button onclick="show('dsp')">DSP — Services</button>
+  <button onclick="show('services')">UDS Services Reference</button>
+  <button onclick="show('nrc')">NRC Reference</button>
+  <button onclick="show('api')">API Reference</button>
+  <button onclick="show('timing')">Timing Parameters</button>
+  <button onclick="show('seq')">Sequence Diagrams</button>
+  <button onclick="show('obd')">OBD Support</button>
+  <button onclick="show('config')">DaVinci Config</button>
+  <button onclick="show('dbg')">Testing & Debug</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="section-ov" class="section active">
+<h2>What is AUTOSAR DCM?</h2>
+<p>DCM (Diagnostic Communication Manager) is the AUTOSAR BSW module that implements UDS (ISO 14229-1) and OBD (ISO 15031-5) diagnostic services. It sits at OSI layers 5–7, sitting above the transport layer (CanTp/DoIP) and PDU Router. External testers (diagnostic tools, OBD scanners) interact with the ECU exclusively through DCM.</p>
+
+<div class="cg">
+  <div class="card"><h4>DCM handles</h4><p>• UDS services: 0x10–0x86<br>• OBD services: $01–$0A<br>• Session management (default/extended/programming)<br>• Security access (seed/key)<br>• DID read/write<br>• Routine control<br>• DTC management (via DEM)<br>• Memory access (read/write)</p></div>
+  <div class="card"><h4>Three internal submodules</h4><p><b>DSL</b> — Diagnostic Session Layer: manages sessions, security, timing, communication with PduR<br><b>DSD</b> — Diagnostic Service Dispatcher: validates requests, routes to DSP<br><b>DSP</b> — Diagnostic Service Processing: executes actual service logic</p></div>
+  <div class="card"><h4>Key dependencies</h4><p><b>PduR</b> — Tx/Rx interface (mandatory)<br><b>DEM</b> — DTC services (0x14, 0x19, 0x85)<br><b>ComM</b> — Communication mode notification<br><b>BswM</b> — Mode management<br><b>RTE</b> — SWC interface for DIDs/routines<br><b>NvM</b> — Non-volatile data access<br><b>CSM/KeyM</b> — Service 0x29 authentication</p></div>
+  <div class="card"><h4>Key limitations</h4><p>• No SAE J1939 support<br>• No Service 0x83 (AccessTimingParameter)<br>• No Service 0x84 (SecuredDataTransmission)<br>• Not for bootloader use<br>• No multi-channel parallel processing<br>• Service 0x29 supports PKI only (no challenge-response)</p></div>
+</div>
+
+<h3>OSI layer mapping</h3>
+<table>
+  <tr><th>OSI Layer</th><th>DCM scope?</th><th>Protocol</th></tr>
+  <tr><td>7 — Application</td><td><span class="badge pill-green">YES</span></td><td>ISO 14229-1 (UDS), ISO 15031-5 (OBD)</td></tr>
+  <tr><td>6 — Presentation</td><td><span class="badge pill-green">YES</span></td><td>ISO 14229-1:2013 session data format</td></tr>
+  <tr><td>5 — Session</td><td><span class="badge pill-green">YES</span></td><td>ISO 15765-3 (UDS on CAN session layer)</td></tr>
+  <tr><td>4 — Transport</td><td><span class="badge pill-orange">NO</span></td><td>ISO 15765-2 (CanTp), ISO 13400-2 (DoIP)</td></tr>
+  <tr><td>1–3 — Network/Data/Physical</td><td><span class="badge pill-orange">NO</span></td><td>CAN, LIN, FlexRay, Ethernet</td></tr>
+</table>
+
+<div class="ib">💡 DCM is network-independent. All network-specific work (CAN IDs, TP segmentation) is done by CanTp and PduR. DCM only sees complete PDU payloads from PduR.</div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="section-arch" class="section">
+<h2>DCM Architecture — Data Flow</h2>
+<svg width="100%" viewBox="0 0 680 340" role="img"><title>DCM internal architecture showing data flow between PduR, DSL, DSD, DSP and external modules</title>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+
+<!-- PduR -->
+<rect x="20" y="130" width="90" height="70" rx="8" fill="#EEEDFE" stroke="#CECBF6"/>
+<text x="65" y="160" text-anchor="middle" fill="#3C3489" font-size="11" font-weight="500">PduR</text>
+<text x="65" y="174" text-anchor="middle" fill="#534AB7" font-size="9">Rx/Tx PDUs</text>
+<text x="65" y="186" text-anchor="middle" fill="#534AB7" font-size="9">CanTp/DoIP</text>
+
+<!-- DSL -->
+<rect x="140" y="90" width="120" height="150" rx="8" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1.5"/>
+<text x="200" y="113" text-anchor="middle" fill="#0C447C" font-size="12" font-weight="500">DSL</text>
+<text x="200" y="128" text-anchor="middle" fill="#185FA5" font-size="9">Session Layer</text>
+<rect x="150" y="135" width="100" height="18" rx="4" fill="#B5D4F4"/>
+<text x="200" y="148" text-anchor="middle" fill="#0C447C" font-size="9">Session mgmt</text>
+<rect x="150" y="158" width="100" height="18" rx="4" fill="#B5D4F4"/>
+<text x="200" y="171" text-anchor="middle" fill="#0C447C" font-size="9">Security level</text>
+<rect x="150" y="181" width="100" height="18" rx="4" fill="#B5D4F4"/>
+<text x="200" y="194" text-anchor="middle" fill="#0C447C" font-size="9">Timing (P2/S3)</text>
+<rect x="150" y="204" width="100" height="18" rx="4" fill="#B5D4F4"/>
+<text x="200" y="217" text-anchor="middle" fill="#0C447C" font-size="9">Comm mode</text>
+
+<!-- DSD -->
+<rect x="290" y="90" width="120" height="150" rx="8" fill="#EAF3DE" stroke="#C0DD97" stroke-width="1.5"/>
+<text x="350" y="113" text-anchor="middle" fill="#27500A" font-size="12" font-weight="500">DSD</text>
+<text x="350" y="128" text-anchor="middle" fill="#3B6D11" font-size="9">Dispatcher</text>
+<rect x="300" y="135" width="100" height="18" rx="4" fill="#C0DD97"/>
+<text x="350" y="148" text-anchor="middle" fill="#27500A" font-size="9">SID lookup</text>
+<rect x="300" y="158" width="100" height="18" rx="4" fill="#C0DD97"/>
+<text x="350" y="171" text-anchor="middle" fill="#27500A" font-size="9">Session check</text>
+<rect x="300" y="181" width="100" height="18" rx="4" fill="#C0DD97"/>
+<text x="350" y="194" text-anchor="middle" fill="#27500A" font-size="9">Security check</text>
+<rect x="300" y="204" width="100" height="18" rx="4" fill="#C0DD97"/>
+<text x="350" y="217" text-anchor="middle" fill="#27500A" font-size="9">Auth check</text>
+
+<!-- DSP -->
+<rect x="440" y="90" width="120" height="150" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="1.5"/>
+<text x="500" y="113" text-anchor="middle" fill="#633806" font-size="12" font-weight="500">DSP</text>
+<text x="500" y="128" text-anchor="middle" fill="#BA7517" font-size="9">Service Processing</text>
+<rect x="450" y="135" width="100" height="18" rx="4" fill="#FAC775"/>
+<text x="500" y="148" text-anchor="middle" fill="#633806" font-size="9">0x10 SessionCtrl</text>
+<rect x="450" y="158" width="100" height="18" rx="4" fill="#FAC775"/>
+<text x="500" y="171" text-anchor="middle" fill="#633806" font-size="9">0x22/0x2E DID</text>
+<rect x="450" y="181" width="100" height="18" rx="4" fill="#FAC775"/>
+<text x="500" y="194" text-anchor="middle" fill="#633806" font-size="9">0x27 SecAccess</text>
+<rect x="450" y="204" width="100" height="18" rx="4" fill="#FAC775"/>
+<text x="500" y="217" text-anchor="middle" fill="#633806" font-size="9">0x19/0x31/etc.</text>
+
+<!-- External modules -->
+<rect x="580" y="10" width="90" height="35" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="625" y="32" text-anchor="middle" fill="#712B13" font-size="10">DEM (DTC)</text>
+<rect x="580" y="55" width="90" height="35" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="625" y="77" text-anchor="middle" fill="#712B13" font-size="10">RTE / SWC</text>
+<rect x="580" y="100" width="90" height="35" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="625" y="122" text-anchor="middle" fill="#712B13" font-size="10">ComM</text>
+<rect x="580" y="145" width="90" height="35" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="625" y="167" text-anchor="middle" fill="#712B13" font-size="10">BswM</text>
+<rect x="580" y="190" width="90" height="35" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="625" y="212" text-anchor="middle" fill="#712B13" font-size="10">KeyM / CSM</text>
+<rect x="580" y="235" width="90" height="35" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="625" y="257" text-anchor="middle" fill="#712B13" font-size="10">NvM</text>
+
+<!-- Arrows -->
+<line x1="110" y1="165" x2="138" y2="165" stroke="#534AB7" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="110" y="160" fill="#534AB7" font-size="9">Rx PDU</text>
+<line x1="138" y1="175" x2="110" y2="175" stroke="#534AB7" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="115" y="190" fill="#534AB7" font-size="9">Tx PDU</text>
+<line x1="260" y1="165" x2="288" y2="165" stroke="#3B6D11" stroke-width="1.2" marker-end="url(#arr)"/>
+<line x1="288" y1="175" x2="260" y2="175" stroke="#3B6D11" stroke-width="1.2" marker-end="url(#arr)"/>
+<line x1="410" y1="165" x2="438" y2="165" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr)"/>
+<line x1="438" y1="175" x2="410" y2="175" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr)"/>
+<line x1="560" y1="27" x2="500" y2="100" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<line x1="560" y1="72" x2="500" y2="100" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<line x1="560" y1="117" x2="265" y2="160" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<line x1="560" y1="162" x2="265" y2="165" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<line x1="560" y1="207" x2="505" y2="245" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<line x1="560" y1="252" x2="505" y2="245" stroke="#993C1D" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+
+<!-- Tester -->
+<rect x="20" y="280" width="120" height="40" rx="8" fill="#F1EFE8" stroke="#D3D1C7"/>
+<text x="80" y="304" text-anchor="middle" fill="#444441" font-size="11" font-weight="500">Diagnostic Tester</text>
+<line x1="65" y1="280" x2="65" y2="200" stroke="#444441" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+</svg>
+
+<h3>Request flow — the complete path</h3>
+<div class="ss"><div class="sn">1</div><div class="st"><b>Tester → CanTp/DoIP → PduR</b>: Transport layer reassembles frames. PduR calls <code>Dcm_StartOfReception()</code> → <code>Dcm_CopyRxData()</code> → <code>Dcm_TpRxIndication(E_OK)</code>.</div></div>
+<div class="ss"><div class="sn">2</div><div class="st"><b>PduR → DSL</b>: DSL receives complete PDU. Blocks the DcmPduId (no further requests on this connection until response sent [SWS_Dcm_00241]). Forwards to DSD.</div></div>
+<div class="ss"><div class="sn">3</div><div class="st"><b>DSL → DSD</b>: DSD checks in strict order: ① Manufacturer permission (Xxx_Indication) ② SID lookup ③ Auth state ④ Session ⑤ Security level ⑥ Supplier permission ⑦ Mode rules [SWS_Dcm_01535].</div></div>
+<div class="ss"><div class="sn">4</div><div class="st"><b>DSD → DSP</b>: DSP executes the service. May call DEM, RTE SWC interface, NvM, IoHwAb. Returns synchronously or asynchronously via DCM_E_PENDING / DCM_E_FORCE_RCRRP.</div></div>
+<div class="ss"><div class="sn">5</div><div class="st"><b>DSP → DSD → DSL → PduR</b>: Response assembled. DSL calls <code>PduR_DcmTransmit()</code>. PduR calls <code>Dcm_CopyTxData()</code>. After full transmission: <code>Dcm_TpTxConfirmation()</code> → DcmPduId released.</div></div>
+</div>
+
+<!-- DSL -->
+<div id="section-dsl" class="section">
+<h2>DSL — Diagnostic Session Layer</h2>
+<p>DSL is the heart of DCM. It manages sessions, security levels, timing, authentication, protocol priority, and communication modes. All inbound/outbound PDU flows go through DSL.</p>
+
+<h3>Key DSL responsibilities</h3>
+<div class="cg">
+  <div class="card"><h4>Session management</h4><p>Tracks current session. Resets to Default on S3Server timeout. Provides <code>Dcm_GetSesCtrlType()</code>. Default session = 0x01 at Dcm_Init [SWS_Dcm_00034].</p></div>
+  <div class="card"><h4>Security level management</h4><p>Tracks current security level. Resets to LOCKED (0x00) on session change [SWS_Dcm_00139]. Provides <code>Dcm_GetSecurityLevel()</code>.</p></div>
+  <div class="card"><h4>Timing management</h4><p>Monitors P2ServerMax / P2*ServerMax. Sends NRC 0x78 (Response Pending) when time limit reached. S3Server = 5000ms default [SWS_Dcm_01679].</p></div>
+  <div class="card"><h4>Protocol priority</h4><p>Multiple protocols configured with priority. Higher priority can preempt running lower-priority protocol [SWS_Dcm_00015]. OBD must be highest [CONSTR_06103].</p></div>
+  <div class="card"><h4>Communication mode</h4><p>ComM informs DCM of No/Silent/Full comm mode. DCM calls <code>ComM_DCM_ActiveDiagnostic()</code> to keep ECU awake during diagnostics.</p></div>
+  <div class="card"><h4>Authentication state</h4><p>Per-connection authentication state: deauthenticated or authenticated. Fallback to deauthenticated on S3Server timeout or idle in default session [SWS_Dcm_01483].</p></div>
+</div>
+
+<h3>Communication mode behavior</h3>
+<table>
+  <tr><th>ComM mode</th><th>DCM behavior</th><th>API</th></tr>
+  <tr><td>Full Communication</td><td>All Tx/Rx enabled. Normal, periodic, ROE transmissions allowed.</td><td><code>Dcm_ComM_FullComModeEntered()</code></td></tr>
+  <tr><td>Silent Communication</td><td>Rx enabled. ALL transmissions disabled (normal, periodic, ROE).</td><td><code>Dcm_ComM_SilentComModeEntered()</code></td></tr>
+  <tr><td>No Communication</td><td>Both Rx AND Tx disabled. <code>PduR_DcmTransmit()</code> never called.</td><td><code>Dcm_ComM_NoComModeEntered()</code></td></tr>
+</table>
+<div class="wb">⚠️ DCM waits for Full Comm mode before transmitting response [SWS_Dcm_01142]. If DCM_E_FORCE_RCRRP is needed during Silent comm → DET error DCM_E_FORCE_RCRRP_IN_SILENT_COMM [SWS_Dcm_01143].</div>
+
+<h3>Protocol preemption rules</h3>
+<div class="ss"><div class="sn">1</div><div class="st">Higher priority protocol preempts running protocol [SWS_Dcm_00015].</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">DCM calls <code>PduR_DcmCancelTransmit()</code> on pending response of preempted protocol [SWS_Dcm_00079].</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">External pending operations cancelled with DCM_CANCEL opStatus [SWS_Dcm_01046].</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">If preempted protocol was in non-default session → forced back to default session [SWS_Dcm_01371].</div></div>
+<div class="ss"><div class="sn">5</div><div class="st">If DcmDslDiagRespOnSecondDeclinedRequest=TRUE → NRC 0x21 (BusyRepeatRequest) sent [SWS_Dcm_00727]. If FALSE → no response [SWS_Dcm_01605].</div></div>
+
+<h3>Generic connection handling</h3>
+<p>Generic connections carry source/target address at runtime via MetaData items SOURCE_ADDRESS_16 and TARGET_ADDRESS_16. Used for DoIP, Ethernet diagnostics, and some CAN formats. DCM stores tester source address from StartOfReception and uses it for response TARGET_ADDRESS_16 [SWS_Dcm_00848, 00849].</p>
+</div>
+
+<!-- SESSION STATE MACHINE -->
+<div id="section-session" class="section">
+<h2>Session State Machine</h2>
+
+<svg width="100%" viewBox="0 0 680 280" role="img"><title>DCM Session State Machine</title>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+
+<!-- Default Session -->
+<rect x="40" y="100" width="150" height="70" rx="10" fill="#EAF3DE" stroke="#C0DD97" stroke-width="2"/>
+<text x="115" y="128" text-anchor="middle" fill="#27500A" font-size="12" font-weight="500">DEFAULT SESSION</text>
+<text x="115" y="145" text-anchor="middle" fill="#3B6D11" font-size="9">0x01 • At init + S3 timeout</text>
+<text x="115" y="158" text-anchor="middle" fill="#3B6D11" font-size="9">Sec level → LOCKED</text>
+
+<!-- Extended Session -->
+<rect x="260" y="30" width="160" height="65" rx="10" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1.5"/>
+<text x="340" y="55" text-anchor="middle" fill="#0C447C" font-size="12" font-weight="500">EXTENDED DIAG</text>
+<text x="340" y="70" text-anchor="middle" fill="#185FA5" font-size="9">0x03 • S3 timer active</text>
+<text x="340" y="83" text-anchor="middle" fill="#185FA5" font-size="9">SecurityAccess may apply</text>
+
+<!-- Programming Session -->
+<rect x="260" y="170" width="160" height="65" rx="10" fill="#FAEEDA" stroke="#FAC775" stroke-width="1.5"/>
+<text x="340" y="196" text-anchor="middle" fill="#633806" font-size="12" font-weight="500">PROGRAMMING</text>
+<text x="340" y="211" text-anchor="middle" fill="#BA7517" font-size="9">0x02 • S3 timer active</text>
+<text x="340" y="224" text-anchor="middle" fill="#BA7517" font-size="9">Flash/boot operations</text>
+
+<!-- Custom sessions -->
+<rect x="480" y="100" width="160" height="65" rx="10" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="1.5"/>
+<text x="560" y="125" text-anchor="middle" fill="#444441" font-size="11" font-weight="500">OEM/SUPPLIER</text>
+<text x="560" y="140" text-anchor="middle" fill="#5F5E5A" font-size="9">0x40–0x5F / 0x60–0x7E</text>
+<text x="560" y="153" text-anchor="middle" fill="#5F5E5A" font-size="9">S3 timer active</text>
+
+<!-- Transitions -->
+<path d="M190 125 Q225 60 258 60" fill="none" stroke="#185FA5" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="205" y="80" fill="#185FA5" font-size="9">0x10 03</text>
+<path d="M258 83 Q225 110 190 140" fill="none" stroke="#27500A" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="195" y="115" fill="#27500A" font-size="9">0x10 01 / S3 timeout</text>
+<path d="M190 155 Q225 200 258 200" fill="none" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="200" y="190" fill="#BA7517" font-size="9">0x10 02</text>
+<path d="M258 195 Q225 170 190 160" fill="none" stroke="#27500A" stroke-width="1.2" marker-end="url(#arr)"/>
+<path d="M420 62 Q450 90 478 120" fill="none" stroke="#5F5E5A" stroke-width="0.9" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<path d="M420 200 Q450 170 478 153" fill="none" stroke="#5F5E5A" stroke-width="0.9" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+<line x1="478" y1="132" x2="420" y2="78" stroke="#5F5E5A" stroke-width="0.9" stroke-dasharray="4 2" marker-end="url(#arr)"/>
+
+<!-- S3 timer note -->
+<rect x="20" y="240" width="640" height="30" rx="6" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="30" y="256" fill="#712B13" font-size="10">⚡ S3Server timer: starts when non-default session entered. Reset by: any request received OR TesterPresent (0x3E 0x80 functionally addressed) on SAME connection [SWS_Dcm_01667]. Expiry → default session + security LOCKED + ComM inactive.</text>
+</svg>
+
+<h3>Session rules — exam critical</h3>
+<table>
+  <tr><th>Rule</th><th>Requirement</th></tr>
+  <tr><td>Initial state = DEFAULT SESSION at Dcm_Init</td><td>[SWS_Dcm_00034]</td></tr>
+  <tr><td>S3Server default timeout = 5000 ms</td><td>[SWS_Dcm_01679]</td></tr>
+  <tr><td>S3Server only tracked for connection that entered non-default session</td><td>[SWS_Dcm_01669]</td></tr>
+  <tr><td>Concurrent TesterPresent (3E 80 functional) → resets S3Server but ONLY from connection that established non-default session</td><td>[SWS_Dcm_01667]</td></tr>
+  <tr><td>New timing parameters (P2, P2*) from DiagnosticSessionControl apply AFTER positive response TX confirmed</td><td>ISO 14229-1</td></tr>
+  <tr><td>Security level reset to LOCKED on any non-default → any session transition</td><td>[SWS_Dcm_00139]</td></tr>
+  <tr><td>Session shortnames must match: DCM_DEFAULT_SESSION(1), DCM_PROGRAMMING_SESSION(2), DCM_EXTENDED_DIAGNOSTIC_SESSION(3)</td><td>[SWS_Dcm_CONSTR_06001]</td></tr>
+  <tr><td>DCM acts as mode manager for DcmDiagnosticSessionControl mode group</td><td>[SWS_Dcm_00806]</td></tr>
+</table>
+
+<h3>Mode declaration groups provided by DCM</h3>
+<p>DCM provides these mode groups (SWC/BSW can read them via Rte_Mode/SchM_Mode):</p>
+<pre>DcmDiagnosticSessionControl  → DCM_DEFAULT_SESSION, DCM_PROGRAMMING_SESSION, DCM_EXTENDED_DIAGNOSTIC_SESSION...
+DcmSecurityAccess            → DCM_SEC_LEV_LOCKED, DCM_SEC_LEV_1...DCM_SEC_LEV_63
+DcmEcuReset                  → DCM_HARD, DCM_SOFT, DCM_KEYOFFON
+DcmCommunicationControl_&lt;ChannelId&gt; → for each ComM channel
+DcmControlDTCSetting         → DCM_ENABLE_DTC_SETTING, DCM_DISABLE_DTC_SETTING
+DcmResponseOnEvent_&lt;RoeEventId&gt;  → per ROE event
+DcmAuthenticationState_&lt;ConnectionName&gt; → deauthenticated, authenticated</pre>
+</div>
+
+<!-- SECURITY ACCESS -->
+<div id="section-security" class="section">
+<h2>Security Access (Service 0x27) — Complete Flow</h2>
+
+<h3>Security level state machine</h3>
+<div style="display:flex;align-items:center;gap:12px;margin:.8rem 0;flex-wrap:wrap">
+  <div style="padding:6px 14px;border-radius:20px;background:#FAECE7;border:1px solid #F5C4B3;color:#712B13;font-size:12px;font-weight:500">DCM_SEC_LEV_LOCKED (0x00)</div>
+  <span style="color:var(--color-text-secondary)">→ GetSeed + CompareKey OK →</span>
+  <div style="padding:6px 14px;border-radius:20px;background:#EAF3DE;border:1px solid #C0DD97;color:#27500A;font-size:12px;font-weight:500">DCM_SEC_LEV_1..63</div>
+  <span style="color:var(--color-text-secondary)">→ Session change →</span>
+  <div style="padding:6px 14px;border-radius:20px;background:#FAECE7;border:1px solid #F5C4B3;color:#712B13;font-size:12px;font-weight:500">LOCKED again</div>
+</div>
+
+<h3>Security access two-step protocol</h3>
+<div class="tc">
+  <div class="card">
+    <h4>Step 1 — Request Seed (requestSeed = odd subfunction)</h4>
+    <pre>Tester → ECU: 27 01 (requestSeed, SL1)
+ECU calls: Xxx_GetSeed(OpStatus=INITIAL, securityAccessDataRecord, seed, ErrorCode)
+ECU → Tester: 67 01 [SeedBytes] (positive response)</pre>
+    <p>Odd subfunctions = request seed. Each security level has odd (request) and even (send key) subfunctions.</p>
+  </div>
+  <div class="card">
+    <h4>Step 2 — Send Key (sendKey = even subfunction)</h4>
+    <pre>Tester calculates key from seed using OEM algorithm
+Tester → ECU: 27 02 [KeyBytes]
+ECU calls: Xxx_CompareKey(key, OpStatus=INITIAL)
+If E_OK: DslInternal_SetSecurityLevel(SEC_LEV_1)
+ECU → Tester: 67 02 (positive response)</pre>
+  </div>
+</div>
+
+<h3>Security access NRCs</h3>
+<table>
+  <tr><th>NRC</th><th>Hex</th><th>Condition</th></tr>
+  <tr><td>requestSequenceError</td><td>0x24</td><td>SendKey received without prior GetSeed, or wrong level order</td></tr>
+  <tr><td>invalidKey</td><td>0x35</td><td>CompareKey returns E_NOT_OK (wrong key)</td></tr>
+  <tr><td>exceededNumberOfAttempts</td><td>0x36</td><td>AttemptCounter reached DcmDspSecurityNumAttDelay</td></tr>
+  <tr><td>requiredTimeDelayNotExpired</td><td>0x37</td><td>SecurityDelayTimer still running (post failed attempts)</td></tr>
+  <tr><td>conditionsNotCorrect</td><td>0x22</td><td>AttemptCounter read not yet complete at startup [SWS_Dcm_01354]</td></tr>
+</table>
+
+<h3>Attempt counter & delay timer — startup sequence</h3>
+<div class="ss"><div class="sn">1</div><div class="st">At Dcm_Init: call <code>Xxx_GetSecurityAttemptCounter()</code> for each DcmDspSecurityRow with AttemptCounterEnabled=TRUE [SWS_Dcm_01154].</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">If returns DCM_E_PENDING → retry in next Dcm_MainFunction. If DcmDspSecurityMaxAttemptCounterReadoutTime expires → cancel all pending, set to max [SWS_Dcm_01352].</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">If any AttemptCounter ≥ DcmDspSecurityNumAttDelay → start SecurityDelayTimer with max(DcmDspSecurityDelayTimeOnBoot, DcmDspSecurityDelayTime) [SWS_Dcm_01355].</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">Any SecurityAccess request while delay timer running → NRC 0x37 (requiredTimeDelayNotExpired).</div></div>
+
+<div class="wb">⚠️ Security level reset to LOCKED on EVERY non-default → any session transition [SWS_Dcm_00139]. This includes transitioning from extended → programming session. Testers must always re-do security access if they change sessions.</div>
+</div>
+
+<!-- DSD -->
+<div id="section-dsd" class="section">
+<h2>DSD — Diagnostic Service Dispatcher</h2>
+<p>DSD is the gatekeeper. It validates incoming requests before allowing DSP to execute them. The validation order is strictly defined.</p>
+
+<h3>DSD verification order [SWS_Dcm_01535] — EXAM CRITICAL</h3>
+<div class="ss"><div class="sn">1</div><div class="st"><b>Manufacturer permission</b>: Call <code>Xxx_Indication()</code> on all DcmDsdServiceRequestManufacturerNotification ports. If ANY returns E_REQUEST_NOT_ACCEPTED → no response. If ANY returns E_NOT_OK → NRC from ErrorCode.</div></div>
+<div class="ss"><div class="sn">2</div><div class="st"><b>SID lookup</b>: Check if SID exists in active DcmDsdServiceTable. If not found → NRC 0x11 (serviceNotSupported) [SWS_Dcm_00197].</div></div>
+<div class="ss"><div class="sn">3</div><div class="st"><b>Authentication state check</b>: Verify service allowed for current authentication state/role. If fails → NRC 0x34 (authenticationRequired) [SWS_Dcm_01544].</div></div>
+<div class="ss"><div class="sn">4</div><div class="st"><b>Session check</b>: Verify service allowed in current session (DcmDsdSidTabSessionLevelRef). Fails → NRC 0x7F (serviceNotSupportedInActiveSession) [SWS_Dcm_00211]. Subfunction not in session → NRC 0x7E [SWS_Dcm_00616].</div></div>
+<div class="ss"><div class="sn">5</div><div class="st"><b>Security level check</b>: Verify service allowed in current security level (DcmDsdSidTabSecurityLevelRef). Fails → NRC 0x33 (securityAccessDenied) [SWS_Dcm_00217].</div></div>
+<div class="ss"><div class="sn">6</div><div class="st"><b>Supplier permission</b>: Call <code>Xxx_Indication()</code> on all DcmDsdServiceRequestSupplierNotification ports. Same rules as manufacturer.</div></div>
+<div class="ss"><div class="sn">7</div><div class="st"><b>Mode rule check</b>: Evaluate DcmDsdSidTabModeRuleRef. Fails → NRC from DcmModeRuleNrcValue or 0x22 (conditionsNotCorrect) [SWS_Dcm_00773].</div></div>
+
+<div class="db">🔴 Only if ALL 7 checks pass does DSD forward request to DSP. If any check fails, only Xxx_Confirmation() is called (NOT DspInternal_DcmConfirmation) [SWS_Dcm_01474].</div>
+
+<h3>SuppressPosRspMsgIndicationBit (SPRMIB)</h3>
+<p>Bit 7 of subfunction byte. If set = tester does NOT want a positive response. DSD handles this completely internally [SWS_Dcm_00200]. DCM clears this bit before passing to DSP [SWS_Dcm_00201]. If RCRRP sent → SPRMIB is cleared [SWS_Dcm_00203].</p>
+
+<h3>Functional addressing — suppressed NRCs</h3>
+<p>When request is functionally addressed, these NRCs are automatically suppressed (no response at all) [SWS_Dcm_00001]:</p>
+<pre>NRC 0x11 — serviceNotSupported
+NRC 0x12 — subFunctionNotSupported  
+NRC 0x31 — requestOutOfRange
+NRC 0x7E — subFunctionNotSupportedInActiveSession
+NRC 0x7F — serviceNotSupportedInActiveSession</pre>
+<div class="ib">💡 This is ISO 14229-1 behavior. Functional requests (broadcast) don't get NRC responses for "not applicable" conditions — only physically addressed requests get these NRCs.</div>
+
+<h3>Response pending (NRC 0x78 / RCRRP) mechanism</h3>
+<p>If application needs more time: returns DCM_E_FORCE_RCRRP from service function → DSL immediately sends NRC 0x78 from a SEPARATE buffer [SWS_Dcm_00119] → waits for TxConfirmation → calls function again with OpStatus=DCM_FORCE_RCRRP_OK [SWS_Dcm_00529].</p>
+<p>Automatic RCRRP: DSL monitors P2ServerMax / P2*ServerMax timers and sends NRC 0x78 before timeout [SWS_Dcm_00024].</p>
+<p>Max RCRRPs: <code>DcmDslDiagRespMaxNumRespPend</code> (default = infinite). If exceeded → cancel, report DCM_E_INTERFACE_TIMEOUT, send NRC 0x10 [SWS_Dcm_00120].</p>
+</div>
+
+<!-- DSP SERVICES -->
+<div id="section-dsp" class="section">
+<h2>DSP — Diagnostic Service Processing</h2>
+<p>DSP executes the actual diagnostic service logic. It interacts with DEM, RTE SWC interfaces, IoHwAb, and NvM depending on the service.</p>
+
+<h3>Dcm_OpStatusType — the async call pattern</h3>
+<p>All external callouts (GetSeed, ReadData, WriteData, RoutineStart, etc.) use <code>Dcm_OpStatusType</code> for async operation:</p>
+<table>
+  <tr><th>OpStatus value</th><th>When used</th><th>Return value expected</th></tr>
+  <tr><td><code>DCM_INITIAL</code></td><td>First call [SWS_Dcm_00527]</td><td>E_OK, E_NOT_OK, DCM_E_PENDING, DCM_E_FORCE_RCRRP</td></tr>
+  <tr><td><code>DCM_PENDING</code></td><td>Called again if previous returned DCM_E_PENDING [SWS_Dcm_00530]</td><td>Same options</td></tr>
+  <tr><td><code>DCM_FORCE_RCRRP_OK</code></td><td>After RCRRP was TX confirmed [SWS_Dcm_00529]</td><td>E_OK, E_NOT_OK, DCM_E_PENDING</td></tr>
+  <tr><td><code>DCM_CANCEL</code></td><td>Protocol preempted OR max RCRRP reached [SWS_Dcm_01046]</td><td>(no return used)</td></tr>
+</table>
+
+<h3>DID interface types (DcmDspDataUsePort)</h3>
+<table>
+  <tr><th>UsePort value</th><th>Interface</th><th>When to use</th></tr>
+  <tr><td><code>USE_DATA_SYNCH_FNC</code></td><td>Direct C function (synchronous)</td><td>Fast data, no waiting needed</td></tr>
+  <tr><td><code>USE_DATA_ASYNCH_FNC</code></td><td>Direct C function (async, returns DCM_E_PENDING)</td><td>Slow data (NvM, CAN request)</td></tr>
+  <tr><td><code>USE_DATA_SENDER_RECEIVER</code></td><td>RTE S/R port (via generated Rte_Read/Rte_Write)</td><td>Data lives in SWC PerInstanceMemory</td></tr>
+  <tr><td><code>USE_DATA_SENDER_RECEIVER_AS_SERVICE</code></td><td>RTE S/R service interface</td><td>Atomic multi-element read</td></tr>
+  <tr><td><code>USE_ECU_SIGNAL</code></td><td>IoHwAb signal</td><td>Direct ECU hardware signal access</td></tr>
+</table>
+
+<h3>Paged-buffer mechanism (for large responses)</h3>
+<p>When DcmPagedBufferEnabled=TRUE and response > DcmDslProtocolMaximumResponseSize, DCM streams the response in pages. DSP fills a page → <code>DsdInternal_ProcessPage()</code> → PduR sends page → requests next page → repeat until done. Avoids needing a huge single buffer.</p>
+<div class="wb">⚠️ If DSP cannot provide next page in time → Tx confirmation with error → <code>DspInternal_CancelPagedBufferProcessing()</code>. Response is terminated.</div>
+
+<h3>DSP mode manager role</h3>
+<p>DSP acts as mode manager for diagnostic state changes. After successful service execution, DSP calls SchM_Switch to update the relevant mode group. For example after DiagnosticSessionControl → <code>SchM_Switch_Dcm_DcmDiagnosticSessionControl(new_session)</code>.</p>
+</div>
+
+<!-- UDS SERVICES -->
+<div id="section-services" class="section">
+<h2>UDS Services Reference</h2>
+<p>Click any service for details.</p>
+
+<h4>Session & communication control</h4>
+<span class="cl" onclick="showSvc('0x10')">0x10 DiagnosticSessionControl</span>
+<span class="cl" onclick="showSvc('0x11')">0x11 ECUReset</span>
+<span class="cl" onclick="showSvc('0x28')">0x28 CommunicationControl</span>
+<span class="cl" onclick="showSvc('0x3E')">0x3E TesterPresent</span>
+<span class="cl" onclick="showSvc('0x85')">0x85 ControlDTCSetting</span>
+
+<h4>Security & authentication</h4>
+<span class="cl" onclick="showSvc('0x27')">0x27 SecurityAccess</span>
+<span class="cl" onclick="showSvc('0x29')">0x29 Authentication</span>
+
+<h4>Data read & write</h4>
+<span class="cl" onclick="showSvc('0x22')">0x22 ReadDataByIdentifier</span>
+<span class="cl" onclick="showSvc('0x23')">0x23 ReadMemoryByAddress</span>
+<span class="cl" onclick="showSvc('0x24')">0x24 ReadScalingDataByIdentifier</span>
+<span class="cl" onclick="showSvc('0x2A')">0x2A ReadDataByPeriodicIdentifier</span>
+<span class="cl" onclick="showSvc('0x2C')">0x2C DynamicallyDefineDataIdentifier</span>
+<span class="cl" onclick="showSvc('0x2E')">0x2E WriteDataByIdentifier</span>
+<span class="cl" onclick="showSvc('0x3D')">0x3D WriteMemoryByAddress</span>
+<span class="cl" onclick="showSvc('0x2F')">0x2F InputOutputControlByIdentifier</span>
+
+<h4>DTC & fault memory</h4>
+<span class="cl" onclick="showSvc('0x14')">0x14 ClearDiagnosticInformation</span>
+<span class="cl" onclick="showSvc('0x19')">0x19 ReadDTCInformation</span>
+
+<h4>Routine & data transfer</h4>
+<span class="cl" onclick="showSvc('0x31')">0x31 RoutineControl</span>
+<span class="cl" onclick="showSvc('0x34')">0x34 RequestDownload</span>
+<span class="cl" onclick="showSvc('0x35')">0x35 RequestUpload</span>
+<span class="cl" onclick="showSvc('0x36')">0x36 TransferData</span>
+<span class="cl" onclick="showSvc('0x37')">0x37 RequestTransferExit</span>
+<span class="cl" onclick="showSvc('0x86')">0x86 ResponseOnEvent</span>
+
+<div id="apid">Click any service above to see details.</div>
+</div>
+
+<!-- NRC REFERENCE -->
+<div id="section-nrc" class="section">
+<h2>NRC (Negative Response Code) — Complete Reference</h2>
+<p>All NRCs transmitted by DCM per ISO 14229-1. Order of NRC checking must follow ISO 14229-1 [SWS_Dcm_01075].</p>
+
+<div class="nrc-row"><span class="nrc-code">0x10</span><span class="nrc-name">generalReject</span><span class="nrc-desc">Default NRC when no specific reason. Sent when max RCRRP reached [SWS_Dcm_00120].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x11</span><span class="nrc-name">serviceNotSupported</span><span class="nrc-desc">SID not found in active Service Identifier Table [SWS_Dcm_00197]. Suppressed for functional addressing.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x12</span><span class="nrc-name">subFunctionNotSupported</span><span class="nrc-desc">Subfunction not found in DcmDsdSubService table [SWS_Dcm_00273]. Suppressed for functional addressing.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x13</span><span class="nrc-name">incorrectMessageLengthOrInvalidFormat</span><span class="nrc-desc">Request length too short or format wrong [SWS_Dcm_00696, 00272].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x14</span><span class="nrc-name">responseTooLong</span><span class="nrc-desc">Response exceeds buffer size. Sent when paged-buffer off and response > max [SWS_Dcm_01059].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x21</span><span class="nrc-name">busyRepeatRequest</span><span class="nrc-desc">Second request rejected because first still processing (when DcmDslDiagRespOnSecondDeclinedRequest=TRUE) [SWS_Dcm_01676].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x22</span><span class="nrc-name">conditionsNotCorrect</span><span class="nrc-desc">Mode rule failed with no specific NRC [SWS_Dcm_00815]. Also during SecurityAccess when AttemptCounter read not complete [SWS_Dcm_01354].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x24</span><span class="nrc-name">requestSequenceError</span><span class="nrc-desc">SecurityAccess: SendKey without prior GetSeed, or wrong order.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x25</span><span class="nrc-name">noResponseFromSubnetComponent</span><span class="nrc-desc">Gateway scenario — sub-network component not responding.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x26</span><span class="nrc-name">failurePreventsExecutionOfRequestedAction</span><span class="nrc-desc">Condition preventing service execution.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x31</span><span class="nrc-name">requestOutOfRange</span><span class="nrc-desc">Parameter value outside supported range [SWS_Dcm_00275]. DID not found, DID not supported in session, unsupported memory address. Suppressed for functional addressing.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x33</span><span class="nrc-name">securityAccessDenied</span><span class="nrc-desc">Service requires higher security level than currently active [SWS_Dcm_00217].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x34</span><span class="nrc-name">authenticationRequired</span><span class="nrc-desc">Service requires authenticated state or specific role [SWS_Dcm_01544].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x35</span><span class="nrc-name">invalidKey</span><span class="nrc-desc">SecurityAccess: CompareKey returned E_NOT_OK (wrong key).</span></div>
+<div class="nrc-row"><span class="nrc-code">0x36</span><span class="nrc-name">exceededNumberOfAttempts</span><span class="nrc-desc">SecurityAccess: AttemptCounter reached DcmDspSecurityNumAttDelay.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x37</span><span class="nrc-name">requiredTimeDelayNotExpired</span><span class="nrc-desc">SecurityAccess: SecurityDelayTimer still running after failed attempts.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x70</span><span class="nrc-name">uploadDownloadNotAccepted</span><span class="nrc-desc">RequestDownload/Upload: conditions not met for data transfer.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x71</span><span class="nrc-name">transferDataSuspended</span><span class="nrc-desc">TransferData: transfer aborted.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x72</span><span class="nrc-name">generalProgrammingFailure</span><span class="nrc-desc">Programming/memory write failed (flash error).</span></div>
+<div class="nrc-row"><span class="nrc-code">0x73</span><span class="nrc-name">wrongBlockSequenceCounter</span><span class="nrc-desc">TransferData: block sequence counter mismatch.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x78</span><span class="nrc-name">responsePending (RCRRP)</span><span class="nrc-desc">Application needs more time. DSL sends from separate buffer [SWS_Dcm_00119]. Clears SPRMIB [SWS_Dcm_00203].</span></div>
+<div class="nrc-row"><span class="nrc-code">0x7E</span><span class="nrc-name">subFunctionNotSupportedInActiveSession</span><span class="nrc-desc">Subfunction not allowed in current session [SWS_Dcm_00616]. Suppressed for functional addressing.</span></div>
+<div class="nrc-row"><span class="nrc-code">0x7F</span><span class="nrc-name">serviceNotSupportedInActiveSession</span><span class="nrc-desc">Service not allowed in current session [SWS_Dcm_00211]. Suppressed for functional addressing.</span></div>
+</div>
+
+<!-- API REFERENCE -->
+<div id="section-api" class="section">
+<h2>API Reference — Interactive</h2>
+<p>Click any function for details.</p>
+
+<h4>Lifecycle & maintenance</h4>
+<span class="cl" onclick="showApi('Dcm_Init')">Dcm_Init</span>
+<span class="cl" onclick="showApi('Dcm_MainFunction')">Dcm_MainFunction</span>
+<span class="cl" onclick="showApi('Dcm_GetVersionInfo')">Dcm_GetVersionInfo</span>
+
+<h4>PduR callbacks (called by PduR → DCM)</h4>
+<span class="cl" onclick="showApi('Dcm_StartOfReception')">Dcm_StartOfReception</span>
+<span class="cl" onclick="showApi('Dcm_CopyRxData')">Dcm_CopyRxData</span>
+<span class="cl" onclick="showApi('Dcm_TpRxIndication')">Dcm_TpRxIndication</span>
+<span class="cl" onclick="showApi('Dcm_CopyTxData')">Dcm_CopyTxData</span>
+<span class="cl" onclick="showApi('Dcm_TpTxConfirmation')">Dcm_TpTxConfirmation</span>
+<span class="cl" onclick="showApi('Dcm_TxConfirmation')">Dcm_TxConfirmation</span>
+
+<h4>State query APIs</h4>
+<span class="cl" onclick="showApi('Dcm_GetSecurityLevel')">Dcm_GetSecurityLevel</span>
+<span class="cl" onclick="showApi('Dcm_GetSesCtrlType')">Dcm_GetSesCtrlType</span>
+<span class="cl" onclick="showApi('Dcm_GetActiveProtocol')">Dcm_GetActiveProtocol</span>
+
+<h4>Application control APIs</h4>
+<span class="cl" onclick="showApi('Dcm_ResetToDefaultSession')">Dcm_ResetToDefaultSession</span>
+<span class="cl" onclick="showApi('Dcm_TriggerOnEvent')">Dcm_TriggerOnEvent</span>
+<span class="cl" onclick="showApi('Dcm_DemTriggerOnDTCStatus')">Dcm_DemTriggerOnDTCStatus</span>
+<span class="cl" onclick="showApi('Dcm_SetActiveDiagnostic')">Dcm_SetActiveDiagnostic</span>
+<span class="cl" onclick="showApi('Dcm_SetDeauthenticatedRole')">Dcm_SetDeauthenticatedRole</span>
+<span class="cl" onclick="showApi('Dcm_SetProgConditions')">Dcm_SetProgConditions</span>
+<span class="cl" onclick="showApi('Dcm_GetProgConditions')">Dcm_GetProgConditions</span>
+
+<h4>ComM callbacks (called by ComM → DCM)</h4>
+<span class="cl" onclick="showApi('Dcm_ComM_FullComModeEntered')">Dcm_ComM_FullComModeEntered</span>
+<span class="cl" onclick="showApi('Dcm_ComM_SilentComModeEntered')">Dcm_ComM_SilentComModeEntered</span>
+<span class="cl" onclick="showApi('Dcm_ComM_NoComModeEntered')">Dcm_ComM_NoComModeEntered</span>
+
+<div id="apid">Click any function above to see details.</div>
+</div>
+
+<!-- TIMING -->
+<div id="section-timing" class="section">
+<h2>Timing Parameters — ISO 14229 / DCM Config</h2>
+
+<h3>P2 and P2* timing</h3>
+<table>
+  <tr><th>Parameter</th><th>Meaning</th><th>DCM config</th><th>Typical value</th></tr>
+  <tr><td>P2min / P2*min</td><td>Min time before response. Always 0 in AUTOSAR [SWS_Dcm_00143].</td><td>Fixed = 0 ms</td><td>0 ms</td></tr>
+  <tr><td>P2ServerMax</td><td>Max time to respond before RCRRP. Per session.</td><td>DcmDspSessionP2ServerMax</td><td>50 ms (default)</td></tr>
+  <tr><td>P2*ServerMax (P2 extended)</td><td>Max time between consecutive RCRRPs.</td><td>DcmDspSessionP2StarServerMax</td><td>5000 ms</td></tr>
+  <tr><td>S3Server</td><td>Session timer. Non-default session timeout.</td><td>DcmS3ServerTimeoutOverwrite (or 5000 ms default)</td><td>5000 ms</td></tr>
+</table>
+
+<h3>Timing adjustment parameters</h3>
+<pre>/* DCM adjusts effective P2ServerMax for internal overhead */
+Effective_P2Max = DcmDspSessionP2ServerMax - DcmTimStrP2ServerAdjust
+Effective_P2StarMax = DcmDspSessionP2StarServerMax - DcmTimStrP2StarServerAdjust
+
+/* This adjustment accounts for DCM processing time so that
+   RCRRP is sent before the raw P2 timer expires at tester side */</pre>
+
+<div class="wb">⚠️ New timing parameters from DiagnosticSessionControl (0x10) response take effect ONLY after the positive response transmission is confirmed (TxConfirmation received). Not immediately on service execution.</div>
+
+<h3>OBD timing requirement</h3>
+<p>OBD regulations require response within 50 ms. This is a SYSTEM-LEVEL requirement — the integrator must ensure the full stack (CanTp + DCM + Application) meets this budget. DCM alone cannot guarantee it.</p>
+
+<h3>Dcm_MainFunction period</h3>
+<p>Configured via <code>DcmTaskTime</code>. Drives all timer ticks (P2, P2*, S3, SecurityDelay, ValidationTimeout). All timeouts must be multiples of DcmTaskTime. Typical values: 5ms or 10ms.</p>
+</div>
+
+<!-- SEQUENCES -->
+<div id="section-seq" class="section">
+<h2>Key Sequence Diagrams</h2>
+<div class="nav" style="border:none;padding:0;margin-bottom:.9rem">
+  <button class="active" id="sqb1" onclick="showSeq('sq1')">Positive response</button>
+  <button id="sqb2" onclick="showSeq('sq2')">Negative response</button>
+  <button id="sqb3" onclick="showSeq('sq3')">Response pending</button>
+  <button id="sqb4" onclick="showSeq('sq4')">SecurityAccess</button>
+  <button id="sqb5" onclick="showSeq('sq5')">Jump to bootloader</button>
+  <button id="sqb6" onclick="showSeq('sq6')">Session control</button>
+</div>
+
+<div id="seq-sq1">
+<h3>Standard positive response flow</h3>
+<pre style="line-height:1.85">Tester              PduR                DSL                DSD               DSP / App
+  |                   |                   |                  |                     |
+  | Diag request      |                   |                  |                     |
+  |---(CAN/DoIP)----> |                   |                  |                     |
+  |                   | StartOfReception()|                  |                     |
+  |                   |-----------------> | check buffer     |                     |
+  |                   | BUFREQ_OK         |                  |                     |
+  |                   | CopyRxData()  --> | copy to buf      |                     |
+  |                   | TpRxIndication(OK)|                  |                     |
+  |                   |-----------------> | [PDU complete]   |                     |
+  |                   |              lock DcmPduId           |                     |
+  |                   |                   | Indication() --> |                     |
+  |                   |                   |             [1..7 checks OK]           |
+  |                   |                   |                  | service_call(INIT) >|
+  |                   |                   |                  |     [app processes] |
+  |                   |                   |                  | E_OK, fill buffer   |
+  |                   |                   |              Transmit_func()           |
+  |                   | PduR_DcmTransmit()                   |                     |
+  |                   | <----------------|                   |                     |
+  |                   | CopyTxData()  --> | copy from buf    |                     |
+  |                   | TpTxConfirmation()                   |                     |
+  |                   |-----------------> | unlock PduId     |                     |
+  |                   |                   | Confirmation() ->| DspInternal_Confirm |
+  | positive response |                   |                  |                     |
+  | <----(CAN/DoIP)---|                   |                  |                     |</pre>
+</div>
+
+<div id="seq-sq2" style="display:none">
+<h3>Negative response — DSD check failure</h3>
+<pre style="line-height:1.85">Tester              PduR              DSL              DSD             DSP
+  |                   |                 |                |                |
+  | 22 F190 (RDBI)    |                 |                |                |
+  |----(physical)---> |                 |                |                |
+  |                   | TpRxIndication()                 |                |
+  |                   |---------------> | Indication() ->|                |
+  |                   |                                  |                |
+  |                   |              [DSD check, e.g. not in current session]
+  |                   |                                  |                |
+  |                   |              NRC 0x7F assembled  |                |
+  |                   |              Transmit(NRC)  Confirmation() called |
+  |                   |              (DspInternal_DcmConfirmation NOT called)
+  |                   | PduR_DcmTransmit(NRC 0x7F)       |                |
+  |                   | <--------------|                  |                |
+  | 7F 22 7F          |                |                  |                |
+  | <----(CAN)--------|                |                  |                |</pre>
+</div>
+
+<div id="seq-sq3" style="display:none">
+<h3>Response Pending (RCRRP) — application requests more time</h3>
+<pre style="line-height:1.85">Tester       PduR         DSL          DSD         DSP/App        Separate buf
+  |             |            |            |               |               |
+  | 31 01 ...   |            |            |               |               |
+  |-----------> | TpRxInd    | Indication | service_call  |               |
+  |             |----------> |----------->| INITIAL -----> |              |
+  |             |            |            | DCM_E_FORCE_RCRRP <-----------| ← app
+  |             |            |            |               |               |
+  |             |            | PduR_DcmTransmit(NRC 0x78) [from separate buffer]
+  |             | <----------|            |               |               |
+  | 7F 31 78    |            |            |               |               |
+  | <-----------|            |            |               |               |
+  |             | TpTxConfirmation(OK)    |               |               |
+  |             |----------> |            |               |               |
+  |             |            | service_call(FORCE_RCRRP_OK) ->           |
+  |             |            |            | E_OK <--------|               |
+  |             |            | PduR_DcmTransmit(pos response)            |
+  | 71 01 ...   |            |            |               |               |
+  | <-----------|            |            |               |               |
+
+Automatic RCRRP (P2ServerMax expiry):
+  Same flow but triggered by DSL timer, not by application.
+  Called with OpStatus = DCM_PENDING in subsequent Dcm_MainFunction calls.</pre>
+</div>
+
+<div id="seq-sq4" style="display:none">
+<h3>SecurityAccess (0x27) — full two-step sequence</h3>
+<pre style="line-height:1.85">Tester       PduR      DSL      DSD      DSP         Application
+  |             |         |        |        |               |
+  | 27 01       |         |        |        |               |
+  | (requestSeed)         |        |        |               |
+  |-----------> |TpRxInd->| -->--> |service |               |
+  |             |         |        |        | GetSeed(INIT)>|
+  |             |         |        |        |       seed data|
+  |             |         |        |        | E_OK          |
+  |             | PduR_DcmTransmit(67 01 [SeedBytes])       |
+  | 67 01 [seed]|         |        |        |               |
+  | <-----------|         |        |        |               |
+  |             |         |        |        |               |
+  | [tester calculates key from seed using OEM algorithm]   |
+  |             |         |        |        |               |
+  | 27 02 [Key] |         |        |        |               |
+  | (sendKey)   |         |        |        |               |
+  |-----------> |TpRxInd->| -->--> |service |               |
+  |             |         |        |        | CompareKey(INIT, key) ->
+  |             |         |        |        |     E_OK (key matches) |
+  |             |         | SetSecurityLevel(SEC_LEV_1)              |
+  |             |         | Mode switch: DcmSecurityAccess → LEV_1   |
+  |             | PduR_DcmTransmit(67 02)   |               |
+  | 67 02       |         |        |        |               |
+  | <-----------|         |        |        |               |
+
+If CompareKey returns E_NOT_OK:
+  → NRC 0x35 (invalidKey)
+  → Increment AttemptCounter
+  → If AttemptCounter ≥ DcmDspSecurityNumAttDelay:
+      NRC 0x36 (exceededNumberOfAttempts)
+      Start SecurityDelayTimer</pre>
+</div>
+
+<div id="seq-sq5" style="display:none">
+<h3>Jump to bootloader — DiagnosticSessionControl → Programming</h3>
+<pre style="line-height:1.85">Tester         PduR       DSL/DSD/DSP        Callouts         Bootloader
+  |               |               |                |                |
+  | 10 02         |               |                |                |
+  | (ProgrammingSession)          |                |                |
+  |-------------> | TpRxInd ----> |                |                |
+  |               |               | DSP: session=02, configured for bootloader jump?
+  |               |               | YES → send RCRRP first         |
+  |               | PduR_DcmTransmit(7F 10 78)     |                |
+  | 7F 10 78      |               |                |                |
+  | <-------------|               |                |                |
+  |               | TpTxConfirmation               |                |
+  |               |-------------> |                |                |
+  |               |               | Dcm_SetProgConditions() ------> |
+  |               |               | (store: session, security level, |
+  |               |               |  Rx/Tx PDU IDs, tester addr)   |
+  |               |               |                |                |
+  |               |               | Positive response: 50 02        |
+  |               | PduR_DcmTransmit(50 02)        |                |
+  | 50 02         |               |                |                |
+  | <-------------|               |                |                |
+  |               | TpTxConfirmation               |                |
+  |               |-------------> | Trigger ECU reset               |
+  |               |               | (EcuM_GoDownHaltPoll/WD reset)  |
+  |               |               |                | Boot! Read Dcm_GetProgConditions()
+  |               |               |                |                |</pre>
+</div>
+
+<div id="seq-sq6" style="display:none">
+<h3>DiagnosticSessionControl — session change</h3>
+<pre style="line-height:1.85">Tester         PduR          DSL            DSD/DSP           BswM/RTE
+  |               |              |                |                |
+  | 10 03         |              |                |                |
+  | (ExtendedDiag)|              |                |                |
+  |-------------> | TpRxInd  --> |                |                |
+  |               |              | [DSD: checks OK, passes to DSP] |
+  |               |              |                | SessionControl service
+  |               |              |                | new_session = 0x03
+  |               |              |                |                |
+  |               |              | [DSP: assemble response 50 03]  |
+  |               | PduR_DcmTransmit(50 03)       |                |
+  | 50 03         |              |                |                |
+  | <-------------|              |                |                |
+  |               | TpTxConfirmation              |                |
+  |               |-----------> |                 |                |
+  |               |             | NOW apply new session + timings  |
+  |               |             | SchM_Switch_DcmDiagnosticSessionControl(03)
+  |               |             |                 | --> BswM mode switch
+  |               |             | Start S3Server timer            |
+  |               |             | Security level → LOCKED         |
+  |               |             |                 |                |
+
+Note: Security reset to LOCKED and new timings apply AFTER TxConfirmation.</pre>
+</div>
+</div>
+
+<!-- OBD -->
+<div id="section-obd" class="section">
+<h2>OBD Support</h2>
+<p>DCM supports OBD services $01–$0A per SAE J1979 / ISO 15031-5. OBD is mandatory for emission-related vehicles (OBDII/EOBD). Key differences from UDS:</p>
+
+<div class="cg">
+  <div class="card"><h4>OBD vs UDS differences</h4><p>• Always functional addressing (broadcast)<br>• No session management (always default equiv.)<br>• No security access needed<br>• 50ms response time requirement (legislated)<br>• Only ONE OBD protocol allowed [CONSTR_06102]<br>• OBD must have HIGHEST priority [CONSTR_06103]</p></div>
+  <div class="card"><h4>OBD services</h4><p>$01 — Current powertrain data (PIDs)<br>$02 — Freeze frame data<br>$03 — Emission-related DTCs<br>$04 — Clear emission DTCs<br>$05 — O2 sensor monitoring<br>$06 — On-board monitor test results<br>$07 — Pending DTCs<br>$09 — Vehicle information<br>$0A — Permanent DTCs</p></div>
+  <div class="card"><h4>Parallel OBD + UDS</h4><p>OBD and UDS can run in parallel in default session [SWS_Dcm_01367]. No protocol preemption for OBD. OBD uses separate DEM client ID [SWS_Dcm_01369] so DEM can distinguish parallel calls.</p></div>
+  <div class="card"><h4>OBD DTC separation</h4><p>SAE J1979-2 UDS communication reports different 3-byte DTC numbers than non-J1979-2 UDS communication (OBD UDS DTC separation feature). Configured via DcmDspOBDDTCSeparation.</p></div>
+</div>
+
+<h3>OBD integration rules</h3>
+<div class="wb">⚠️ OBD 50ms response time is a SYSTEM requirement. The entire stack (CanTp segmentation + PduR routing + DCM processing + DEM query + CanTp response) must complete within 50ms. DCM alone cannot guarantee this — integration team must verify end-to-end timing.</div>
+<div class="ib">💡 For WWH-OBD (World-Harmonized OBD), DCM currently only supports FunctionalGroupIdentifier 0x33 per R24-11.</div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="section-config" class="section">
+<h2>DaVinci Configurator Pro — Step-by-Step</h2>
+
+<h3>DCM configuration container hierarchy</h3>
+<pre>Dcm
+├── DcmGeneral (global settings, task time, paged buffer)
+└── DcmConfigSet
+    ├── DcmPageBufferCfg (DcmPagedBufferEnabled)
+    ├── DcmProcessingConditions (mode conditions, mode rules)
+    ├── DcmDsl (session layer config)
+    │   ├── DcmDslProtocolRow[] (one per protocol: UDS_phys, UDS_func, OBD)
+    │   │   ├── DcmDslProtocolRxPduRef → PDU ID for reception
+    │   │   ├── DcmDslProtocolTxPduRef → PDU ID for transmission
+    │   │   ├── DcmDslProtocolPriority → numeric priority
+    │   │   ├── DcmDslProtocolSIDTable → service table ref
+    │   │   └── DcmDslBuffer → buffer size
+    │   └── DcmDslConnection[] (per tester connection)
+    │       ├── DcmDslMainConnection → timing, S3, session mgmt
+    │       └── DcmDslPeriodicTransmission (for 0x2A service)
+    ├── DcmDsd (dispatcher config)
+    │   └── DcmDsdServiceTable[] (one per protocol type)
+    │       └── DcmDsdService[] (one per supported SID)
+    │           ├── DcmDsdSidTabServiceId (e.g. 0x22)
+    │           ├── DcmDsdSidTabSessionLevelRef[] (allowed sessions)
+    │           ├── DcmDsdSidTabSecurityLevelRef[] (allowed security levels)
+    │           ├── DcmDsdSidTabModeRuleRef (mode conditions)
+    │           └── DcmDsdSubService[] (subfunctions)
+    └── DcmDsp (service processing config)
+        ├── DcmDspSession[] (session parameters, P2/P2* per session)
+        ├── DcmDspSecurity[] (security levels, GetSeed/CompareKey refs)
+        ├── DcmDspDid[] (DID definitions)
+        │   └── DcmDspDidSignal[] → DcmDspData (interface type, read/write funcs)
+        ├── DcmDspRoutine[] (routine identifiers)
+        ├── DcmDspMemoryId[] (memory regions for 0x23/0x3D)
+        └── DcmDspAuthentication (for 0x29 service)</pre>
+
+<h3>Step-by-step DaVinci configuration</h3>
+
+<h4>Step 1 — DcmGeneral</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Set <code>DcmTaskTime</code>: period of Dcm_MainFunction in ms (e.g. 5ms or 10ms). All timeouts must be multiples of this.</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">Set <code>DcmPagedBufferEnabled</code>: TRUE if large responses (ReadDTCInformation) expected and RAM is limited.</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">Set <code>DcmDevErrorDetect</code>: TRUE for development builds — enables DET reporting.</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">Set <code>DcmDslDiagRespOnSecondDeclinedRequest</code>: TRUE → send NRC 0x21; FALSE → silent ignore.</div></div>
+
+<h4>Step 2 — Protocol rows (DcmDslProtocolRow)</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Create one DcmDslProtocolRow per addressing type: UDS physical, UDS functional, OBD (if needed).</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">For each: set DcmDslProtocolType (DCM_UDS_ON_CAN, DCM_OBD_ON_CAN, etc.), DcmDslProtocolPriority (OBD = highest number = highest priority), DcmDslBuffer (size = max expected request/response).</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">Link DcmDslProtocolRxPduRef to the PduR PDU configured for reception. Link DcmDslProtocolTxPduRef to Tx PDU. Link DcmDslProtocolSIDTable to the service table for this protocol.</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">Configure DcmDslProtocolComMChannelRef to link this protocol's PDU to a ComM channel. Needed for ComM_DCM_ActiveDiagnostic calls.</div></div>
+
+<h4>Step 3 — Session parameters (DcmDspSession)</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Create DcmDspSessionRow for each session: DCM_DEFAULT_SESSION (level=1), DCM_PROGRAMMING_SESSION (level=2), DCM_EXTENDED_DIAGNOSTIC_SESSION (level=3), plus any OEM sessions.</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">Per session: set DcmDspSessionP2ServerMax (ms) and DcmDspSessionP2StarServerMax (ms). These are the raw ISO values before adjustment.</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">Configure DcmS3ServerTimeoutOverwrite if 5000ms default is not appropriate.</div></div>
+
+<h4>Step 4 — Security rows (DcmDspSecurity)</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Create DcmDspSecurityRow for each security level. Set DcmDspSecurityLevel (1, 3, 5... odd numbers for standard levels), DcmDspSecurityUsePort (USE_SYNCH_FNC / USE_ASYNCH_FNC).</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">Set DcmDspSecurityGetSeedFnc → your GetSeed() function. Set DcmDspSecurityCompareKeyFnc → your CompareKey() function.</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">Set DcmDspSecurityNumAttDelay → max failed attempts before lockout. Set DcmDspSecurityDelayTime → lockout duration. Set DcmDspSecurityDelayTimeOnBoot → first-boot lockout duration.</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">If non-volatile attempt counter needed: set DcmDspSecurityAttemptCounterEnabled=TRUE, provide DcmDspSecurityGetAttemptCounterFnc and DcmDspSecuritySetAttemptCounterFnc.</div></div>
+
+<h4>Step 5 — Service table (DcmDsdServiceTable)</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Create DcmDsdService for each supported UDS service. Set DcmDsdSidTabServiceId (e.g. 0x22), DcmDsdSidTabSubfuncAvail (TRUE if service has subfunctions).</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">Add DcmDsdSidTabSessionLevelRef for each session where this service is allowed. If no ref added → service available in ALL sessions.</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">Add DcmDsdSidTabSecurityLevelRef for each security level required. If no ref → service allowed in all levels.</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">For subfunctions: add DcmDsdSubService entries. Each subservice has its own session/security refs.</div></div>
+
+<h4>Step 6 — DID configuration (DcmDspDid)</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Create DcmDspDid for each DID. Set DcmDspDidIdentifier (2-byte DID value, e.g. 0xF190 for VIN).</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">Add DcmDspDidSignal sub-containers. Each signal references a DcmDspData container. Set DcmDspDidByteOffset for multi-signal DIDs.</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">In DcmDspData: set DcmDspDataUsePort (USE_DATA_SYNCH_FNC, USE_DATA_ASYNCH_FNC, USE_DATA_SENDER_RECEIVER, USE_ECU_SIGNAL), DcmDspDataType (UINT8, UINT16, UINT8_N...), DcmDspDataByteSize.</div></div>
+<div class="ss"><div class="sn">4</div><div class="st">Set read function: DcmDspDataReadFnc (for synch) or DcmDspDataReadDataLengthFnc + DcmDspDataConditionCheckReadFnc (for asynch). Set write function for WDBI DIDs.</div></div>
+
+<h4>Step 7 — Mode rules (DcmProcessingConditions)</h4>
+<div class="ss"><div class="sn">1</div><div class="st">Create DcmModeCondition for each condition (e.g. vehicle speed < 5 km/h, ECU in NORMAL mode). Configure either DcmBswModeRef (BSW mode) or DcmSwcModeRef (SWC mode) or DcmSwcSRDataElementRef (S/R signal).</div></div>
+<div class="ss"><div class="sn">2</div><div class="st">Create DcmModeRule combining conditions with AND/OR logic. Assign DcmModeRuleNrcValue (the NRC to return if rule fails).</div></div>
+<div class="ss"><div class="sn">3</div><div class="st">Reference DcmModeRules from DcmDsdSidTabModeRuleRef (service level) or DcmDsdSubServiceModeRuleRef (subservice level).</div></div>
+
+<h3>Common DaVinci mistakes</h3>
+<div class="db">🔴 <b>DcmDslProtocolPriority clash</b>: Two protocols with same priority → undefined preemption behavior. Always use unique priority values. OBD must be numerically highest (highest priority).</div>
+<div class="db">🔴 <b>Buffer size too small</b>: DcmDslBuffer must accommodate largest possible request AND response. If ReadDTCInformation with many DTCs expected → size accordingly. Under-sizing causes RCRRP or lost responses.</div>
+<div class="wb">⚠️ <b>Session/security not added to service</b>: Forgetting to add DcmDsdSidTabSessionLevelRef means service available in ALL sessions (including default). Adds DcmDsdSidTabSecurityLevelRef only when needed — omitting it means no security restriction.</div>
+<div class="wb">⚠️ <b>DcmTaskTime too large</b>: If DcmTaskTime = 20ms but P2ServerMax = 25ms → only ONE Dcm_MainFunction tick before RCRRP threshold. Application gets almost no time. Keep DcmTaskTime ≤ 5–10ms for typical projects.</div>
+<div class="wb">⚠️ <b>Missing ComM channel reference</b>: Without DcmDslProtocolComMChannelRef, DCM cannot call ComM_DCM_ActiveDiagnostic/InactiveDiagnostic. ComM may put ECU to sleep during active diagnostic session.</div>
+<div class="ib">💡 <b>DcmDslDiagRespMaxNumRespPend</b>: Set this to a finite value (e.g. 10) for production. Infinite RCRRPs can keep ECU awake indefinitely if application hangs. Set to 0 = immediate cancel with NRC 0x10.</div>
+</div>
+
+<!-- DEBUG -->
+<div id="section-dbg" class="section">
+<h2>Integration Testing & Debugging</h2>
+
+<h3>Common integration bugs</h3>
+<div class="card"><h4>Bug: NRC 0x7F on every request</h4><p>Service not allowed in current session. Either: (1) DcmDsdSidTabSessionLevelRef not configured for the active session. (2) ECU still in DEFAULT session when extended-only service is requested. (3) Session change not processed yet. Fix: verify DSD service table session config. Add trace to Dcm_GetSesCtrlType() call.</p></div>
+<div class="card"><h4>Bug: NRC 0x33 on every request</h4><p>Security level too low. Service has DcmDsdSidTabSecurityLevelRef configured but security not unlocked. Fix: verify SecurityAccess was performed. Check Dcm_GetSecurityLevel(). Verify security level value matches what DSD table expects (odd = locked, even = not meaningful for service access). </p></div>
+<div class="card"><h4>Bug: NRC 0x78 repeated endlessly</h4><p>Application always returns DCM_E_PENDING. Root cause: application blocked on NvM/DEM call that never completes. Or DcmDslDiagRespMaxNumRespPend not configured (infinite by default). Fix: configure max RCRRP count. Verify NvM job completes. Add timeout in application. Check DEM busy flags.</p></div>
+<div class="card"><h4>Bug: Session drops back to default unexpectedly</h4><p>S3Server timeout. Tester not sending TesterPresent (3E 80) functionally. Or sending it on wrong connection/PDU ID. Fix: Verify tester sends 3E 80 before S3Server (5000ms) expires. Verify TesterPresent uses FUNCTIONAL addressing (broadcast). Verify DcmDslConnection routing.</p></div>
+<div class="card"><h4>Bug: SecurityAccess always returns NRC 0x37</h4><p>SecurityDelayTimer running. Either: (1) Previous session had failed attempts and timer carried across reset (NvM-backed counter). (2) DcmDspSecurityDelayTimeOnBoot very long. (3) AttemptCounter read from NvM returned max value. Fix: clear NvM-backed counter. Reduce DcmDspSecurityDelayTimeOnBoot for development.</p></div>
+<div class="card"><h4>Bug: Large DID read returns NRC 0x14 (responseTooLong)</h4><p>Response length exceeds configured buffer. Fix: (1) Increase DcmDslBuffer size. OR (2) Enable paged-buffer (DcmPagedBufferEnabled=TRUE) and configure DcmDslProtocolMaximumResponseSize. For very large responses (full DTC list) paged buffer is recommended.</p></div>
+<div class="card"><h4>Bug: OBD response arrives after 50ms</h4><p>System-level timing violation. Possible causes: (1) DcmTaskTime too large (10ms task gives 10ms slop per cycle). (2) Application function takes too long (GetPIDData blocking). (3) CanTp configuration (STmin, BS) causing delay. Fix: reduce DcmTaskTime, make OBD PID callbacks non-blocking, verify CanTp STmin=0.</p></div>
+
+<h3>Interface testing checklist</h3>
+<table>
+  <tr><th>Test case</th><th>What to verify</th><th>Tool / method</th></tr>
+  <tr><td>Session control matrix</td><td>All services accessible only in configured sessions; correct NRC 0x7F when wrong session</td><td>Diagnostic tester with session matrix test scripts</td></tr>
+  <tr><td>Security access timing</td><td>GetSeed → key calculation → CompareKey flow; AttemptCounter increments; delay timer works</td><td>Manual tester; inject wrong key N times</td></tr>
+  <tr><td>S3Server timeout</td><td>Session drops to default after configured timeout; security level resets to LOCKED</td><td>Stop sending TesterPresent; monitor session via 0x22 DID</td></tr>
+  <tr><td>Concurrent TesterPresent</td><td>3E 80 functional resets S3; physical-only 3E 80 does NOT reset S3</td><td>Two tester instances or script</td></tr>
+  <tr><td>RCRRP handling</td><td>Tester receives 7F xx 78, waits, then receives final response within P2*ServerMax</td><td>Monitor CAN trace; verify timing</td></tr>
+  <tr><td>Max RCRRP count</td><td>After DcmDslDiagRespMaxNumRespPend, NRC 0x10 received</td><td>Inject deliberate application hang</td></tr>
+  <tr><td>Functional addressing NRC suppression</td><td>0x11/0x12/0x31/0x7E/0x7F not sent for functional requests to wrong session/service</td><td>Send functional request for unsupported service</td></tr>
+  <tr><td>Protocol preemption</td><td>Higher priority protocol interrupts lower; NRC 0x21 or no response per config</td><td>Send lower priority then higher priority simultaneously</td></tr>
+  <tr><td>Buffer overflow</td><td>StartOfReception returns BUFREQ_E_OVFL for oversized request</td><td>Send request larger than DcmDslBuffer</td></tr>
+  <tr><td>DID read/write consistency</td><td>Written value is readable back; endianness correct; length matches config</td><td>Write DID then read same DID; compare bytes</td></tr>
+  <tr><td>Mode rule enforcement</td><td>Service rejected with configured NRC when mode condition fails</td><td>Set wrong vehicle conditions; attempt restricted service</td></tr>
+  <tr><td>Jump to bootloader</td><td>After 10 02: RCRRP sent, SetProgConditions called, reset occurs, bootloader reads conditions</td><td>Flash programming test sequence</td></tr>
+</table>
+
+<h3>Key DET error codes</h3>
+<table>
+  <tr><th>DET error</th><th>Cause</th></tr>
+  <tr><td><code>DCM_E_PARAM</code></td><td>Invalid parameter passed to API</td></tr>
+  <tr><td><code>DCM_E_INTERFACE_TIMEOUT</code></td><td>Max RCRRP count reached — application did not return in time [SWS_Dcm_00120]</td></tr>
+  <tr><td><code>DCM_E_INTERFACE_RETURN_VALUE</code></td><td>Application returned invalid return code</td></tr>
+  <tr><td><code>DCM_E_FORCE_RCRRP_IN_SILENT_COMM</code></td><td>RCRRP requested but ComM in silent mode [SWS_Dcm_01143]</td></tr>
+  <tr><td><code>DCM_E_INVALID_VALUE</code></td><td>Application returned E_NOT_OK with ErrorCode=DCM_POS_RESP [SWS_Dcm_01415]</td></tr>
+</table>
+</div>
+
+</div><!-- widget end -->
+
+<script>
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const svcs={
+  '0x10':'<b>0x10 DiagnosticSessionControl</b><br>Changes ECU diagnostic session. Subfunctions: 0x01=Default, 0x02=Programming, 0x03=ExtendedDiagnostic, 0x40-0x5F=OEM, 0x60-0x7E=Supplier. New session parameters (P2, P2*) apply AFTER positive response TX confirmed. Security level reset to LOCKED on any non-default→any transition. Mode switch: DcmDiagnosticSessionControl updated. If programming session triggers bootloader jump: RCRRP sent, DcmSetProgConditions() called, then reset.',
+  '0x11':'<b>0x11 ECUReset</b><br>Triggers ECU reset. Subfunctions: 0x01=hardReset, 0x02=keyOffOnReset, 0x03=softReset. DCM switches DcmEcuReset mode → BswM triggers appropriate reset sequence via EcuM. Response sent before reset. DCM also switches DcmModeRapidPowerShutDown for subfunction 0x04.',
+  '0x22':'<b>0x22 ReadDataByIdentifier (RDBI)</b><br>Read one or more DIDs in single request. Multi-DID: each DID read independently, positive response includes all successful ones (partial success is positive). If ALL fail → NRC 0x31. Each DID maps to DcmDspDid. Data via: sync/async function, S/R port, or ECU signal. DcmDspDataUsePort determines interface type.',
+  '0x23':'<b>0x23 ReadMemoryByAddress</b><br>Read memory at specified address and length. addressAndLengthFormatIdentifier (first byte) defines byte count for address and length fields. Memory regions configured in DcmDspMemoryId. Application: Xxx_ReadMemory(OpStatus, MemAddr, MemLength, MemData).',
+  '0x24':'<b>0x24 ReadScalingDataByIdentifier</b><br>Read scaling information for a DID (measurement units, conversion formula). Application: Xxx_GetScalingInformation(). Less commonly used in production.',
+  '0x27':'<b>0x27 SecurityAccess</b><br>Two-step seed/key exchange. Odd subfunctions = requestSeed. Even subfunctions = sendKey. AttemptCounter protection. SecurityDelayTimer after too many failures. Mode switch: DcmSecurityAccess updated on success. Seed/key functions: Xxx_GetSeed() and Xxx_CompareKey().',
+  '0x28':'<b>0x28 CommunicationControl</b><br>Enable/disable Tx/Rx of specific message types. Subfunctions: 0x00=enableRxAndTx, 0x01=enableRxDisableTx, 0x02=disableRxEnableTx, 0x03=disableRxAndTx. Mode switch: DcmCommunicationControl_<ChannelId> per ComM channel. Typically used in programming sessions to silence normal communication.',
+  '0x29':'<b>0x29 Authentication</b><br>PKI-based authentication (R24-11: PKI only; no challenge-response). Establishes authenticated connection, assigns roles and white lists. Uses KeyM certificate management. Per-connection authentication state: deauthenticated/authenticated. White list controls which services are accessible. DSD checks auth state before service execution.',
+  '0x2A':'<b>0x2A ReadDataByPeriodicIdentifier</b><br>Request periodic transmission of DID values. Transmission rates: slow/medium/fast (configured in DcmDslPeriodicTransmission). Type 2 = UUDT on separate PDU ID. Only in Full Comm mode [SWS_Dcm_00123]. Events discarded if not in Full Comm [SWS_Dcm_00125]. Cannot be used with DID ranges.',
+  '0x2C':'<b>0x2C DynamicallyDefineDataIdentifier</b><br>Define a DID dynamically from other DIDs or memory locations. Subfunctions: 0x01=defineByIdentifier, 0x02=defineByMemoryAddress, 0x03=clearDynamicallyDefinedDataIdentifier. Cannot be used with DID range feature.',
+  '0x2E':'<b>0x2E WriteDataByIdentifier (WDBI)</b><br>Write data to a DID. DID must have DcmDspDataWriteConditionCheckFnc and DcmDspDataWriteFnc configured. Application checks conditions first, then writes. Returns NRC 0x72 (generalProgrammingFailure) on write error.',
+  '0x2F':'<b>0x2F InputOutputControlByIdentifier (IOCBI)</b><br>Control ECU input/output signals. InputOutputControlParameter: 0x00=returnControlToECU, 0x01=resetToDefault, 0x02=freezeCurrentState, 0x03=shortTermAdjustment. Uses ControlEnableMaskRecord (CEMR) to specify which sub-elements to control. Cannot be used with DID ranges.',
+  '0x14':'<b>0x14 ClearDiagnosticInformation</b><br>Clear DTC fault memory. GroupOfDTC: 0xFFFFFF=allDTCs. Routed to DEM via Dem_ClearDTC(). ClearDTC may take time → DCM_E_PENDING handling. MemorySelection parameter for extended DTC groups.',
+  '0x19':'<b>0x19 ReadDTCInformation</b><br>Read DTC information in many ways. 26+ subfunctions. Key: 0x01=reportNumberOfDTCByStatusMask, 0x02=reportDTCByStatusMask, 0x06=reportDTCExtDataRecordByDTCNumber, 0x0A=reportSupportedDTC, 0x0B=reportFirstTestFailedDTC, 0x04=reportDTCSnapshotRecordByDTCNumber. Large responses → use paged buffer. Routes to DEM APIs.',
+  '0x31':'<b>0x31 RoutineControl</b><br>Execute routines (test procedures, calibration). Subfunctions: 0x01=startRoutine, 0x02=stopRoutine, 0x03=requestRoutineResults. Identified by 2-byte RID. Application: Xxx_Start(), Xxx_Stop(), Xxx_RequestResults() per routine. May be async (DCM_E_PENDING). Can have input/output parameters configured.',
+  '0x34':'<b>0x34 RequestDownload</b><br>Initiate data download to ECU (e.g. flash programming). Parameters: dataFormatIdentifier, addressAndLengthFormatIdentifier, memoryAddress, memorySize. Returns maxNumberOfBlockLength (max block size for 0x36). Application: Xxx_RequestDownload().',
+  '0x35':'<b>0x35 RequestUpload</b><br>Initiate data upload from ECU. Same parameters as 0x34. Returns maxNumberOfBlockLength. Application: Xxx_RequestUpload().',
+  '0x36':'<b>0x36 TransferData</b><br>Transfer data blocks after 0x34/0x35. blockSequenceCounter in each block. ECU checks counter continuity (NRC 0x73 if wrong). Application: Xxx_TransferData(). Note: DCM's NRC order for 0x36 differs from ISO due to implementation complexity [SWS_Dcm note in 7.4.2.21].',
+  '0x37':'<b>0x37 RequestTransferExit</b><br>Terminate download/upload session. Application: Xxx_RequestTransferExit(). May include checksum verification. Returns transfer result.',
+  '0x3E':'<b>0x3E TesterPresent</b><br>Keep non-default session alive. Subfunction 0x00 = normal (positive response sent). Subfunction 0x80 = suppressPosResponse (with SPRMIB=1, functional addressing = Concurrent TesterPresent → resets S3Server only for connection that established non-default session).',
+  '0x85':'<b>0x85 ControlDTCSetting</b><br>Enable/disable DTC fault storage. Subfunctions: 0x01=on (enable storage), 0x02=off (disable storage). Routes to DEM. Mode switch: DcmControlDTCSetting updated. Only 0x01 and 0x02 supported. 0xFFFFFF group only supported for controlOptionRecord.',
+  '0x86':'<b>0x86 ResponseOnEvent (ROE)</b><br>Enable event-driven responses. Events: onDTCStatusChange (triggers ReadDTCInformation), onChangeOfDataIdentifier (triggers RDBI). Type 1 = USDT on normal Tx PDU. Type 2 = USDT on separate PDU. State machine per ROE event. Mode switch: DcmResponseOnEvent_<EventId>. Subfunction onTimerInterrupt NOT supported in R24-11.'
+};
+
+function showSvc(id){
+  const d=document.getElementById('apid');
+  d.innerHTML=svcs[id]||'Not found';
+  document.querySelectorAll('.cl').forEach(e=>{e.style.background='';e.style.color='';});
+  event.target.style.background='var(--color-background-info)';
+  event.target.style.color='var(--color-text-info)';
+}
+
+const apis={
+  Dcm_Init:'<b>void Dcm_Init(const Dcm_ConfigType* ConfigPtr)</b><br>Initialize DCM module. Sets session=DEFAULT_SESSION, security=LOCKED. Calls Xxx_GetSecurityAttemptCounter() for NvM-backed attempt counters. Sets ActiveDiagnostic=ACTIVE [SWS_Dcm_01069]. Must be called before Dcm_MainFunction.',
+  Dcm_MainFunction:'<b>void Dcm_MainFunction(void)</b><br>Periodic task (period=DcmTaskTime). Drives all DCM timers (P2/P2*, S3, SecurityDelay), processes pending async operations (DCM_E_PENDING retries), periodic transmission scheduling, ROE scheduling, AttemptCounter reads.',
+  Dcm_GetVersionInfo:'<b>void Dcm_GetVersionInfo(Std_VersionInfoType* versioninfo)</b><br>Standard BSW version query.',
+  Dcm_StartOfReception:'<b>BufReq_ReturnType Dcm_StartOfReception(PduIdType id, const PduInfoType* info, PduLengthType TpSduLength, PduLengthType* bufferSizePtr)</b><br>Called by PduR at start of Rx. DCM checks if buffer available. TpSduLength=0 → BUFREQ_E_NOT_OK [SWS_Dcm_00642]. Size > buffer → BUFREQ_E_OVFL [SWS_Dcm_00444]. On success → returns BUFREQ_OK, sets *bufferSizePtr.',
+  Dcm_CopyRxData:'<b>BufReq_ReturnType Dcm_CopyRxData(PduIdType id, const PduInfoType* info, PduLengthType* bufferSizePtr)</b><br>Called by PduR to copy received data into DCM buffer. SduLength=0 → return BUFREQ_OK with remaining buffer size [SWS_Dcm_00996]. DCM must not access Rx buffer again until TpRxIndication [SWS_Dcm_00342].',
+  Dcm_TpRxIndication:'<b>void Dcm_TpRxIndication(PduIdType id, Std_ReturnType result)</b><br>Called by PduR when Rx complete. result=E_OK → forward to DSD. result≠E_OK → discard buffer [SWS_Dcm_00344]. Only forwarded after this call [SWS_Dcm_00111].',
+  Dcm_CopyTxData:'<b>BufReq_ReturnType Dcm_CopyTxData(PduIdType id, const PduInfoType* info, const RetryInfoType* retry, PduLengthType* availableDataPtr)</b><br>Called by PduR to get Tx data. DCM copies response data to provided buffer. BUFREQ_E_BUSY → buffer not ready yet (paged buffer). BUFREQ_OK → data copied. availableDataPtr must not exceed remaining bytes [SWS_Dcm_00350].',
+  Dcm_TpTxConfirmation:'<b>void Dcm_TpTxConfirmation(PduIdType id, Std_ReturnType result)</b><br>Called by PduR when Tx complete. DCM unlocks Tx buffer [SWS_Dcm_00352]. Stops P2/P2* error handling timers [SWS_Dcm_00353]. Session and timing parameters applied NOW (after response confirmed).',
+  Dcm_TxConfirmation:'<b>void Dcm_TxConfirmation(PduIdType TxPduId, Std_ReturnType result)</b><br>Called for periodic transmission confirmation (IF interface, not TP). [SWS_Dcm_01073].',
+  Dcm_GetSecurityLevel:'<b>Std_ReturnType Dcm_GetSecurityLevel(Dcm_SecLevelType* SecLevel)</b><br>Returns current active security level. DCM_SEC_LEV_LOCKED=0x00. Values 1-63 = unlocked levels. Can be called by application to restrict service sub-elements by security level.',
+  Dcm_GetSesCtrlType:'<b>Std_ReturnType Dcm_GetSesCtrlType(Dcm_SesCtrlType* SesCtrlType)</b><br>Returns current diagnostic session: DCM_DEFAULT_SESSION(1), DCM_PROGRAMMING_SESSION(2), DCM_EXTENDED_DIAGNOSTIC_SESSION(3), or OEM-specific values.',
+  Dcm_GetActiveProtocol:'<b>Std_ReturnType Dcm_GetActiveProtocol(Dcm_ProtocolType* ActiveProtocol)</b><br>Returns currently active diagnostic protocol type (DCM_UDS_ON_CAN, DCM_OBD_ON_CAN, etc.).',
+  Dcm_ResetToDefaultSession:'<b>Std_ReturnType Dcm_ResetToDefaultSession(void)</b><br>Application can force ECU back to default session [SWS_Dcm_01062]. Triggers mode switch DcmDiagnosticSessionControl → DCM_DEFAULT_SESSION. Useful for safety conditions (e.g. vehicle speed exceeded).',
+  Dcm_TriggerOnEvent:'<b>Std_ReturnType Dcm_TriggerOnEvent(uint8 RoeEventId)</b><br>Application manually triggers a configured ROE event. DCM then executes the configured serviceToRespondTo.',
+  Dcm_DemTriggerOnDTCStatus:'<b>Std_ReturnType Dcm_DemTriggerOnDTCStatus(uint32 DTC, Dem_UdsStatusByteType DTCStatusOld, Dem_UdsStatusByteType DTCStatusNew)</b><br>Called by DEM when any DTC status changes. DCM checks if active ROE OnDTCChange event matches this DTC/status. If match → triggers ROE response.',
+  Dcm_SetActiveDiagnostic:'<b>Std_ReturnType Dcm_SetActiveDiagnostic(boolean active)</b><br>Application controls DCM active diagnostic state. TRUE → DCM calls ComM_DCM_ActiveDiagnostic (keep awake). FALSE → DCM calls ComM_DCM_InactiveDiagnostic (allow sleep). Overrides DCM internal state.',
+  Dcm_SetDeauthenticatedRole:'<b>Std_ReturnType Dcm_SetDeauthenticatedRole(uint8 ConnectionId, CryptoCertificateId roleId)</b><br>Override the configured deauthenticated role for a connection [SWS_Dcm_01486]. Only valid when connection is in deauthenticated state [SWS_Dcm_01487]. Discarded when connection transitions to authenticated state.',
+  Dcm_SetProgConditions:'<b>Std_ReturnType Dcm_SetProgConditions(const Dcm_ProgConditionsType* ProgConditions)</b><br>Store conditions for bootloader jump (session, security level, tester address, RxPduId, reprogramming flag). Called in DspInternal_DcmConfirmation() context after 0x10 02 response confirmed. Bootloader reads these via Dcm_GetProgConditions().',
+  Dcm_GetProgConditions:'<b>Std_ReturnType Dcm_GetProgConditions(Dcm_ProgConditionsType* ProgConditions)</b><br>Read conditions stored by SetProgConditions. Called by bootloader after reset to restore diagnostic state.',
+  Dcm_ComM_FullComModeEntered:'<b>void Dcm_ComM_FullComModeEntered(NetworkHandleType NetworkId)</b><br>ComM notifies DCM of Full Communication Mode. DCM enables all Rx/Tx [SWS_Dcm_00157], re-enables periodic and ROE transmissions. NetworkId must match DcmDslProtocolComMChannelRef.',
+  Dcm_ComM_SilentComModeEntered:'<b>void Dcm_ComM_SilentComModeEntered(NetworkHandleType NetworkId)</b><br>ComM notifies DCM of Silent Mode. DCM disables all Tx (periodic, ROE, normal responses) [SWS_Dcm_00153]. Rx still possible.',
+  Dcm_ComM_NoComModeEntered:'<b>void Dcm_ComM_NoComModeEntered(NetworkHandleType NetworkId)</b><br>ComM notifies DCM of No Communication Mode. DCM disables ALL Rx AND Tx [SWS_Dcm_00148]. PduR_DcmTransmit() never called [SWS_Dcm_00152].'
+};
+
+function showApi(name){
+  const d=document.getElementById('apid');
+  d.innerHTML=apis[name]||'Not found';
+  document.querySelectorAll('.cl').forEach(e=>{e.style.background='';e.style.color='';});
+  event.target.style.background='var(--color-background-info)';
+  event.target.style.color='var(--color-text-info)';
+}
+
+function showSeq(id){
+  ['sq1','sq2','sq3','sq4','sq5','sq6'].forEach(s=>{
+    const el=document.getElementById('seq-'+s);
+    if(el) el.style.display=s===id?'block':'none';
+  });
+  document.querySelectorAll('[id^="sqb"]').forEach(b=>b.classList.remove('active'));
+  const m={'sq1':'1','sq2':'2','sq3':'3','sq4':'4','sq5':'5','sq6':'6'};
+  const btn=document.getElementById('sqb'+m[id]);
+  if(btn) btn.classList.add('active');
+}
+</script>

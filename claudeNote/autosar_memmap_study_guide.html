@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR Memory Mapping — Complete Study Guide R24-11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8f9fa;color:#1a1a1a;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:24px 20px}
+h1{font-size:22px;font-weight:700;margin-bottom:4px;color:#1a1a1a}
+.subtitle{font-size:13px;color:#666;margin-bottom:24px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #e0e0e0}
+.tab{font-size:13px;padding:6px 14px;border-radius:8px;border:1px solid #d0d0d0;background:transparent;color:#555;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab.active{background:#e8f0fe;color:#1a73e8;border-color:#a0c4ff}
+.tab:hover:not(.active){background:#f0f0f0}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;padding:16px 20px;margin-bottom:14px}
+.card-t{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:8px}
+.card-b{font-size:13px;color:#444;line-height:1.7}
+.sh{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:18px 0 8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.fn{font-family:'Courier New',monospace;font-size:11px;color:#1a73e8}
+.kw{font-family:'Courier New',monospace;font-size:11px;color:#0f9d58;background:#e8f5e9;border-radius:3px;padding:1px 5px}
+.ec{font-family:'Courier New',monospace;font-size:11px;background:#fce8e6;color:#c5221f;border-radius:3px;padding:1px 4px}
+pre.code{font-family:'Courier New',monospace;font-size:12px;line-height:1.8;background:#1e1e2e;border-radius:8px;padding:16px 18px;overflow-x:auto;color:#cdd6f4;white-space:pre;margin:10px 0}
+.c-comment{color:#6c7086}.c-kw{color:#cba6f7}.c-macro{color:#a6e3a1}.c-pragma{color:#f38ba8}.c-str{color:#a6e3a1}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 10px;font-weight:600;font-size:11px;color:#555;border-bottom:1px solid #e0e0e0;background:#f8f9fa;text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:9px 10px;border-bottom:1px solid #e8e8e8;vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f8f9fa}
+.cfg-r{display:grid;grid-template-columns:190px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid #eee;font-size:12px}
+.cfg-r:last-child{border-bottom:none}
+.ck{font-family:'Courier New',monospace;font-size:11px;color:#1a73e8;word-break:break-all}
+.cv{color:#444;line-height:1.55}
+.sb{font-size:12px;padding:5px 13px;border-radius:8px;border:1px solid #d0d0d0;background:transparent;color:#555;cursor:pointer;font-family:inherit;margin-bottom:3px}
+.sb.sel{background:#e8f0fe;color:#1a73e8;border-color:#a0c4ff}
+.pill{border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;display:inline-block;margin:3px;background:#e8f5e9;color:#137333}
+.info-box{background:#e8f0fe;border-left:3px solid #1a73e8;border-radius:6px;padding:12px 16px;margin:10px 0;font-size:13px;color:#1a1a1a}
+.warn-box{background:#fef9e0;border-left:3px solid #f9a825;border-radius:6px;padding:12px 16px;margin:10px 0;font-size:13px;color:#1a1a1a}
+.danger-box{background:#fce8e6;border-left:3px solid #c5221f;border-radius:6px;padding:12px 16px;margin:10px 0;font-size:13px;color:#1a1a1a}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:12px 0}
+.flow-box{background:#fff;border:1px solid #ccc;border-radius:8px;padding:10px 16px;font-size:12px;text-align:center;min-width:130px}
+.flow-arrow{font-size:18px;color:#888}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}.cfg-r{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>AUTOSAR Memory Mapping — Complete Study Guide</h1>
+<p class="subtitle">R24-11 · SWS Document ID 128 · Automotive Integration, Testing &amp; DaVinci Configuration</p>
+ 
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="showTab('overview',this)">Overview &amp; Concept</button>
+  <button class="tab" onclick="showTab('anatomy',this)">MAKW Anatomy</button>
+  <button class="tab" onclick="showTab('sections',this)">Section Types</button>
+  <button class="tab" onclick="showTab('mechanism',this)">Usage Mechanism</button>
+  <button class="tab" onclick="showTab('examples',this)">Code Examples</button>
+  <button class="tab" onclick="showTab('config',this)">DaVinci Config</button>
+  <button class="tab" onclick="showTab('debug',this)">Debug &amp; Testing</button>
+</div>
+ 
+<!-- OVERVIEW -->
+<div id="pn-overview" class="panel active">
+  <div class="card">
+    <p class="card-t">What is AUTOSAR Memory Mapping?</p>
+    <p class="card-b">Memory Mapping is NOT a runtime module — it has <strong>no API, no state machine, no ISR, no runtime behaviour</strong>. It is a <strong>compile-time and link-time mechanism</strong> that uses standardised preprocessor macros called <em>Memory Allocation Keywords (MAKWs)</em> to assign code, variables, and constants to specific memory sections via compiler <span class="fn">#pragma</span> directives — in a <strong>compiler-independent, portable way</strong>. Every AUTOSAR BSW module and SWC must use this mechanism for all file-scope symbols.</p>
+  </div>
+ 
+  <p class="sh">The Big Picture Flow</p>
+  <div class="flow">
+    <div class="flow-box" style="background:#e8eaf6;border-color:#3f51b5"><strong>C Source</strong><br><small>START_SEC_*<br>STOP_SEC_*</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box" style="background:#e8f5e9;border-color:#4caf50"><strong>{Mip}_MemMap.h</strong><br><small>#ifdef → #pragma<br>Integrator-generated</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box" style="background:#fff3e0;border-color:#ff9800"><strong>Compiler</strong><br><small>Assigns symbols to<br>named sections</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box" style="background:#fce8e6;border-color:#f44336"><strong>Linker + Script</strong><br><small>Maps sections to<br>physical addresses</small></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-box" style="background:#f3e5f5;border-color:#9c27b0"><strong>Binary / Flash</strong><br><small>Symbols at correct<br>memory addresses</small></div>
+  </div>
+  <div class="info-box">MemMap controls only symbol → section assignment. The linker script controls section → address assignment. MemMap does NOT set any memory addresses.</div>
+ 
+  <p class="sh">Why is it needed? — 6 core use cases</p>
+  <div class="g2">
+    <div class="card"><p class="card-t">1. Eliminate RAM alignment waste</p><p class="card-b">Linkers insert padding between differently-aligned objects. By grouping uint8 in _8 sections, uint16 in _16 sections, etc., waste is eliminated. Especially important on small MCUs with limited RAM.</p></div>
+    <div class="card"><p class="card-t">2. POWER_ON_CLEARED (NvM RAM mirrors)</p><p class="card-b">NvM RAM mirrors must NOT be zero-cleared on warm reset (watchdog, software reset, external reset). Only zeroed on cold power-on. This is physically impossible without a dedicated memory section with special startup code.</p></div>
+    <div class="card"><p class="card-t">3. Internal vs External Flash</p><p class="card-b">High-frequency code → internal flash (fast, low latency). Rarely-called code → external flash (slower, but larger). Memory mapping allows this per-module assignment without touching source code.</p></div>
+    <div class="card"><p class="card-t">4. Bootloader + Application reuse</p><p class="card-b">Same C source compiled for both bootloader and application. Different MemMap header per build scenario → same code linked to different addresses. Eliminates code duplication and #ifdef spaghetti.</p></div>
+    <div class="card"><p class="card-t">5. Memory Protection (MPU / ASIL)</p><p class="card-b">Safety systems need separate MPU-protected address partitions per ASIL level. ASIL_B, ASIL_D qualifiers in MAKW allow sections to be placed in separate linker regions → hardware MPU can enforce read/write/execute access control.</p></div>
+    <div class="card"><p class="card-t">6. Multi-core LOCAL allocation</p><p class="card-b">LOCAL coreScope restricts a symbol to one core's local TCRAM/DTCM. Avoids cross-core memory access penalties (NUMA). Any other core accessing LOCAL memory → MPU fault. GLOBAL (default) = accessible from any core.</p></div>
+  </div>
+ 
+  <p class="sh">The three actors</p>
+  <div class="g3">
+    <div class="card"><p class="card-t">BSW / SWC Developer</p><p class="card-b">Wraps ALL file-scope variables, constants, functions with START/STOP MAKW pairs. Defines MemorySection entries in BSW Module Description (ARXML). Does NOT decide which physical address.</p></div>
+    <div class="card"><p class="card-t">Integrator (DaVinci)</p><p class="card-b">Configures MemMap module. Maps SwAddrMethod → MemMapAddressingModeSet → actual #pragma strings. Generates {Mip}_MemMap.h. Decides physical linker section for each MAKW.</p></div>
+    <div class="card"><p class="card-t">Linker Script</p><p class="card-b">Assigns named linker sections (created by #pragmas) to physical address ranges. MemMap does NOT control addresses — the linker script does.</p></div>
+  </div>
+ 
+  <p class="sh">Three file types (know all)</p>
+  <table class="tbl">
+    <thead><tr><th>File</th><th>When generated</th><th>Naming rule</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>MemMap.h</strong></td><td>BswModuleDescription has DependencyOnArtifact category=MEMMAP pointing to MemMap.h (legacy/shared)</td><td>Fixed name</td><td class="fn">MemMap.h</td></tr>
+      <tr><td><strong>{Mip}_MemMap.h</strong></td><td>BSW module WITHOUT DependencyOnArtifact category=MEMMAP</td><td>Capitalized_shortName[_vendorId_vendorApiInfix]_MemMap.h</td><td class="fn">Eep_MemMap.h, Fls_142_Ext_MemMap.h</td></tr>
+      <tr><td><strong>{componentTypeName}_MemMap.h</strong></td><td>Every SWC type in input configuration</td><td>AtomicSwComponentType.shortName_MemMap.h (case-sensitive)</td><td class="fn">MySwc_MemMap.h</td></tr>
+    </tbody>
+  </table>
+</div>
+ 
+<!-- ANATOMY -->
+<div id="pn-anatomy" class="panel">
+  <div class="card">
+    <p class="card-t">MAKW General Pattern (SWS_MemMap_00022 + 00042)</p>
+    <p class="card-b">Every Memory Allocation Keyword has this precise structure. Optional parts are in [brackets]. Know each field cold — exams test individual fields and their combinations.</p>
+  </div>
+  <pre class="code"><span class="c-macro">{PREFIX}</span>_<span class="c-kw">START</span>_SEC_<span class="c-macro">{SECTION_TYPE}</span>[_{INIT_POLICY}][_{refinement}][_{safety}][_{coreScope}][_{ALIGNMENT}]
+<span class="c-macro">{PREFIX}</span>_<span class="c-kw">STOP</span>_SEC_<span class="c-macro">{SECTION_TYPE}</span>[_{INIT_POLICY}][_{refinement}][_{safety}][_{coreScope}][_{ALIGNMENT}]</pre>
+ 
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="field-btns"></div>
+  <div id="field-display"></div>
+ 
+  <p class="sh">MAKW Decode Examples</p>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="ex-btns"></div>
+  <div id="ex-display"></div>
+ 
+  <p class="sh">PREFIX construction rules</p>
+  <table class="tbl">
+    <thead><tr><th>Module type</th><th>PREFIX source</th><th>Example</th><th>Resulting PREFIX</th></tr></thead>
+    <tbody>
+      <tr><td>BSW, no vendorApiInfix</td><td>Capitalized BswModuleDescription.shortName</td><td>Eep → EEP</td><td class="fn">EEP</td></tr>
+      <tr><td>BSW, with vendorId + vendorApiInfix</td><td>Msn_vendorId_vendorApiInfix (capitalized)</td><td>Fls, 142, Ext</td><td class="fn">FLS_142_EXT</td></tr>
+      <tr><td>BSW with SectionNamePrefix defined</td><td>SectionNamePrefix.symbol (case-sensitive)</td><td>ADC_AUTOSCANKERNEL</td><td class="fn">ADC_AUTOSCANKERNEL</td></tr>
+      <tr><td>SWC</td><td>AtomicSwComponentType.shortName (original case!)</td><td>MySwc</td><td class="fn">MySwc</td></tr>
+    </tbody>
+  </table>
+  <div class="warn-box">⚠ BSW prefixes are UPPERCASE. SWC prefixes keep original case. Both are case-sensitive. Mixing up case causes compile errors (undefined MAKW).</div>
+</div>
+ 
+<!-- SECTIONS -->
+<div id="pn-sections" class="panel">
+  <p class="sh">Variable Section Types</p>
+  <table class="tbl">
+    <thead><tr><th>Section Type</th><th>Pattern (abbreviated)</th><th>Usage</th><th>Init Policy</th><th>coreScope</th></tr></thead>
+    <tbody>
+      <tr><td><strong>VAR</strong></td><td class="fn">..._VAR_{INIT_POLICY}[_{r}][_{s}][_{cs}]_{A}</td><td>All global/static variables — most common</td><td>CLEARED/INIT/POWER_ON_CLEARED</td><td>GLOBAL/LOCAL</td></tr>
+      <tr><td><strong>VAR_FAST</strong></td><td class="fn">..._VAR_FAST_{INIT_POLICY}[_{r}][_{s}][_{cs}]_{A}</td><td>Frequently accessed, bit-manipulatable. Near-addressed RAM on TriCore (saves code+runtime). High-rate ISR variables.</td><td>CLEARED/INIT/POWER_ON_CLEARED</td><td>GLOBAL/LOCAL</td></tr>
+      <tr><td><strong>VAR_SLOW</strong></td><td class="fn">..._VAR_SLOW_{INIT_POLICY}[_{r}][_{s}][_{cs}]_{A}</td><td>Infrequently accessed. Can go to slower RAM or banked RAM.</td><td>CLEARED/INIT/POWER_ON_CLEARED</td><td>GLOBAL/LOCAL</td></tr>
+      <tr><td><strong>INTERNAL_VAR</strong></td><td class="fn">..._INTERNAL_VAR_{INIT_POLICY}[_{r}][_{s}][_{cs}]_{A}</td><td>Calibration-tool-accessible (INCA, CANape, XCP). Measurement variables.</td><td>CLEARED/INIT/POWER_ON_CLEARED</td><td>GLOBAL/LOCAL</td></tr>
+      <tr><td><strong>VAR_SAVED_ZONE</strong></td><td class="fn">..._VAR_SAVED_ZONE_{refinement}[_{s}]_{A}</td><td>NvM RAM mirrors. _{refinement} is MANDATORY. POWER-ON-CLEARED is mandatory init policy.</td><td>POWER-ON-CLEARED (fixed)</td><td>Not applicable</td></tr>
+    </tbody>
+  </table>
+ 
+  <p class="sh">Constant and Calibration Section Types</p>
+  <table class="tbl">
+    <thead><tr><th>Section Type</th><th>Pattern</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CONST</strong></td><td class="fn">..._CONST[_{r}][_{s}][_{cs}]_{A}</td><td>Fixed read-only constants (lookup tables, coefficients). ROM/Flash. _{refinement} can be timing period for tracing.</td></tr>
+      <tr><td><strong>CONST_SAVED_RECOVERY_ZONE</strong></td><td class="fn">..._CONST_SAVED_RECOVERY_ZONE_{refinement}[_{s}]_{A}</td><td>ROM defaults/recovery values for NvM data. _{refinement} mandatory.</td></tr>
+      <tr><td><strong>CONFIG_DATA</strong></td><td class="fn">..._CONFIG_DATA_{configClass}[_{r}][_{s}]_{A}</td><td>DaVinci-generated configuration constants (_PBcfg.c, _Lcfg.c). _{configClass} = PREBUILD or POSTBUILD.</td></tr>
+      <tr><td><strong>CALIB</strong></td><td class="fn">..._CALIB[_{r}][_{s}]_{A}</td><td>Calibration parameters adjustable via calibration tools. Flash-resident.</td></tr>
+    </tbody>
+  </table>
+ 
+  <p class="sh">Code Section Types</p>
+  <table class="tbl">
+    <thead><tr><th>Section Type</th><th>Pattern</th><th>Usage</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CODE</strong></td><td class="fn">..._CODE[_{r}][_{s}][_{cs}]</td><td>Standard function code. _{refinement} = period time hint (100US, 1MS, 10MS). Most common code section. No ALIGNMENT suffix.</td></tr>
+      <tr><td><strong>CODE_FAST</strong></td><td class="fn">..._CODE_FAST[_{r}][_{s}][_{cs}]</td><td>High-frequency code (ISR handlers, fast callbacks). Internal flash / ITCM. Performance-critical paths.</td></tr>
+      <tr><td><strong>CODE_SLOW</strong></td><td class="fn">..._CODE_SLOW[_{r}][_{s}][_{cs}]</td><td>Rarely called functions (error handlers, one-time init). External/slow flash to free fast memory.</td></tr>
+      <tr><td><strong>CALLOUT_CODE</strong></td><td class="fn">..._CALLOUT_CODE[_{r}][_{s}][_{cs}]</td><td>User-defined callout functions per BswModuleEntry. Each callout gets its own MemorySection + MAKW pair for individual placement control.</td></tr>
+    </tbody>
+  </table>
+ 
+  <p class="sh">Alignment postfix values</p>
+  <table class="tbl">
+    <thead><tr><th>Suffix</th><th>Object type</th><th>Example C types</th></tr></thead>
+    <tbody>
+      <tr><td class="fn">BOOLEAN</td><td>1-bit flags</td><td>boolean (uint8 used as bit)</td></tr>
+      <tr><td class="fn">8</td><td>Byte-aligned</td><td>uint8, int8, char, uint8 arrays</td></tr>
+      <tr><td class="fn">16</td><td>2-byte aligned</td><td>uint16, int16, uint16 arrays/structs max 16-bit element</td></tr>
+      <tr><td class="fn">32</td><td>4-byte aligned</td><td>uint32, int32, float, pointer on 32-bit MCU</td></tr>
+      <tr><td class="fn">64</td><td>8-byte aligned</td><td>uint64, double, 64-bit structs</td></tr>
+      <tr><td class="fn">PTR</td><td>Pointer variables</td><td>Any pointer type (size depends on MCU address space)</td></tr>
+      <tr><td class="fn">UNSPECIFIED</td><td>Unknown/mixed</td><td>Structs with mixed member sizes, unions, external types</td></tr>
+    </tbody>
+  </table>
+ 
+  <p class="sh">Initialization Policy — critical for NvM and safety</p>
+  <table class="tbl">
+    <thead><tr><th>Policy</th><th>C section type</th><th>Every reset</th><th>Warm reset only</th><th>Cold power-on</th><th>Typical use</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CLEARED</strong></td><td>BSS</td><td>Zeroed ✓</td><td>Zeroed ✓</td><td>Zeroed ✓</td><td>uint8 myVar; (uninitialized static)</td></tr>
+      <tr><td><strong>INIT</strong></td><td>DATA/BSS</td><td>To initializer ✓</td><td>To initializer ✓</td><td>To initializer ✓</td><td>uint8 myVar = 5; (explicit initializer)</td></tr>
+      <tr><td><strong>POWER_ON_CLEARED</strong></td><td>BSS (special)</td><td>NOT cleared ✗</td><td>NOT cleared ✗</td><td>Zeroed ✓</td><td>NvM RAM mirrors, watchdog counters across resets</td></tr>
+    </tbody>
+  </table>
+  <div class="danger-box">⚠ POWER_ON_CLEARED symbols must NOT be placed in ECC-protected RAM (cleared by hardware on undervoltage) or RAM cleared by LBIST/MBIST. These would falsely zero the symbols on warm reset.</div>
+</div>
+ 
+<!-- MECHANISM -->
+<div id="pn-mechanism" class="panel">
+  <div class="card">
+    <p class="card-t">The 5-step usage mechanism (SWS_MemMap_00003)</p>
+    <p class="card-b">Every file-scope symbol wrapped by Memory Mapping MUST follow exactly this pattern. No preprocessor code between steps 1–5. No nesting. No MemMap include inside a function body (SWS_MemMap_00023).</p>
+  </div>
+  <pre class="code"><span class="c-comment">/* Step 1: Define the START keyword (preprocessor symbol) */</span>
+<span class="c-macro">#define EEP_START_SEC_VAR_INIT_16</span>
+<span class="c-comment">/* Step 2: Include the MemMap header — processes the define, emits pragmas, undefines it */</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+<span class="c-comment">/* Step 3: Declare or define symbols belonging to this section */</span>
+<span class="c-kw">static</span> uint16 EepTimer = 100;
+<span class="c-kw">static</span> uint16 EepRemainingBytes = 16;
+<span class="c-comment">/* Step 4: Define the STOP keyword */</span>
+<span class="c-macro">#define EEP_STOP_SEC_VAR_INIT_16</span>
+<span class="c-comment">/* Step 5: Include again — processes STOP, restores default pragmas, undefines STOP keyword */</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span></pre>
+ 
+  <p class="sh">How the MemMap header file works internally (Example 7.4 from spec)</p>
+  <pre class="code"><span class="c-comment">/* Eep_MemMap.h — simplified internal structure */</span>
+<span class="c-macro">#define MEMMAP_ERROR</span>   <span class="c-comment">/* error flag: will fire #error if no MAKW matched */</span>
+ 
+<span class="c-kw">#if defined</span> EEP_START_SEC_VAR_INIT_16
+  <span class="c-macro">#undef MEMMAP_ERROR</span>
+  <span class="c-macro">#undef EEP_START_SEC_VAR_INIT_16</span>        <span class="c-comment">/* SWS_MemMap_00011: always undef MAKW */</span>
+  <span class="c-kw">#ifndef</span> MEMMAP_SEQUENCE_OPEN
+    <span class="c-pragma">#pragma section neardata "eep_var_16"</span>  <span class="c-comment">/* compiler-specific pragma — integrator fills this */</span>
+    <span class="c-pragma">#pragma section nearbss  "eep_var_16"</span>
+    <span class="c-macro">#define MEMMAP_SEQUENCE_OPEN</span>
+    <span class="c-macro">#define MEMMAP_SEQUENCE_OPEN_EEP_SEC_VAR_INIT_16</span>
+  <span class="c-kw">#else</span>
+    <span class="c-kw">#error</span> "START must not follow START — nesting not allowed!"
+  <span class="c-kw">#endif</span>
+ 
+<span class="c-kw">#elif defined</span> EEP_STOP_SEC_VAR_INIT_16
+  <span class="c-macro">#undef MEMMAP_ERROR</span>
+  <span class="c-macro">#undef EEP_STOP_SEC_VAR_INIT_16</span>
+  <span class="c-kw">#ifdef</span> MEMMAP_SEQUENCE_OPEN
+    <span class="c-kw">#ifdef</span> MEMMAP_SEQUENCE_OPEN_EEP_SEC_VAR_INIT_16
+      <span class="c-pragma">#pragma section neardata "unhandled"</span>   <span class="c-comment">/* restore: symbols here → linker error (catch-all) */</span>
+      <span class="c-pragma">#pragma section nearbss  "unhandled"</span>
+      <span class="c-macro">#undef MEMMAP_SEQUENCE_OPEN</span>
+      <span class="c-macro">#undef MEMMAP_SEQUENCE_OPEN_EEP_SEC_VAR_INIT_16</span>
+    <span class="c-kw">#else</span>
+      <span class="c-kw">#error</span> "STOP doesn't match the open START!"
+    <span class="c-kw">#endif</span>
+  <span class="c-kw">#else</span>
+    <span class="c-kw">#error</span> "STOP without matching START!"
+  <span class="c-kw">#endif</span>
+<span class="c-kw">#endif</span>
+ 
+<span class="c-comment">/* ... more #elif for other MAKWs ... */</span>
+ 
+<span class="c-kw">#ifdef</span> MEMMAP_ERROR
+  <span class="c-macro">#undef MEMMAP_ERROR</span>
+  <span class="c-kw">#error</span> "Undefined MAKW! Check source or regenerate MemMap header file!"
+<span class="c-kw">#endif</span></pre>
+ 
+  <p class="sh">Rules enforced at compile time</p>
+  <div class="g2">
+    <div class="card"><p class="card-t">SWS_MemMap_00007 — Sequence validation</p><p class="card-b">START→START = #error (nesting). STOP without START = #error. Wrong STOP name (mismatched pair) = #error. Unknown MAKW = #error (MEMMAP_ERROR). All enforced by preprocessor — zero runtime cost.</p></div>
+    <div class="card"><p class="card-t">SWS_MemMap_00011 — Auto-undef</p><p class="card-b">Header always #undefines the MAKW after processing. After <span class="fn">#include "Eep_MemMap.h"</span>, the <span class="fn">EEP_START_SEC_VAR_INIT_16</span> symbol is guaranteed gone — no double-processing risk.</p></div>
+    <div class="card"><p class="card-t">SWS_MemMap_00016 — No nesting, one type</p><p class="card-b">Cannot open a VAR section then open a CODE section without closing VAR first. Only one section active at a time. Only one of code/var/const type at a time.</p></div>
+    <div class="card"><p class="card-t">SWS_MemMap_00023 — No include in function body</p><p class="card-b">MemMap headers MUST NOT be #included inside a function body {}. Some compilers don't support #pragma inside functions. Move function-local statics to file scope if they need mapping.</p></div>
+  </div>
+</div>
+ 
+<!-- EXAMPLES -->
+<div id="pn-examples" class="panel">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="ex-tab-btns"></div>
+  <div id="ex-tab-display"></div>
+</div>
+ 
+<!-- DAVINCI CONFIG -->
+<div id="pn-config" class="panel">
+  <div class="card"><p class="card-t">DaVinci Memory Mapping configuration</p><p class="card-b">Navigate: BSW → MemMap. Configuration is pre-compile only (no post-build variant). DaVinci generates the MemMap header files containing the MAKWs and their #pragma implementations.</p></div>
+ 
+  <p class="sh">Container hierarchy overview</p>
+  <table class="tbl">
+    <thead><tr><th>Container</th><th>Multiplicity</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><strong>MemMap</strong></td><td>0..1</td><td>Root module configuration container</td></tr>
+      <tr><td><strong>MemMapAddressingModeSet</strong></td><td>0..*</td><td>Defines a set of #pragma instructions for one addressing strategy (e.g. "near-addressed initialized variables"). Groups related AddressingModes together.</td></tr>
+      <tr><td><strong>MemMapAddressingMode</strong></td><td>1..* (per ModeSet)</td><td>The actual #pragma strings for START and STOP, plus alignment selector. One entry per alignment value (8, 16, 32 etc.).</td></tr>
+      <tr><td><strong>MemMapAllocation</strong></td><td>0..*</td><td>Contains the mapping rules that connect MemorySections to AddressingModeSets.</td></tr>
+      <tr><td><strong>MemMapGenericMapping</strong></td><td>0..* (in Allocation)</td><td>Maps ALL MemorySections sharing a given SwAddrMethod to one AddressingModeSet. The bulk configuration approach. Can be filtered by MemMapMappingSelector regex.</td></tr>
+      <tr><td><strong>MemMapSectionSpecificMapping</strong></td><td>0..* (in Allocation)</td><td>Maps ONE specific MemorySection to an AddressingModeSet. OVERRIDES GenericMapping for that section. Used for special cases.</td></tr>
+      <tr><td><strong>MemMapMappingSelector</strong></td><td>0..* (in Allocation)</td><td>Optional: regex filter on PREFIX. Restricts a GenericMapping to specific module prefixes (e.g. only ADC_AUTOSCANKERNEL_*).</td></tr>
+    </tbody>
+  </table>
+ 
+  <p class="sh">MemMapAddressingModeSet — key parameters</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">MemMapSupportedSectionType</span><span class="cv">0..* enumeration: MEMMAP_SECTION_TYPE_VAR, _CODE, _CONST, _CONFIG_DATA, _CAL_PRM, _EXCLUDE_FROM_FLASH. Constrains which SwAddrMethod.sectionType values can use this ModeSet in GenericMapping. Used as validation/filter.</span></div>
+    <div class="cfg-r"><span class="ck">MemMapSupportedSectionInitializationPolicy</span><span class="cv">0..* string: INIT, CLEARED, POWER-ON-CLEARED. Constrains which SwAddrMethod.sectionInitializationPolicy values can map to this ModeSet.</span></div>
+    <div class="cfg-r"><span class="ck">MemMapSupportedAddressingMethodOption</span><span class="cv">0..* string: e.g. "safetyAsilB", "coreLocal", "configClassPostBuild". Must match SwAddrMethod.option attribute. Ensures only correctly-qualified SwAddrMethods map here.</span></div>
+    <div class="cfg-r"><span class="ck">MemMapSupportedMemoryAllocationKeywordPolicy</span><span class="cv">ADDR_METHOD_SHORT_NAME: MAKW uses SwAddrMethod shortName only (no alignment suffix). ADDR_METHOD_SHORT_NAME_AND_ALIGNMENT: MAKW appends alignment suffix (_8, _16, _32 etc.) → separate sections per alignment. Required for efficient RAM packing.</span></div>
+  </div>
+ 
+  <p class="sh">MemMapAddressingMode — the actual #pragma strings</p>
+  <div class="card">
+    <div class="cfg-r"><span class="ck">MemMapAddressingModeStart</span><span class="cv">Multi-line string: exact #pragma sequence for section start. Example (Altium CTC compiler): <span class="fn">#pragma section fardata "ram.partition_asil_b.32"\n#pragma section farbss "ram.partition_asil_b.32"\n#pragma clear</span></span></div>
+    <div class="cfg-r"><span class="ck">MemMapAddressingModeStop</span><span class="cv">Multi-line string: #pragmas to restore default sections after STOP. Best practice: redirect to "unhandled" or "illegal" named section → linker error if any symbol accidentally placed here.</span></div>
+    <div class="cfg-r"><span class="ck">MemMapAlignmentSelector</span><span class="cv">1..* string matching AlignmentType (8, 16, 32, 64, BOOLEAN, PTR, UNSPECIFIED). This AddressingMode entry applies to MemorySections with matching alignment attribute. One AddressingMode can match multiple alignments (e.g. "8" and "UNSPECIFIED").</span></div>
+  </div>
+ 
+  <p class="sh">GenericMapping vs SectionSpecificMapping</p>
+  <div class="g2">
+    <div class="card"><p class="card-t">MemMapGenericMapping — bulk rule</p><p class="card-b">Links SwAddrMethod → AddressingModeSet. Applies to ALL MemorySections in the project that reference this SwAddrMethod. Most sections handled here. Key params: MemMapSwAddressMethodRef (→ SwAddrMethod), MemMapAddressingModeSetRef (→ ModeSet), optional MemMapMappingSelectorRef (regex filter on PREFIX).</p></div>
+    <div class="card"><p class="card-t">MemMapSectionSpecificMapping — individual override</p><p class="card-b">Links one specific MemorySection → AddressingModeSet. OVERRIDES any GenericMapping for this section. Key params: MemMapMemorySectionRef (→ exact MemorySection from ARXML), MemMapAddressingModeSetRef (→ ModeSet). Use for: ASIL-D critical sections, specific callouts, boot ROM sections.</p></div>
+  </div>
+ 
+  <p class="sh">Step-by-step DaVinci workflow</p>
+  <div class="card">
+    <p class="card-b">
+    <strong>Step 1: Understand your target memory layout</strong><br>
+    Which compiler and what #pragma syntax? Which linker sections exist? Which physical memories (SRAM0, SRAM1, PFLASH, DFLASH, ITCM, DTCM)? Match compiler pragma naming to linker script section names before starting.<br><br>
+    <strong>Step 2: Create MemMapAddressingModeSets</strong><br>
+    One set per addressing strategy. E.g.: VAR_FAST_INIT (near-addressed init vars), CODE_INTERNAL (fast internal flash), CODE_EXTERNAL (slow external flash), VAR_ASIL_D_INIT (ASIL-D variables), VAR_POWER_ON_CLEARED (NvM mirrors). Set MemMapSupportedSectionType and MemMapSupportedSectionInitializationPolicy as filters.<br><br>
+    <strong>Step 3: Add MemMapAddressingMode entries per ModeSet</strong><br>
+    One per alignment (8, 16, 32 etc.). Fill MemMapAddressingModeStart with the compiler's #pragma to open the linker section. Fill MemMapAddressingModeStop with pragmas that redirect to "unhandled" section. Set MemMapAlignmentSelector.<br><br>
+    <strong>Step 4: Create MemMapAllocation → MemMapGenericMapping entries</strong><br>
+    Link each SwAddrMethod (from BSW ARXML descriptions) to the correct AddressingModeSet. Covers the bulk of all MAKWs in the project.<br><br>
+    <strong>Step 5: Add MemMapSectionSpecificMapping for special cases</strong><br>
+    Override GenericMapping for specific MemorySections that need non-standard placement (ASIL-D isolated sections, boot ROM, specific callouts).<br><br>
+    <strong>Step 6: Use MemMapMappingSelector if needed</strong><br>
+    Add regex filter on PREFIX to restrict a GenericMapping. Example: <span class="fn">ADC_AUTOSCANKERNEL_.*</span> regex ensures only the ADC kernel allocatable part uses the LOCAL coreScope ModeSet.<br><br>
+    <strong>Step 7: Generate and verify</strong><br>
+    DaVinci generates {Mip}_MemMap.h. Compile all modules. Examine linker .map file. Verify every symbol appears in the expected section. Check no symbols in "unhandled" sections (those should cause linker errors).</p>
+  </div>
+ 
+  <p class="sh">Common DaVinci configuration mistakes</p>
+  <div class="danger-box">
+    <strong>Most common integration errors:</strong><br>
+    • MemMapSupportedSectionType mismatch: CODE ModeSet linked to VAR SwAddrMethod → no matching ModeSet found → MAKW not generated<br>
+    • MemMapAlignmentSelector missing values: ModeSet only has selector "32" but module has _16 sections → MAKW not generated for _16<br>
+    • MemMapSectionSpecificMapping not configured for a safety-critical section → it inherits the generic (possibly QM) mapping → ASIL partition violation<br>
+    • Forgetting to add post-build config section to a separately flashable linker block → OTA update reflashes entire application instead of just config<br>
+    • MemMapAddressingModeStop points to "unhandled" but linker script doesn't define that section → linker error (this is actually CORRECT behaviour — intended catch-all)
+  </div>
+</div>
+ 
+<!-- DEBUG -->
+<div id="pn-debug" class="panel">
+  <p class="sh">Common compile-time errors and fixes</p>
+  <table class="tbl">
+    <thead><tr><th>Error message</th><th>Root cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td class="ec">"Undefined or missing START/STOP"</td><td>Source uses MAKW not in MemMap header</td><td>Add MemorySection to BSW Module Description ARXML + regenerate header in DaVinci</td></tr>
+      <tr><td class="ec">"START must not follow START"</td><td>Nested sections — missing STOP before next START</td><td>Add missing STOP_SEC + #include pair between the two START_SEC uses</td></tr>
+      <tr><td class="ec">"STOP without matching START"</td><td>Orphaned STOP_SEC in source</td><td>Remove orphan STOP, or add matching START above it</td></tr>
+      <tr><td class="ec">"Wrong STOP after START"</td><td>Mismatch: START_SEC_VAR_INIT_16 closed by STOP_SEC_VAR_INIT_8</td><td>Align START and STOP keywords exactly — same section name including alignment suffix</td></tr>
+      <tr><td class="ec">Compiler: "unsupported pragma"</td><td>MemMapAddressingModeStart contains wrong pragma syntax for this compiler version</td><td>Update pragma strings in DaVinci MemMapAddressingModeStart for the target compiler</td></tr>
+      <tr><td class="ec">Linker: symbol in "unhandled" section</td><td>A symbol has no matching MAKW wrapper (uses compiler default section)</td><td>Find the symbol in source, add MAKW wrapper around its declaration/definition</td></tr>
+      <tr><td class="ec">Linker: symbol in wrong section</td><td>Wrong MAKW used (e.g. wrong alignment), or wrong STOP keyword</td><td>Verify MAKW spelling exactly. Check alignment postfix matches variable size.</td></tr>
+      <tr><td class="ec">Header file not found: {Mip}_MemMap.h</td><td>Header not generated or wrong include path</td><td>Check DependencyOnArtifact config in DaVinci. Regenerate. Add include path to compiler settings.</td></tr>
+    </tbody>
+  </table>
+ 
+  <p class="sh">Linker .map file verification</p>
+  <div class="card">
+    <p class="card-b">
+    <strong>1. Section assignment check</strong> — Open the linker .map file. Search for your module's function/variable names. Verify they appear in the expected linker section name. For example, a function wrapped with <span class="fn">EEP_START_SEC_CODE</span> should appear under section <span class="fn">eep_code</span> (or whatever you configured in MemMapAddressingModeStart).<br><br>
+    <strong>2. Catch-all "unhandled" section</strong> — Any symbols in your "unhandled" or "illegal" section indicate a missing MAKW wrapper. The linker should ideally error on these sections being non-empty. If not, add them to a MEMORY region with no space in the linker script.<br><br>
+    <strong>3. ASIL partition separation</strong> — Verify QM and ASIL_D symbols are in completely separate address ranges. The MPU configuration should make ASIL_D ranges inaccessible from QM OS Applications. Test by deliberate cross-partition access (expect MPU exception).<br><br>
+    <strong>4. POWER_ON_CLEARED verification</strong> — Set a known pattern (0xDEADBEEF) in a POWER_ON_CLEARED variable using a debugger. Trigger a watchdog reset (warm reset). Connect debugger again — pattern must still be there. Then trigger a power-cycle (cold reset) — pattern should now be 0x00000000.<br><br>
+    <strong>5. LOCAL coreScope verification</strong> — From a task running on core 1, attempt to access a LOCAL variable assigned to core 0's DTCM. This should trigger a memory protection exception. If it doesn't, the MPU is not configured correctly for LOCAL sections.<br><br>
+    <strong>6. POST_BUILD config block separation</strong> — Verify CONFIG_DATA_POSTBUILD sections are in a separately flashable Flash block. Reflash only that block and verify the application runs with the new configuration (no need to reflash the entire application). Critical for OTA update strategies.
+    </p>
+  </div>
+ 
+  <p class="sh">Integration testing checklist</p>
+  <div class="card">
+    <p class="card-b">
+    ☐ Every BSW module source file wraps ALL file-scope symbols with MAKW pairs<br>
+    ☐ No file-scope variable/function uses compiler's implicit default section (no missing MAKW)<br>
+    ☐ No MemMap header #include appears inside any function body<br>
+    ☐ All START/STOP pairs are balanced in every .c translation unit<br>
+    ☐ Build succeeds without MEMMAP_ERROR or MAKW-related preprocessor errors<br>
+    ☐ Linker .map file: all symbols appear in expected named sections<br>
+    ☐ No symbols appear in "unhandled" or "illegal" catch-all sections<br>
+    ☐ POWER_ON_CLEARED sections survive warm reset (debugger verified)<br>
+    ☐ ASIL_D sections are in separate MPU-protected memory regions from QM sections<br>
+    ☐ LOCAL coreScope sections inaccessible from other cores (MPU exception on cross-core access)<br>
+    ☐ CONFIG_DATA_POSTBUILD in separate flashable block (OTA update test)<br>
+    ☐ VAR_FAST sections mapped to near-addressed RAM (TriCore) or DTCM (ARM Cortex-M)<br>
+    ☐ CALLOUT_CODE sections correctly placed for each callout function<br>
+    ☐ Function-level tracing mode tested if AUTOSAR RS_DebugTraceProfile is required
+    </p>
+  </div>
+ 
+  <p class="sh">Function-level tracing (R24-11 new — SWS_MemMap_00047)</p>
+  <div class="card">
+    <p class="card-b">For function-level performance tracing, the MemMap header can append the <strong>symbol name and/or object filename to the linker section name</strong>. This groups all relevant symbols (functions, runnables, tasks) into a contiguous traceable memory block. The locator file (linker script) can then identify this block precisely for instrumentation tools. Warning: causes significant build time increase (unique section per symbol). Use only when tracing is active.</p>
+  </div>
+</div>
+ 
+</div><!-- end container -->
+ 
+<script>
+// ─── FIELD DESCRIPTIONS ───────────────────────────────────────────────────
+const FIELDS = [
+  {name:'PREFIX', html:`<div class="card"><p class="card-t">PREFIX</p><p class="card-b">
+  Identifies the owner module or SWC.<br><br>
+  <strong>BSW (no vendorApiInfix):</strong> Capitalized BswModuleDescription.shortName → <span class="fn">EEP</span>, <span class="fn">CAN</span>, <span class="fn">ADC</span><br>
+  <strong>BSW (with vendorId+vendorApiInfix):</strong> Msn_vendorId_vendorApiInfix capitalized → <span class="fn">FLS_142_EXT</span><br>
+  <strong>BSW with SectionNamePrefix:</strong> SectionNamePrefix.symbol → <span class="fn">ADC_AUTOSCANKERNEL</span>, <span class="fn">ADC_USERIF</span><br>
+  <strong>SWC:</strong> AtomicSwComponentType.shortName, original case → <span class="fn">MySwc</span>, <span class="fn">EngineController</span><br><br>
+  ⚠ BSW = UPPERCASE. SWC = original case. Both case-sensitive.
+  </p></div>`},
+  {name:'START/STOP', html:`<div class="card"><p class="card-t">START / STOP</p><p class="card-b">
+  Always UPPERCASE. Exactly one of: <span class="fn">START</span> (activate section) or <span class="fn">STOP</span> (deactivate section).<br><br>
+  Rules enforced by preprocessor:<br>
+  START → START = compile error (nesting not allowed)<br>
+  STOP without START = compile error<br>
+  Mismatched START/STOP name = compile error<br>
+  Unknown MAKW = compile error (MEMMAP_ERROR mechanism)
+  </p></div>`},
+  {name:'SECTION_TYPE', html:`<div class="card"><p class="card-t">SECTION_TYPE</p><p class="card-b">
+  <span class="fn">VAR</span> — global/static variables (most common)<br>
+  <span class="fn">VAR_FAST</span> — near-RAM, frequently accessed, bit-manipulatable<br>
+  <span class="fn">VAR_SLOW</span> — infrequently accessed variables<br>
+  <span class="fn">INTERNAL_VAR</span> — calibration-tool-accessible variables<br>
+  <span class="fn">VAR_SAVED_ZONE</span> — NvM RAM mirrors (_{refinement} mandatory!)<br>
+  <span class="fn">CONST</span> — ROM constants<br>
+  <span class="fn">CONST_SAVED_RECOVERY_ZONE</span> — NvM defaults in ROM<br>
+  <span class="fn">CONFIG_DATA</span> — DaVinci-generated config constants<br>
+  <span class="fn">CALIB</span> — calibration parameters<br>
+  <span class="fn">CODE</span> — function code (most common)<br>
+  <span class="fn">CODE_FAST</span> — high-performance ISR code, internal flash<br>
+  <span class="fn">CODE_SLOW</span> — rarely-called code, can go to external flash<br>
+  <span class="fn">CALLOUT_CODE</span> — per-callout sections, one per BswModuleEntry
+  </p></div>`},
+  {name:'INIT_POLICY', html:`<div class="card"><p class="card-t">INIT_POLICY (VAR sections only)</p><p class="card-b">
+  <span class="fn">CLEARED</span>: Zero-initialized on every reset (BSS). Standard default for uninitialized statics.<br>
+  <span class="fn">INIT</span>: Initialized to explicit value on every reset (DATA). For uint8 x = 5; style.<br>
+  <span class="fn">POWER_ON_CLEARED</span>: Zero-initialized ONLY on cold power-on reset. Warm resets (watchdog, SW reset, external reset) leave value untouched. For NvM RAM mirrors.<br><br>
+  Deprecated (will be removed): NO_INIT, POWER_ON_INIT.
+  </p></div>`},
+  {name:'refinement', html:`<div class="card"><p class="card-t">_{refinement} (optional for most, MANDATORY for VAR_SAVED_ZONE)</p><p class="card-b">
+  Vendor/project-specific extension. Free-choice values.<br><br>
+  Common uses:<br>
+  • Differentiate NvM zones: <span class="fn">_VAR_SAVED_ZONE_NVRAM_8</span> vs <span class="fn">_VAR_SAVED_ZONE_EEPROM_8</span><br>
+  • Add timing hint for CODE: <span class="fn">_CODE_100US</span>, <span class="fn">_CODE_1MS</span>, <span class="fn">_CODE_10MS</span> (helps tracing + scheduling analysis)<br>
+  • Describe init behavior: <span class="fn">_VAR_INIT_NVRAM_QM_8</span>, <span class="fn">_VAR_POWER_ON_CLEARED_BATTERY_BACKUP_QM_32</span><br><br>
+  For VAR_SAVED_ZONE and CONST_SAVED_RECOVERY_ZONE: MANDATORY (must describe content).
+  </p></div>`},
+  {name:'safety', html:`<div class="card"><p class="card-t">_{safety} — omit for QM, write explicitly for ASIL</p><p class="card-b">
+  Values: <span class="fn">ASIL_A</span>, <span class="fn">ASIL_B</span>, <span class="fn">ASIL_C</span>, <span class="fn">ASIL_D</span><br>
+  If QM: OMIT the field entirely (DO NOT write _QM in the MAKW).<br><br>
+  In SwAddrMethod.option: safetyQM / safetyAsilA / safetyAsilB / safetyAsilC / safetyAsilD<br><br>
+  Downscaling allowed: ASIL_B section can go in ASIL_D memory (upscaling not allowed).<br><br>
+  Examples: <span class="fn">ADC_START_SEC_VAR_INIT_ASIL_B_32</span>, <span class="fn">CAN_START_SEC_CODE_ASIL_D</span>
+  </p></div>`},
+  {name:'coreScope', html:`<div class="card"><p class="card-t">_{coreScope} — omit for GLOBAL</p><p class="card-b">
+  <span class="fn">GLOBAL</span>: any core can access (DEFAULT — OMIT from MAKW if GLOBAL)<br>
+  <span class="fn">LOCAL</span>: ONLY the assigned core may read/write/execute. Cross-core access → MPU fault.<br><br>
+  LOCAL valid for: VAR/VAR_FAST/VAR_SLOW/INTERNAL_VAR (CLEARED/INIT only), CONST, CODE<br>
+  LOCAL NOT valid for: VAR_SAVED_ZONE, CONFIG_DATA, CALIB<br><br>
+  In SwAddrMethod.option: coreGlobal / coreLocal. coreGlobal = omit from MAKW.<br><br>
+  Example: <span class="fn">ADC_AUTOSCANKERNEL_START_SEC_CODE_QM_LOCAL</span>
+  </p></div>`},
+  {name:'ALIGNMENT', html:`<div class="card"><p class="card-t">_{ALIGNMENT} (VAR and CONST sections)</p><p class="card-b">
+  Enables alignment-based grouping → eliminates linker padding gaps.<br><br>
+  <span class="fn">BOOLEAN</span>: 1-bit flags | <span class="fn">8</span>: uint8/char | <span class="fn">16</span>: uint16 | <span class="fn">32</span>: uint32/float | <span class="fn">64</span>: uint64/double | <span class="fn">PTR</span>: pointers | <span class="fn">UNSPECIFIED</span>: mixed structs/unions<br><br>
+  Selection: use alignment of LARGEST member in structs/arrays. ABI may impose additional constraints (TriCore: structs &gt;2 bytes → 4-byte align).<br><br>
+  CODE sections: no alignment suffix (code has no data alignment concern).
+  </p></div>`},
+];
+ 
+// ─── MAKW DECODE EXAMPLES ─────────────────────────────────────────────────
+const MAKW_EX = [
+  {name:'EEP_START_SEC_VAR_INIT_16', html:`<div class="card"><p class="card-t">Decoding: EEP_START_SEC_VAR_INIT_16</p>
+  <table class="tbl"><thead><tr><th>Part</th><th>Value</th><th>Meaning</th></tr></thead><tbody>
+  <tr><td>PREFIX</td><td class="fn">EEP</td><td>EEPROM Driver BSW module (shortName=Eep, capitalized)</td></tr>
+  <tr><td>START/STOP</td><td class="fn">START</td><td>Opening this section</td></tr>
+  <tr><td>SECTION_TYPE</td><td class="fn">VAR</td><td>Global/static variables</td></tr>
+  <tr><td>INIT_POLICY</td><td class="fn">INIT</td><td>Initialized on every reset (explicit initializer)</td></tr>
+  <tr><td>safety</td><td><em>(absent)</em></td><td>QM (default, omitted)</td></tr>
+  <tr><td>coreScope</td><td><em>(absent)</em></td><td>GLOBAL (default, omitted)</td></tr>
+  <tr><td>ALIGNMENT</td><td class="fn">16</td><td>uint16 variables (16-bit aligned objects)</td></tr>
+  </tbody></table>
+  <p class="card-b" style="margin-top:8px">Typical use: <span class="fn">static uint16 EepTimer = 100;</span></p></div>`},
+  {name:'ADC_START_SEC_VAR_INIT_ASIL_B_32', html:`<div class="card"><p class="card-t">Decoding: ADC_START_SEC_VAR_INIT_ASIL_B_32</p>
+  <table class="tbl"><thead><tr><th>Part</th><th>Value</th><th>Meaning</th></tr></thead><tbody>
+  <tr><td>PREFIX</td><td class="fn">ADC</td><td>ADC Driver BSW module</td></tr>
+  <tr><td>SECTION_TYPE</td><td class="fn">VAR</td><td>Variables</td></tr>
+  <tr><td>INIT_POLICY</td><td class="fn">INIT</td><td>Reset-initialized</td></tr>
+  <tr><td>safety</td><td class="fn">ASIL_B</td><td>ASIL B — must be in ASIL_B MPU-protected partition</td></tr>
+  <tr><td>coreScope</td><td><em>(absent)</em></td><td>GLOBAL</td></tr>
+  <tr><td>ALIGNMENT</td><td class="fn">32</td><td>uint32 variables</td></tr>
+  </tbody></table></div>`},
+  {name:'ADC_AUTOSCANKERNEL_START_SEC_CODE_QM_LOCAL', html:`<div class="card"><p class="card-t">Decoding: ADC_AUTOSCANKERNEL_START_SEC_CODE_QM_LOCAL</p>
+  <table class="tbl"><thead><tr><th>Part</th><th>Value</th><th>Meaning</th></tr></thead><tbody>
+  <tr><td>PREFIX</td><td class="fn">ADC_AUTOSCANKERNEL</td><td>SectionNamePrefix symbol — "kernel" allocatable memory part of ADC module</td></tr>
+  <tr><td>SECTION_TYPE</td><td class="fn">CODE</td><td>Function code</td></tr>
+  <tr><td>refinement</td><td><em>(absent)</em></td><td>No timing refinement</td></tr>
+  <tr><td>safety</td><td class="fn">QM</td><td>QM (written explicitly here — normally omitted, but valid)</td></tr>
+  <tr><td>coreScope</td><td class="fn">LOCAL</td><td>Core-local: only the ISR-handling core may execute this code</td></tr>
+  </tbody></table>
+  <p class="card-b" style="margin-top:8px">From the allocatable memory parts example: ADC split into USERIF (global access) and AUTOSCANKERNEL (core-local ISR).</p></div>`},
+  {name:'COM_START_SEC_CALLOUT_CODE_TXIPDUCALLOUT', html:`<div class="card"><p class="card-t">Decoding: COM_START_SEC_CALLOUT_CODE_COM_TXIPDUCALLOUT</p>
+  <table class="tbl"><thead><tr><th>Part</th><th>Value</th><th>Meaning</th></tr></thead><tbody>
+  <tr><td>PREFIX</td><td class="fn">COM</td><td>COM BSW module</td></tr>
+  <tr><td>SECTION_TYPE</td><td class="fn">CALLOUT_CODE</td><td>BSW callout — user-implemented function called from COM</td></tr>
+  <tr><td>refinement</td><td class="fn">COM_TXIPDUCALLOUT</td><td>Identifies this specific callout (= BswModuleEntry.shortName). Each callout has its own MAKW pair for individual placement control.</td></tr>
+  </tbody></table>
+  <p class="card-b" style="margin-top:8px">Both COM_TXIPDUCALLOUT and COM_RXIPDUCALLOUT have separate MAKW pairs even though they may share the same SwAddrMethod and identical pragmas. This gives the integrator flexibility to place them differently if needed.</p></div>`},
+];
+ 
+// ─── CODE EXAMPLES ────────────────────────────────────────────────────────
+const EX_TABS = [
+  {name:'BSW Variable', html:`<div class="card"><p class="card-t">BSW Module — variable sections (Eep driver)</p>
+  <pre class="code"><span class="c-comment">/* File: Eep.c */</span>
+ 
+<span class="c-comment">/* 16-bit initialized variables */</span>
+<span class="c-macro">#define EEP_START_SEC_VAR_INIT_16</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+<span class="c-kw">static</span> uint16 EepTimer = 100;
+<span class="c-kw">static</span> uint16 EepRemainingBytes = 16;
+<span class="c-macro">#define EEP_STOP_SEC_VAR_INIT_16</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+ 
+<span class="c-comment">/* 8-bit cleared variables (zero on every reset) */</span>
+<span class="c-macro">#define EEP_START_SEC_VAR_CLEARED_8</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+<span class="c-kw">static</span> uint8  EepStatusFlags;
+<span class="c-kw">static</span> uint8  EepErrorCount;
+<span class="c-macro">#define EEP_STOP_SEC_VAR_CLEARED_8</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+ 
+<span class="c-comment">/* NvM mirror — POWER_ON_CLEARED: survives warm reset! */</span>
+<span class="c-macro">#define EEP_START_SEC_VAR_SAVED_ZONE_NVM_QM_32</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+<span class="c-kw">static</span> uint32 EepNvmBuffer[256];   <span class="c-comment">/* zeroed ONLY on cold power-on */</span>
+<span class="c-macro">#define EEP_STOP_SEC_VAR_SAVED_ZONE_NVM_QM_32</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span></pre></div>`},
+  {name:'BSW Code', html:`<div class="card"><p class="card-t">BSW Module — code sections</p>
+  <pre class="code"><span class="c-comment">/* File: Eep.c */</span>
+ 
+<span class="c-comment">/* Standard code — most functions go here */</span>
+<span class="c-macro">#define EEP_START_SEC_CODE</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+ 
+<span class="c-kw">void</span> Eep_Init(<span class="c-kw">const</span> Eep_ConfigType* ConfigPtr) { <span class="c-comment">/* ... */</span> }
+Std_ReturnType Eep_Write(Eep_AddressType addr, ...) { <span class="c-comment">/* ... */</span> }
+ 
+<span class="c-macro">#define EEP_STOP_SEC_CODE</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+ 
+<span class="c-comment">/* Rarely-called error handler → external/slow flash */</span>
+<span class="c-macro">#define EEP_START_SEC_CODE_SLOW</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span>
+ 
+<span class="c-kw">static void</span> Eep_HandleHardwareError(<span class="c-kw">void</span>) {
+    <span class="c-comment">/* called on hardware fault — rarely. OK in slow flash. */</span>
+}
+ 
+<span class="c-macro">#define EEP_STOP_SEC_CODE_SLOW</span>
+<span class="c-macro">#include "Eep_MemMap.h"</span></pre></div>`},
+  {name:'SWC Code', html:`<div class="card"><p class="card-t">Software Component (SWC) — code and variables</p>
+  <pre class="code"><span class="c-comment">/* File: MySwc.c — SWC implementation */</span>
+ 
+<span class="c-comment">/* NOTE: SWC prefix preserves original case: MySwc (not MYSWC) */</span>
+<span class="c-macro">#define MySwc_START_SEC_CODE</span>
+<span class="c-macro">#include "MySwc_MemMap.h"</span>
+ 
+<span class="c-kw">void</span> MySwc_Run1(<span class="c-kw">void</span>)
+{
+    <span class="c-comment">/* runnable implementation */</span>
+}
+ 
+<span class="c-macro">#define MySwc_STOP_SEC_CODE</span>
+<span class="c-macro">#include "MySwc_MemMap.h"</span>
+ 
+<span class="c-comment">/* 16-bit fast variables (near RAM on TriCore, DTCM on Cortex-M) */</span>
+<span class="c-macro">#define MySwc_START_SEC_VAR_FAST_INIT_16</span>
+<span class="c-macro">#include "MySwc_MemMap.h"</span>
+ 
+<span class="c-kw">static</span> uint16 EngineSpeed_rpm = 0u;
+ 
+<span class="c-macro">#define MySwc_STOP_SEC_VAR_FAST_INIT_16</span>
+<span class="c-macro">#include "MySwc_MemMap.h"</span>
+ 
+<span class="c-comment">/* 8-bit fast variables */</span>
+<span class="c-macro">#define MySwc_START_SEC_VAR_FAST_INIT_8</span>
+<span class="c-macro">#include "MySwc_MemMap.h"</span>
+ 
+<span class="c-kw">static</span> uint8  EngineRunning = 0u;
+ 
+<span class="c-macro">#define MySwc_STOP_SEC_VAR_FAST_INIT_8</span>
+<span class="c-macro">#include "MySwc_MemMap.h"</span></pre></div>`},
+  {name:'Config Constants', html:`<div class="card"><p class="card-t">Configuration constants — PREBUILD vs POSTBUILD</p>
+  <pre class="code"><span class="c-comment">/* File: Can_PBcfg.c — post-build configuration data */</span>
+<span class="c-macro">#define CAN_START_SEC_CONFIG_DATA_POSTBUILD_32</span>
+<span class="c-macro">#include "Can_MemMap.h"</span>
+ 
+<span class="c-kw">const</span> Can_ConfigType Can_Config =
+{
+    .ControllerCount = 2u,
+    .Controllers = &amp;Can_CtrlConfig[0],
+    <span class="c-comment">/* ... rest of post-build config ... */</span>
+};
+ 
+<span class="c-macro">#define CAN_STOP_SEC_CONFIG_DATA_POSTBUILD_32</span>
+<span class="c-macro">#include "Can_MemMap.h"</span>
+ 
+<span class="c-comment">/* File: Can_Lcfg.c — link-time (pre-build) config */</span>
+<span class="c-macro">#define CAN_START_SEC_CONFIG_DATA_PREBUILD_8</span>
+<span class="c-macro">#include "Can_MemMap.h"</span>
+ 
+<span class="c-kw">const</span> uint8 Can_PBConfigIdx = 0u;  <span class="c-comment">/* selects post-build variant */</span>
+ 
+<span class="c-macro">#define CAN_STOP_SEC_CONFIG_DATA_PREBUILD_8</span>
+<span class="c-macro">#include "Can_MemMap.h"</span>
+ 
+<span class="c-comment">/* POSTBUILD must be in a separate flashable block!             */</span>
+<span class="c-comment">/* Linker: CONFIG_DATA_POSTBUILD → FLASH_APPLICATION_BLOCK_2   */</span>
+<span class="c-comment">/* Allows OTA update of config without reflashing full app.     */</span></pre></div>`},
+  {name:'ASIL+LOCAL', html:`<div class="card"><p class="card-t">ASIL-D isolation + LOCAL core scope (ADC allocatable memory parts)</p>
+  <pre class="code"><span class="c-comment">/* File: Adc_AutoscanKernel.c — ISR handler, runs only on core 0 */</span>
+ 
+<span class="c-comment">/* Code: LOCAL to core 0 (interrupt-handling core) */</span>
+<span class="c-macro">#define ADC_AUTOSCANKERNEL_START_SEC_CODE_QM_LOCAL</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+ 
+ISR(Adc_IsrGroupScanCompleted)
+{
+    <span class="c-comment">/* ISR code → placed in core-local ITCM/DTCM            */</span>
+    <span class="c-comment">/* Core 1 accessing this function → MPU fault            */</span>
+}
+ 
+<span class="c-macro">#define ADC_AUTOSCANKERNEL_STOP_SEC_CODE_QM_LOCAL</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+ 
+<span class="c-comment">/* Variables: LOCAL to core 0 */</span>
+<span class="c-macro">#define ADC_AUTOSCANKERNEL_START_SEC_VAR_INIT_QM_LOCAL_16</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+ 
+<span class="c-kw">static</span> uint16 Adc_KernelScanResult[32];
+ 
+<span class="c-macro">#define ADC_AUTOSCANKERNEL_STOP_SEC_VAR_INIT_QM_LOCAL_16</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+ 
+<span class="c-comment">/* ──────────────────────────────────────────────────── */</span>
+<span class="c-comment">/* File: Adc_UserIf.c — API functions, global access  */</span>
+ 
+<span class="c-macro">#define ADC_USERIF_START_SEC_CODE_QM_GLOBAL</span>   <span class="c-comment">/* GLOBAL = default, explicit here for clarity */</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+ 
+Std_ReturnType Adc_ReadGroup(Adc_GroupType Group, Adc_ValueGroupType* DataPtr)
+{
+    <span class="c-comment">/* Called from any core → placed in global flash */</span>
+}
+ 
+<span class="c-macro">#define ADC_USERIF_STOP_SEC_CODE_QM_GLOBAL</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+ 
+<span class="c-comment">/* ASIL-D isolated section */</span>
+<span class="c-macro">#define ADC_START_SEC_VAR_INIT_ASIL_D_32</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span>
+<span class="c-kw">static</span> uint32 Adc_SafetyMonitorCounter = 0u;  <span class="c-comment">/* in ASIL-D MPU partition */</span>
+<span class="c-macro">#define ADC_STOP_SEC_VAR_INIT_ASIL_D_32</span>
+<span class="c-macro">#include "Adc_MemMap.h"</span></pre></div>`},
+];
+ 
+// ─── TAB + BUTTON LOGIC ───────────────────────────────────────────────────
+function buildFieldBtns() {
+  document.getElementById('field-btns').innerHTML = FIELDS.map((f,i)=>
+    `<button class="sb${i===0?' sel':''}" onclick="showField(${i})">${f.name}</button>`).join('');
+  document.getElementById('field-display').innerHTML = FIELDS[0].html;
+}
+function showField(i) {
+  document.querySelectorAll('#field-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('field-display').innerHTML = FIELDS[i].html;
+}
+function buildMakwExBtns() {
+  document.getElementById('ex-btns').innerHTML = MAKW_EX.map((e,i)=>
+    `<button class="sb${i===0?' sel':''}" onclick="showMakwEx(${i})">${e.name.split('_START_')[0]}…</button>`).join('');
+  document.getElementById('ex-display').innerHTML = MAKW_EX[0].html;
+}
+function showMakwEx(i) {
+  document.querySelectorAll('#ex-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('ex-display').innerHTML = MAKW_EX[i].html;
+}
+function buildExTabBtns() {
+  document.getElementById('ex-tab-btns').innerHTML = EX_TABS.map((e,i)=>
+    `<button class="sb${i===0?' sel':''}" onclick="showExTab(${i})">${e.name}</button>`).join('');
+  document.getElementById('ex-tab-display').innerHTML = EX_TABS[0].html;
+}
+function showExTab(i) {
+  document.querySelectorAll('#ex-tab-btns .sb').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('ex-tab-display').innerHTML = EX_TABS[i].html;
+}
+function showTab(t, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pn-'+t).classList.add('active');
+  btn.classList.add('active');
+  if(t==='anatomy') { buildFieldBtns(); buildMakwExBtns(); }
+  if(t==='examples') buildExTabBtns();
+}
+// init
+buildFieldBtns(); buildMakwExBtns(); buildExTabBtns();
+</script>
+</body>
+</html

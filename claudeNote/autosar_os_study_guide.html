@@ -1,0 +1,1106 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary)}
+.nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:1rem}
+.nav button{font-size:11px;padding:4px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font-sans)}
+.nav button.active,.nav button:hover{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.section{display:none}.section.active{display:block}
+h2{font-size:18px;font-weight:500;margin-bottom:1rem}
+h3{font-size:15px;font-weight:500;margin:1.25rem 0 .6rem}
+h4{font-size:12px;font-weight:500;margin:.75rem 0 .4rem;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+p{font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:.75rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin-bottom:1rem}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+pre{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:.75rem 1rem;border-radius:var(--border-radius-md);overflow-x:auto;line-height:1.65;margin:.5rem 0 .75rem;border:0.5px solid var(--color-border-tertiary)}
+.api-row{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.api-name{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);min-width:220px;flex-shrink:0;line-height:1.5}
+.api-desc{color:var(--color-text-secondary);line-height:1.5}
+.info-box{background:var(--color-background-info);border:0.5px solid var(--color-border-info);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-info);line-height:1.6}
+.warn-box{background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-warning);line-height:1.6}
+.danger-box{background:var(--color-background-danger);border:0.5px solid var(--color-border-danger);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-danger);line-height:1.6}
+.success-box{background:var(--color-background-success);border:0.5px solid var(--color-border-success);border-radius:var(--border-radius-md);padding:.75rem 1rem;margin:.5rem 0;font-size:13px;color:var(--color-text-success);line-height:1.6}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:.5rem 0}
+th{text-align:left;font-weight:500;padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-secondary);font-size:11px;color:var(--color-text-secondary)}
+td{padding:.4rem .6rem;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.5}
+.seq-step{display:flex;gap:.75rem;margin-bottom:.6rem;align-items:flex-start}
+.seq-num{min-width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.seq-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.clickable{cursor:pointer;display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-family:var(--font-mono);margin:2px;border:0.5px solid var(--color-border-secondary);transition:all .15s}
+.clickable:hover{background:var(--color-background-secondary)}
+#api-detail{margin-top:.75rem;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;min-height:50px;color:var(--color-text-secondary);line-height:1.7}
+.state-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;margin:2px}
+</style>
+
+<div style="padding:1rem 0">
+<h2 style="margin-bottom:.4rem">AUTOSAR CP OS — Complete Study Guide</h2>
+<p style="margin-bottom:1rem;font-size:13px">R24-11 · Document ID 34 · Classic Platform · Based on OSEK/VDX (ISO 17356-3) · Exam, Integration, Debugging & DaVinci Config</p>
+
+<div class="nav">
+  <button class="active" onclick="show('overview')">Overview</button>
+  <button onclick="show('tasks')">Tasks & Scheduling</button>
+  <button onclick="show('interrupts')">Interrupts & ISRs</button>
+  <button onclick="show('resources')">Resources & Spinlocks</button>
+  <button onclick="show('events')">Events & Alarms</button>
+  <button onclick="show('schedtable')">Schedule Tables</button>
+  <button onclick="show('osapps')">OS-Applications</button>
+  <button onclick="show('protection')">Protection Facilities</button>
+  <button onclick="show('hooks')">Hooks & Errors</button>
+  <button onclick="show('multicore')">Multicore & IOC</button>
+  <button onclick="show('api')">API Reference</button>
+  <button onclick="show('sequences')">Sequences</button>
+  <button onclick="show('config')">DaVinci Config</button>
+  <button onclick="show('debug')">Testing & Debug</button>
+</div>
+
+<!-- OVERVIEW -->
+<div id="section-overview" class="section active">
+<h2>What is the AUTOSAR OS?</h2>
+<p>The AUTOSAR OS is a statically-configured, priority-based, real-time operating system for automotive ECUs. It is a superset of the OSEK/VDX OS (ISO 17356-3) — all OSEK applications are backward compatible. It adds memory protection, timing protection, OS-Applications, multicore support, and the IOC.</p>
+
+<div class="card-grid">
+  <div class="card"><h4>Key properties</h4><p>• Statically configured at build time<br>• Priority-based preemptive scheduling<br>• No dynamic memory allocation<br>• Real-time deterministic behaviour<br>• Scalable (4 Scalability Classes)</p></div>
+  <div class="card"><h4>OSEK + AUTOSAR extensions</h4><p>• OS-Applications (partitioning)<br>• Memory protection (MPU-based)<br>• Timing protection (execution budget, time frame, lock budget)<br>• Schedule Tables<br>• Multicore + IOC<br>• Spinlocks</p></div>
+  <div class="card"><h4>Scalability Classes</h4><p><b>SC1:</b> Basic + alarm callbacks<br><b>SC2:</b> SC1 + timing protection<br><b>SC3:</b> SC1 + memory protection<br><b>SC4:</b> SC2 + SC3 (full protection)<br>Most automotive ECUs use SC3 or SC4.</p></div>
+  <div class="card"><h4>Key document rule</h4><p>AUTOSAR OS provides an API backward compatible to OSEK [SWS_Os_00001]. No dynamic resource management. No MMU (only MPU). No POSIX. Designed for microcontrollers without external memory.</p></div>
+</div>
+
+<h3>The OS object universe</h3>
+<svg width="100%" viewBox="0 0 680 200" role="img"><title>AUTOSAR OS object model</title>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+<rect x="20" y="20" width="640" height="160" rx="10" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1"/>
+<text x="340" y="40" text-anchor="middle" fill="#0C447C" font-size="12" font-weight="500">OS-Application (boundary of protection &amp; partition)</text>
+<rect x="40" y="55" width="80" height="36" rx="6" fill="white" stroke="#9FE1CB"/>
+<text x="80" y="77" text-anchor="middle" fill="#085041" font-size="11">Tasks</text>
+<rect x="135" y="55" width="80" height="36" rx="6" fill="white" stroke="#9FE1CB"/>
+<text x="175" y="77" text-anchor="middle" fill="#085041" font-size="11">ISRs</text>
+<rect x="230" y="55" width="80" height="36" rx="6" fill="white" stroke="#FAC775"/>
+<text x="270" y="77" text-anchor="middle" fill="#633806" font-size="11">Alarms</text>
+<rect x="325" y="55" width="100" height="36" rx="6" fill="white" stroke="#FAC775"/>
+<text x="375" y="77" text-anchor="middle" fill="#633806" font-size="11">Schedule Tables</text>
+<rect x="440" y="55" width="80" height="36" rx="6" fill="white" stroke="#CECBF6"/>
+<text x="480" y="77" text-anchor="middle" fill="#3C3489" font-size="11">Counters</text>
+<rect x="535" y="55" width="105" height="36" rx="6" fill="white" stroke="#CECBF6"/>
+<text x="587" y="77" text-anchor="middle" fill="#3C3489" font-size="11">Trusted Functions</text>
+<rect x="40" y="105" width="80" height="30" rx="6" fill="white" stroke="#D3D1C7"/>
+<text x="80" y="124" text-anchor="middle" fill="#5F5E5A" font-size="11">Events</text>
+<rect x="135" y="105" width="80" height="30" rx="6" fill="white" stroke="#D3D1C7"/>
+<text x="175" y="124" text-anchor="middle" fill="#5F5E5A" font-size="11">Resources</text>
+<rect x="230" y="105" width="80" height="30" rx="6" fill="white" stroke="#D3D1C7"/>
+<text x="270" y="124" text-anchor="middle" fill="#5F5E5A" font-size="11">Spinlocks</text>
+<text x="340" y="165" text-anchor="middle" fill="#5F5E5A" font-size="11">Resources &amp; Spinlocks: not owned by OS-App but access must be granted. Events: owned by Task.</text>
+</svg>
+
+<h3>Key terminology to memorize</h3>
+<table>
+  <tr><th>Term</th><th>Definition</th></tr>
+  <tr><td><code>Execution Budget</code></td><td>Maximum permitted execution time for a Task/ISR (timing protection parameter)</td></tr>
+  <tr><td><code>Time Frame</code></td><td>Minimum inter-arrival time between successive Task activations or ISR occurrences</td></tr>
+  <tr><td><code>Lock Budget</code></td><td>Maximum time a Resource or interrupt lock may be held</td></tr>
+  <tr><td><code>Expiry Point</code></td><td>Offset on a ScheduleTable where Tasks are activated or Events are set</td></tr>
+  <tr><td><code>Duration</code></td><td>Number of ticks from notional zero at which a ScheduleTable wraps</td></tr>
+  <tr><td><code>Spinlock</code></td><td>Busy-waiting mutual exclusion mechanism for cross-core synchronization</td></tr>
+  <tr><td><code>Locatable Entity (LE)</code></td><td>Software piece with same effect regardless of which core it runs on</td></tr>
+  <tr><td><code>Deviation</code></td><td>Minimum ticks between ScheduleTable position and sync counter value (explicit sync)</td></tr>
+  <tr><td><code>Master Core</code></td><td>Core from which the AUTOSAR system is bootstrapped via StartCore/StartOS</td></tr>
+</table>
+</div>
+
+<!-- TASKS -->
+<div id="section-tasks" class="section">
+<h2>Tasks & Scheduling</h2>
+<h3>Task types</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>Basic Task</h4>
+    <p>Cannot block. No WaitEvent call. Runs to completion (or terminates/chains). Multiple activations can be queued. Lower overhead.</p>
+    <pre>TASK(MyBasicTask) {
+  /* do work */
+  TerminateTask();
+}</pre>
+    <div class="info-box">Use for: cyclic processing, event-driven non-blocking work, ISR bottom halves.</div>
+  </div>
+  <div class="card">
+    <h4>Extended Task</h4>
+    <p>Can call WaitEvent() — suspends until Event is set. Must have at least one Event configured. Requires Extended Conformance Class (ECC). More RAM (stack persists during WAITING).</p>
+    <pre>TASK(MyExtTask) {
+  WaitEvent(MyEvent);
+  ClearEvent(MyEvent);
+  /* process event */
+  TerminateTask();
+}</pre>
+    <div class="info-box">Use for: state machines needing synchronization, C/S server tasks with WaitPoints.</div>
+  </div>
+</div>
+
+<h3>Task state machine — the most examined diagram</h3>
+<svg width="100%" viewBox="0 0 680 280" role="img"><title>AUTOSAR OS Task State Machine</title><desc>Four states: SUSPENDED, READY, RUNNING, WAITING with transitions</desc>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+
+<rect x="40" y="100" width="130" height="60" rx="10" fill="#F1EFE8" stroke="#D3D1C7" stroke-width="1.5"/>
+<text x="105" y="130" text-anchor="middle" fill="#444441" font-size="13" font-weight="500">SUSPENDED</text>
+<text x="105" y="147" text-anchor="middle" fill="#5F5E5A" font-size="10">not schedulable</text>
+
+<rect x="265" y="20" width="150" height="60" rx="10" fill="#EAF3DE" stroke="#C0DD97" stroke-width="1.5"/>
+<text x="340" y="50" text-anchor="middle" fill="#27500A" font-size="13" font-weight="500">READY</text>
+<text x="340" y="67" text-anchor="middle" fill="#3B6D11" font-size="10">waiting for CPU</text>
+
+<rect x="500" y="100" width="150" height="60" rx="10" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1.5"/>
+<text x="575" y="130" text-anchor="middle" fill="#0C447C" font-size="13" font-weight="500">RUNNING</text>
+<text x="575" y="147" text-anchor="middle" fill="#185FA5" font-size="10">on CPU</text>
+
+<rect x="265" y="195" width="150" height="60" rx="10" fill="#FAEEDA" stroke="#FAC775" stroke-width="1.5"/>
+<text x="340" y="225" text-anchor="middle" fill="#633806" font-size="13" font-weight="500">WAITING</text>
+<text x="340" y="242" text-anchor="middle" fill="#BA7517" font-size="10">waiting for Event (ECC only)</text>
+
+<!-- SUSPENDED → READY: ActivateTask / ChainTask / Alarm -->
+<path d="M170 115 Q220 50 264 50" fill="none" stroke="#27500A" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="205" y="65" fill="#27500A" font-size="10" text-anchor="middle">ActivateTask()</text>
+<text x="205" y="77" fill="#27500A" font-size="10" text-anchor="middle">ChainTask() / Alarm</text>
+
+<!-- READY → RUNNING: Scheduler dispatches -->
+<path d="M415 40 Q460 40 500 115" fill="none" stroke="#185FA5" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="480" y="60" fill="#185FA5" font-size="10">dispatch</text>
+
+<!-- RUNNING → READY: Preemption -->
+<path d="M500 130 Q460 100 415 60" fill="none" stroke="#BA7517" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="440" y="100" fill="#BA7517" font-size="10">preemption</text>
+
+<!-- RUNNING → SUSPENDED: TerminateTask / ChainTask(new) -->
+<path d="M500 145 Q340 145 170 145" fill="none" stroke="#A32D2D" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="340" y="160" fill="#A32D2D" font-size="10" text-anchor="middle">TerminateTask() / ChainTask()</text>
+
+<!-- RUNNING → WAITING: WaitEvent (ECC only) -->
+<path d="M575 160 Q575 225 415 225" fill="none" stroke="#633806" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="530" y="215" fill="#633806" font-size="10">WaitEvent()</text>
+
+<!-- WAITING → READY: SetEvent -->
+<path d="M265 240 Q210 240 170 160" fill="none" stroke="#27500A" stroke-width="1.2" marker-end="url(#arr)"/>
+<text x="185" y="225" fill="#27500A" font-size="10">SetEvent()</text>
+
+<!-- Timing protection notes -->
+<rect x="20" y="240" width="200" height="32" rx="4" fill="#FAECE7" stroke="#F5C4B3"/>
+<text x="120" y="255" text-anchor="middle" fill="#712B13" font-size="10">⚡ Execution Budget monitored in RUNNING</text>
+<text x="120" y="266" text-anchor="middle" fill="#712B13" font-size="10">⏱ Time Frame monitored at SUSPENDED→READY</text>
+</svg>
+
+<h3>Scheduling algorithm</h3>
+<p>AUTOSAR OS uses <b>fixed-priority preemptive scheduling</b>. Higher priority Tasks always preempt lower priority Tasks. Scheduling is per-core in multicore systems — cores are independent schedulers.</p>
+<table>
+  <tr><th>Rule</th><th>Specification reference</th></tr>
+  <tr><td>Tasks/ISRs statically assigned to cores — no dynamic migration</td><td>[SWS_Os_00568]</td></tr>
+  <tr><td>Tasks with equal priority on same core: FIFO order of activation</td><td>OSEK base</td></tr>
+  <tr><td>Tasks with equal priority on different cores: no ordering guarantee</td><td>[SWS_Os_00569]</td></tr>
+  <tr><td>ISRs always have higher priority than Tasks</td><td>OSEK base</td></tr>
+  <tr><td>Non-preemptable Tasks: hold RES_SCHEDULER (internal resource)</td><td>OSEK base</td></tr>
+  <tr><td>RES_SCHEDULER is per-core in multicore (not shared across cores)</td><td>[SWS_Os_00851]</td></tr>
+</table>
+
+<h3>Task configuration parameters (DaVinci OsTask)</h3>
+<table>
+  <tr><th>Parameter</th><th>Meaning</th><th>Critical detail</th></tr>
+  <tr><td><code>OsTaskPriority</code></td><td>Task priority (higher = more important)</td><td>Must be unique per core or carefully planned</td></tr>
+  <tr><td><code>OsTaskSchedule</code></td><td>FULL (preemptable) or NON (non-preemptable)</td><td>NON tasks hold implicit RES_SCHEDULER</td></tr>
+  <tr><td><code>OsTaskActivation</code></td><td>Max pending activations queue</td><td>For Basic Tasks only; Extended = 1 always</td></tr>
+  <tr><td><code>OsTaskStackSize</code></td><td>Stack size in bytes</td><td>Must cover WCET + ISR nesting; add 20% margin</td></tr>
+  <tr><td><code>OsTaskExecutionBudget</code></td><td>Max execution time (timing protection)</td><td>In nanoseconds; SC2/SC4 only</td></tr>
+  <tr><td><code>OsTaskTimeFrame</code></td><td>Min inter-arrival time (timing protection)</td><td>In nanoseconds; enforced at activation</td></tr>
+  <tr><td><code>OsTaskAutostart</code></td><td>Auto-activate at StartOS</td><td>Specify which AppModes trigger autostart</td></tr>
+</table>
+</div>
+
+<!-- INTERRUPTS -->
+<div id="section-interrupts" class="section">
+<h2>Interrupts & ISRs</h2>
+
+<h3>Two ISR categories — the most critical distinction</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>Category 1 ISR</h4>
+    <p>Fully managed by the hardware and the user. The OS is <b>completely unaware</b> of Category 1 ISRs. They bypass the OS wrapper entirely — no OS services can be called inside them. No timing protection. No memory protection. No stack monitoring.</p>
+    <pre>/* Category 1: NO OS services allowed */
+ISR(MyISR_Cat1) {
+  /* Direct HW register access only */
+  /* NO ActivateTask, NO SetEvent etc. */
+}</pre>
+    <div class="danger-box">⚠️ If OS-Applications and timing protection are used: Category 1 ISRs must belong to trusted OS-Applications. Category 1 ISRs with memory/timing protection create undefined behavior.</div>
+  </div>
+  <div class="card">
+    <h4>Category 2 ISR</h4>
+    <p>Managed by the OS through an ISR wrapper. OS services <b>are allowed</b> (see allowed calling context table). Timing protection applies. Memory protection applies. Stack monitoring applies.</p>
+    <pre>/* Category 2: OS services allowed */
+ISR(CanRxISR) {
+  /* Can call: ActivateTask, SetEvent,
+     GetResource, IncrementCounter etc. */
+  SetEvent(CanRxTask, CanRxEvent);
+}</pre>
+    <div class="success-box">✅ Cat2 ISRs always have higher effective priority than any Task. The OS manages context switch in/out.</div>
+  </div>
+</div>
+
+<h3>Interrupt management APIs</h3>
+<table>
+  <tr><th>API pair</th><th>Effect</th><th>Scope</th><th>Nesting</th></tr>
+  <tr><td><code>DisableAllInterrupts() / EnableAllInterrupts()</code></td><td>Disable/enable ALL interrupts (Cat1+Cat2)</td><td>Local core only</td><td>Non-nestable (last call wins)</td></tr>
+  <tr><td><code>SuspendAllInterrupts() / ResumeAllInterrupts()</code></td><td>Disable/enable ALL interrupts</td><td>Local core only</td><td>Nestable (counted)</td></tr>
+  <tr><td><code>SuspendOSInterrupts() / ResumeOSInterrupts()</code></td><td>Disable/enable Cat2 ISRs only (Cat1 remain active)</td><td>Local core only</td><td>Nestable (counted)</td></tr>
+  <tr><td><code>EnableInterruptSource(ISRID) / DisableInterruptSource(ISRID)</code></td><td>Enable/disable specific ISR interrupt source in HW</td><td>Specific ISR</td><td>N/A</td></tr>
+  <tr><td><code>ClearPendingInterrupt(ISRID)</code></td><td>Clear pending interrupt flag in HW</td><td>Specific ISR</td><td>N/A</td></tr>
+</table>
+
+<div class="warn-box">⚠️ Critical multicore rule: ALL interrupt disable/suspend calls affect ONLY the local core [SWS_Os_00590-595]. Interrupts on other cores continue unaffected. This is the most common integration mistake in multicore designs.</div>
+
+<h3>ISR configuration parameters (DaVinci OsIsr)</h3>
+<table>
+  <tr><th>Parameter</th><th>Meaning</th></tr>
+  <tr><td><code>OsIsrCategory</code></td><td>1 or 2 — determines OS awareness</td></tr>
+  <tr><td><code>OsIsrPriority</code></td><td>Hardware interrupt priority level</td></tr>
+  <tr><td><code>OsIsrExecutionBudget</code></td><td>Max execution time (nanoseconds) — SC2/SC4</td></tr>
+  <tr><td><code>OsIsrTimeFrame</code></td><td>Min inter-arrival time (nanoseconds) — protection against babbling idiot</td></tr>
+  <tr><td><code>OsIsrAllInterruptLockBudget</code></td><td>Max time ISR may hold all-interrupt disable lock</td></tr>
+  <tr><td><code>OsIsrOsInterruptLockBudget</code></td><td>Max time ISR may hold OS-interrupt lock</td></tr>
+  <tr><td><code>OsIsrResourceLockBudget</code></td><td>Max time ISR may hold each configured resource</td></tr>
+</table>
+
+<div class="info-box">💡 Babbling Idiot protection: OsIsrTimeFrame on a CAN ISR prevents a faulty CAN controller from flooding the ECU with interrupts and starving all other tasks. This is a functional safety requirement in ISO 26262 systems.</div>
+</div>
+
+<!-- RESOURCES & SPINLOCKS -->
+<div id="section-resources" class="section">
+<h2>Resources & Spinlocks — Mutual Exclusion</h2>
+
+<h3>Resources — same-core mutual exclusion (Priority Ceiling Protocol)</h3>
+<p>Resources use the <b>Priority Ceiling Protocol (PCP)</b>. When a Task takes a Resource, its priority is raised to the ceiling priority of that Resource (the highest priority of all Tasks/ISRs that can use the Resource). This prevents priority inversion and guarantees bounded priority inversion duration.</p>
+
+<pre>/* Resource usage pattern */
+GetResource(MyResource);    /* Priority raised to ceiling */
+  /* Critical section */
+ReleaseResource(MyResource); /* Priority restored */
+
+/* STRICT LIFO ORDER REQUIRED for nested resources:
+   GetResource(R1);
+     GetResource(R2);    <- OK: R2 taken after R1
+     ReleaseResource(R2); <- Release inner first
+   ReleaseResource(R1);  <- Release outer last
+*/</pre>
+
+<div class="danger-box">🔴 Resources CANNOT be shared across cores [SWS_Os_00662]. The OS generator MUST reject this configuration. PCP relies on local priority scheduling — it fails across independent cores.</div>
+
+<table>
+  <tr><th>Resource rule</th><th>Requirement</th></tr>
+  <tr><td>Resources and Spinlocks must be released in strict LIFO order</td><td>[SWS_Os_00801]</td></tr>
+  <tr><td>Task terminating with held Resource → OS forcibly releases it</td><td>[SWS_Os_00070]</td></tr>
+  <tr><td>ISR ending with held Resource → OS forcibly releases it</td><td>[SWS_Os_00369]</td></tr>
+  <tr><td>Cannot call WaitEvent or Schedule while holding Spinlock</td><td>[SWS_Os_00622], [SWS_Os_00624]</td></tr>
+</table>
+
+<h3>RES_SCHEDULER — special resource</h3>
+<p>When <code>OsUseResScheduler=TRUE</code>, RES_SCHEDULER is created per-core. It has the highest Task ceiling priority on that core — holding it prevents preemption by any other Task on the same core (but NOT on other cores).</p>
+
+<h3>Spinlocks — cross-core mutual exclusion</h3>
+<p>Spinlocks use busy-waiting to protect critical sections across cores. A Task/ISR <b>spins</b> (loops continuously) until the lock is available. No OS descheduling happens during spinning — this is intentional for predictability.</p>
+
+<div class="two-col">
+  <div class="card">
+    <h4>GetSpinlock (blocking)</h4>
+    <pre>GetSpinlock(MySpin);
+  /* cross-core critical section */
+ReleaseSpinlock(MySpin);</pre>
+    <p>Blocks until spinlock is available. Keeps trying. May waste CPU cycles. Use when critical section is very short.</p>
+  </div>
+  <div class="card">
+    <h4>TryToGetSpinlock (non-blocking)</h4>
+    <pre>TryToGetSpinlockType result;
+TryToGetSpinlock(MySpin, &result);
+if(result == TRYTOGETSPINLOCK_SUCCESS) {
+  /* critical section */
+  ReleaseSpinlock(MySpin);
+}</pre>
+    <p>Returns immediately. Caller handles failure case. Better for polling patterns.</p>
+  </div>
+</div>
+
+<h3>Spinlock ordering — deadlock prevention</h3>
+<p>To prevent deadlock from nested spinlocks, AUTOSAR OS enforces a <b>configured ordering</b>. Spinlocks can only be acquired in the configured order (skipping is allowed, but reversal is not). Cycles in the successor chain are rejected by the OS generator.</p>
+
+<pre>/* Configured order: S1 → S2 → S3 */
+GetSpinlock(S1);   /* OK */
+  GetSpinlock(S3); /* OK: S3 is after S1 in chain */
+    /* Cannot GetSpinlock(S2) here — S2 < S3 in chain */
+  ReleaseSpinlock(S3);
+ReleaseSpinlock(S1);
+
+/* DEADLOCK EXAMPLE (not allowed):
+Core 0: GetSpinlock(S1) then tries GetSpinlock(S2)
+Core 1: GetSpinlock(S2) then tries GetSpinlock(S1)
+→ Circular wait → deadlock */</pre>
+
+<h3>OsSpinlockLockMethod — how to protect during spinning</h3>
+<table>
+  <tr><th>OsSpinlockLockMethod</th><th>Effect while spinning</th><th>When to use</th></tr>
+  <tr><td><code>LOCK_NOTHING</code></td><td>No protection — higher priority Tasks can preempt spinner</td><td>Spinlock only used from ISR2 context; or very short spin expected</td></tr>
+  <tr><td><code>LOCK_WITH_RES_SCHEDULER</code></td><td>Spinner holds RES_SCHEDULER → no preemption by Tasks</td><td>Tasks using spinlock; prevent scheduling during spin</td></tr>
+  <tr><td><code>LOCK_ALL_INTERRUPTS</code></td><td>All interrupts disabled during spin</td><td>Maximum protection; short critical sections only</td></tr>
+  <tr><td><code>LOCK_CAT2_INTERRUPTS</code></td><td>Cat2 ISRs disabled during spin (Cat1 remain active)</td><td>Balance between protection and ISR latency</td></tr>
+</table>
+</div>
+
+<!-- EVENTS & ALARMS -->
+<div id="section-events" class="section">
+<h2>Events & Alarms</h2>
+
+<h3>Events — intra-task synchronization (Extended Tasks only)</h3>
+<p>Events are bit flags associated with an Extended Task. They allow a Task to synchronize with ISRs, other Tasks, or Alarms without polling. An event is owned by exactly one Task.</p>
+
+<pre>/* Extended Task waiting for event */
+TASK(MyExtTask) {
+  while(1) {
+    WaitEvent(DataReadyEvent | TimeoutEvent);
+    EventMaskType events;
+    GetEvent(MyExtTask, &events);
+    ClearEvent(events);
+    if(events & DataReadyEvent) {
+      /* process data */
+    }
+    if(events & TimeoutEvent) {
+      /* handle timeout */
+    }
+  }
+}
+
+/* From ISR or other Task: */
+SetEvent(MyExtTask, DataReadyEvent);</pre>
+
+<div class="info-box">💡 SetEvent is cross-core capable in multicore systems [SWS_Os_00602]. It can set events on Tasks running on a different core. This is how cross-core synchronization is achieved alongside IOC.</div>
+
+<h3>Alarms — counter-based actions</h3>
+<p>An Alarm fires when a Counter reaches a configured value, and performs one of these actions:</p>
+<div class="card-grid">
+  <div class="card"><h4>Activate Task</h4><p>Calls <code>ActivateTask()</code> on the configured Task. Most common alarm action for cyclic tasks.</p></div>
+  <div class="card"><h4>Set Event</h4><p>Calls <code>SetEvent()</code> on the configured Task+Event. For synchronizing Extended Tasks.</p></div>
+  <div class="card"><h4>Increment Counter</h4><p>Calls <code>IncrementCounter()</code> on a software Counter. Allows cascaded counters.</p></div>
+  <div class="card"><h4>Alarm Callback</h4><p>Calls a configured callback function. <b>Only allowed in SC1!</b> [SWS_Os_00242]</p></div>
+</div>
+
+<h3>Counter types</h3>
+<table>
+  <tr><th>Type</th><th>How it advances</th><th>API</th><th>Use case</th></tr>
+  <tr><td><b>Hardware Counter</b></td><td>Hardware timer peripheral advances it automatically</td><td>GetCounterValue, GetElapsedValue</td><td>System tick, GPT-driven scheduling</td></tr>
+  <tr><td><b>Software Counter</b></td><td>Explicit call to <code>IncrementCounter()</code> from ISR or Alarm action</td><td>IncrementCounter, GetCounterValue</td><td>Angular position (crankshaft), event counting</td></tr>
+</table>
+
+<h3>Alarm API</h3>
+<pre>/* Set relative alarm: fires after 'increment' ticks, then every 'cycle' ticks */
+SetRelAlarm(MyAlarm, 100, 10);  /* fires at now+100, then every 10 ticks */
+
+/* Set absolute alarm: fires when counter reaches 'start', then every 'cycle' */
+SetAbsAlarm(MyAlarm, 1000, 10); /* fires at counter=1000, then every 10 */
+
+/* Cancel alarm */
+CancelAlarm(MyAlarm);
+
+/* Get remaining time to alarm expiry */
+TickType ticksLeft;
+GetAlarm(MyAlarm, &ticksLeft);
+
+/* Get counter properties */
+AlarmBaseType base;
+GetAlarmBase(MyAlarm, &base);  /* MaxAllowedValue, TicksPerBase, MinCycle */</pre>
+
+<div class="warn-box">⚠️ SetRelAlarm with increment=0 returns E_OS_VALUE [SWS_Os_00304]. This is an AUTOSAR extension that tightens undefined OSEK behavior. Always validate increment > 0 before calling.</div>
+
+<h3>Counter multicore rules</h3>
+<div class="danger-box">🔴 A Counter can only be incremented by the core on which its OS-Application resides [SWS_Os_00629]. Alarms and ScheduleTables must be bound to a Counter on the SAME core [SWS_Os_00631, 00630]. The OS generator checks and rejects cross-core counter/alarm configurations.</div>
+</div>
+
+<!-- SCHEDULE TABLES -->
+<div id="section-schedtable" class="section">
+<h2>Schedule Tables — Deterministic Multi-Task Activation</h2>
+
+<h3>What problem does a ScheduleTable solve?</h3>
+<p>Multiple alarms with interdependent timing are hard to synchronize. A ScheduleTable encapsulates a statically-defined sequence of <b>expiry points</b> — each specifying Tasks to activate and/or Events to set at exact counter offsets. All activations share a single Counter, guaranteeing consistent relative timing.</p>
+
+<h3>ScheduleTable state machine</h3>
+<div style="margin:1rem 0">
+  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:.5rem">
+    <span class="state-pill" style="background:#F1EFE8;color:#444441;border:1px solid #D3D1C7">STOPPED</span>
+    <span style="color:var(--color-text-secondary);font-size:13px">→ StartScheduleTableRel/Abs() →</span>
+    <span class="state-pill" style="background:#EAF3DE;color:#27500A;border:1px solid #C0DD97">RUNNING</span>
+    <span style="color:var(--color-text-secondary);font-size:13px">→ NextScheduleTable() →</span>
+    <span class="state-pill" style="background:#FAEEDA;color:#633806;border:1px solid #FAC775">NEXT</span>
+    <span style="color:var(--color-text-secondary);font-size:13px">→ (current table finishes) →</span>
+    <span class="state-pill" style="background:#EAF3DE;color:#27500A;border:1px solid #C0DD97">RUNNING</span>
+  </div>
+  <p style="font-size:13px;color:var(--color-text-secondary)">Additional states for explicitly synchronized ScheduleTables: <span class="state-pill" style="background:#E6F1FB;color:#0C447C;border:1px solid #B5D4F4">WAITING</span> (synchronous start, waiting for first sync count) and <span class="state-pill" style="background:#EAF3DE;color:#27500A;border:1px solid #C0DD97">RUNNING_AND_SYNCHRONOUS</span> (deviation ≤ precision threshold).</p>
+</div>
+
+<h3>ScheduleTable configuration rules (exam critical)</h3>
+<table>
+  <tr><th>Rule</th><th>Requirement</th></tr>
+  <tr><td>Must have at least one expiry point</td><td>[SWS_Os_00401]</td></tr>
+  <tr><td>Each expiry point must activate ≥1 Task OR set ≥1 Event</td><td>[SWS_Os_00407]</td></tr>
+  <tr><td>Each expiry point offset must be unique on the table</td><td>[SWS_Os_00442]</td></tr>
+  <tr><td>Initial offset: 0 OR in range [OsCounterMinCycle, MaxAllowedValue]</td><td>[SWS_Os_00443]</td></tr>
+  <tr><td>Delay between adjacent expiry points: in range [MinCycle, MaxAllowedValue]</td><td>[SWS_Os_00408]</td></tr>
+  <tr><td>At same expiry point: Task activation processed BEFORE Event setting for same Task</td><td>[SWS_Os_00412]</td></tr>
+  <tr><td>Alarm Callbacks NOT allowed in SC2/SC3/SC4 (only SC1)</td><td>[SWS_Os_00242]</td></tr>
+  <tr><td>Implicit sync table: Duration = OsCounterMaxAllowedValue + 1</td><td>[SWS_Os_00429]</td></tr>
+</table>
+
+<h3>Synchronization modes</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>Implicit Synchronization</h4>
+    <p>The Counter driving the ScheduleTable IS the synchronization Counter (e.g. FlexRay/TTP hardware timer). Duration must equal counter modulus. Start ONLY with StartScheduleTableAbs() — never relative.</p>
+    <pre>/* FlexRay-driven: start at absolute value 0 */
+StartScheduleTableAbs(FlexRaySchedTable, 0);
+/* Processing stays aligned with FlexRay cycle */</pre>
+  </div>
+  <div class="card">
+    <h4>Explicit Synchronization</h4>
+    <p>Drive Counter ≠ sync Counter. OS adjusts expiry point delays to converge with sync counter. Configure OsScheduleTableMaxShorten/MaxLengthen on adjustable expiry points.</p>
+    <pre>/* Provide current sync counter value */
+SyncScheduleTable(MySchedTable, syncCounterValue);
+/* OS calculates deviation and adjusts
+   delays at adjustable expiry points */
+/* Can cancel sync */
+SetScheduleTableAsync(MySchedTable);</pre>
+  </div>
+</div>
+
+<h3>ScheduleTable API quick reference</h3>
+<div class="api-row"><span class="api-name">StartScheduleTableRel(SchedTableID, Offset)</span><span class="api-desc">Start ScheduleTable. Initial expiry point fires after Offset + InitialOffset ticks from now. Returns E_OS_STATE if already running.</span></div>
+<div class="api-row"><span class="api-name">StartScheduleTableAbs(SchedTableID, Start)</span><span class="api-desc">Start ScheduleTable at absolute counter value. Initial expiry fires when Counter = Start + InitialOffset.</span></div>
+<div class="api-row"><span class="api-name">StopScheduleTable(SchedTableID)</span><span class="api-desc">Cancel ScheduleTable immediately. State → STOPPED. Restarting begins from Initial Expiry Point.</span></div>
+<div class="api-row"><span class="api-name">NextScheduleTable(SchedTableID_From, SchedTableID_To)</span><span class="api-desc">Switch from current table to next after Final Expiry Point + Final Delay. Avoids gap between tables.</span></div>
+<div class="api-row"><span class="api-name">StartScheduleTableSynchron(SchedTableID)</span><span class="api-desc">Explicit sync: enter WAITING state. Table starts only after SyncScheduleTable provides first count.</span></div>
+<div class="api-row"><span class="api-name">SyncScheduleTable(SchedTableID, Value)</span><span class="api-desc">Provide synchronization counter value. OS calculates deviation and begins adjustment at adjustable expiry points.</span></div>
+<div class="api-row"><span class="api-name">SetScheduleTableAsync(SchedTableID)</span><span class="api-desc">Cancel synchronization. State → RUNNING (no longer RUNNING_AND_SYNCHRONOUS).</span></div>
+<div class="api-row"><span class="api-name">GetScheduleTableStatus(SchedTableID, &Status)</span><span class="api-desc">Query current ScheduleTable state. Returns STOPPED, RUNNING, RUNNING_AND_SYNCHRONOUS, WAITING, or NEXT.</span></div>
+</div>
+
+<!-- OS-APPLICATIONS -->
+<div id="section-osapps" class="section">
+<h2>OS-Applications — Software Partitioning</h2>
+
+<h3>What is an OS-Application?</h3>
+<p>An OS-Application is a named container of OS objects (Tasks, ISRs, Alarms, ScheduleTables, Counters, Trusted Functions, hooks). It is the <b>unit of protection and fault isolation</b>. All OS objects must belong to exactly one OS-Application if OS-Applications are configured.</p>
+
+<h3>Trusted vs Non-Trusted OS-Applications</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>Trusted OS-Application</h4>
+    <p>• Runs in <b>privileged mode</b> (hardware-supported)<br>• <b>Unrestricted</b> memory and OS API access<br>• Can disable protection features (optional)<br>• Can provide Trusted Functions to others<br>• Can terminate other OS-Applications<br>• OS itself is always trusted<br>• BSW modules typically run as trusted</p>
+    <p><code>OsTrustedApplication = TRUE</code></p>
+  </div>
+  <div class="card">
+    <h4>Non-Trusted OS-Application</h4>
+    <p>• Runs in <b>non-privileged mode</b><br>• <b>Restricted</b> memory access (own data/stack/code only)<br>• Cannot call ShutdownOS [SWS_Os_00054]<br>• Cannot access other OS-Apps' data<br>• Subject to timing protection<br>• Application SWCs in safety partitioning</p>
+    <p><code>OsTrustedApplication = FALSE</code></p>
+  </div>
+</div>
+
+<h3>OS-Application state machine</h3>
+<div style="display:flex;align-items:center;gap:12px;margin:1rem 0;flex-wrap:wrap">
+  <span class="state-pill" style="background:#EAF3DE;color:#27500A;border:1px solid #C0DD97;padding:6px 14px">APPLICATION_ACCESSIBLE</span>
+  <span style="color:var(--color-text-secondary)">→ TerminateApplication() or ProtectionHook →</span>
+  <span class="state-pill" style="background:#FAECE7;color:#712B13;border:1px solid #F5C4B3;padding:6px 14px">APPLICATION_TERMINATED</span>
+</div>
+<p>Initial state after StartOS is ACCESSIBLE [SWS_Os_00500]. Terminated state is final — it cannot transition back [SWS_Os_00502]. Objects of a terminated OS-App are inaccessible from other OS-Apps [SWS_Os_00504].</p>
+
+<h3>Access control between OS-Applications</h3>
+<p>By default, OS objects can only be accessed by Tasks/ISRs within the same OS-Application. Cross-OS-Application access must be explicitly granted via <code>OsTaskAccessingApplication</code>, <code>OsAlarmAccessingApplication</code>, etc. Violation returns <code>E_OS_ACCESS</code> [SWS_Os_00056].</p>
+
+<h3>TerminateApplication — the partition kill switch</h3>
+<pre>/* Self-termination from within the faulty OS-App */
+TerminateApplication(GetApplicationID(), NO_RESTART);
+
+/* Terminating another OS-App (trusted only) */
+TerminateApplication(FaultyAppId, NO_RESTART);</pre>
+
+<p>When an OS-Application is terminated [SWS_Os_00447]:</p>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">All running, ready, and waiting Tasks/ISRs of the OS-App are forcibly terminated</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">All interrupt sources of the OS-App are disabled</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">All active Alarms of the OS-App are stopped</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">All ScheduleTables of the OS-App are stopped</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">State changes to APPLICATION_TERMINATED</div></div>
+
+<div class="info-box">💡 CallTrustedFunction is cross-OS-Application but SAME core only [SWS_Os_00623]. It switches to privileged mode via a trap/software interrupt mechanism. This is the standard interface for non-trusted SWCs to access trusted BSW services.</div>
+</div>
+
+<!-- PROTECTION -->
+<div id="section-protection" class="section">
+<h2>Protection Facilities — The Safety Layer</h2>
+
+<h3>Three protection dimensions</h3>
+<div class="card-grid">
+  <div class="card"><h4>Memory Protection</h4><p>Prevents unauthorized read/write/execute access to memory regions. Requires MPU hardware. Private data, stack, code sections are protected per OS-Application and per Task/ISR.</p></div>
+  <div class="card"><h4>Timing Protection</h4><p>Prevents Tasks/ISRs from exceeding execution budgets, violating inter-arrival time frames, or holding Resources/interrupt locks too long. Requires timer hardware.</p></div>
+  <div class="card"><h4>Service Protection</h4><p>Prevents API calls from wrong context, with invalid parameters, or on unauthorized objects. Implemented via extended status checks at OS service entry.</p></div>
+</div>
+
+<h3>Timing protection — three mechanisms</h3>
+<table>
+  <tr><th>Mechanism</th><th>What it monitors</th><th>Violation → ProtectionHook with</th></tr>
+  <tr><td><b>Execution Budget</b></td><td>Net execution time in RUNNING state (excluding preemption by ISRs)</td><td><code>E_OS_PROTECTION_TIME</code></td></tr>
+  <tr><td><b>Time Frame</b></td><td>Min time between successive activations/releases (inter-arrival time)</td><td><code>E_OS_PROTECTION_ARRIVAL</code></td></tr>
+  <tr><td><b>Resource Lock Budget</b></td><td>Max time an OSEK Resource is held</td><td><code>E_OS_PROTECTION_LOCKED</code></td></tr>
+  <tr><td><b>Interrupt Lock Budget (All)</b></td><td>Max time all interrupts are disabled/suspended</td><td><code>E_OS_PROTECTION_LOCKED</code></td></tr>
+  <tr><td><b>Interrupt Lock Budget (OS)</b></td><td>Max time OS interrupts (Cat2) are suspended</td><td><code>E_OS_PROTECTION_LOCKED</code></td></tr>
+</table>
+
+<div class="warn-box">⚠️ AUTOSAR OS does NOT use deadline monitoring for timing protection [rationale in §7.7.2.1]. Deadline monitoring misidentifies the faulty component (correct Task may miss deadline due to incorrect Task's overrun). Timing protection monitors the SOURCE of overrun, not the victim.</div>
+
+<h3>ProtectionHook return values</h3>
+<table>
+  <tr><th>Return value</th><th>OS action</th><th>When valid</th></tr>
+  <tr><td><code>PRO_IGNORE</code></td><td>Continue — do nothing (if arrival error: perform the requested action)</td><td>Only for E_OS_PROTECTION_ARRIVAL [SWS_Os_00106]</td></tr>
+  <tr><td><code>PRO_PREVENT_ARRIVAL_RATE</code></td><td>Do NOT perform the action that caused arrival rate error</td><td>Only for E_OS_PROTECTION_ARRIVAL [SWS_Os_00863]</td></tr>
+  <tr><td><code>PRO_TERMINATETASKISR</code></td><td>Forcibly terminate the faulty Task/Cat2 ISR</td><td>Most protection errors</td></tr>
+  <tr><td><code>PRO_TERMINATEAPPL</code></td><td>Forcibly terminate the faulty OS-Application</td><td>Most protection errors</td></tr>
+  <tr><td><code>PRO_SHUTDOWN</code></td><td>Call ShutdownOS</td><td>All protection errors</td></tr>
+</table>
+
+<div class="danger-box">🔴 If ProtectionHook is called due to trusted function causing E_OS_PROTECTION_EXCEPTION or E_OS_PROTECTION_MEMORY: ONLY PRO_SHUTDOWN is valid [SWS_Os_00860]. Trusted code with memory violation → system must shutdown — partial recovery is unsafe.</div>
+
+<h3>Memory protection — what's protected</h3>
+<table>
+  <tr><th>Memory region</th><th>Protection rule</th></tr>
+  <tr><td>OS own data + stack</td><td>Non-trusted OS-Apps cannot write [SWS_Os_00198]</td></tr>
+  <tr><td>OS-App private data</td><td>Non-trusted OS-Apps cannot write from outside [SWS_Os_00207]; may prevent read too [SWS_Os_00026]</td></tr>
+  <tr><td>Task/ISR private stack</td><td>Other OS-Apps cannot write to it [SWS_Os_00355]</td></tr>
+  <tr><td>Task/ISR private data</td><td>Other non-trusted OS-Apps cannot write [SWS_Os_00356]</td></tr>
+  <tr><td>Peripherals</td><td>Non-trusted OS-Apps can only write to ASSIGNED peripherals [SWS_Os_00083]</td></tr>
+  <tr><td>Shared library code</td><td>Executable by all OS-Apps [SWS_Os_00081]</td></tr>
+</table>
+</div>
+
+<!-- HOOKS -->
+<div id="section-hooks" class="section">
+<h2>Hook Functions & Error Handling</h2>
+
+<h3>Hook types — two scope levels</h3>
+<div class="two-col">
+  <div class="card">
+    <h4>System-specific hooks (global)</h4>
+    <p>Called in context of the entire OS. Applied to all OS-Applications. Implemented by the system integrator.</p>
+    <p>• <code>StartupHook()</code> — after OS init, before scheduling<br>• <code>ShutdownHook(StatusType)</code> — during ShutdownOS<br>• <code>ErrorHook(StatusType)</code> — on every OS service error<br>• <code>PreTaskHook()</code> — before Task enters RUNNING<br>• <code>PostTaskHook()</code> — after Task leaves RUNNING<br>• <code>ProtectionHook(StatusType) → ProtectionReturnType</code></p>
+  </div>
+  <div class="card">
+    <h4>Application-specific hooks (per OS-App)</h4>
+    <p>Called only in context of their OS-Application. Configured per OS-Application in <code>OsApplicationHooks</code>.</p>
+    <p>• <code>StartupHook()</code> — called after global StartupHook<br>• <code>ShutdownHook(StatusType)</code> — called before global ShutdownHook<br>• <code>ErrorHook(StatusType)</code> — for errors in this OS-App</p>
+    <div class="info-box">App-specific hooks run only on the core to which the OS-Application is bound [SWS_Os_00582].</div>
+  </div>
+</div>
+
+<h3>Startup sequence with hooks (multicore)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">All cores synchronize inside StartOS (first sync point) [SWS_Os_00580]</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Global StartupHook called on ALL cores simultaneously [SWS_Os_00581]</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">OS-Application-specific StartupHooks called on their respective bound cores [SWS_Os_00582]</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">All cores synchronize (second sync point) [SWS_Os_00579]</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Auto-start Tasks, Alarms, ScheduleTables activated on each core</div></div>
+<div class="seq-step"><div class="seq-num">6</div><div class="seq-text">Scheduling begins on all cores</div></div>
+
+<h3>ShutdownHook sequence (ShutdownAllCores)</h3>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">OS-Application-specific ShutdownHooks called on bound cores [SWS_Os_00586]</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">All cores synchronize [SWS_Os_00587]</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Global ShutdownHook called on ALL cores [SWS_Os_00588]</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">OS shuts down — EcuM_Shutdown() called from ShutdownHook</div></div>
+
+<h3>ErrorHook — OS error reporting</h3>
+<pre>void ErrorHook(StatusType Error) {
+  /* Called on every OS service error in EXTENDED status */
+  /* Use OSService(), OSErrorXxx() macros to get context */
+  OSServiceIdType svc = OSErrorGetServiceId();
+  if(svc == OSServiceId_ActivateTask) {
+    TaskType task = OSError_ActivateTask_TaskID();
+    /* log task ID that failed activation */
+  }
+  /* Do NOT call: ActivateTask, ChainTask, WaitEvent,
+     GetResource, Schedule, ShutdownOS */
+}</pre>
+
+<div class="warn-box">⚠️ ErrorHook is called for EVERY OS error when extended status is enabled. Keep it short. Avoid complex logic. Never call OS services that are restricted from ErrorHook context (see Table 7.1).</div>
+
+<h3>Stack monitoring</h3>
+<p>Even without MPU hardware, the OS can detect stack faults by monitoring stack usage at context switch time. A pattern (e.g. 0xAA) is written into the stack area during initialization and checked at switch time.</p>
+<p>Stack fault detected + ProtectionHook configured → <code>ProtectionHook(E_OS_STACKFAULT)</code> [SWS_Os_00396].<br>Stack fault + no ProtectionHook → <code>ShutdownOS(E_OS_STACKFAULT)</code> [SWS_Os_00068].</p>
+</div>
+
+<!-- MULTICORE & IOC -->
+<div id="section-multicore" class="section">
+<h2>Multicore OS & IOC</h2>
+
+<h3>Multicore architecture principles</h3>
+<div class="card-grid">
+  <div class="card"><h4>Single configuration</h4><p>One OS configuration for all cores. All IDs (TaskID, ResourceID etc.) are unique across cores [SWS_Os_00567]. No per-core config files.</p></div>
+  <div class="card"><h4>Independent schedulers</h4><p>Each core schedules independently. A low-priority Task on Core 0 may run in parallel with a high-priority Task on Core 1. No global priority ordering.</p></div>
+  <div class="card"><h4>Static assignment</h4><p>OS-Applications (and their Tasks/ISRs) are statically assigned to cores at configuration time. No dynamic migration.</p></div>
+  <div class="card"><h4>Master-slave startup</h4><p>Master core calls StartCore() for each slave. Slaves call StartOS() after activation. All cores must reach synchronization points in StartOS.</p></div>
+</div>
+
+<h3>Multicore startup sequence</h3>
+<pre>/* Master core code (C startup / EcuM_Init): */
+StatusType rv1, rv2;
+StartCore(OS_CORE_ID_1, &rv1);  /* Activate slave 1 */
+StartCore(OS_CORE_ID_2, &rv2);  /* Activate slave 2 */
+if((rv1 != E_OK) || (rv2 != E_OK)) { /* handle error */ }
+
+StartOS(OSDEFAULTAPPMODE);  /* Master calls StartOS */
+
+/* Each slave core (after StartCore activates it): */
+StartOS(DONOTCARE);  /* Use master's AppMode */
+/* OR: StartOS(OSDEFAULTAPPMODE); — must match master */</pre>
+
+<div class="warn-box">⚠️ All cores calling StartOS with a real AppMode must use the SAME AppMode [SWS_Os_00608]. If they differ → OS enters endless loop on every core. DONOTCARE means "inherit from other cores."</div>
+
+<h3>IOC — Inter-OS-Application Communicator</h3>
+<p>The IOC provides communication between OS-Applications, especially across core and memory protection boundaries. The RTE uses IOC internally — it generates IOC calls for cross-partition RTE communication. Direct IOC use by CDDs requires hand-written IOC configuration.</p>
+
+<div class="two-col">
+  <div class="card">
+    <h4>IOC communication modes</h4>
+    <p>• <b>Unqueued (Last-is-Best):</b> Sender always overwrites. Receiver reads latest value.<br>• <b>Queued (FIFO):</b> Sequential order preserved. Queue depth configurable.<br>• <b>Group:</b> Multiple data items transferred atomically in one operation.</p>
+  </div>
+  <div class="card">
+    <h4>IOC communication patterns</h4>
+    <p>• <b>1:1</b> — one sender, one receiver (unqueued or queued)<br>• <b>N:1</b> — multiple senders, one receiver (each sender has own API)<br>• <b>N:M</b> — multiple senders, multiple receivers (unqueued only)</p>
+  </div>
+</div>
+
+<h3>IOC API</h3>
+<table>
+  <tr><th>API</th><th>Type</th><th>Behavior</th></tr>
+  <tr><td><code>IocWrite(Id, data)</code></td><td>Unqueued send</td><td>Overwrites existing value. Returns IOC_E_OK.</td></tr>
+  <tr><td><code>IocRead(Id, &data)</code></td><td>Unqueued receive</td><td>Reads latest value. Returns IOC_E_OK.</td></tr>
+  <tr><td><code>IocSend(Id, data)</code></td><td>Queued send</td><td>Enqueue. Returns IOC_E_LIMIT if queue full.</td></tr>
+  <tr><td><code>IocReceive(Id, &data)</code></td><td>Queued receive</td><td>Dequeue. Returns IOC_E_NO_DATA if empty.</td></tr>
+  <tr><td><code>IocWriteGroup(Id, d1, d2...)</code></td><td>Atomic multi-field unqueued write</td><td>All fields written atomically in one operation.</td></tr>
+  <tr><td><code>IocReadGroup(Id, &d1, &d2...)</code></td><td>Atomic multi-field unqueued read</td><td>All fields read atomically.</td></tr>
+  <tr><td><code>IocSendGroup(Id, d1, d2...)</code></td><td>Atomic multi-field queued send</td><td>All fields enqueued atomically.</td></tr>
+  <tr><td><code>IocReceiveGroup(Id, &d1, &d2...)</code></td><td>Atomic multi-field queued receive</td><td>All fields dequeued atomically.</td></tr>
+  <tr><td><code>IocEmptyQueue(Id)</code></td><td>Flush queue</td><td>Removes all entries from receiver queue.</td></tr>
+</table>
+
+<div class="info-box">💡 IOC ensures data consistency through internal locking (interrupt locks, spinlocks, or lock-free implementations) — the mechanism is implementation-specific and not standardized. This is intentional: the IOC generator can choose the most efficient mechanism for the hardware.</div>
+
+<h3>Cross-core API capabilities</h3>
+<table>
+  <tr><th>Operation</th><th>Cross-core?</th><th>Notes</th></tr>
+  <tr><td>ActivateTask</td><td>✅ Yes (synchronous)</td><td>Returns after Task activated on remote core [SWS_Os_00598]</td></tr>
+  <tr><td>ActivateTaskAsyn</td><td>✅ Yes (asynchronous)</td><td>Fire-and-forget; errors go to global ErrorHook</td></tr>
+  <tr><td>SetEvent</td><td>✅ Yes (synchronous)</td><td>Returns after Event set on remote core [SWS_Os_00604]</td></tr>
+  <tr><td>SetEventAsyn</td><td>✅ Yes (asynchronous)</td><td>Fire-and-forget; errors go to global ErrorHook</td></tr>
+  <tr><td>SetRelAlarm/SetAbsAlarm/CancelAlarm</td><td>✅ Yes</td><td>Can control Alarms on other cores</td></tr>
+  <tr><td>GetResource</td><td>❌ No (same core only)</td><td>E_OS_CORE returned if cross-core [SWS_Os_00589]</td></tr>
+  <tr><td>IncrementCounter / GetCounterValue</td><td>❌ No</td><td>Counter must be on same core</td></tr>
+  <tr><td>CallTrustedFunction</td><td>❌ No (same core only)</td><td>E_OS_ACCESS if target on different core [SWS_Os_00623]</td></tr>
+  <tr><td>DisableAllInterrupts</td><td>❌ Local core only</td><td>No effect on other cores [SWS_Os_00590]</td></tr>
+  <tr><td>GetSpinlock/ReleaseSpinlock</td><td>✅ Designed for cross-core</td><td>Error if called for same-core spinlock</td></tr>
+</table>
+</div>
+
+<!-- API REFERENCE -->
+<div id="section-api" class="section">
+<h2>API Reference — Interactive</h2>
+<p>Click any function to see details.</p>
+
+<h4>Lifecycle</h4>
+<span class="clickable" onclick="showApi('StartOS')">StartOS</span>
+<span class="clickable" onclick="showApi('ShutdownOS')">ShutdownOS</span>
+<span class="clickable" onclick="showApi('ShutdownAllCores')">ShutdownAllCores</span>
+<span class="clickable" onclick="showApi('StartCore')">StartCore</span>
+<span class="clickable" onclick="showApi('isOsStarted')">isOsStarted</span>
+<span class="clickable" onclick="showApi('GetCoreID')">GetCoreID</span>
+<span class="clickable" onclick="showApi('GetNumberOfActivatedCores')">GetNumberOfActivatedCores</span>
+
+<h4>Task management</h4>
+<span class="clickable" onclick="showApi('ActivateTask')">ActivateTask</span>
+<span class="clickable" onclick="showApi('ActivateTaskAsyn')">ActivateTaskAsyn</span>
+<span class="clickable" onclick="showApi('TerminateTask')">TerminateTask</span>
+<span class="clickable" onclick="showApi('ChainTask')">ChainTask</span>
+<span class="clickable" onclick="showApi('Schedule')">Schedule</span>
+<span class="clickable" onclick="showApi('GetTaskID')">GetTaskID</span>
+<span class="clickable" onclick="showApi('GetTaskState')">GetTaskState</span>
+
+<h4>Events</h4>
+<span class="clickable" onclick="showApi('SetEvent')">SetEvent</span>
+<span class="clickable" onclick="showApi('SetEventAsyn')">SetEventAsyn</span>
+<span class="clickable" onclick="showApi('ClearEvent')">ClearEvent</span>
+<span class="clickable" onclick="showApi('GetEvent')">GetEvent</span>
+<span class="clickable" onclick="showApi('WaitEvent')">WaitEvent</span>
+
+<h4>Resources & Spinlocks</h4>
+<span class="clickable" onclick="showApi('GetResource')">GetResource</span>
+<span class="clickable" onclick="showApi('ReleaseResource')">ReleaseResource</span>
+<span class="clickable" onclick="showApi('GetSpinlock')">GetSpinlock</span>
+<span class="clickable" onclick="showApi('TryToGetSpinlock')">TryToGetSpinlock</span>
+<span class="clickable" onclick="showApi('ReleaseSpinlock')">ReleaseSpinlock</span>
+
+<h4>OS-Applications</h4>
+<span class="clickable" onclick="showApi('GetApplicationID')">GetApplicationID</span>
+<span class="clickable" onclick="showApi('GetCurrentApplicationID')">GetCurrentApplicationID</span>
+<span class="clickable" onclick="showApi('TerminateApplication')">TerminateApplication</span>
+<span class="clickable" onclick="showApi('GetApplicationState')">GetApplicationState</span>
+<span class="clickable" onclick="showApi('CallTrustedFunction')">CallTrustedFunction</span>
+<span class="clickable" onclick="showApi('CheckObjectAccess')">CheckObjectAccess</span>
+<span class="clickable" onclick="showApi('CheckObjectOwnership')">CheckObjectOwnership</span>
+<span class="clickable" onclick="showApi('CheckTaskMemoryAccess')">CheckTaskMemoryAccess</span>
+
+<h4>Counters & Alarms</h4>
+<span class="clickable" onclick="showApi('IncrementCounter')">IncrementCounter</span>
+<span class="clickable" onclick="showApi('GetCounterValue')">GetCounterValue</span>
+<span class="clickable" onclick="showApi('GetElapsedValue')">GetElapsedValue</span>
+<span class="clickable" onclick="showApi('GetAlarmBase')">GetAlarmBase</span>
+<span class="clickable" onclick="showApi('GetAlarm')">GetAlarm</span>
+<span class="clickable" onclick="showApi('SetRelAlarm')">SetRelAlarm</span>
+<span class="clickable" onclick="showApi('SetAbsAlarm')">SetAbsAlarm</span>
+<span class="clickable" onclick="showApi('CancelAlarm')">CancelAlarm</span>
+
+<div id="api-detail">Click any function above to see details.</div>
+</div>
+
+<!-- SEQUENCES -->
+<div id="section-sequences" class="section">
+<h2>Key Sequence Diagrams</h2>
+<div class="nav" style="border:none;padding:0;margin-bottom:1rem">
+  <button class="active" id="sqb1" onclick="showSeq('sq1')">CallTrustedFunction</button>
+  <button id="sqb2" onclick="showSeq('sq2')">ProtectionHook flow</button>
+  <button id="sqb3" onclick="showSeq('sq3')">IOC last-is-best</button>
+  <button id="sqb4" onclick="showSeq('sq4')">Multicore startup</button>
+  <button id="sqb5" onclick="showSeq('sq5')">ErrorHook flow</button>
+</div>
+
+<div id="seq-sq1">
+<h3>CallTrustedFunction — cross-OS-Application service call</h3>
+<pre style="line-height:1.9">Non-Trusted App Task        OS Kernel             Trusted App (provides function)
+        |                      |                           |
+        | CallTrustedFunction( |                           |
+        |   FuncId, Params)    |                           |
+        |--------------------> |                           |
+        |                      | Check: is FuncId valid?   |
+        |                      | Check: is caller allowed? |
+        |                      | [OsLockTrustedFunctionCall?]
+        |                      |   if TRUE: lock OS-App    |
+        |                      |   parallel activities     |
+        |                      | Switch to privileged mode |
+        |                      |-------------------------> |
+        |                      |          MyTrustedFunction(Params) executes
+        |                      |          (in privileged mode, trusted context)
+        |                      | <------------------------ |
+        |                      | Switch back to non-priv   |
+        |                      | [unlock if locked]        |
+        | <------------------- |                           |
+        | (return from         |                           |
+        |  CallTrustedFunction) |                          |
+
+NOTES:
+- Cross-core CallTrustedFunction returns E_OS_ACCESS [SWS_Os_00623]
+- If trusted function not configured: ErrorHook(E_OS_SERVICEID) [SWS_Os_00100]
+- Timing violation inside trusted function may be deferred until return [SWS_Os_00565]</pre>
+</div>
+
+<div id="seq-sq2" style="display:none">
+<h3>ProtectionHook flow — timing violation example</h3>
+<pre style="line-height:1.9">HW Timer         OS Kernel            ProtectionHook          OS-Application
+   |                 |                      |                       |
+   | Timer IRQ       |                      |                       |
+   | (ExecBudget     |                      |                       |
+   |  expired)       |                      |                       |
+   |---------------->|                      |                       |
+   |                 | Detect timing fault   |                       |
+   |                 | (Task exceeded        |                       |
+   |                 |  OsTaskExecutionBudget)|                      |
+   |                 |--------------------> |                       |
+   |                 |    ProtectionHook(   |                       |
+   |                 |    E_OS_PROTECTION_  |                       |
+   |                 |    TIME)             |                       |
+   |                 |                      | Assess situation:     |
+   |                 |                      | return value?         |
+   |                 |                      |                       |
+   |                 |  PRO_TERMINATETASKISR|                       |
+   |                 | <------------------- |                       |
+   |                 | Forcibly terminate   |                       |
+   |                 | faulty Task:         |                       |
+   |                 | - Release Resources  |                       |
+   |                 | - Enable interrupts  |                       |
+   |                 | - Update state       |                       |
+   |                 |--------------------------------------> Task  |
+   |                 |                      |            SUSPENDED  |
+   |                 | Schedule next task   |                       |
+   |                 | Continue normally    |                       |
+
+ALTERNATIVE: PRO_TERMINATEAPPL → TerminateApplication(faultyApp)
+             → ALL tasks/ISRs/alarms/schedtables terminated
+             → State = APPLICATION_TERMINATED
+
+ALTERNATIVE: PRO_SHUTDOWN → ShutdownOS called</pre>
+</div>
+
+<div id="seq-sq3" style="display:none">
+<h3>IOC last-is-best (unqueued) communication sequence</h3>
+<pre style="line-height:1.9">Sender Task (OS-App A, Core 0)    IOC              Receiver Task (OS-App B, Core 1)
+           |                       |                          |
+           | IocWrite(IocId, data) |                          |
+           |---------------------->|                          |
+           |                       | [acquire internal lock]  |
+           |                       | write data to shared buf |
+           |                       | [release lock]           |
+           |                       | [notify receiver? optional]
+           | IOC_E_OK              |                          |
+           |<----------------------|                          |
+           |                       |                          |
+           | IocWrite(IocId, data2)|  (overwrites!)           |
+           |---------------------->|                          |
+           |                       | [atomic overwrite]       |
+           | IOC_E_OK              |                          |
+           |<----------------------|                          |
+           |                       |                          |
+           |                       |  IocRead(IocId, &data)  |
+           |                       |<-------------------------|
+           |                       | [acquire lock]           |
+           |                       | copy data2 to receiver  |
+           |                       | [release lock]           |
+           |                       | IOC_E_OK, data=data2 -> |
+           |                       |                          |
+           |                    data1 is LOST (last-is-best)  |
+
+RTE wraps these IOC calls transparently for SWCs:
+  Rte_Write → IocWrite (cross-partition sender)
+  Rte_Read  → IocRead  (cross-partition receiver)</pre>
+</div>
+
+<div id="seq-sq4" style="display:none">
+<h3>Multicore OS startup sequence</h3>
+<pre style="line-height:1.9">C-Startup        Master Core (Core 0)      Slave Core 1           Slave Core 2
+    |                    |                      |                      |
+    |--- EcuM_Init() --> |                      |                      |
+    |                    | StartCore(          |                      |
+    |                    |   OS_CORE_ID_1,&rv) |                      |
+    |                    |-------------------> |                      |
+    |                    |   (activates Core 1) boot...               |
+    |                    | StartCore(          |                      |
+    |                    |   OS_CORE_ID_2,&rv) |                      | (activates)
+    |                    |                     |                      | boot...
+    |                    | rv all E_OK?        |                      |
+    |                    | StartOS(APPMODE) -> |                      |
+    |                    |                     | StartOS(DONOTCARE)   |
+    |                    |                     |                      | StartOS(DONOTCARE)
+    |                    |  ---- sync point 1 (all cores reach here) ---|
+    |                    |  global StartupHook() called on ALL cores    |
+    |                    |  App-specific StartupHooks on bound cores    |
+    |                    |  ---- sync point 2 (all cores reach here) ---|
+    |                    |  Auto-start Tasks/Alarms/SchedTbls activated |
+    |                    |  SCHEDULING BEGINS on all cores in parallel  |
+
+AppMode mismatch → endless loop on ALL cores [SWS_Os_00608]
+StartCore after StartOS → E_OS_ACCESS [SWS_Os_00606]</pre>
+</div>
+
+<div id="seq-sq5" style="display:none">
+<h3>ErrorHook flow — OS service error</h3>
+<pre style="line-height:1.9">Task A                OS Kernel (Extended Status)          ErrorHook
+  |                          |                                |
+  | ActivateTask(InvalidId)  |                                |
+  |------------------------->|                                |
+  |                          | Validate TaskId → E_OS_ID      |
+  |                          | Store error context:           |
+  |                          |   ServiceId = ActivateTask     |
+  |                          |   TaskID    = InvalidId        |
+  |                          | Call ErrorHook ------------->  |
+  |                          |               ErrorHook(E_OS_ID) executes
+  |                          |               OSErrorGetServiceId() → ActivateTask
+  |                          |               OSError_ActivateTask_TaskID() → invalid
+  |                          |               [log / DET / DEM reporting]
+  |                          | <--------------------------------|
+  |                          | ErrorHook returns               |
+  |  return E_OS_ID          |                                |
+  |<-------------------------|                                |
+  |  (caller sees error,     |                                |
+  |   can handle or ignore)  |                                |
+
+ErrorHook NOT called for:
+- E_OK returns
+- WaitEvent (blocking service, no error path)
+- ShutdownOS
+
+Task ends without TerminateTask → ErrorHook(E_OS_MISSINGEND) [SWS_Os_00069]
+→ OS forcibly terminates task [SWS_Os_00052]</pre>
+</div>
+</div>
+
+<!-- DAVINCI CONFIG -->
+<div id="section-config" class="section">
+<h2>DaVinci Configurator Pro — OS Configuration</h2>
+
+<h3>Step-by-step OS configuration workflow</h3>
+
+<h4>Step 1 — OsOS container (global OS settings)</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Set <code>OsScalabilityClass</code>: SC1 (basic), SC2 (+ timing protection), SC3 (+ memory protection), SC4 (full). This determines which protection features are generated.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Set <code>OsNumberOfCores</code> (1 for single core). Each core needs its own startup entry point and OS object assignments.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">Set <code>OsUseGetServiceId</code>, <code>OsUseParameterAccess</code>: enable to use <code>OSErrorGetServiceId()</code> and parameter macros in ErrorHook. Required for meaningful error diagnostics.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">Configure <code>OsHooks</code>: enable StartupHook, ShutdownHook, ErrorHook, PreTaskHook, PostTaskHook as needed. Each hook requires an implementation in the integration code.</div></div>
+<div class="seq-step"><div class="seq-num">5</div><div class="seq-text">Set <code>OsStatus</code>: EXTENDED (enables parameter checking and ErrorHook calls) or STANDARD (minimal checking, faster). Always use EXTENDED in development.</div></div>
+
+<h4>Step 2 — OsTask containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">For each task: set OsTaskPriority, OsTaskSchedule (FULL/NON), OsTaskActivation (1 for Extended Tasks). Add OsTaskAutostart with AppMode reference for auto-activation.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Set OsTaskStackSize. Rule of thumb: function call depth × 40 bytes + ISR nesting overhead + 20% safety margin. DaVinci stack analyzer can help calculate WCET stack usage.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">For SC2/SC4: add OsTaskTimingProtection sub-container. Set OsTaskExecutionBudget (nanoseconds WCET) and OsTaskTimeFrame (minimum inter-arrival time in nanoseconds).</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">For SC3/SC4: assign the Task to an OsApplication via the OsApplicationTaskRef. Memory sections are generated based on this assignment.</div></div>
+
+<h4>Step 3 — OsIsr containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">For each ISR: set OsIsrCategory (1 or 2), OsIsrPriority (hardware interrupt level). Category 2 ISRs get an OS-generated wrapper.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">For SC2/SC4: add OsIsrTimingProtection. Set OsIsrExecutionBudget and OsIsrTimeFrame (babbling idiot protection for CAN/LIN ISRs).</div></div>
+
+<h4>Step 4 — OsCounter containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Create a counter for each time base needed. Hardware counters: set OsCounterType=HARDWARE, link the GPT channel via OsSecondsPerTick/OsCounterMaxAllowedValue/OsCounterMinCycle.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">In multicore: assign counter to the correct OS-Application (and hence core). Alarms and ScheduleTables must reference counters on the SAME core.</div></div>
+
+<h4>Step 5 — OsAlarm containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Add OsAlarmActivateTask or OsAlarmSetEvent or OsAlarmIncrementCounter as sub-containers. Each alarm can have only ONE action.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">For auto-start alarms: add OsAlarmAutostart sub-container. Set OsAlarmAutostartType (ABSOLUTE or RELATIVE), OsAlarmStartTime, OsAlarmCycleTime.</div></div>
+
+<h4>Step 6 — OsScheduleTable containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Add OsScheduleTable container. Set OsScheduleTableDuration (ticks), OsScheduleTableRepeating (TRUE for periodic), OsScheduleTableCounterRef.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Add OsScheduleTableExpiryPoint sub-containers for each expiry point. Set OsScheduleTableEPOffset (ticks from start). Add OsScheduleTableTaskActivation or OsScheduleTableEventSetting sub-containers.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">For explicit synchronization: add OsScheduleTableSync container. Set OsScheduleTblExplicitPrecision. For adjustable expiry points: add OsScheduleTblAdjustableExpPoint with MaxShorten and MaxLengthen.</div></div>
+
+<h4>Step 7 — OsApplication containers</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Create one OsApplication per software partition. Set OsTrustedApplication (TRUE for BSW, FALSE for safety-partitioned SWCs). Add references to all owned Tasks, ISRs, Alarms, Counters, ScheduleTables.</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Configure cross-application access rights: add OsAppTaskRef/OsAppAlarmRef etc. sub-containers in each OS-Application that needs to access objects from another OS-Application.</div></div>
+<div class="seq-step"><div class="seq-num">3</div><div class="seq-text">For multicore: set OsApplicationCoreRef to assign the OS-Application to a specific core. All objects in the OS-Application run on that core.</div></div>
+<div class="seq-step"><div class="seq-num">4</div><div class="seq-text">For Trusted Functions: add OsApplicationTrustedFunction sub-containers. Each has a function name that maps to a C function in the trusted OS-Application code.</div></div>
+
+<h4>Step 8 — OsSpinlock containers (multicore)</h4>
+<div class="seq-step"><div class="seq-num">1</div><div class="seq-text">Create one OsSpinlock per cross-core critical section. Set OsSpinlockLockMethod (LOCK_NOTHING, LOCK_WITH_RES_SCHEDULER, LOCK_ALL_INTERRUPTS, LOCK_CAT2_INTERRUPTS).</div></div>
+<div class="seq-step"><div class="seq-num">2</div><div class="seq-text">Configure OsSpinlockSuccessor references to define the ordering chain. The OS generator checks for cycles and rejects invalid configurations [SWS_Os_00666].</div></div>
+
+<h3>Common DaVinci configuration mistakes</h3>
+<div class="danger-box">🔴 <b>Resource assigned to Tasks on different cores:</b> Generator must reject this [SWS_Os_00662]. Check: all Tasks referencing a Resource must have the same OsApplicationCoreRef.</div>
+<div class="danger-box">🔴 <b>Alarm/ScheduleTable bound to Counter on different core:</b> Generator rejects [SWS_Os_00663, 00665]. Each alarm/table must reference a counter owned by the same core's OS-Application.</div>
+<div class="danger-box">🔴 <b>Extended Task with OsTaskActivation > 1:</b> Extended Tasks can only have 1 activation. DaVinci may warn but this is a specification violation.</div>
+<div class="warn-box">⚠️ <b>Missing TerminateTask() at end of Basic Task body:</b> OS calls ErrorHook(E_OS_MISSINGEND) then forcibly terminates [SWS_Os_00069]. Always end every Task entry function with TerminateTask() or ChainTask().</div>
+<div class="warn-box">⚠️ <b>ScheduleTable InitialOffset = 0 for implicit sync:</b> With implicit sync, you must start with StartScheduleTableAbs(table, 0) — NOT StartScheduleTableRel [SWS_Os_00430].</div>
+<div class="warn-box">⚠️ <b>Spinlock cycle in successor chain:</b> OS generator checks and rejects [SWS_Os_00666]. Plan spinlock ordering on paper before configuration.</div>
+<div class="info-box">💡 <b>ARTI (AUTOSAR Run-time Interface) support:</b> Enable in DaVinci for trace tool integration (Lauterbach Trace32, iSYSTEM, etc.). ARTI hook macros are inserted into OS code at key points (task switch, ISR entry/exit, alarm expiry) for runtime trace without code instrumentation.</div>
+</div>
+
+<!-- TESTING & DEBUG -->
+<div id="section-debug" class="section">
+<h2>Integration Testing & Debugging</h2>
+
+<h3>Common integration bugs</h3>
+<div class="card"><h4>Bug: Task never runs / stuck in READY</h4><p>Root causes: (1) Higher priority Task never terminates (infinite loop, missing TerminateTask). (2) Resource held indefinitely by higher-priority code. (3) Task assigned to wrong core (activating core 0 task from core 1 code path).<br>Debug: ARTI trace shows task state transitions. Hook GetTaskState() in a periodic debug task to log all task states. Check PreTaskHook/PostTaskHook counters.</p></div>
+<div class="card"><h4>Bug: ProtectionHook called with E_OS_PROTECTION_TIME</h4><p>Root cause: Task WCET exceeded OsTaskExecutionBudget. Often happens on first integration when budget is set too tight, or when cache is cold, or during burst workload.<br>Debug: Use ARTI timing trace to measure actual execution time per task invocation. Increase budget temporarily to identify true WCET. Check for infinite loops or unexpected blocking in the task.</p></div>
+<div class="card"><h4>Bug: E_OS_PROTECTION_ARRIVAL — timing frame violation</h4><p>Root cause: Task/ISR triggered more frequently than OsTaskTimeFrame/OsIsrTimeFrame. Common with CAN interrupt flooding (babbling idiot), alarm configured with cycle time shorter than time frame, or erratic SetEvent calls.<br>Debug: Check actual inter-arrival time via ARTI. Verify alarm cycle time >= time frame. For ISRs: check hardware interrupt rate. ProtectionHook can log the violating Task/ISR ID.</p></div>
+<div class="card"><h4>Bug: E_OS_SPINLOCK returned from TerminateTask</h4><p>Root cause: Task calling TerminateTask while holding a spinlock. This is a design error — spinlocks must be released before task termination. [SWS_Os_00612]<br>Debug: Use ARTI spinlock trace. Add assertion in ProtectionHook to log which spinlock was held. Review all code paths through the task for early returns that skip ReleaseSpinlock.</p></div>
+<div class="card"><h4>Bug: Deadlock in multicore — all cores stuck</h4><p>Root cause: Circular spinlock acquisition (e.g., Core 0 holds S1, waits for S2; Core 1 holds S2, waits for S1). [See Fig 7.21 in spec]<br>Debug: OS generator should have caught this if spinlock ordering is properly configured. In runtime: ARTI spinlock trace shows which core holds which spinlock. Add GetSpinlock timeout using TryToGetSpinlock in a loop with counter.</p></div>
+<div class="card"><h4>Bug: IOC_E_LIMIT on IocSend</h4><p>Root cause: Receiver is not consuming IOC queue fast enough — queue overflow. Sender production rate > receiver consumption rate.<br>Debug: Increase queue depth (OsIocQueueLength) temporarily to confirm this is the issue. Long-term: increase receiver task frequency, reduce sender rate, or switch to unqueued (last-is-best) communication if ordering doesn't matter.</p></div>
+
+<h3>Interface testing checklist</h3>
+<table>
+  <tr><th>Test area</th><th>What to verify</th><th>Method</th></tr>
+  <tr><td>Task scheduling</td><td>All tasks run at configured period; no priority inversion visible</td><td>ARTI trace + oscilloscope on task-toggle GPIOs</td></tr>
+  <tr><td>Preemption</td><td>Higher-priority task preempts lower correctly; no deadline miss</td><td>ARTI timing trace; check response times</td></tr>
+  <tr><td>Stack usage</td><td>No stack overflow under maximum load</td><td>Enable stack monitoring; check fill pattern after stress test</td></tr>
+  <tr><td>Timing protection</td><td>ProtectionHook fires correctly on deliberate WCET overrun</td><td>Inject artificial delay in non-trusted task; verify hook called</td></tr>
+  <tr><td>Memory protection</td><td>Illegal write to OS-App B data from OS-App A triggers protection</td><td>Write known pattern to foreign address; check ProtectionHook(E_OS_PROTECTION_MEMORY)</td></tr>
+  <tr><td>Alarm period</td><td>Task activation from alarm occurs at exact configured period</td><td>Timestamp task entry in PreTaskHook; compare intervals</td></tr>
+  <tr><td>ScheduleTable timing</td><td>Expiry points fire at correct absolute counter values</td><td>Log counter value in PreTaskHook for each task; compare to expected offset</td></tr>
+  <tr><td>Cross-core ActivateTask</td><td>Task on Core 1 activates correctly from Core 0; latency is bounded</td><td>Timestamp activation call and task entry on respective cores</td></tr>
+  <tr><td>IOC data integrity</td><td>No data corruption in cross-core IocWrite/IocRead under load</td><td>Write known patterns; verify no torn reads; run under maximum interrupt load</td></tr>
+  <tr><td>Spinlock correctness</td><td>Critical section is never simultaneously entered from two cores</td><td>Increment shared counter with and without spinlock protection; verify no lost updates</td></tr>
+  <tr><td>Multicore startup sync</td><td>All cores reach StartupHook before scheduling begins</td><td>ARTI startup trace; verify both global and app-specific hooks called correctly</td></tr>
+  <tr><td>OS-App termination</td><td>Terminating OS-App cleans up all its Tasks/Alarms/ISRs</td><td>Verify terminated app's tasks no longer appear in ARTI trace</td></tr>
+</table>
+
+<h3>ARTI — AUTOSAR Run-Time Interface for debugging</h3>
+<p>ARTI provides standardized hook macros inserted into OS code for tracing. The trace tool (Lauterbach, ETAS RTAOS, Vector CANoe etc.) provides <code>Os_Arti.h</code> with macro definitions. When ARTI is not configured, macros expand to empty (zero overhead).</p>
+<table>
+  <tr><th>ARTI class</th><th>Events captured</th></tr>
+  <tr><td><code>AR_CP_OS_TASK</code></td><td>Task RUNNING/WAITING/READY/SUSPENDED state transitions with timestamps</td></tr>
+  <tr><td><code>AR_CP_OS_CAT2ISR</code></td><td>Cat2 ISR entry/exit with ISR ID and timestamps</td></tr>
+  <tr><td><code>AR_CP_OS_APPLICATION</code></td><td>OS-Application state changes (ACCESSIBLE → TERMINATED)</td></tr>
+  <tr><td><code>AR_CP_OS_SPINLOCK</code></td><td>GetSpinlock/ReleaseSpinlock calls with spinlock ID and core</td></tr>
+  <tr><td><code>AR_CP_OS_SERVICECALLS</code></td><td>All OS API calls with parameters and return values</td></tr>
+  <tr><td><code>AR_CP_OS_HOOK</code></td><td>Hook function entry/exit (ErrorHook, ProtectionHook, PreTaskHook etc.)</td></tr>
+</table>
+
+<div class="info-box">💡 For automotive-grade integration testing: combine ARTI trace with ISO 26262 timing analysis. The ARTI timing data feeds directly into WCET analysis tools (TA Tool Suite, RapiTime) to verify execution budgets with measurement-based WCET instead of static analysis. This is the standard practice for ASIL B and above ECU development.</div>
+</div>
+
+</div><!-- end widget -->
+
+<script>
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const apis={
+  StartOS:'<b>void StartOS(AppModeType Mode)</b><br>Starts the AUTOSAR OS. The first call shall not return [SWS_Os_00424]. Executes auto-start objects (Tasks → Alarms → ScheduleTables in that order [SWS_Os_00510]). Calls StartupHook (global first, then app-specific). In multicore: all cores must call StartOS; modes must match or be DONOTCARE.',
+  ShutdownOS:'<b>void ShutdownOS(StatusType Error)</b><br>Shuts down the OS on the CALLING CORE ONLY. Calls OS-App-specific ShutdownHooks → global ShutdownHook → endless loop [SWS_Os_00425] if ShutdownHook returns. In multicore: does NOT shut down other cores (use ShutdownAllCores for that). Non-trusted OS-Apps cannot call ShutdownOS [SWS_Os_00054].',
+  ShutdownAllCores:'<b>void ShutdownAllCores(StatusType Error)</b><br>New API for multicore. Sends shutdown signal to all cores. Each core executes app-specific ShutdownHooks → all cores synchronize → global ShutdownHook on all cores. Does not return. Can be called from any AUTOSAR OS core [SWS_Os_00621].',
+  StartCore:'<b>void StartCore(CoreIdType CoreID, StatusType* Status)</b><br>Activates a slave core. Must be called BEFORE StartOS [SWS_Os_00606]. Can be called from master or slave cores. Each core can only be started once. Status returns E_OK on success. After activation, slave core boots and waits for its own StartOS call.',
+  isOsStarted:'<b>boolean isOsStarted(void)</b><br>New API in R23-11. Returns TRUE if the OS has been started on the calling core, FALSE otherwise. Can be called from ANY context including before StartOS [Table 7.1]. Useful in initialization code to check if OS services are available. In multicore: returns per-core status.',
+  GetCoreID:'<b>CoreIdType GetCoreID(void)</b><br>Returns the logical CoreID of the calling core. Maps physical hardware core ID to configured logical ID. Returns values OS_CORE_ID_0, OS_CORE_ID_1 etc. Callable before StartOS [SWS_Os_00625]. Used as array index for per-core data structures. GetCoreID can be implemented as a macro for zero overhead.',
+  GetNumberOfActivatedCores:'<b>uint32 GetNumberOfActivatedCores(void)</b><br>Returns number of AUTOSAR OS cores currently active (i.e., have called StartOS successfully). Useful for conditional multicore code paths. Not callable from Cat1 ISR context.',
+  ActivateTask:'<b>StatusType ActivateTask(TaskType TaskID)</b><br>Transitions Task from SUSPENDED to READY. In multicore: cross-core activation supported — call returns synchronously after task is activated on remote core [SWS_Os_00598]. Returns E_OK, E_OS_LIMIT (activation count exceeded), E_OS_ID (invalid task), E_OS_ACCESS (no permission), E_OS_CORE (cross-core attempt when not allowed).',
+  ActivateTaskAsyn:'<b>void ActivateTaskAsyn(TaskType TaskID)</b><br>Asynchronous version — fire-and-forget cross-core task activation [SWS_Os_00816]. Does not return errors to caller. If error occurs, global ErrorHook is called on the calling core. More efficient than synchronous version for cross-core use when return value is not needed.',
+  TerminateTask:'<b>StatusType TerminateTask(void)</b><br>Terminates the calling task. Task transitions to SUSPENDED. Required at end of every Basic Task. If called while holding spinlock: E_OS_SPINLOCK in extended status [SWS_Os_00612]. If task ends without calling this: OS calls ErrorHook(E_OS_MISSINGEND) and terminates task forcibly [SWS_Os_00052].',
+  ChainTask:'<b>StatusType ChainTask(TaskType TaskID)</b><br>Terminates calling task and atomically activates the specified task. The target task can be the same task (self-chaining = periodic task pattern without alarm). If cross-core: chain is processed on target core [SWS_Os_00600]. Cannot be called while holding spinlock.',
+  Schedule:'<b>StatusType Schedule(void)</b><br>Forces a scheduling decision for the calling task. Useful in non-preemptable tasks to voluntarily give CPU to higher-priority ready tasks. Returns E_OS_CALLEVEL if called from ISR/hook. Returns E_OS_SPINLOCK if calling task holds a spinlock [SWS_Os_00624].',
+  GetTaskID:'<b>StatusType GetTaskID(TaskRefType TaskID)</b><br>Returns ID of currently RUNNING task. Returns INVALID_TASK if called from ISR (no task is running). In multicore: returns the running task on the calling core only. Callable from Task and Cat2 ISR context.',
+  GetTaskState:'<b>StatusType GetTaskState(TaskType TaskID, TaskStateRefType State)</b><br>Returns current state of any task: RUNNING, READY, WAITING, or SUSPENDED. Cross-core capable in multicore [SWS_Os_00591 area]. Useful for polling-based task monitoring in debug scenarios.',
+  SetEvent:'<b>StatusType SetEvent(TaskType TaskID, EventMaskType Mask)</b><br>Sets one or more event bits for the specified extended task. If task is WAITING for any of the set events, it transitions to READY. Cross-core in multicore: synchronous return after event is set on remote core [SWS_Os_00604]. Can be called from Task, Cat2 ISR, alarm action, ScheduleTable expiry point.',
+  SetEventAsyn:'<b>void SetEventAsyn(TaskType TaskID, EventMaskType Mask)</b><br>Asynchronous SetEvent for cross-core use [SWS_Os_00817]. Fire-and-forget. Errors reported to global ErrorHook. More efficient for cross-core event signaling when return value is not needed.',
+  ClearEvent:'<b>StatusType ClearEvent(EventMaskType Mask)</b><br>Clears event bits of the CALLING task. Can only be called from an extended task (not from ISR or other tasks). Returns E_OS_CALLEVEL if called from wrong context.',
+  GetEvent:'<b>StatusType GetEvent(TaskType TaskID, EventMaskRefType Event)</b><br>Returns current event mask of the specified extended task. Unlike ClearEvent, can query another task\'s events. Useful for monitoring task state from management code.',
+  WaitEvent:'<b>StatusType WaitEvent(EventMaskType Mask)</b><br>Suspends calling extended task until at least one of the specified events is set. Task transitions to WAITING. Returns immediately if any of the events is already set (this counts as a new arrival for timing protection). Cannot be called while holding any spinlock or resource.',
+  GetResource:'<b>StatusType GetResource(ResourceType ResID)</b><br>Acquires OSEK Resource using Priority Ceiling Protocol. Calling task priority is raised to resource ceiling priority. Must be released before TerminateTask/WaitEvent/Schedule. Nestable with spinlocks only in strict LIFO order [SWS_Os_00801]. Returns E_OS_CORE if resource belongs to different core.',
+  ReleaseResource:'<b>StatusType ReleaseResource(ResourceType ResID)</b><br>Releases previously acquired Resource. Calling task priority restored to original. Must be called in reverse order of GetResource (LIFO). Returns E_OS_NOFUNC if release order is violated [SWS_Os_00801].',
+  GetSpinlock:'<b>StatusType GetSpinlock(SpinlockIdType SpinlockID)</b><br>Occupies a spinlock. Busy-waits (spins) until spinlock is available. Returns E_OS_INTERFERENCE if spinlock assigned to same core (spinlocks are for cross-core only) [SWS_Os_00658]. Returns E_OS_SPINLOCK if spinlock ordering is violated. Cannot be called from same core as spinlock owner.',
+  TryToGetSpinlock:'<b>StatusType TryToGetSpinlock(SpinlockIdType SpinlockID, TryToGetSpinlockType* Success)</b><br>Attempts to acquire spinlock. Returns immediately whether successful or not (TRYTOGETSPINLOCK_SUCCESS or TRYTOGETSPINLOCK_NOSUCCESS). No busy-waiting. Caller must check result and handle failed acquisition.',
+  ReleaseSpinlock:'<b>StatusType ReleaseSpinlock(SpinlockIdType SpinlockID)</b><br>Releases a spinlock. Must be the last acquired spinlock (LIFO with Resources). Returns E_OS_STATE if spinlock not currently occupied by calling task. Spinlocks are automatically released if task is forcibly terminated or OS-Application is terminated [SWS_Os_00613].',
+  GetApplicationID:'<b>ApplicationType GetApplicationID(void)</b><br>Returns ID of the OS-Application to which the CALLING Task/ISR belongs (as configured). Returns INVALID_OSAPPLICATION if called outside task/ISR context. Use this to get the CONFIGURED application — not the currently executing one (see GetCurrentApplicationID).',
+  GetCurrentApplicationID:'<b>ApplicationType GetCurrentApplicationID(void)</b><br>Returns ID of the CURRENTLY EXECUTING OS-Application. During a trusted function call, returns the trusted application\'s ID (not the caller\'s). This is the key distinction from GetApplicationID. Callable from all contexts including hooks.',
+  TerminateApplication:'<b>StatusType TerminateApplication(ApplicationType Application, RestartType RestartOption)</b><br>Terminates an OS-Application (self or other if trusted). RestartOption: NO_RESTART (only option in R24-11 — restart option removed). Terminates all tasks/ISRs, cancels alarms, stops ScheduleTables, disables ISR sources [SWS_Os_00447]. In multicore: cross-core termination supported [SWS_Os_00614].',
+  GetApplicationState:'<b>StatusType GetApplicationState(ApplicationType Application, ApplicationStateRefType Value)</b><br>Returns current state of an OS-Application: APPLICATION_ACCESSIBLE or APPLICATION_TERMINATED. Cross-core capable. Use to check if a partner OS-App is still alive before making service calls to it.',
+  CallTrustedFunction:'<b>StatusType CallTrustedFunction(TrustedFunctionIndexType FunctionIndex, TrustedFunctionParameterRefType FunctionParams)</b><br>Calls a trusted function from a trusted OS-Application. Switches to privileged mode. SAME CORE ONLY [SWS_Os_00623]. FunctionIndex must be configured (OsApplicationTrustedFunction). Returns E_OS_SERVICEID if function not configured [SWS_Os_00100].',
+  CheckObjectAccess:'<b>ObjectAccessType CheckObjectAccess(ApplicationType ApplID, ObjectTypeType ObjectType, ObjectType ObjectID)</b><br>Checks if OS-Application ApplID has access rights to the specified OS object. Returns ACCESS or NO_ACCESS. Available from all OS-Applications without special permission — it\'s a query-only operation.',
+  CheckObjectOwnership:'<b>ApplicationType CheckObjectOwnership(ObjectTypeType ObjectType, ObjectType ObjectID)</b><br>Returns the OS-Application ID that OWNS the specified OS object. Returns INVALID_OSAPPLICATION if object doesn\'t belong to any OS-Application.',
+  CheckTaskMemoryAccess:'<b>AccessType CheckTaskMemoryAccess(TaskType TaskID, MemoryStartAddressType Address, MemorySizeType Size)</b><br>Checks if a Task has read/write/execute access to a memory region. Returns bitmask: ACCESS_READABLE, ACCESS_WRITABLE, ACCESS_EXECUTABLE, ACCESS_STACK. Used in trusted functions to validate pointer parameters from non-trusted callers before dereferencing.',
+  IncrementCounter:'<b>StatusType IncrementCounter(CounterType CounterID)</b><br>Increments a software counter by one tick. Used in ISRs to advance time-triggered counters. After increment, OS checks if any attached Alarms or ScheduleTables have expired. Returns E_OS_CORE if counter not on calling core. Returns E_OS_ID if hardware counter.',
+  GetCounterValue:'<b>StatusType GetCounterValue(CounterType CounterID, TickRefType Value)</b><br>Returns current tick value of a Counter. Works for both hardware and software counters. Returns E_OS_CORE in multicore if counter is on different core [SWS_Os_00589].',
+  GetElapsedValue:'<b>StatusType GetElapsedValue(CounterType CounterID, TickRefType Value, TickRefType ElapsedValue)</b><br>Returns number of ticks elapsed since Value was read. Handles counter wraparound correctly. Value is updated to current counter value. Useful for measuring elapsed time without knowing wrap cycles.',
+  GetAlarmBase:'<b>StatusType GetAlarmBase(AlarmType AlarmID, AlarmBaseRefType Info)</b><br>Returns counter properties for the alarm\'s underlying counter: MaxAllowedValue, TicksPerBase, MinCycle. Cross-core in multicore [SWS_Os_00639]. Use to configure relative alarms correctly.',
+  GetAlarm:'<b>StatusType GetAlarm(AlarmType AlarmID, TickRefType Tick)</b><br>Returns number of ticks until alarm next expires. Returns E_OS_NOFUNC if alarm is not active. Cross-core in multicore [SWS_Os_00640].',
+  SetRelAlarm:'<b>StatusType SetRelAlarm(AlarmType AlarmID, TickType Increment, TickType Cycle)</b><br>Start alarm relative to current counter value. Fires after Increment ticks. If Cycle>0: repeats every Cycle ticks. Increment must be >0 [SWS_Os_00304] — returns E_OS_VALUE otherwise. Cross-core in multicore [SWS_Os_00636].',
+  SetAbsAlarm:'<b>StatusType SetAbsAlarm(AlarmType AlarmID, TickType Start, TickType Cycle)</b><br>Start alarm at absolute counter value Start. If Cycle>0: repeats. Cross-core in multicore [SWS_Os_00637]. AUTOSAR extension: allows auto-start of absolute alarms at StartOS [SWS_Os_00476].',
+  CancelAlarm:'<b>StatusType CancelAlarm(AlarmType AlarmID)</b><br>Cancel an active alarm. Returns E_OS_NOFUNC if alarm not running. Cross-core in multicore [SWS_Os_00638]. After cancellation, alarm can be restarted with SetRelAlarm or SetAbsAlarm.'
+};
+
+function showApi(name){
+  const d=document.getElementById('api-detail');
+  d.innerHTML=apis[name]||'Not found';
+  document.querySelectorAll('.clickable').forEach(e=>{e.style.background='';e.style.color='';});
+  event.target.style.background='var(--color-background-info)';
+  event.target.style.color='var(--color-text-info)';
+}
+
+function showSeq(id){
+  ['sq1','sq2','sq3','sq4','sq5'].forEach(s=>{
+    const el=document.getElementById('seq-'+s);
+    if(el) el.style.display=s===id?'block':'none';
+  });
+  document.querySelectorAll('[id^="sqb"]').forEach(b=>b.classList.remove('active'));
+  const num={'sq1':'1','sq2':'2','sq3':'3','sq4':'4','sq5':'5'};
+  const btn=document.getElementById('sqb'+num[id]);
+  if(btn) btn.classList.add('active');
+}
+</script>

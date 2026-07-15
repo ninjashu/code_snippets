@@ -1,0 +1,689 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.tb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tb-btn{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans);transition:all .15s}
+.tb-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.tb-btn:hover:not(.active){background:var(--color-background-secondary)}
+.pn{display:none}.pn.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.card-t{font-size:14px;font-weight:500;color:var(--color-text-primary);margin:0 0 8px}
+.card-b{font-size:13px;color:var(--color-text-secondary);line-height:1.65}
+.sh{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin:1.2rem 0 .5rem}
+.fn{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info)}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:8px;font-weight:500;white-space:nowrap}
+.b-sync{background:var(--color-background-success);color:var(--color-text-success)}
+.b-async{background:var(--color-background-warning);color:var(--color-text-warning)}
+.b-cb{background:var(--color-background-info);color:var(--color-text-info)}
+.ec{font-family:var(--font-mono);font-size:11px;background:var(--color-background-danger);color:var(--color-text-danger);border-radius:4px;padding:1px 4px}
+.api-t{width:100%;border-collapse:collapse;font-size:12px}
+.api-t th{text-align:left;padding:6px 8px;font-weight:500;font-size:11px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em}
+.api-t td{padding:8px 8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5}
+.api-t tr:last-child td{border-bottom:none}
+.api-t tr:hover td{background:var(--color-background-secondary)}
+.cfg-r{display:grid;grid-template-columns:195px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.cfg-r:last-child{border-bottom:none}
+.cfg-k{font-family:var(--font-mono);font-size:11px;color:var(--color-text-info);word-break:break-all}
+.cfg-v{color:var(--color-text-secondary);line-height:1.5}
+.step-b{font-size:12px;padding:4px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.step-b.sel{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.er{display:grid;grid-template-columns:45px 190px 1fr;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;align-items:start}
+.er-n{font-weight:500;color:var(--color-text-primary);font-family:var(--font-mono)}
+input.si{width:100%;box-sizing:border-box;font-family:var(--font-sans);font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);margin-bottom:12px}
+input.si:focus{outline:none;border-color:var(--color-border-info)}
+.pill{border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;display:inline-block;margin:3px}
+</style>
+
+<h2 class="sr-only">AUTOSAR CAN State Manager (CanSM) complete study guide — R24-11</h2>
+
+<div class="tb" id="tab-bar">
+  <button class="tb-btn active" onclick="showTab('overview',this)">Overview & Arch</button>
+  <button class="tb-btn" onclick="showTab('bsm',this)">Main State Machine</button>
+  <button class="tb-btn" onclick="showTab('submachines',this)">Sub-machines</button>
+  <button class="tb-btn" onclick="showTab('bor',this)">BusOff Recovery</button>
+  <button class="tb-btn" onclick="showTab('api',this)">API Reference</button>
+  <button class="tb-btn" onclick="showTab('seq',this)">Sequences & Effects</button>
+  <button class="tb-btn" onclick="showTab('errors',this)">Errors & Debug</button>
+  <button class="tb-btn" onclick="showTab('config',this)">DaVinci Config</button>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="pn-overview" class="pn active">
+  <div class="card">
+    <p class="card-t">What is CanSM?</p>
+    <p class="card-b">CanSM (CAN State Manager) is the AUTOSAR BSW module that provides <strong>network-level communication mode control</strong> for CAN buses. It sits in the Communication Service Layer between ComM (above) and CanIf (below), and implements a state machine per CAN network. ComM says "I want FULL_COM" — CanSM does all the hardware coordination to make it happen through CanIf.</p>
+  </div>
+
+  <p class="sh">Position in AUTOSAR Stack — click a layer for detail</p>
+  <div id="ov-detail" style="display:none;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px;font-size:13px;line-height:1.65;"></div>
+
+  <div onclick="showOvD('comm')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:var(--color-background-warning);color:var(--color-text-warning);">
+    <div><span>ComM — Communication Manager</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Requests FULL / SILENT / NO_COM mode per network → CanSM_RequestComMode()</div></div>
+  </div>
+  <div onclick="showOvD('bswm')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#EEEDFE;color:#3C3489;">
+    <div><span>BswM — BSW Mode Manager</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Receives state notifications → BswM_CanSM_CurrentState(network, CANSM_BSWM_*)</div></div>
+  </div>
+  <div onclick="showOvD('cansm')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:var(--color-background-info);color:var(--color-text-info);border:2px solid var(--color-border-info);">
+    <div><span>⭐ CanSM — CAN State Manager (this module)</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Network state machine per network · BusOff recovery · Controller + Transceiver orchestration</div></div>
+  </div>
+  <div onclick="showOvD('canif')" style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;cursor:pointer;background:#EAF3DE;color:#27500A;">
+    <div><span>CanIf — CAN Interface</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">CanIf_SetControllerMode · CanIf_SetTrcvMode · CanIf_SetPduMode · CanIf_SetBaudrate</div></div>
+  </div>
+  <div style="display:flex;align-items:center;border-radius:var(--border-radius-md);padding:10px 16px;margin-bottom:4px;font-size:13px;font-weight:500;background:#F1EFE8;color:#444441;opacity:.6;cursor:default;">
+    <div><span>CanDrv + CanTrcv — Hardware Drivers</span><div style="font-size:11px;font-weight:400;opacity:.75;margin-top:2px;">Physical CAN hardware — contacted via CanIf abstraction only</div></div>
+  </div>
+
+  <p class="sh">CanSM's 3 core responsibilities</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-t">Mode Orchestration</p><p class="card-b">Sequences controller + transceiver mode changes in correct order to achieve requested ComM mode. Handles asynchronous mode indications via callbacks.</p></div>
+    <div class="card"><p class="card-t">BusOff Recovery</p><p class="card-b">Two-level (L1/L2) timed recovery. Counts consecutive BusOff events, escalates from fast (L1) to slow (L2) recovery wait. Reports to DEM.</p></div>
+    <div class="card"><p class="card-t">PDU Mode Control</p><p class="card-b">CanSM is the ONLY module that calls CanIf_SetPduMode(CANIF_ONLINE/TX_OFFLINE/TX_OFFLINE_ACTIVE). CANIF_OFFLINE is set automatically by CanIf, not by CanSM.</p></div>
+  </div>
+
+  <p class="sh">Key concepts (examinable)</p>
+  <div class="card">
+    <p class="card-b"><strong>One state machine per CAN network</strong> (CANSM_BSM): CANSM_BSM runs independently for each configured CanSMManagerNetwork. One network = one state machine instance.<br><br>
+    <strong>All state machine effects run in CanSM_MainFunction context</strong>: Triggers from callbacks (BusOff, ModeIndication) set flags; the actual CanIf API calls happen in the MainFunction task. This avoids long operations in ISR context.<br><br>
+    <strong>CanSM does NOT notify ComM after init unless explicitly requested</strong>: After CanSM_Init, CanSM is silent until ComM sends its first CanSM_RequestComMode.<br><br>
+    <strong>Mode request repetition</strong>: If CanIf API calls don't produce a mode indication within CanSMModeRequestRepetitionTime, CanSM repeats the request. If repeated more than CanSMModeRequestRepetitionMax times → runtime error CANSM_E_MODE_REQUEST_TIMEOUT + attempt to go back to NO_COM.<br><br>
+    <strong>Transceiver bypass</strong>: If no CanSMTransceiverId configured for a network, ALL transceiver-related steps are bypassed and immediately treated as "already indicated".</p>
+  </div>
+
+  <p class="sh">CanSM_BswMCurrentStateType — values reported to BswM</p>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;">
+    <span class="pill" style="background:#FCEBEB;color:#791F1F;">CANSM_BSWM_NO_COMMUNICATION</span>
+    <span class="pill" style="background:#FAEEDA;color:#633806;">CANSM_BSWM_SILENT_COMMUNICATION</span>
+    <span class="pill" style="background:#EAF3DE;color:#27500A;">CANSM_BSWM_FULL_COMMUNICATION</span>
+    <span class="pill" style="background:#FCEBEB;color:#A32D2D;">CANSM_BSWM_BUS_OFF</span>
+    <span class="pill" style="background:#EEEDFE;color:#3C3489;">CANSM_BSWM_CHANGE_BAUDRATE</span>
+  </div>
+</div>
+
+<!-- ===== MAIN STATE MACHINE (BSM) ===== -->
+<div id="pn-bsm" class="pn">
+  <div class="card">
+    <p class="card-t">CANSM_BSM — Top-level state machine (one instance per CAN network)</p>
+    <p class="card-b">Click any state below for details. Transitions shown in bold are the most exam-critical paths.</p>
+  </div>
+
+  <svg width="100%" viewBox="0 0 680 520" role="img">
+    <title>CANSM_BSM top-level state machine diagram</title>
+    <desc>CAN State Manager network state machine showing transitions between NOT_INITIALIZED, NOCOM, PRE_NOCOM, WUVALIDATION, PRE_FULLCOM, FULLCOM, SILENTCOM, SILENTCOM_BOR, and CHANGE_BAUDRATE states</desc>
+    <defs><marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+    <!-- NOT_INITIALIZED -->
+    <rect x="20" y="14" width="150" height="40" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+    <text x="95" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">CANSM_BSM_S_</text>
+    <text x="95" y="44" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">NOT_INITIALIZED</text>
+
+    <!-- NOCOM -->
+    <rect x="220" y="14" width="140" height="40" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+    <text x="290" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F">CANSM_BSM_S_</text>
+    <text x="290" y="44" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F">NOCOM</text>
+
+    <!-- PRE_NOCOM -->
+    <rect x="220" y="100" width="140" height="40" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="290" y="114" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">CANSM_BSM_S_</text>
+    <text x="290" y="130" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">PRE_NOCOM</text>
+
+    <!-- WUVALIDATION -->
+    <rect x="20" y="100" width="150" height="40" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+    <text x="95" y="114" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">CANSM_BSM_</text>
+    <text x="95" y="130" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">WUVALIDATION</text>
+
+    <!-- PRE_FULLCOM -->
+    <rect x="220" y="200" width="140" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+    <text x="290" y="214" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">CANSM_BSM_S_</text>
+    <text x="290" y="230" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">PRE_FULLCOM</text>
+
+    <!-- FULLCOM -->
+    <rect x="420" y="200" width="140" height="40" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/>
+    <text x="490" y="214" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">CANSM_BSM_S_</text>
+    <text x="490" y="230" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">FULLCOM ⭐</text>
+
+    <!-- SILENTCOM -->
+    <rect x="420" y="100" width="140" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+    <text x="490" y="114" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">CANSM_BSM_S_</text>
+    <text x="490" y="130" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">SILENTCOM</text>
+
+    <!-- SILENTCOM_BOR -->
+    <rect x="420" y="310" width="140" height="40" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+    <text x="490" y="324" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F">CANSM_BSM_S_</text>
+    <text x="490" y="340" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F">SILENTCOM_BOR</text>
+
+    <!-- CHANGE_BAUDRATE -->
+    <rect x="220" y="310" width="140" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+    <text x="290" y="324" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">CANSM_BSM_S_</text>
+    <text x="290" y="340" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">CHANGE_BAUDRATE</text>
+
+    <!-- Arrows -->
+    <!-- NOT_INIT → NOCOM (CanSM_Init) -->
+    <line x1="170" y1="34" x2="218" y2="34" stroke="#3B6D11" stroke-width="1" marker-end="url(#am)"/>
+    <text x="194" y="27" text-anchor="middle" font-size="9" fill="#3B6D11">CanSM_Init</text>
+
+    <!-- NOCOM → PRE_NOCOM (internal, E_NOCOM effect done) -->
+    <line x1="290" y1="54" x2="290" y2="98" stroke="#888780" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#am)"/>
+    <text x="316" y="80" text-anchor="middle" font-size="9" fill="#888780">E_NOCOM</text>
+
+    <!-- NOCOM → WUVALIDATION (StartWakeupSource) -->
+    <line x1="220" y1="46" x2="170" y2="100" stroke="#BA7517" stroke-width="1" marker-end="url(#am)"/>
+    <text x="176" y="76" text-anchor="middle" font-size="9" fill="#BA7517">StartWakeup</text>
+
+    <!-- WUVALIDATION → PRE_NOCOM (StopWakeupSource) -->
+    <line x1="170" y1="120" x2="218" y2="120" stroke="#888780" stroke-width="1" marker-end="url(#am)"/>
+    <text x="194" y="112" text-anchor="middle" font-size="9" fill="#888780">StopWakeup</text>
+
+    <!-- PRE_NOCOM → PRE_FULLCOM (FULL_COM request) -->
+    <line x1="290" y1="140" x2="290" y2="198" stroke="#534AB7" stroke-width="1" marker-end="url(#am)"/>
+    <text x="315" y="174" text-anchor="middle" font-size="9" fill="#534AB7">FULL_COM req</text>
+
+    <!-- WUVALIDATION → PRE_FULLCOM -->
+    <path d="M95 140 L95 220 L218 220" fill="none" stroke="#534AB7" stroke-width="0.8" stroke-dasharray="4 2" marker-end="url(#am)"/>
+    <text x="130" y="215" text-anchor="middle" font-size="9" fill="#534AB7">FULL_COM</text>
+
+    <!-- PRE_FULLCOM → FULLCOM -->
+    <line x1="360" y1="220" x2="418" y2="220" stroke="#3B6D11" stroke-width="1.5" marker-end="url(#am)"/>
+    <text x="389" y="213" text-anchor="middle" font-size="9" fill="#3B6D11">E_FULL_COM</text>
+
+    <!-- FULLCOM → SILENTCOM (T_SILENT_COM_MODE_REQUEST) -->
+    <line x1="490" y1="200" x2="490" y2="142" stroke="#888780" stroke-width="1" marker-end="url(#am)"/>
+    <text x="528" y="175" text-anchor="middle" font-size="9" fill="#888780">SILENT req</text>
+
+    <!-- SILENTCOM → FULLCOM (T_FULL_COM_MODE_REQUEST) -->
+    <path d="M420 112 L400 112 L400 215 L418 215" fill="none" stroke="#3B6D11" stroke-width="0.8" marker-end="url(#am)"/>
+    <text x="392" y="155" text-anchor="middle" font-size="9" fill="#3B6D11" transform="rotate(-90,392,155)">FULL req</text>
+
+    <!-- FULLCOM → SILENTCOM_BOR (T_BUS_OFF) -->
+    <line x1="490" y1="240" x2="490" y2="308" stroke="#A32D2D" stroke-width="1.5" marker-end="url(#am)"/>
+    <text x="522" y="278" text-anchor="middle" font-size="9" fill="#A32D2D">T_BUS_OFF</text>
+
+    <!-- SILENTCOM_BOR → FULLCOM (recovery) -->
+    <path d="M420 326 L380 326 L380 240 L418 240" fill="none" stroke="#3B6D11" stroke-width="0.8" marker-end="url(#am)"/>
+    <text x="362" y="290" font-size="9" fill="#3B6D11" transform="rotate(-90,362,290)">recovery ok</text>
+
+    <!-- SILENTCOM_BOR → PRE_NOCOM (NO_COM request) -->
+    <path d="M420 330 L290 330 L290 352" fill="none" stroke="#A32D2D" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#am)"/>
+
+    <!-- FULLCOM → CHANGE_BAUDRATE -->
+    <line x1="490" y1="240" x2="360" y2="312" stroke="#534AB7" stroke-width="0.8" stroke-dasharray="3 2" marker-end="url(#am)"/>
+    <text x="440" y="290" text-anchor="middle" font-size="9" fill="#534AB7">SetBaudrate</text>
+
+    <!-- CHANGE_BAUDRATE → FULLCOM or SILENTCOM -->
+    <path d="M290 352 L290 380 L490 380 L490 352" fill="none" stroke="#888780" stroke-width="0.7" stroke-dasharray="3 2" marker-end="url(#am)"/>
+    <text x="390" y="396" text-anchor="middle" font-size="9" fill="#888780">BR change done → back to FULL/SILENT/NO_COM</text>
+
+    <!-- FULLCOM/SILENTCOM → PRE_NOCOM (NO_COM request) -->
+    <path d="M420 100 L200 100 L200 140 L218 140" fill="none" stroke="#A32D2D" stroke-width="0.8" marker-end="url(#am)"/>
+
+    <!-- DeInit -->
+    <path d="M290 54 L290 70 L100 70 L100 34 L168 34" fill="none" stroke="#888780" stroke-width="0.7" stroke-dasharray="4 2" marker-end="url(#am)"/>
+    <text x="190" y="468" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">DeInit → NOT_INITIALIZED (all networks must be in NOCOM first)</text>
+
+    <!-- NO_COM label -->
+    <line x1="490" y1="142" x2="440" y2="100" stroke="#A32D2D" stroke-width="0.5" stroke-dasharray="2 2" marker-end="url(#am)"/>
+    <text x="390" y="448" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">⭐ = normal operating state | dashed = less common path</text>
+  </svg>
+
+  <p class="sh">Top-level state descriptions</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-t">NOCOM</p><p class="card-b">Stable NO_COMMUNICATION state. Controller and transceiver are in low-power (SLEEP/STANDBY). PDU channel: CANIF_OFFLINE (automatic). ComM notified COMM_NO_COMMUNICATION.</p></div>
+    <div class="card"><p class="card-t">FULLCOM ⭐</p><p class="card-b">Normal operation. Controller STARTED, transceiver NORMAL. PDU channel CANIF_ONLINE (or TX_OFFLINE_ACTIVE in ECU passive mode). ComM notified COMM_FULL_COMMUNICATION.</p></div>
+    <div class="card"><p class="card-t">SILENTCOM</p><p class="card-b">Listen-only mode. Controller STARTED, transceiver NORMAL. PDU channel TX_OFFLINE (Rx only). ComM notified COMM_SILENT_COMMUNICATION. Typical use: CanNm Prepare-Bus-Sleep.</p></div>
+    <div class="card"><p class="card-t">SILENTCOM_BOR</p><p class="card-b">Bus-off in SILENT mode: controller being restarted. PDU stays TX_OFFLINE. If recovery succeeds → back to FULLCOM. Unique to SILENT state BusOff handling.</p></div>
+    <div class="card"><p class="card-t">PRE_FULLCOM</p><p class="card-b">Transient startup sub-machine: Trcv→NORMAL, Ctrl→STOPPED, Ctrl→STARTED. All three steps must succeed before entering FULLCOM.</p></div>
+    <div class="card"><p class="card-t">PRE_NOCOM</p><p class="card-b">Transient shutdown sub-machine: PN-specific or generic teardown. Ctrl→STOPPED, Ctrl→SLEEP, Trcv→NORMAL, Trcv→STANDBY. Complex when PN is active.</p></div>
+    <div class="card"><p class="card-t">WUVALIDATION</p><p class="card-b">Wakeup validation sub-machine: started by EcuM. Same sequence as PRE_FULLCOM (Trcv NORMAL, Ctrl STOPPED, STARTED) to put network in listen-only state for wakeup validation.</p></div>
+    <div class="card"><p class="card-t">CHANGE_BAUDRATE</p><p class="card-b">Runtime baud rate change. Try direct CanIf_SetBaudrate first. If that fails → STOP, change baud rate on stopped controller, START again. Returns to FULL or SILENT or NO_COM depending on what was requested.</p></div>
+  </div>
+</div>
+
+<!-- ===== SUB-MACHINES ===== -->
+<div id="pn-submachines" class="pn">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="sm-btns"></div>
+  <div id="sm-display" class="card"></div>
+</div>
+
+<!-- ===== BOR ===== -->
+<div id="pn-bor" class="pn">
+  <div class="card">
+    <p class="card-t">BusOff Recovery Algorithm — S_FULLCOM sub-machine detail</p>
+    <p class="card-b">CanSM is the ONLY module responsible for CAN BusOff recovery. The algorithm has two levels (L1 = fast, L2 = slow). The key parameters are configured per network in CanSMManagerNetwork.</p>
+  </div>
+
+  <p class="sh">BOR two-level algorithm — step by step</p>
+  <div class="card">
+    <div id="bor-detail" style="font-size:13px;line-height:1.7;"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;" id="bor-btns"></div>
+  </div>
+
+  <p class="sh">BOR timing parameters</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-t">CanSMBorTimeL1 (fast recovery)</p><p class="card-b">Wait time after BusOff before re-enabling Tx. Used for the first N BusOff events (N = CanSMBorCounterL1ToL2). Typically short (e.g. 100ms). During this wait, controller is STARTED but PDU mode is TX_OFFLINE.</p></div>
+    <div class="card"><p class="card-t">CanSMBorTimeL2 (slow recovery)</p><p class="card-b">Wait time after BusOff when count ≥ CanSMBorCounterL1ToL2. Longer delay (e.g. 1000ms). Indicates repeated failures — bus may be permanently disrupted. OEM-defined escalation policy.</p></div>
+    <div class="card"><p class="card-t">CanSMBorCounterL1ToL2</p><p class="card-b">Number of consecutive BusOff events before switching from L1 to L2 recovery time. If G_BUS_OFF_PASSIVE is achieved (TX confirmation received) → reset counter to 0, back to L1.</p></div>
+    <div class="card"><p class="card-t">CanSMBorTimeTxEnsured</p><p class="card-b">When CanSMBorTxConfirmationPolling=FALSE: time after E_TX_ON before G_BUS_OFF_PASSIVE is evaluated. Ensures a frame was actually sent successfully. Used to confirm bus is truly healthy.</p></div>
+  </div>
+
+  <p class="sh">TX Confirmation Polling vs Timer (G_BUS_OFF_PASSIVE)</p>
+  <div class="card">
+    <p class="card-b"><strong>CanSMBorTxConfirmationPolling=FALSE:</strong> G_BUS_OFF_PASSIVE passes after CanSMBorTimeTxEnsured has elapsed since E_TX_ON. Time-based — simpler but may not guarantee actual Tx occurred.<br><br>
+    <strong>CanSMBorTxConfirmationPolling=TRUE:</strong> G_BUS_OFF_PASSIVE passes when CanIf_GetTxConfirmationState() returns CANIF_TX_RX_NOTIFICATION for ALL controllers of the network. Ensures at least one frame was actually acknowledged — more robust but requires polling.<br><br>
+    <strong>When G_BUS_OFF_PASSIVE passes:</strong> E_BUS_OFF_PASSIVE effect → Dem_SetEventStatus(CANSM_E_BUS_OFF, DEM_EVENT_STATUS_PASSED). BusOff counter reset. Network confirmed healthy.<br><br>
+    <strong>ECU passive mode during BOR:</strong> If CanSM_SetEcuPassive(TRUE) was called, E_TX_ON still sets PDU mode to CANIF_TX_OFFLINE_ACTIVE (not CANIF_ONLINE). Frames are simulated, not transmitted.</p>
+  </div>
+
+  <p class="sh">TxTimeout Exception (Partial Networking)</p>
+  <div class="card">
+    <p class="card-b">CanNm detects a Tx timeout for a partial network and calls <span class="fn">CanSM_TxTimeoutException(Channel)</span>. This triggers the S_TX_TIMEOUT_EXCEPTION sub-machine inside FULLCOM:<br>
+    1. Stop all controllers → wait for STOPPED indication<br>
+    2. Restart all controllers → wait for STARTED indication<br>
+    3. Re-enable PDU mode (CANIF_ONLINE or TX_OFFLINE_ACTIVE)<br><br>
+    This is different from BusOff recovery — it's a soft reset of the CAN controller without a full BusOff escalation. Used specifically for PN Tx timeout scenarios to unblock the network.</p>
+  </div>
+
+  <p class="sh">BusOff and DEM reporting</p>
+  <div class="card">
+    <p class="card-b">
+    On <strong>BusOff event (E_BUS_OFF):</strong> Dem_SetEventStatus(CANSM_E_BUS_OFF, DEM_EVENT_STATUS_PRE_FAILED) → PRE_FAILED immediately<br>
+    On <strong>recovery confirmed (E_BUS_OFF_PASSIVE):</strong> Dem_SetEventStatus(CANSM_E_BUS_OFF, DEM_EVENT_STATUS_PASSED)<br>
+    On <strong>BusOff in SILENTCOM_BOR also:</strong> E_BUS_OFF effect → Dem_SetEventStatus PRE_FAILED<br><br>
+    DEM debouncing is OEM-configured. PASSED only comes after TX confirmation. DTC is FAILED after DEM debounce configuration (typically requires N consecutive PRE_FAILED without PASSED). MIL illumination: DEM-assigned.</p>
+  </div>
+</div>
+
+<!-- ===== API ===== -->
+<div id="pn-api" class="pn">
+  <input type="text" class="si" id="api-search" placeholder="Filter APIs... (e.g. BusOff, Init, Transceiver)" oninput="filterApi(this.value)">
+
+  <p class="sh">Service Functions (called BY ComM / EcuM / Application)</p>
+  <table class="api-t">
+    <thead><tr><th>Function</th><th>SID</th><th>Mode</th><th>Key Behaviour</th></tr></thead>
+    <tbody id="api-body"></tbody>
+  </table>
+
+  <p class="sh" style="margin-top:1.5rem;">Callback Notifications (called BY CanIf → CanSM)</p>
+  <table class="api-t">
+    <thead><tr><th>Callback</th><th>SID</th><th>Source</th><th>What CanSM does</th></tr></thead>
+    <tbody>
+      <tr><td class="fn">CanSM_ControllerBusOff(ControllerId)</td><td>0x04</td><td>CanIf ← CanDrv BusOff ISR</td><td>Sets T_BUS_OFF trigger for the network this controller belongs to. In FULLCOM: → SILENTCOM_BOR. Reports to BswM(CANSM_BSWM_BUS_OFF), ComM(SILENT), DEM(PRE_FAILED). Reentrant for different controllers.</td></tr>
+      <tr><td class="fn">CanSM_ControllerModeIndication(ControllerId, Mode)</td><td>0x07</td><td>CanIf (async confirmation)</td><td>Stores confirmed controller mode internally. Advances active sub-machine when all controllers reach expected mode. Reentrant for different controllers.</td></tr>
+      <tr><td class="fn">CanSM_TransceiverModeIndication(TransceiverId, Mode)</td><td>0x09</td><td>CanIf ← CanTrcv</td><td>Advances active sub-machine when transceiver reaches expected mode. Note: SLEEP indication is IGNORED by CanSM (sleep set only by integration code). Reentrant for different transceivers.</td></tr>
+      <tr><td class="fn">CanSM_TxTimeoutException(Channel)</td><td>0x0b</td><td>CanNm (PN timeout)</td><td>Triggers S_TX_TIMEOUT_EXCEPTION sub-machine inside FULLCOM: stop all controllers, restart all controllers. Reentrant.</td></tr>
+      <tr><td class="fn">CanSM_ClearTrcvWufFlagIndication(Transceiver)</td><td>0x08</td><td>CanIf ← CanTrcv (PN)</td><td>Indicates completion of CanIf_ClearTrcvWufFlag async operation. Advances DeinitPnSupported sub-machine. Reentrant for different transceivers.</td></tr>
+      <tr><td class="fn">CanSM_CheckTransceiverWakeFlagIndication(Transceiver)</td><td>0x0a</td><td>CanIf ← CanTrcv (PN)</td><td>Indicates completion of CanIf_CheckTrcvWakeFlag async operation. Advances DeinitPnSupported sub-machine. Reentrant.</td></tr>
+      <tr><td class="fn">CanSM_ConfirmPnAvailability(TransceiverId)</td><td>0x06</td><td>CanIf (transceiver PN)</td><td>Transceiver running in PN mode. CanSM calls CanNm_ConfirmPnAvailability(channel). Reentrant.</td></tr>
+      <tr><td class="fn">CanSM_ConfirmCtrlPnAvailability(ControllerId)</td><td>0x15</td><td>CanIf (controller PN) [DRAFT]</td><td>Controller running in PN mode. CanSM calls CanNm_ConfirmPnAvailability(channel). R24-11 new addition.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sh" style="margin-top:1.5rem;">APIs CanSM calls on other modules</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div class="card"><p class="card-t">Called on CanIf</p><p class="card-b"><span class="fn">CanIf_SetControllerMode(ControllerId, Mode)</span> — STOPPED/STARTED/SLEEP<br><span class="fn">CanIf_SetTrcvMode(TransceiverId, Mode)</span> — NORMAL/STANDBY<br><span class="fn">CanIf_SetPduMode(ControllerId, Mode)</span> — ONLINE/TX_OFFLINE/TX_OFFLINE_ACTIVE<br><span class="fn">CanIf_GetPduMode(ControllerId, *ModePtr)</span><br><span class="fn">CanIf_SetBaudrate(ControllerId, BaudRateConfigID)</span><br><span class="fn">CanIf_GetTxConfirmationState(ControllerId)</span><br><span class="fn">CanIf_ClearTrcvWufFlag(TransceiverId)</span><br><span class="fn">CanIf_CheckTrcvWakeFlag(TransceiverId)</span></p></div>
+    <div class="card"><p class="card-t">Called on other modules</p><p class="card-b"><span class="fn">ComM_BusSM_ModeIndication(Channel, ComMode)</span> — on every mode change<br><span class="fn">BswM_CanSM_CurrentState(Network, State)</span> — on every state change<br><span class="fn">Dem_SetEventStatus(EventId, Status)</span> — on BusOff events<br><span class="fn">CanNm_ConfirmPnAvailability(Channel)</span> — on PN availability<br><span class="fn">Det_ReportError()</span> — development errors<br><span class="fn">Det_ReportRuntimeError()</span> — CANSM_E_MODE_REQUEST_TIMEOUT<br><span class="fn">User_GetBusOffDelay(Network, *delayCycles)</span> — optional BOR jitter</p></div>
+  </div>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div id="pn-seq" class="pn">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="seq-btns"></div>
+  <div id="seq-display" class="card"></div>
+</div>
+
+<!-- ===== ERRORS ===== -->
+<div id="pn-errors" class="pn">
+  <p class="sh">Development Errors (reported via Det_ReportError)</p>
+  <div class="card">
+    <div class="er" style="font-weight:500;font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;border-bottom:0.5px solid var(--color-border-secondary);"><span>Value</span><span>Error Code</span><span>Cause & Debug Tip</span></div>
+    <div class="er"><span class="er-n">0x01</span><span class="ec">CANSM_E_UNINIT</span><span style="color:var(--color-text-secondary)">API called before CanSM_Init(). Check EcuM init order. CanSM_Init must be called before ComM starts requesting modes.</span></div>
+    <div class="er"><span class="er-n">0x02</span><span class="ec">CANSM_E_PARAM_POINTER</span><span style="color:var(--color-text-secondary)">NULL pointer passed (e.g. CanSM_GetCurrentComMode with NULL ComM_ModePtr, or CanSM_GetVersionInfo with NULL). Always check pointer params.</span></div>
+    <div class="er"><span class="er-n">0x03</span><span class="ec">CANSM_E_INVALID_NETWORK_HANDLE</span><span style="color:var(--color-text-secondary)">NetworkHandle not in CanSMComMNetworkHandleRef config. Check ComM-to-CanSM channel mapping. Most common integration error.</span></div>
+    <div class="er"><span class="er-n">0x04</span><span class="ec">CANSM_E_PARAM_CONTROLLER</span><span style="color:var(--color-text-secondary)">ControllerId in callback (ControllerBusOff, ControllerModeIndication) not configured as CanSMControllerId. Check CanSMController references match CanIf controller IDs.</span></div>
+    <div class="er"><span class="er-n">0x05</span><span class="ec">CANSM_E_PARAM_TRANSCEIVER</span><span style="color:var(--color-text-secondary)">TransceiverId in callback not configured as CanSMTransceiverId. Check CanSMTransceiverId reference matches CanIf transceiver ID.</span></div>
+    <div class="er"><span class="er-n">0x0B</span><span class="ec">CANSM_E_NOT_IN_NO_COM</span><span style="color:var(--color-text-secondary)">CanSM_DeInit called while one or more networks NOT in NOCOM state. Caller must wait for all networks to reach NOCOM before DeInit.</span></div>
+  </div>
+
+  <p class="sh">Runtime Errors (reported via Det_ReportRuntimeError)</p>
+  <div class="card">
+    <div class="er"><span class="er-n">0x0A</span><span class="ec">CANSM_E_MODE_REQUEST_TIMEOUT</span><span style="color:var(--color-text-secondary)">Mode request (SetControllerMode, SetTrcvMode, ClearTrcvWufFlag, CheckTrcvWakeFlag) repeated &gt; CanSMModeRequestRepetitionMax times without getting E_OK or callback. CanSM tries to go back to NO_COM. Debug: Check CanIf/CanDrv mode transitions, CanSMModeRequestRepetitionTime too short, missing mode indication from CanDrv.</span></div>
+  </div>
+
+  <p class="sh">Extended Production Error (reported to DEM)</p>
+  <div class="card">
+    <p class="card-b"><strong>CANSM_E_BUS_OFF:</strong> Bus-off detection event per CAN network.<br>
+    PRE_FAILED: immediately when CanSM_ControllerBusOff() triggers T_BUS_OFF / E_BUS_OFF<br>
+    PASSED: after successful Tx frame confirmed (G_BUS_OFF_PASSIVE / E_BUS_OFF_PASSIVE)<br>
+    FAILED: after DEM debounce (OEM-configured). MIL: DEM-assigned.<br><br>
+    Debug: If CANSM_E_BUS_OFF keeps going FAILED without PASSED → BOR is not converging. Check CanSMBorTimeL1/L2, CanSMBorTimeTxEnsured, check if bus is physically disrupted (wiring, termination, grounding).</p>
+  </div>
+
+  <p class="sh">Debugging checklist — integration testing</p>
+  <div class="card">
+    <p class="card-b">
+    <strong>1. Network never reaches FULLCOM</strong> — Is CanSM_Init called? Is ComM requesting FULL_COM? Is CanSMModeRequestRepetitionTime adequate? Is CanSM_MainFunction scheduled? Is CanIf_SetControllerMode being called and do mode indications arrive (CanSM_ControllerModeIndication callback)?<br><br>
+    <strong>2. CANSM_E_MODE_REQUEST_TIMEOUT fires repeatedly</strong> — CanDrv not responding to mode requests. Check Can_SetControllerMode returns E_OK. Check CanDrv ISR for mode indications. Increase CanSMModeRequestRepetitionTime or check CanMainFunctionModePeriod in CanDrv.<br><br>
+    <strong>3. BusOff not recovered</strong> — Check CanSMBorTimeL1 matches physical bus recovery time (ISO 11898: 128×11 bit times). Check CanSMBorTxConfirmationPolling setting. If TRUE: is Tx working at all after recovery? Check CanIf_GetTxConfirmationState.<br><br>
+    <strong>4. ComM_BusSM_ModeIndication not called on mode change</strong> — Effects run only in CanSM_MainFunction context. Verify SchM calls CanSM_MainFunction at configured period (CanSMMainFunctionTimePeriod).<br><br>
+    <strong>5. Network stuck in PRE_NOCOM or PRE_FULLCOM</strong> — Sub-machine waiting for mode indication that never comes. Add DET tracing. Check if CANSM_E_MODE_REQUEST_TIMEOUT is fired. Check CanSMModeRequestRepetitionMax is not 0.<br><br>
+    <strong>6. CanSM_DeInit raises CANSM_E_NOT_IN_NO_COM</strong> — ComM must request COMM_NO_COMMUNICATION for all channels before DeInit. Verify EcuM shutdown sequence.<br><br>
+    <strong>7. ECU passive mode not working</strong> — Is CanSMTxOfflineActiveSupport=TRUE? Was CanSM_SetEcuPassive(TRUE) called? PDU mode should be TX_OFFLINE_ACTIVE when in FULLCOM with ECU passive. Check CanIfTxOfflineActiveSupport=TRUE in CanIf.</p>
+  </div>
+</div>
+
+<!-- ===== DAVINCI CONFIG ===== -->
+<div id="pn-config" class="pn">
+  <div class="card"><p class="card-t">DaVinci Configurator — CanSM setup workflow</p><p class="card-b">Navigate BSW → CanSM. Configure: CanSMGeneral → CanSMConfiguration → CanSMManagerNetwork (one per CAN bus).</p></div>
+
+  <p class="sh">CanSMGeneral — global pre-compile settings</p>
+  <div class="card">
+    <div class="cfg-r"><span class="cfg-k">CanSMDevErrorDetect</span><span class="cfg-v">TRUE in development builds (enables all DET error reporting), FALSE in production. Essential for debugging integration issues.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMMainFunctionTimePeriod</span><span class="cfg-v">Cycle time (seconds) for CanSM_MainFunction. Must match OS task period. All state machine effects execute at this rate — too slow = slow mode transitions.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMSetBaudrateApi</span><span class="cfg-v">TRUE to enable CanSM_SetBaudrate() API. Only enable if runtime baud rate switching is needed (e.g. vehicle speed-dependent CAN rate).</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMTxOfflineActiveSupport</span><span class="cfg-v">TRUE to enable CanSM_SetEcuPassive() API. Required for ECU passive (listen-only diagnostic) mode support. Must also enable CanIfTxOfflineActiveSupport in CanIf.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMPncSupport</span><span class="cfg-v">TRUE to enable Partial Networking support (PN). Enables DeinitPnSupported sub-machine path in PRE_NOCOM. Only if ComMPncSupport is also enabled in ComM.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMGetBusOffDelayFunction</span><span class="cfg-v">Optional: function name of callout providing additional random jitter for BOR. Used to spread BOR recovery timing across multiple ECUs to avoid simultaneous bus access. Requires CanSMEnableBusOffDelay=TRUE per network.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMVersionInfoApi</span><span class="cfg-v">TRUE to enable CanSM_GetVersionInfo() API.</span></div>
+  </div>
+
+  <p class="sh">CanSMConfiguration — global timing</p>
+  <div class="card">
+    <div class="cfg-r"><span class="cfg-k">CanSMModeRequestRepetitionMax</span><span class="cfg-v">Max times to retry a mode request (SetControllerMode, SetTrcvMode etc.) before reporting CANSM_E_MODE_REQUEST_TIMEOUT. Range: 0–255. Typical: 3–10. Too low = spurious timeouts; too high = long recovery time.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMModeRequestRepetitionTime</span><span class="cfg-v">Interval (seconds) between mode request retries. Must be longer than CanMainFunctionModePeriod in CanDrv to allow mode indication to arrive. Typical: 0.01–0.1s.</span></div>
+  </div>
+
+  <p class="sh">CanSMManagerNetwork — one per CAN network (most important!)</p>
+  <div class="card">
+    <div class="cfg-r"><span class="cfg-k">CanSMComMNetworkHandleRef</span><span class="cfg-v">Reference to the ComM channel this network corresponds to. This is the NetworkHandleType used in CanSM_RequestComMode(). Must match exactly — wrong reference = CANSM_E_INVALID_NETWORK_HANDLE.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMTransceiverId</span><span class="cfg-v">Optional reference to CanIfTrcvCfg. If not configured: all transceiver steps are bypassed (immediately treated as done). Configure for networks that have a physical transceiver chip.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMBorTimeL1</span><span class="cfg-v">Fast BOR wait time (seconds). Applied for first CanSMBorCounterL1ToL2 BusOff events. Typical: 0.1–0.2s (ISO 11898 requires min ~1.4ms for 128×11 bits at 500kbit/s).</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMBorTimeL2</span><span class="cfg-v">Slow BOR wait time (seconds). Applied when BusOff count ≥ CanSMBorCounterL1ToL2. Typical: 1–5s. OEM-specified — longer delay assumes serious bus fault.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMBorCounterL1ToL2</span><span class="cfg-v">Number of L1-level BusOff events before switching to L2. E.g. value=3: first 3 BusOffs use L1 timing, 4th and beyond use L2. Counter resets when G_BUS_OFF_PASSIVE is reached.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMBorTimeTxEnsured</span><span class="cfg-v">Time (seconds) after E_TX_ON before G_BUS_OFF_PASSIVE evaluates (when polling=FALSE). Ensure at least one Tx cycle completes. Typical: 0.01–0.2s. Only used when CanSMBorTxConfirmationPolling=FALSE.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMBorTxConfirmationPolling</span><span class="cfg-v">FALSE: time-based G_BUS_OFF_PASSIVE (wait CanSMBorTimeTxEnsured). TRUE: poll CanIf_GetTxConfirmationState — more robust. Set TRUE for safety-critical networks.</span></div>
+    <div class="cfg-r"><span class="cfg-k">CanSMEnableBusOffDelay</span><span class="cfg-v">TRUE to add random delay from CanSMGetBusOffDelayFunction to L1/L2 times. Prevents multiple ECUs from recovering simultaneously and creating BusOff cascade. OEM feature.</span></div>
+  </div>
+
+  <p class="sh">CanSMController — one per CAN controller per network</p>
+  <div class="card">
+    <div class="cfg-r"><span class="cfg-k">CanSMControllerId</span><span class="cfg-v">Symbolic name reference to CanIfCtrlCfg. Links this network's controller to the CanIf controller handle. Multiple controllers per network: add multiple CanSMController sub-containers.</span></div>
+  </div>
+
+  <p class="sh">CanSMDemEventParameterRefs</p>
+  <div class="card">
+    <div class="cfg-r"><span class="cfg-k">CANSM_E_BUS_OFF (EventId ref)</span><span class="cfg-v">Reference to DEM event configuration for bus-off production error. DEM handles debouncing and DTC storage. Required if bus-off detection needs to be reported as a DTC.</span></div>
+  </div>
+
+  <p class="sh">Step-by-step DaVinci configuration workflow</p>
+  <div class="card">
+    <p class="card-b">
+    <strong>Step 1: CanSMGeneral</strong> — Set CanSMDevErrorDetect=TRUE, CanSMMainFunctionTimePeriod (match OS task), enable optional APIs (SetBaudrateApi, TxOfflineActiveSupport, PncSupport).<br>
+    <strong>Step 2: CanSMConfiguration</strong> — Set CanSMModeRequestRepetitionMax (e.g. 5) and CanSMModeRequestRepetitionTime (e.g. 0.05s).<br>
+    <strong>Step 3: Add CanSMManagerNetwork</strong> — one per physical CAN bus (e.g. HS-CAN, MS-CAN, LIN is different module). Set CanSMComMNetworkHandleRef → must point to correct ComM channel.<br>
+    <strong>Step 4: BOR parameters per network</strong> — Set BorTimeL1, BorTimeL2, BorCounterL1ToL2, BorTimeTxEnsured, BorTxConfirmationPolling. Consult OEM AUTOSAR spec for values.<br>
+    <strong>Step 5: CanSMController per network</strong> — Add CanSMController sub-container for each physical CAN controller on this network. Set CanSMControllerId → reference to CanIfCtrlCfg symbolic name.<br>
+    <strong>Step 6: CanSMTransceiverId (if applicable)</strong> — Reference CanIfTrcvCfg if a transceiver is present. Leave unset if no transceiver (standalone CAN controller).<br>
+    <strong>Step 7: DEM event reference</strong> — Set CANSM_E_BUS_OFF reference if DTC reporting needed.<br>
+    <strong>Step 8: OS task</strong> — Add CanSM_MainFunction to a BSW task running at CanSMMainFunctionTimePeriod. Verify SchM exclusive areas configured for CanSM.<br>
+    <strong>Step 9: Validate cross-references</strong> — CanSMComMNetworkHandleRef ↔ ComM channel, CanSMControllerId ↔ CanIf controller, CanSMTransceiverId ↔ CanIf transceiver, CanSMEnableBusOffDelay ↔ callout function exists.</p>
+  </div>
+
+  <p class="sh">Common DaVinci integration mistakes</p>
+  <div class="card">
+    <p class="card-b">
+    • CanSMComMNetworkHandleRef pointing to wrong ComM channel → all CanSM_RequestComMode calls return CANSM_E_INVALID_NETWORK_HANDLE<br>
+    • CanSMControllerId referencing wrong CanIf controller → BusOff callback received but not matched to any network → CANSM_E_PARAM_CONTROLLER<br>
+    • CanSMModeRequestRepetitionTime shorter than CanMainFunctionModePeriod → mode indication never arrives in time → repeated timeouts<br>
+    • CanSMBorTimeL1 too short → BOR recovery declared successful before physical bus is stable → immediate re-BusOff loop<br>
+    • Forgetting to add CanSM_MainFunction to OS task → no state machine effects ever execute → network stuck in transition state<br>
+    • CanSMTxOfflineActiveSupport=TRUE but CanIfTxOfflineActiveSupport=FALSE in CanIf → CanIf_SetPduMode(TX_OFFLINE_ACTIVE) silently ignored<br>
+    • CanSMPncSupport=TRUE but CanSMTransceiverId not set → PN sub-machine entered but transceiver operations bypassed → undefined behavior in DeinitPnSupported path</p>
+  </div>
+</div>
+
+<script>
+const OV_DETAILS = {
+  comm: '<strong>ComM (Communication Manager):</strong> Arbitrates communication mode requests from application SWCs. When an SWC needs the bus, ComM requests FULL_COM from CanSM. When bus is idle, requests SILENT or NO_COM. One ComM channel per CAN network handle. ComM also handles NM wake-up coordination.',
+  bswm: '<strong>BswM (BSW Mode Manager):</strong> Receives CanSM mode change notifications via BswM_CanSM_CurrentState(). BswM uses these state changes to trigger mode arbitration rules (e.g. start/stop COM I-PDU groups, control application behavior based on bus availability).',
+  cansm: '<strong>CanSM (this module):</strong> The traffic controller between ComM and CanIf. Per CAN network: manages mode transitions, handles BusOff recovery, controls PDU modes. Does NOT touch hardware directly — everything through CanIf. State machine effects run in CanSM_MainFunction context (periodic task), not in ISR context.',
+  canif: '<strong>CanIf (CAN Interface):</strong> CanSM uses 8 CanIf APIs to control the stack below. Key point: CanIf_SetPduMode is called by CanSM — CANIF_ONLINE, CANIF_TX_OFFLINE, CANIF_TX_OFFLINE_ACTIVE. CANIF_OFFLINE is automatic (set by CanIf when controller not started). CanIf confirms mode changes via CanSM callbacks.',
+};
+function showOvD(id) {
+  const d = document.getElementById('ov-detail');
+  d.innerHTML = OV_DETAILS[id]; d.style.display = 'block';
+}
+
+const APIS = [
+  {fn:'CanSM_Init(ConfigPtr)',sid:'0x00',mode:'SYNC',d:'Initialize all network state machines → NOT_INITIALIZED→NOCOM sequence begins. Called by EcuM. Non-reentrant. ConfigPtr = post-build config. Does NOT notify ComM after init.'},
+  {fn:'CanSM_DeInit()',sid:'0x14',mode:'SYNC',d:'De-init all networks → NOT_INITIALIZED. Caller must ensure all networks are in NOCOM first. Reports CANSM_E_NOT_IN_NO_COM if violated. Non-reentrant.'},
+  {fn:'CanSM_RequestComMode(network, ComM_Mode)',sid:'0x02',mode:'ASYNC',d:'Main API called by ComM. Requests FULL/SILENT/NO_COMMUNICATION. Stores request; actual transition happens in CanSM_MainFunction. Returns E_OK if accepted, E_NOT_OK if uninit or invalid handle. Reentrant for different networks.'},
+  {fn:'CanSM_GetCurrentComMode(network, *ModePtr)',sid:'0x03',mode:'SYNC',d:'Poll current ComM mode for a network. Returns E_NOT_OK until CanSM_Init called. Fills *ModePtr with COMM_NO/SILENT/FULL_COMMUNICATION. Reentrant.'},
+  {fn:'CanSM_StartWakeupSource(network)',sid:'0x11',mode:'SYNC',d:'Called by EcuM to start wakeup validation on this network. Triggers T_START_WAKEUP_SOURCE → enters CANSM_BSM_WUVALIDATION sub-machine. Non-reentrant. Returns E_OK if accepted.'},
+  {fn:'CanSM_StopWakeupSource(network)',sid:'0x12',mode:'SYNC',d:'Called by EcuM to stop wakeup source. Triggers T_STOP_WAKEUP_SOURCE → exits WUVALIDATION back to PRE_NOCOM. Non-reentrant.'},
+  {fn:'CanSM_SetBaudrate(Network, BaudRateConfigID)',sid:'0x0d',mode:'SYNC',d:'Optional (CanSMSetBaudrateApi=TRUE). Only accepted when network is in FULL_COM. Triggers CHANGE_BAUDRATE sub-machine. Reentrant for different networks.'},
+  {fn:'CanSM_SetEcuPassive(CanSM_Passive)',sid:'0x13',mode:'SYNC',d:'Optional (CanSMTxOfflineActiveSupport=TRUE). TRUE → all CANIF_ONLINE channels → CANIF_TX_OFFLINE_ACTIVE (receive only, simulated Tx). FALSE → reverse. Non-reentrant.'},
+  {fn:'CanSM_GetVersionInfo(*VersionInfo)',sid:'0x01',mode:'SYNC',d:'Read module version. Reentrant. Reports CANSM_E_PARAM_POINTER if NULL pointer.'},
+  {fn:'CanSM_MainFunction()',sid:'0x05',mode:'SCHED',d:'Scheduled by OS at CanSMMainFunctionTimePeriod. Executes ALL state machine effects. Must be called or nothing moves. Non-reentrant. No return value.'},
+];
+function buildApi() {
+  document.getElementById('api-body').innerHTML = APIS.map(a=>`<tr>
+    <td class="fn">${a.fn}</td>
+    <td style="font-family:var(--font-mono);font-size:11px">${a.sid}</td>
+    <td><span class="badge ${a.mode==='SYNC'?'b-sync':a.mode==='ASYNC'?'b-async':'b-cb'}">${a.mode}</span></td>
+    <td>${a.d}</td>
+  </tr>`).join('');
+}
+function filterApi(q) {
+  document.querySelectorAll('#api-body tr').forEach(r=>{
+    r.style.display = !q || r.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+const BOR_STEPS = [
+  '<strong>Step 1: BusOff detected</strong><br>CanDrv detects TEC &gt; 255 → calls CanIf_ControllerBusOff() → CanIf calls CanSM_ControllerBusOff(ControllerId). CanSM sets T_BUS_OFF trigger. E_BUS_OFF effect:<br>1. BswM_CanSM_CurrentState(network, CANSM_BSWM_BUS_OFF)<br>2. ComM_BusSM_ModeIndication(channel, COMM_SILENT_COMMUNICATION)<br>3. Dem_SetEventStatus(CANSM_E_BUS_OFF, DEM_EVENT_STATUS_PRE_FAILED)<br>Network enters S_RESTART_CC state inside FULLCOM or SILENTCOM_BOR.',
+  '<strong>Step 2: Controller restart (S_RESTART_CC)</strong><br>CanSM calls CanIf_SetControllerMode(CS_STARTED) for all network controllers. This re-initializes the CAN controller hardware — TEC/REC counters reset. Controller is back on bus but PDU mode is still TX_OFFLINE (E_TX_OFF effect does nothing — TX_OFFLINE is the default after restart). Waits for CanSM_ControllerModeIndication(CS_STARTED) from all controllers.',
+  '<strong>Step 3: L1 or L2 wait timer (G_TX_ON guard)</strong><br>After controller restart confirmed (T_RESTART_CC_INDICATED), CanSM moves to S_TX_OFF state and starts a wait timer. Which timer?<br>If BusOff count &lt; CanSMBorCounterL1ToL2 → wait <strong>CanSMBorTimeL1</strong> (fast)<br>If BusOff count ≥ CanSMBorCounterL1ToL2 → wait <strong>CanSMBorTimeL2</strong> (slow)<br>If CanSMEnableBusOffDelay=TRUE → add random jitter from User_GetBusOffDelay callout. Timer countdown runs inside CanSM_MainFunction.',
+  '<strong>Step 4: Re-enable Tx (E_TX_ON effect)</strong><br>When wait timer expires and G_TX_ON guard passes, E_TX_ON effect executes:<br>1. CanIf_SetPduMode(CANIF_ONLINE) — or CANIF_TX_OFFLINE_ACTIVE if ECU passive active<br>2. BswM_CanSM_CurrentState(network, CANSM_BSWM_FULL_COMMUNICATION)<br>3. ComM_BusSM_ModeIndication(channel, COMM_FULL_COMMUNICATION)<br>Network is now in S_NO_BUS_OFF state — Tx enabled. BusOff recovery period begins.',
+  '<strong>Step 5: Confirm bus health (G_BUS_OFF_PASSIVE)</strong><br>CanSM monitors for proof that the bus is actually working:<br><strong>If CanSMBorTxConfirmationPolling=FALSE:</strong> Wait CanSMBorTimeTxEnsured after E_TX_ON. When timer expires → G_BUS_OFF_PASSIVE passes.<br><strong>If CanSMBorTxConfirmationPolling=TRUE:</strong> Poll CanIf_GetTxConfirmationState(). When ALL controllers return CANIF_TX_RX_NOTIFICATION → G_BUS_OFF_PASSIVE passes.<br>E_BUS_OFF_PASSIVE effect: Dem_SetEventStatus(CANSM_E_BUS_OFF, DEM_EVENT_STATUS_PASSED). BusOff counter reset to 0 → back to L1 timing for next event.',
+];
+
+function buildBor() {
+  document.getElementById('bor-detail').innerHTML = BOR_STEPS[0];
+  document.getElementById('bor-btns').innerHTML = ['1. BusOff detected','2. Controller restart','3. L1/L2 wait','4. Re-enable Tx','5. Confirm health'].map((l,i)=>`<button class="step-b${i===0?' sel':''}" onclick="setBor(${i})">${l}</button>`).join('');
+}
+function setBor(i) {
+  document.getElementById('bor-detail').innerHTML = BOR_STEPS[i];
+  document.querySelectorAll('#bor-btns .step-b').forEach((b,j)=>b.classList.toggle('sel',i===j));
+}
+
+const SMs = [
+  {name:'PRE_FULLCOM', html:`<p class="card-t">CANSM_BSM_S_PRE_FULLCOM — Network startup sequence</p>
+  <p class="card-b" style="margin-bottom:12px">Entered when FULL_COM requested and network was in NOCOM. Three steps must complete in sequence. If transceiver not configured → step 1 immediately passes.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;text-align:center">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 1: S_TRCV_NORMAL</div>
+      <div style="color:var(--color-text-secondary);">CanIf_SetTrcvMode(CANTRCV_TRCVMODE_NORMAL)<br>Wait: CanSM_TransceiverModeIndication</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;text-align:center">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 2: S_CC_STOPPED</div>
+      <div style="color:var(--color-text-secondary);">CanIf_SetControllerMode(CAN_CS_STOPPED)<br>Wait: CanSM_ControllerModeIndication (all)</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;text-align:center">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 3: S_CC_STARTED</div>
+      <div style="color:var(--color-text-secondary);">CanIf_SetControllerMode(CAN_CS_STARTED)<br>Wait: CanSM_ControllerModeIndication (all)</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-top:12px;">Why STOPPED before STARTED? The STOPPED step re-initializes the CAN controller hardware registers cleanly before going active. This prevents a controller that was in SLEEP from jumping directly to STARTED without initialization.</p>`},
+  {name:'PRE_NOCOM (No PN)', html:`<p class="card-t">CANSM_BSM_DeinitPnNotSupported — Standard shutdown (no PN)</p>
+  <p class="card-b" style="margin-bottom:12px">Entered from any active state when NO_COM is requested and CanTrcvPnEnabled=FALSE (or no transceiver). Four steps sequence the hardware to low power.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 1: S_CC_STOPPED</div>
+      <div style="color:var(--color-text-secondary);">SetControllerMode(CAN_CS_STOPPED) all controllers. Wait for all indications.</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 2: S_CC_SLEEP</div>
+      <div style="color:var(--color-text-secondary);">SetControllerMode(CAN_CS_SLEEP) all controllers. Wait for all indications.</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 3: S_TRCV_NORMAL</div>
+      <div style="color:var(--color-text-secondary);">SetTrcvMode(CANTRCV_TRCVMODE_NORMAL). Wait indication. (Bypassed if no transceiver.)</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;">
+      <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">Step 4: S_TRCV_STANDBY</div>
+      <div style="color:var(--color-text-secondary);">SetTrcvMode(CANTRCV_TRCVMODE_STANDBY). Wait indication. Then → NOCOM.</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-top:12px;">Key insight: TRCV goes NORMAL then STANDBY (not directly STANDBY) because transitioning to STANDBY requires passing through NORMAL first — the transceiver HW state machine does not allow skipping NORMAL.</p>`},
+  {name:'PRE_NOCOM (PN)', html:`<p class="card-t">CANSM_BSM_DeinitPnSupported — PN-aware shutdown</p>
+  <p class="card-b" style="margin-bottom:12px">Used when CanTrcvPnEnabled=TRUE. More complex — must handle Wake-up Flag (WUF) to ensure PN peers receive the sleep announcement properly.</p>
+  <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8;">
+    Step 1: <strong>S_PN_CLEAR_WUF</strong> — CanIf_ClearTrcvWufFlag(). Wait CanSM_ClearTrcvWufFlagIndication.<br>
+    Step 2: <strong>S_CC_STOPPED</strong> — All controllers → STOPPED. Wait indications.<br>
+    Step 3: <strong>S_TRCV_NORMAL</strong> — Transceiver → NORMAL. Wait indication.<br>
+    Step 4: <strong>S_TRCV_STANDBY</strong> — Transceiver → STANDBY. Wait indication.<br>
+    Step 5: <strong>S_CC_SLEEP</strong> — All controllers → SLEEP. Wait indications.<br>
+    Step 6: <strong>S_CHECK_WFLAG_IN_CC_SLEEP or _NOT_CC_SLEEP</strong> — CanIf_CheckTrcvWakeFlag(). Wait CanSM_CheckTransceiverWakeFlagIndication. Junction evaluates result.<br>
+    Step 7: Exit to NOCOM.<br><br>
+    The WUF check at the end verifies whether the transceiver detected a wakeup during the shutdown sequence. If yes → different exit path. This is critical for PN: a wakeup during shutdown must be handled gracefully, not ignored.
+  </div>`},
+  {name:'WUVALIDATION', html:`<p class="card-t">CANSM_BSM_WUVALIDATION — Wakeup validation sub-machine</p>
+  <p class="card-b" style="margin-bottom:12px">Started by EcuM via CanSM_StartWakeupSource(). The same three-step sequence as PRE_FULLCOM but with a final WAIT_WUVALIDATION_LEAVE state where CanSM waits for EcuM to either call StopWakeupSource or RequestComMode(FULL_COM).</p>
+  <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8;">
+    Step 1: <strong>S_TRCV_NORMAL</strong> — Transceiver → NORMAL (enables physical reception for wakeup validation)<br>
+    Step 2: <strong>S_CC_STOPPED</strong> — Controller → STOPPED (safe intermediate state)<br>
+    Step 3: <strong>S_CC_STARTED</strong> — Controller → STARTED (bus listening enabled — first valid frame = wakeup validation OK)<br>
+    Final: <strong>WAIT_WUVALIDATION_LEAVE</strong> — Network stays here until:<br>
+    • EcuM calls CanSM_StopWakeupSource() → network goes back to PRE_NOCOM<br>
+    • ComM calls CanSM_RequestComMode(FULL_COM) → network goes to FULLCOM<br><br>
+    PDU mode during WUVALIDATION: Controller is STARTED but CanSM has NOT called CanIf_SetPduMode(ONLINE). PDU mode defaults to TX_OFFLINE after controller start — the network receives but does not transmit during validation.
+  </div>`},
+  {name:'CHANGE_BAUDRATE', html:`<p class="card-t">CANSM_BSM_S_CHANGE_BAUDRATE — Runtime baud rate change</p>
+  <p class="card-b" style="margin-bottom:12px">Only entered from FULLCOM when CanSM_SetBaudrate() is called. First tries direct change (no reinitialization needed), falls back to STOP→CHANGE→START if direct change fails.</p>
+  <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8;">
+    <strong>Entry action: DO_SET_BAUDRATE_DIRECT</strong><br>
+    Calls CanIf_SetBaudrate(ControllerId, BaudRateConfigID) for all network controllers.<br><br>
+    <strong>G_SET_BAUDRATE_DIRECT_OK</strong> — all returned E_OK:<br>
+    → if last ComM request was NO_COM → exit to NO_COM path<br>
+    → otherwise → exit to FULL_OR_SILENT_COM path (back to FULLCOM or SILENTCOM)<br><br>
+    <strong>G_SET_BAUDRATE_DIRECT_NOT_OK</strong> — any returned E_NOT_OK:<br>
+    → Enter CHANGE_BAUDRATE_PROCEED sub-flow:<br>
+    1. Stop all controllers (S_CC_STOPPED)<br>
+    2. E_CHANGE_BAUDRATE: ComM_BusSM_ModeIndication(NO_COM) + call CanIf_SetBaudrate on stopped controllers<br>
+    3. Restart all controllers (S_CC_STARTED)<br>
+    4. Exit to FULL/SILENT/NO_COM based on last ComM request<br><br>
+    The direct path avoids bus disruption when the CAN controller supports runtime baud rate change without re-init.
+  </div>`},
+];
+
+function buildSm() {
+  document.getElementById('sm-btns').innerHTML = SMs.map((s,i)=>`<button class="step-b${i===0?' sel':''}" onclick="showSm(${i})">${s.name}</button>`).join('');
+  document.getElementById('sm-display').innerHTML = SMs[0].html;
+}
+function showSm(i) {
+  document.querySelectorAll('#sm-btns .step-b').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('sm-display').innerHTML = SMs[i].html;
+}
+
+const SEQS = [
+  {name:'Network startup (NOCOM→FULLCOM)', html:`<p class="card-t">Full sequence: NOCOM → FULLCOM</p>
+  <svg width="100%" viewBox="0 0 680 360" role="img"><title>CanSM NOCOM to FULLCOM sequence</title>
+  <defs><marker id="sq" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="10" y="10" width="70" height="28" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="45" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">ComM</text>
+  <rect x="130" y="10" width="70" height="28" rx="6" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="165" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">CanSM</text>
+  <rect x="260" y="10" width="70" height="28" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="295" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">CanIf</text>
+  <rect x="390" y="10" width="70" height="28" rx="6" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/><text x="425" y="28" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F">BswM</text>
+  <line x1="45" y1="38" x2="45" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="165" y1="38" x2="165" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="295" y1="38" x2="295" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="425" y1="38" x2="425" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="45" y1="58" x2="158" y2="58" stroke="#534AB7" stroke-width="1" marker-end="url(#sq)"/><text x="101" y="52" text-anchor="middle" font-size="9" fill="#534AB7">RequestComMode(FULL)</text>
+  <text x="165" y="78" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[CanSM_MainFunction: PRE_FULLCOM entered]</text>
+  <line x1="165" y1="88" x2="288" y2="88" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq)"/><text x="226" y="82" text-anchor="middle" font-size="9" fill="#3B6D11">SetTrcvMode(NORMAL)</text>
+  <line x1="295" y1="108" x2="172" y2="108" stroke="#BA7517" stroke-width="0.8" marker-end="url(#sq)" stroke-dasharray="3 2"/><text x="233" y="102" text-anchor="middle" font-size="9" fill="#888780">TrcvModeIndication(NORMAL)</text>
+  <line x1="165" y1="128" x2="288" y2="128" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq)"/><text x="226" y="122" text-anchor="middle" font-size="9" fill="#3B6D11">SetControllerMode(STOPPED)</text>
+  <line x1="295" y1="148" x2="172" y2="148" stroke="#BA7517" stroke-width="0.8" marker-end="url(#sq)" stroke-dasharray="3 2"/><text x="233" y="142" text-anchor="middle" font-size="9" fill="#888780">ControllerModeIndication(STOPPED)</text>
+  <line x1="165" y1="168" x2="288" y2="168" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq)"/><text x="226" y="162" text-anchor="middle" font-size="9" fill="#3B6D11">SetControllerMode(STARTED)</text>
+  <line x1="295" y1="188" x2="172" y2="188" stroke="#BA7517" stroke-width="0.8" marker-end="url(#sq)" stroke-dasharray="3 2"/><text x="233" y="182" text-anchor="middle" font-size="9" fill="#888780">ControllerModeIndication(STARTED)</text>
+  <text x="165" y="208" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[E_FULL_COM effect in CanSM_MainFunction]</text>
+  <line x1="165" y1="218" x2="288" y2="218" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq)"/><text x="226" y="212" text-anchor="middle" font-size="9" fill="#3B6D11">SetPduMode(CANIF_ONLINE)</text>
+  <line x1="165" y1="238" x2="52" y2="238" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq)"/><text x="108" y="232" text-anchor="middle" font-size="9" fill="#3B6D11">ComM_BusSM_ModeIndication(FULL)</text>
+  <line x1="165" y1="258" x2="418" y2="258" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq)"/><text x="291" y="252" text-anchor="middle" font-size="9" fill="#3B6D11">BswM_CanSM_CurrentState(FULL_COMMUNICATION)</text>
+  <text x="340" y="280" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">Network now in FULLCOM — Tx and Rx enabled</text>
+  </svg>`},
+  {name:'BusOff recovery sequence', html:`<p class="card-t">BusOff detection and L1 recovery sequence</p>
+  <svg width="100%" viewBox="0 0 680 360" role="img"><title>CanSM BusOff recovery L1 sequence</title>
+  <defs><marker id="sq2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="5"   y="10" width="60" height="26" rx="5" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/><text x="35" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#27500A">CanSM</text>
+  <rect x="105" y="10" width="60" height="26" rx="5" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/><text x="135" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#633806">CanIf</text>
+  <rect x="215" y="10" width="60" height="26" rx="5" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/><text x="245" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#791F1F">CanDrv</text>
+  <rect x="315" y="10" width="60" height="26" rx="5" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text x="345" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#3C3489">BswM</text>
+  <rect x="415" y="10" width="60" height="26" rx="5" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/><text x="445" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#444441">ComM</text>
+  <rect x="515" y="10" width="60" height="26" rx="5" fill="#FCEBEB" stroke="#BA7517" stroke-width="0.5"/><text x="545" y="27" text-anchor="middle" font-size="10" font-weight="500" fill="#791F1F">DEM</text>
+  <line x1="35" y1="36" x2="35" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="135" y1="36" x2="135" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="245" y1="36" x2="245" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="345" y1="36" x2="345" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="445" y1="36" x2="445" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="545" y1="36" x2="545" y2="350" stroke="var(--color-border-tertiary)" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <line x1="245" y1="56" x2="142" y2="56" stroke="#A32D2D" stroke-width="1" marker-end="url(#sq2)"/><text x="193" y="49" text-anchor="middle" font-size="9" fill="#A32D2D">CanIf_ControllerBusOff(Ctrl)</text>
+  <line x1="135" y1="70" x2="42" y2="70" stroke="#A32D2D" stroke-width="1" marker-end="url(#sq2)"/><text x="88" y="63" text-anchor="middle" font-size="9" fill="#A32D2D">CanSM_ControllerBusOff(Ctrl)</text>
+  <text x="35" y="88" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[T_BUS_OFF → E_BUS_OFF in MainFunction]</text>
+  <line x1="35" y1="96" x2="338" y2="96" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="186" y="90" text-anchor="middle" font-size="9" fill="#3B6D11">BswM_CanSM_CurrentState(BUS_OFF)</text>
+  <line x1="35" y1="110" x2="438" y2="110" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="236" y="104" text-anchor="middle" font-size="9" fill="#3B6D11">ComM_BusSM_ModeIndication(SILENT)</text>
+  <line x1="35" y1="124" x2="538" y2="124" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="286" y="118" text-anchor="middle" font-size="9" fill="#3B6D11">Dem_SetEventStatus(PRE_FAILED)</text>
+  <line x1="35" y1="140" x2="128" y2="140" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="81" y="134" text-anchor="middle" font-size="9" fill="#3B6D11">SetControllerMode(STARTED)</text>
+  <line x1="135" y1="158" x2="42" y2="158" stroke="#BA7517" stroke-width="0.8" marker-end="url(#sq2)" stroke-dasharray="3 2"/><text x="88" y="152" text-anchor="middle" font-size="9" fill="#888780">ControllerModeIndication(STARTED)</text>
+  <text x="35" y="175" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[wait CanSMBorTimeL1 in MainFunction]</text>
+  <text x="35" y="190" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[G_TX_ON passes → E_TX_ON]</text>
+  <line x1="35" y1="200" x2="128" y2="200" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="81" y="194" text-anchor="middle" font-size="9" fill="#3B6D11">SetPduMode(CANIF_ONLINE)</text>
+  <line x1="35" y1="215" x2="338" y2="215" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="186" y="209" text-anchor="middle" font-size="9" fill="#3B6D11">BswM_CanSM_CurrentState(FULL_COM)</text>
+  <line x1="35" y1="230" x2="438" y2="230" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="236" y="224" text-anchor="middle" font-size="9" fill="#3B6D11">ComM_BusSM_ModeIndication(FULL)</text>
+  <text x="35" y="248" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[wait BorTimeTxEnsured or poll TxConfirmationState]</text>
+  <text x="35" y="262" text-anchor="middle" font-size="9" fill="var(--color-text-tertiary)">[G_BUS_OFF_PASSIVE passes → E_BUS_OFF_PASSIVE]</text>
+  <line x1="35" y1="272" x2="538" y2="272" stroke="#3B6D11" stroke-width="1" marker-end="url(#sq2)"/><text x="286" y="266" text-anchor="middle" font-size="9" fill="#3B6D11">Dem_SetEventStatus(PASSED)</text>
+  <text x="340" y="295" text-anchor="middle" font-size="10" fill="var(--color-text-tertiary)">BOR complete — bus confirmed healthy — counter reset to 0</text>
+  </svg>`},
+  {name:'FULLCOM→SILENTCOM→NOCOM', html:`<div style="font-size:13px;line-height:1.75">
+  <p style="font-weight:500;color:var(--color-text-primary);margin-bottom:8px">FULLCOM → SILENTCOM (T_SILENT_COM_MODE_REQUEST / E_FULL_TO_SILENT_COM)</p>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:12px;font-size:12px;">
+  1. <span style="font-family:var(--font-mono);font-size:11px;">BswM_CanSM_CurrentState(CANSM_BSWM_SILENT_COMMUNICATION)</span><br>
+  2. <span style="font-family:var(--font-mono);font-size:11px;">CanIf_SetPduMode(CANIF_TX_OFFLINE)</span> — Rx still works, Tx blocked<br>
+  3. <span style="font-family:var(--font-mono);font-size:11px;">ComM_BusSM_ModeIndication(COMM_SILENT_COMMUNICATION)</span>
+  </div>
+  <p style="font-weight:500;color:var(--color-text-primary);margin-bottom:8px">SILENTCOM → NOCOM (T_NO_COM_MODE_REQUEST / E_PRE_NOCOM)</p>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:12px;font-size:12px;">
+  1. <span style="font-family:var(--font-mono);font-size:11px;">BswM_CanSM_CurrentState(CANSM_BSWM_NO_COMMUNICATION)</span><br>
+  2. Enters PRE_NOCOM sub-machine (DeinitPnNotSupported or DeinitPnSupported)<br>
+  3. After PRE_NOCOM completes → E_NOCOM:<br>
+  &nbsp;&nbsp;<span style="font-family:var(--font-mono);font-size:11px;">ComM_BusSM_ModeIndication(COMM_NO_COMMUNICATION)</span> (only if ComM had requested it)
+  </div>
+  <p style="font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Important note about SILENTCOM</p>
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;font-size:12px;">
+  CanNm uses SILENT mode to manage the "Prepare Bus-Sleep" phase. ComM requests SILENT first, then NO_COM. This allows CanNm to send its last NM frame (bus-sleep message) before the bus goes quiet. If CanSM receives NO_COM directly (ComMNmVariant=LIGHT), the SILENT phase is skipped.
+  </div>
+  </div>`},
+];
+
+function buildSeq() {
+  document.getElementById('seq-btns').innerHTML = SEQS.map((s,i)=>`<button class="step-b${i===0?' sel':''}" onclick="showSeq(${i})">${s.name}</button>`).join('');
+  document.getElementById('seq-display').innerHTML = SEQS[0].html;
+}
+function showSeq(i) {
+  document.querySelectorAll('#seq-btns .step-b').forEach((b,j)=>b.classList.toggle('sel',i===j));
+  document.getElementById('seq-display').innerHTML = SEQS[i].html;
+}
+
+function showTab(t, btn) {
+  document.querySelectorAll('.pn').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pn-'+t).classList.add('active');
+  btn.classList.add('active');
+  if(t==='api') buildApi();
+  if(t==='submachines') buildSm();
+  if(t==='seq') buildSeq();
+  if(t==='bor') buildBor();
+}
+buildApi();
+buildSm();
+buildSeq();
+buildBor();
+</script>

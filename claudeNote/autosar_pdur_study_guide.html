@@ -1,0 +1,538 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tab{padding:7px 13px;border-radius:6px 6px 0 0;border:0.5px solid transparent;cursor:pointer;font-size:12px;color:var(--color-text-secondary);background:transparent;transition:all .15s}
+.tab.on{color:var(--color-text-primary);border-color:var(--color-border-tertiary);border-bottom-color:var(--color-background-primary);background:var(--color-background-primary);font-weight:500}
+.pane{display:none;padding:20px 16px}
+.pane.on{display:block}
+h3{font-size:15px;font-weight:500;margin-bottom:12px}
+h4{font-size:13px;font-weight:500;margin:14px 0 6px;color:var(--color-text-secondary)}
+.card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:14px;margin-bottom:10px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;margin:2px}
+.b-blue{background:#E6F1FB;color:#0C447C}
+.b-amber{background:#FAEEDA;color:#633806}
+.b-red{background:#FCEBEB;color:#791F1F}
+.b-green{background:#EAF3DE;color:#27500A}
+.b-purple{background:#EEEDFE;color:#3C3489}
+.b-gray{background:#F1EFE8;color:#444441}
+.b-teal{background:#E1F5EE;color:#085041}
+@media(prefers-color-scheme:dark){
+.b-blue{background:#0C447C;color:#B5D4F4}
+.b-amber{background:#633806;color:#FAC775}
+.b-red{background:#791F1F;color:#F7C1C1}
+.b-green{background:#27500A;color:#C0DD97}
+.b-purple{background:#3C3489;color:#CECBF6}
+.b-gray{background:#444441;color:#D3D1C7}
+.b-teal{background:#085041;color:#9FE1CB}
+}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:7px 10px;border:0.5px solid var(--color-border-tertiary);text-align:left;vertical-align:top}
+th{background:var(--color-background-secondary);font-weight:500}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:3px}
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.fbox{padding:7px 14px;border-radius:6px;border:0.5px solid;text-align:center;font-size:12px;min-width:200px;max-width:320px}
+.arrow{font-size:18px;line-height:1.2;color:var(--color-text-secondary)}
+.arrlbl{font-size:11px;color:var(--color-text-secondary);margin:-2px 0}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:500px){.cols2,.cols3{grid-template-columns:1fr}}
+.hl{background:var(--color-background-warning);border-left:3px solid #BA7517;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;margin:8px 0}
+.warn{background:var(--color-background-danger);border-left:3px solid #A32D2D;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;margin:8px 0}
+.ok{background:var(--color-background-success);border-left:3px solid #3B6D11;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;margin:8px 0}
+.step-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.step-num{min-width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.step-txt{font-size:12px;padding-top:2px}
+</style>
+
+<div class="tabs">
+  <div class="tab on" onclick="show('arch',this)">Architecture</div>
+  <div class="tab" onclick="show('state',this)">State Machine</div>
+  <div class="tab" onclick="show('ops',this)">Operations</div>
+  <div class="tab" onclick="show('if_flow',this)">IF Code Flow</div>
+  <div class="tab" onclick="show('tp_flow',this)">TP Code Flow</div>
+  <div class="tab" onclick="show('gw',this)">Gateway</div>
+  <div class="tab" onclick="show('buf',this)">Buffering</div>
+  <div class="tab" onclick="show('rpg',this)">Routing Groups</div>
+  <div class="tab" onclick="show('err',this)">Errors</div>
+  <div class="tab" onclick="show('api',this)">APIs</div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="pane-arch" class="pane on">
+<h3>What is PduR?</h3>
+<div class="card"><b>PDU Router</b> = central middleman in AUTOSAR communication stack. Sits between upper layers (Com, Dcm) and lower layers (CanIf, FrIf, CanTp). Routes I-PDUs based on static routing table — no dynamic/payload-based routing.</div>
+<svg width="100%" viewBox="0 0 680 340" role="img"><title>AUTOSAR PduR stack position</title>
+<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<!-- App layer -->
+<rect x="60" y="20" width="560" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="340" y="42" text-anchor="middle" font-size="14" font-weight="500" fill="#3C3489">Application SWC</text>
+<text x="340" y="58" text-anchor="middle" font-size="12" fill="#534AB7">AUTOSAR RTE</text>
+<!-- Upper comms -->
+<rect x="60" y="90" width="270" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="195" y="112" text-anchor="middle" font-size="13" font-weight="500" fill="#085041">Com</text>
+<text x="195" y="128" text-anchor="middle" font-size="11" fill="#0F6E56">Signal / PDU comm</text>
+<rect x="350" y="90" width="270" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="485" y="112" text-anchor="middle" font-size="13" font-weight="500" fill="#085041">Dcm / IpduM / NM</text>
+<text x="485" y="128" text-anchor="middle" font-size="11" fill="#0F6E56">Diagnostics / Multiplexer / NM</text>
+<!-- PduR -->
+<rect x="60" y="160" width="560" height="50" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
+<text x="340" y="181" text-anchor="middle" font-size="15" font-weight="500" fill="#633806">PDU Router (PduR)</text>
+<text x="340" y="198" text-anchor="middle" font-size="11" fill="#854F0B">Static routing table — translates I-PDU IDs, forwards to 1 or N destinations</text>
+<!-- Lower comms -->
+<rect x="60" y="230" width="130" height="50" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="125" y="252" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">CanIf</text>
+<text x="125" y="267" text-anchor="middle" font-size="10" fill="#185FA5">CAN bus</text>
+<rect x="205" y="230" width="130" height="50" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="270" y="252" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">FrIf</text>
+<text x="270" y="267" text-anchor="middle" font-size="10" fill="#185FA5">FlexRay</text>
+<rect x="350" y="230" width="130" height="50" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="415" y="252" text-anchor="middle" font-size="12" font-weight="500" fill="#712B13">CanTp</text>
+<text x="415" y="267" text-anchor="middle" font-size="10" fill="#993C1D">CAN Transport</text>
+<rect x="495" y="230" width="125" height="50" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="557" y="252" text-anchor="middle" font-size="12" font-weight="500" fill="#712B13">FrTp / LinTp</text>
+<text x="557" y="267" text-anchor="middle" font-size="10" fill="#993C1D">Other TP modules</text>
+<!-- Arrows RTE to upper -->
+<line x1="340" y1="70" x2="340" y2="88" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Arrows upper to PduR -->
+<line x1="195" y1="140" x2="195" y2="158" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="485" y1="140" x2="485" y2="158" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Arrows PduR to lower -->
+<line x1="125" y1="210" x2="125" y2="228" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="270" y1="210" x2="270" y2="228" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="415" y1="210" x2="415" y2="228" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(--arr)"/>
+<line x1="415" y1="210" x2="415" y2="228" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="557" y1="210" x2="557" y2="228" stroke="var(--color-text-secondary)" stroke-width="1" marker-end="url(#arr)"/>
+<text x="20" y="252" font-size="10" fill="var(--color-text-secondary)">IF</text>
+<text x="20" y="267" font-size="10" fill="var(--color-text-secondary)">mods</text>
+<text x="460" y="220" font-size="10" fill="var(--color-text-secondary)">TP modules</text>
+</svg>
+<h4>Key facts (exam-ready)</h4>
+<div class="cols2">
+<div class="card"><span class="badge b-amber">Mandatory</span> PduR present in every AUTOSAR ECU. Cannot skip it.</div>
+<div class="card"><span class="badge b-blue">ID-based</span> Routing uses static I-PDU ID lookup. No payload inspection.</div>
+<div class="card"><span class="badge b-red">No mix</span> Cannot gateway IF ↔ TP. Only IF↔IF or TP↔TP.</div>
+<div class="card"><span class="badge b-green">Generic</span> CDD (Complex Device Drivers) can be upper or lower modules.</div>
+</div>
+<h4>Module limits (what PduR does NOT do)</h4>
+<div class="warn">PduR does NOT: modify I-PDU payload / extract signals / do checksums / rate-convert / route based on payload content / gateway between IF and TP modules.</div>
+</div>
+
+<!-- STATE MACHINE -->
+<div id="pane-state" class="pane">
+<h3>State Machine</h3>
+<div class="hl">Only 2 states: <code>PDUR_UNINIT</code> and <code>PDUR_ONLINE</code>. Only one instance of this state machine exists.</div>
+<svg width="100%" viewBox="0 0 680 300" role="img"><title>PduR state machine</title>
+<defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<!-- UNINIT state -->
+<rect x="60" y="80" width="220" height="100" rx="14" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<text x="170" y="118" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">PDUR_UNINIT</text>
+<text x="170" y="136" text-anchor="middle" font-size="11" fill="#5F5E5A">After power-up</text>
+<text x="170" y="152" text-anchor="middle" font-size="11" fill="#5F5E5A">No routing allowed</text>
+<!-- ONLINE state -->
+<rect x="400" y="80" width="220" height="100" rx="14" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1.5"/>
+<text x="510" y="118" text-anchor="middle" font-size="14" font-weight="500" fill="#085041">PDUR_ONLINE</text>
+<text x="510" y="136" text-anchor="middle" font-size="11" fill="#0F6E56">After PduR_Init()</text>
+<text x="510" y="152" text-anchor="middle" font-size="11" fill="#0F6E56">Routing active</text>
+<!-- Arrow UNINIT → ONLINE -->
+<path d="M280 120 L398 120" fill="none" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arr2)"/>
+<text x="340" y="112" text-anchor="middle" font-size="11" fill="#0F6E56">PduR_Init(config)</text>
+<!-- Arrow ONLINE → UNINIT (re-init) -->
+<path d="M400 150 L282 150" fill="none" stroke="#5F5E5A" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr2)"/>
+<text x="340" y="172" text-anchor="middle" font-size="10" fill="#5F5E5A">PduR_Init() again (re-init)</text>
+<!-- Power-up arrow -->
+<path d="M20 130 L58 130" fill="none" stroke="#5F5E5A" stroke-width="1" marker-end="url(#arr2)"/>
+<text x="10" y="125" font-size="10" fill="#5F5E5A">Power</text>
+<text x="10" y="138" font-size="10" fill="#5F5E5A">up</text>
+<!-- Allowed APIs box -->
+<rect x="60" y="220" width="560" height="55" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.5"/>
+<text x="340" y="240" text-anchor="middle" font-size="12" font-weight="500" fill="#633806">Allowed in PDUR_UNINIT (any other API → PDUR_E_UNINIT reported to DET)</text>
+<text x="340" y="258" text-anchor="middle" font-size="12" fill="#854F0B">PduR_Init()    PduR_GetVersionInfo()</text>
+</svg>
+<h4>Init sequence (SWS_PduR_00334)</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">BswM calls PduR_Init(ConfigPtr)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">Release all buffers (SWS_PduR_00645)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">Load default values into Tx buffers (SWS_PduR_00308)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">State → PDUR_ONLINE</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Init enabled RoutingPathGroups (PduRIsEnabledAtInit=TRUE)</div>
+</div>
+<div class="hl" style="margin-top:12px"><b>Debug tip:</b> If PduR behaves erratically at startup → check if PduR_Init was called before any Transmit/Receive API. Check DET for PDUR_E_UNINIT (0x01).</div>
+</div>
+
+<!-- OPERATIONS -->
+<div id="pane-ops" class="pane">
+<h3>Three Operation Classes</h3>
+<div class="cols3">
+<div class="card">
+<span class="badge b-teal">Reception</span>
+<h4>PDU Rx to local</h4>
+<div class="step-row"><div class="step-num">1</div><div class="step-txt">Lower IF/TP receives data from bus</div></div>
+<div class="step-row"><div class="step-num">2</div><div class="step-txt">Calls PduR RxIndication</div></div>
+<div class="step-row"><div class="step-num">3</div><div class="step-txt">PduR looks up routing table</div></div>
+<div class="step-row"><div class="step-num">4</div><div class="step-txt">Calls Up_RxIndication (Com/Dcm)</div></div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">Supports 1:1, 1:n, n:1 (fan-in)</div>
+</div>
+<div class="card">
+<span class="badge b-blue">Transmission</span>
+<h4>PDU Tx from local</h4>
+<div class="step-row"><div class="step-num">1</div><div class="step-txt">Com/Dcm calls PduR_ComTransmit</div></div>
+<div class="step-row"><div class="step-num">2</div><div class="step-txt">PduR translates I-PDU ID</div></div>
+<div class="step-row"><div class="step-num">3</div><div class="step-txt">Calls Lo_Transmit / LoTp_Transmit</div></div>
+<div class="step-row"><div class="step-num">4</div><div class="step-txt">On TxConfirm → forward back up</div></div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">No buffering at PduR level for Tx!</div>
+</div>
+<div class="card">
+<span class="badge b-amber">Gateway</span>
+<h4>PDU Gw (bus→bus)</h4>
+<div class="step-row"><div class="step-num">1</div><div class="step-txt">IF/TP receives from source bus</div></div>
+<div class="step-row"><div class="step-num">2</div><div class="step-txt">PduR buffers (if needed)</div></div>
+<div class="step-row"><div class="step-num">3</div><div class="step-txt">Forwards to destination bus</div></div>
+<div class="step-row"><div class="step-num">4</div><div class="step-txt">Optional: also forward to upper</div></div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px">Supports 1:1, 1:n, n:1 per type</div>
+</div>
+</div>
+<h4>Routing topology matrix</h4>
+<table>
+<tr><th>Topology</th><th>IF</th><th>TP</th><th>Notes</th></tr>
+<tr><td><b>1:1 singlecast</b></td><td>✓</td><td>✓</td><td>Most common, simple forwarding</td></tr>
+<tr><td><b>1:n multicast</b></td><td>✓</td><td>✓</td><td>Source unaware of multiple dests; PduR hides fan-out</td></tr>
+<tr><td><b>n:1 fan-in</b></td><td>✓</td><td>✓ (via FIFO)</td><td>Only one source enabled at a time; FIFO serializes</td></tr>
+<tr><td><b>n:m (many:many)</b></td><td>✗</td><td>✗</td><td>NOT supported</td></tr>
+<tr><td><b>IF ↔ TP mix</b></td><td colspan="2" style="text-align:center">✗ FORBIDDEN</td><td>SWS_PduR_00638: Error if attempted</td></tr>
+</table>
+<div class="hl" style="margin-top:10px"><b>Exam tip — multicast return value rule:</b> For 1:n Transmit, PduR returns E_OK if <em>at least one</em> destination returns E_OK. TxConfirmation goes to upper only after the <em>last</em> destination confirms.</div>
+</div>
+
+<!-- IF CODE FLOW -->
+<div id="pane-if_flow" class="pane">
+<h3>Communication Interface (IF) Code Flow</h3>
+<div class="cols2">
+<div>
+<h4>IF Transmit path</h4>
+<div class="flow">
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Com_Transmit (signal data ready)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_ComTransmit(PduId, PduInfo)</div>
+<div class="arrlbl">lookup routing table → translate ID</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">for each dest: Lo_Transmit(destId, PduInfo)</div>
+<div class="arrlbl">async — returns immediately</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">CanIf/FrIf sends frame on bus</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanIfTxConfirmation(PduId, result)</div>
+<div class="arrlbl">SWS_PduR_00627</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Com_TxConfirmation(comPduId, result)</div>
+</div>
+</div>
+<div>
+<h4>IF Receive path</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">CanIf/FrIf receives frame from bus</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanIfRxIndication(PduId, PduInfo)</div>
+<div class="arrlbl">lookup routing table</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">for each dest: Up_RxIndication(destId, PduInfo)</div>
+<div class="arrlbl">SWS_PduR_00621</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Com_RxIndication(comPduId, PduInfo)</div>
+</div>
+</div>
+</div>
+<h4>Trigger Transmit variant (important!)</h4>
+<div class="card">
+<p style="font-size:12px;margin-bottom:8px">IF module may use <b>trigger transmit</b> instead of direct data provision. PduR must buffer the I-PDU.</p>
+<div class="flow">
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Com calls PduR_ComTransmit → Lo_Transmit called, data NOT copied yet</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanIfTriggerTransmit(PduId, PduInfoPtr)</div>
+<div class="arrlbl">CanIf is now ready for data</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Com_TriggerTransmit(comPduId, PduInfoPtr)</div>
+<div class="arrlbl">SWS_PduR_00430 — Com copies data into PduInfoPtr</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">CanIf sends frame</div>
+</div>
+</div>
+<div class="hl" style="margin-top:8px"><b>Debug:</b> If TriggerTransmit returns E_NOT_OK → check FIFO empty or buffer too small (SWS_PduR_00662, 00819). No E_NOT_OK on direct data provision Tx — errors just forwarded.</div>
+</div>
+
+<!-- TP CODE FLOW -->
+<div id="pane-tp_flow" class="pane">
+<h3>Transport Protocol (TP) Code Flow</h3>
+<div class="cols2">
+<div>
+<h4>TP Transmit path</h4>
+<div class="flow">
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Dcm calls PduR_DcmTransmit(PduId, PduInfo)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR calls CanTp_Transmit(destId, PduInfo)</div>
+<div class="arrlbl">SWS_PduR_00634</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">CanTp segments into SF/FF/CFs</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanTpCopyTxData(PduId, PduInfo, Retry, AvailData)</div>
+<div class="arrlbl">CanTp wants data — SWS_PduR_00299</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Dcm_CopyTxData(PduId, PduInfo, Retry, AvailData)</div>
+<div class="arrlbl">Dcm copies data from its buffer</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanTpTxConfirmation(PduId, result)</div>
+<div class="arrlbl">SWS_PduR_00301</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Dcm_TpTxConfirmation(PduId, result)</div>
+</div>
+</div>
+<div>
+<h4>TP Receive path</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">CanTp receives SF or FF from bus</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanTpStartOfReception(PduId, PduInfo, TpSduLength, &RxBufSizePtr)</div>
+<div class="arrlbl">SWS_PduR_00549</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Dcm_StartOfReception(PduId, PduInfo, TpSduLength, &RxBufSizePtr)</div>
+<div class="arrlbl">Dcm allocates buffer, returns BUFREQ_OK</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanTpCopyRxData(PduId, PduInfo, &RxBufSizePtr)</div>
+<div class="arrlbl">for each CF — SWS_PduR_00428</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Dcm_CopyRxData(PduId, PduInfo, &RxBufSizePtr)</div>
+<div class="arrlbl">copies data segment-by-segment</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanTpRxIndication(PduId, result)</div>
+<div class="arrlbl">SWS_PduR_00429</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">Dcm_TpRxIndication(PduId, result)</div>
+</div>
+</div>
+</div>
+<h4>Unknown length PDUs (TpSduLength = 0)</h4>
+<div class="card"><p style="font-size:12px">Streaming data with unknown length → PduR passes TpSduLength=0 to upper layer. Upper must handle. For Tx: PduR calls LoTp_Transmit with SduLength=0 (SWS_PduR_00822).</p></div>
+<div class="hl"><b>Debug TP:</b> BUFREQ_E_BUSY → data not available yet. BUFREQ_E_NOT_OK → retry not possible (rollback failed). BUFREQ_OK with AvailData=0 → buffer empty but connected. If StartOfReception fails → PduR stops forwarding that connection.</div>
+</div>
+
+<!-- GATEWAY -->
+<div id="pane-gw" class="pane">
+<h3>I-PDU Gatewaying</h3>
+<div class="hl">Gateway = PduR is receiver AND transmitter simultaneously. Receives from source bus, forwards to destination bus(es). May also forward to upper layers at same time.</div>
+<h4>IF Gateway flow (PDUR_DIRECT data provision)</h4>
+<div class="flow">
+<div class="fbox" style="background:#E6F1FB;border-color:#185FA5;color:#0C447C">CanIf (source) receives frame</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_CanIfRxIndication (src PDU)</div>
+<div class="arrlbl">if no FIFO / FIFO empty → call immediately</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">FrIf_Transmit(destPduId, PduInfo) — immediate</div>
+<div class="arrlbl">SWS_PduR_00665 — no outstanding Tx → direct call</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">FrIf sends frame on FlexRay</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">PduR_FrIfTxConfirmation — ONLY if FIFO; then dequeue next</div>
+</div>
+<h4>IF Gateway buffer strategies</h4>
+<table>
+<tr><th>Strategy</th><th>PduRQueueDepth</th><th>PduRDestPduDataProvision</th><th>Behavior</th></tr>
+<tr><td><b>No buffer</b></td><td>0</td><td>PDUR_DIRECT</td><td>Immediate forward. Overlength: truncate to dest size. SWS_PduR_00783</td></tr>
+<tr><td><b>Last-is-best</b></td><td>1</td><td>PDUR_TRIGGERTRANSMIT</td><td>New PDU overwrites existing buffer. Only latest value kept. SWS_PduR_00809</td></tr>
+<tr><td><b>FIFO</b></td><td>&gt;1</td><td>DIRECT or TRIGGERTRANSMIT</td><td>Queue. New adds to tail. TxConfirm pops head & triggers next. SWS_PduR_00785</td></tr>
+</table>
+<h4>TP Gateway (on-the-fly vs direct)</h4>
+<div class="cols2">
+<div class="card">
+<span class="badge b-green">On-the-fly</span>
+<p style="font-size:12px;margin-top:6px">Start Tx on dest TP before complete I-PDU received. Threshold = <code>PduRTpThreshold</code> bytes. Saves memory. Only 1 dest TP allowed (SWS_PduR_00708). Buffer position tracked per-destination.</p>
+</div>
+<div class="card">
+<span class="badge b-blue">Direct GW</span>
+<p style="font-size:12px;margin-top:6px">Receive full I-PDU first, then call DstLoTp_Transmit. SWS_PduR_00551: called in context of SrcLoTp_RxIndication (E_OK). Supports 1:n.</p>
+</div>
+</div>
+<h4>FIFO behavior in gateway (key for debug/test)</h4>
+<table>
+<tr><th>Event</th><th>FIFO empty</th><th>FIFO not empty</th></tr>
+<tr><td>RxIndication (DIRECT+FIFO)</td><td>Call DstLo_Transmit directly</td><td>Enqueue new PDU (SWS_PduR_00793)</td></tr>
+<tr><td>TxConfirmation (DIRECT+FIFO)</td><td>Nothing</td><td>Pop head, call DstLo_Transmit (SWS_PduR_00667)</td></tr>
+<tr><td>RxIndication (TRIGGERTX+FIFO)</td><td>Enqueue + call DstLo_Transmit</td><td>Enqueue (SWS_PduR_00786)</td></tr>
+<tr><td>TriggerTransmit (TRIGGERTX+FIFO)</td><td>Return E_NOT_OK (SWS_PduR_00662)</td><td>Copy oldest, remove, call next Transmit if more</td></tr>
+</table>
+<div class="warn"><b>FIFO overflow:</b> When routing path with FIFO >1 is stopped → FIFO flushed, DET reports PDUR_E_PDU_INSTANCES_LOST (0x0a). SWS_PduR_00663.</div>
+</div>
+
+<!-- BUFFERING -->
+<div id="pane-buf" class="pane">
+<h3>Buffering Concept</h3>
+<div class="card"><b>When is buffering mandatory?</b><br>
+<span class="badge b-amber">Mandatory</span> IF gateway destinations using TRIGGERTRANSMIT data provision<br>
+<span class="badge b-amber">Mandatory</span> All TP gateways<br>
+<span class="badge b-gray">Optional</span> IF gateway with DIRECT provision (no buffer possible)
+</div>
+<h4>Buffer types</h4>
+<div class="cols2">
+<div class="card">
+<span class="badge b-teal">Global buffer</span>
+<p style="font-size:12px;margin-top:6px">PduRBuffer not referenced by any PduRDestBufferRef. Can be occupied by ANY routing path dynamically. First-come first-served allocation.</p>
+</div>
+<div class="card">
+<span class="badge b-purple">Dedicated buffer</span>
+<p style="font-size:12px;margin-top:6px">PduRBuffer referenced via PduRDestBufferRef in a routing path. Reserved for that path only. Used for OBD/diagnostic requests (high priority, must not be delayed).</p>
+</div>
+</div>
+<h4>Buffer allocation priority (SWS_PduR_00797, 00798)</h4>
+<div class="flow">
+<div class="fbox" style="background:#EEEDFE;border-color:#534AB7;color:#3C3489">I-PDU needs buffering</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">Check dedicated buffers (PduRDestBufferRef)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">If dedicated fits (size ≤ PduRPduMaxLength) → use dedicated</div>
+<div class="arrow">↓ else</div>
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">Dynamically allocate global buffer (fits required size)</div>
+</div>
+<h4>PduRQueueDepth rules</h4>
+<table>
+<tr><th>Value</th><th>Buffer type</th><th>Behavior</th></tr>
+<tr><td>0</td><td>No buffer</td><td>Immediate forward only (DIRECT provision)</td></tr>
+<tr><td>1</td><td>Last-is-best</td><td>Single slot. Overwrite on new. For TRIGGERTRANSMIT — buffer held until TriggerTransmit call.</td></tr>
+<tr><td>&gt;1</td><td>FIFO</td><td>Queue depth = max simultaneous buffered PDUs. New appended to tail. FIFO needs concurrency protection!</td></tr>
+</table>
+<h4>Fan-in and Multicast queuing strategy</h4>
+<div class="cols2">
+<div class="card"><span class="badge b-blue">PDUR_COMMON_QUEUE</span>
+<p style="font-size:12px;margin-top:6px">All sources (fan-in) or destinations (multicast) share ONE FIFO. Required for fan-in. In multicast: one item removed only after ALL destinations fetched it.</p></div>
+<div class="card"><span class="badge b-purple">PDUR_DEDICATED_QUEUE</span>
+<p style="font-size:12px;margin-top:6px">Each source/dest has own queue. For multicast only. Each dest independent — one slow dest doesn't block others.</p></div>
+</div>
+<div class="hl"><b>Fan-in constraint:</b> ALL PduRRoutingPaths in a fan-in MUST use PDUR_COMMON_QUEUE. Mixed queuing strategies = config error. SWS_PduR_CONSTR_00871/00872.</div>
+<h4>Length handling in buffers (SWS_PduR_00746)</h4>
+<div class="card"><p style="font-size:12px">When buffered: copy <code>min(received_length, configured_dest_length)</code>. Overlength PDU is truncated to dest I-PDU size. Rest dropped. Prevents buffer overrun.</p></div>
+</div>
+
+<!-- ROUTING PATH GROUPS -->
+<div id="pane-rpg" class="pane">
+<h3>Routing Path Groups</h3>
+<div class="card"><b>Purpose:</b> Group routing paths that can be enabled/disabled together at runtime. Managed by BswM module. Used for partial networking, network activation/deactivation.</div>
+<h4>Enable/Disable rules</h4>
+<table>
+<tr><th>Condition</th><th>Routing path enabled?</th></tr>
+<tr><td>Path belongs to NO group</td><td style="color:green">✓ Always enabled</td></tr>
+<tr><td>Path belongs to ≥1 group and at least one is enabled</td><td style="color:green">✓ Enabled (SWS_PduR_00891)</td></tr>
+<tr><td>Path belongs to groups and ALL are disabled</td><td style="color:red">✗ Disabled (SWS_PduR_00892)</td></tr>
+</table>
+<h4>Initialization</h4>
+<div class="cols2">
+<div class="card"><span class="badge b-green">PduRIsEnabledAtInit = TRUE</span><p style="font-size:12px;margin-top:6px">Group enabled after PduR_Init. SWS_PduR_00894.</p></div>
+<div class="card"><span class="badge b-red">PduRIsEnabledAtInit = FALSE</span><p style="font-size:12px;margin-top:6px">Group disabled after PduR_Init. SWS_PduR_00895.</p></div>
+</div>
+<h4>Runtime switching</h4>
+<div class="flow">
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">BswM calls PduR_EnableRouting(GroupId)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#E1F5EE;border-color:#0F6E56;color:#085041">PduR re-evaluates all paths referencing this group</div>
+<div class="arrlbl">Immediate effect (SWS_PduR_00715)</div>
+</div>
+<div style="height:10px"></div>
+<div class="flow">
+<div class="fbox" style="background:#FAEEDA;border-color:#BA7517;color:#633806">BswM calls PduR_DisableRouting(GroupId, initialize)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FCEBEB;border-color:#A32D2D;color:#791F1F">All APIs for disabled paths return E_NOT_OK/BUFREQ_E_NOT_OK</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#FCEBEB;border-color:#A32D2D;color:#791F1F">FIFOs flushed → PDUR_E_PDU_INSTANCES_LOST reported (SWS_PduR_00663)</div>
+<div class="arrow">↓</div>
+<div class="fbox" style="background:#F1EFE8;border-color:#5F5E5A;color:#2C2C2A">if initialize=TRUE: single-depth buffer reset to default value</div>
+</div>
+<h4>APIs affected when group disabled (SWS_PduR_00805)</h4>
+<div class="card"><code>PduR_Up_Transmit</code>  <code>PduR_Lo_RxIndication</code>  <code>PduR_Lo_TriggerTransmit</code>  <code>PduR_LoTp_StartOfReception</code>  <code>PduR_LoTp_CopyRxData</code>  <code>PduR_LoTp_CopyTxData</code>
+<p style="font-size:11px;margin-top:6px;color:var(--color-text-secondary)">Note: PduR_LoTp_RxIndication is NOT affected — still processed even if disabled.</p></div>
+<div class="hl"><b>Test scenario:</b> Disable a group with active TP Rx ongoing → RxIndication still comes through but StartOfReception/CopyRxData for new sessions blocked. Test this edge case!</div>
+</div>
+
+<!-- ERRORS -->
+<div id="pane-err" class="pane">
+<h3>Error Classification</h3>
+<h4>Development Errors (DET — SWS_PduR_00100)</h4>
+<table>
+<tr><th>Error Code</th><th>Value</th><th>Trigger condition</th><th>Debug action</th></tr>
+<tr><td><code>PDUR_E_INIT_FAILED</code></td><td>0x00</td><td>Invalid config pointer passed to PduR_Init</td><td>Check ConfigPtr != NULL, check version compatibility</td></tr>
+<tr><td><code>PDUR_E_UNINIT</code></td><td>0x01</td><td>Any API (except Init/GetVersionInfo) called in PDUR_UNINIT state</td><td>Ensure PduR_Init() called before stack starts communicating</td></tr>
+<tr><td><code>PDUR_E_PDU_ID_INVALID</code></td><td>0x02</td><td>PDU ID not found in routing table</td><td>Check Arxml/ECUC config, PduId mapping, post-build config mismatch</td></tr>
+<tr><td><code>PDUR_E_ROUTING_PATH_GROUP_ID_INVALID</code></td><td>0x08</td><td>Invalid group ID passed to EnableRouting/DisableRouting</td><td>Verify PduRRoutingPathGroupIdType config</td></tr>
+<tr><td><code>PDUR_E_PARAM_POINTER</code></td><td>0x09</td><td>NULL pointer passed as argument</td><td>Check calling module passes valid PduInfoPtr</td></tr>
+</table>
+<h4>Runtime Errors (SWS_PDUR_00816)</h4>
+<table>
+<tr><th>Error Code</th><th>Value</th><th>Trigger</th><th>Debug</th></tr>
+<tr><td><code>PDUR_E_TP_GW_TX_REQ_REJECTED</code></td><td>0x03</td><td>TP module rejected DstLoTp_Transmit for gateway</td><td>Check TP busy/unavailable, connection not ready, check TP state</td></tr>
+<tr><td><code>PDUR_E_PDU_INSTANCES_LOST</code></td><td>0x0a</td><td>FIFO overflow (buffer full, incoming PDU dropped) OR n:1 without FIFO and prev call not returned</td><td>Increase FIFO depth, check source rate vs dest throughput, check timing</td></tr>
+</table>
+<h4>Production Error (SWS_PduR_00921)</h4>
+<div class="card">
+<code>PDUR_E_ROUTING_PATH_BUFFER_OVERFLOW</code><br>
+<p style="font-size:12px;margin-top:6px">Reported to DEM (not DET). FAIL: every PduRTxBuffer becomes occupied. PASS: at least one PduRTxBuffer free. Triggered on each PduR API call. Use for field-level buffer exhaustion monitoring.</p>
+</div>
+<h4>Error instance ID (SWS_PduR_00824)</h4>
+<div class="hl">PduR uses the <b>caller module's moduleId as instanceId</b> when calling Det_ReportError. E.g., error in PduR_FrIfRxIndication → instanceId = FrIf module ID (61). This helps pinpoint WHICH interface triggered the error.</div>
+<h4>DET enable/disable</h4>
+<div class="card"><code>PduRDevErrorDetect</code> (config param) — when FALSE, dev errors silently ignored. Always enable in development/test builds. Production may disable for performance.</div>
+</div>
+
+<!-- APIs -->
+<div id="pane-api" class="pane">
+<h3>API Quick Reference</h3>
+<h4>General APIs</h4>
+<table>
+<tr><th>API</th><th>Direction</th><th>Key behavior</th></tr>
+<tr><td><code>PduR_Init(ConfigPtr)</code></td><td>→ PduR</td><td>Mandatory first call. Void return. Releases all buffers. Loads default values.</td></tr>
+<tr><td><code>PduR_GetVersionInfo(VersionInfo)</code></td><td>→ PduR</td><td>Works in PDUR_UNINIT. Returns module version.</td></tr>
+<tr><td><code>PduR_GetConfigurationId()</code></td><td>→ PduR</td><td>Returns unique config ID for post-build validation.</td></tr>
+<tr><td><code>PduR_EnableRouting(GroupId)</code></td><td>→ PduR</td><td>Enables routing path group. Immediate effect.</td></tr>
+<tr><td><code>PduR_DisableRouting(GroupId, initialize)</code></td><td>→ PduR</td><td>Disables group. Flushes FIFOs if depth>1. Resets buffers if initialize=TRUE.</td></tr>
+</table>
+<h4>Upper layer → PduR (called by Com/Dcm)</h4>
+<table>
+<tr><th>API</th><th>Use case</th><th>Return</th></tr>
+<tr><td><code>PduR_&lt;Up&gt;Transmit(PduId, PduInfoPtr)</code></td><td>Tx request from Com/Dcm</td><td>E_OK / E_NOT_OK. E_OK if ≥1 dest accepts (multicast)</td></tr>
+<tr><td><code>PduR_&lt;Up&gt;CancelTransmit(PduId)</code></td><td>Cancel pending Tx</td><td>E_OK only if ALL dests cancel ok (multicast)</td></tr>
+<tr><td><code>PduR_&lt;Up&gt;CancelReceive(PduId)</code></td><td>Cancel TP Rx in progress</td><td>Forwarded to LoTp_CancelReceive</td></tr>
+</table>
+<h4>Lower IF layer → PduR (called by CanIf/FrIf/LinIf)</h4>
+<table>
+<tr><th>API</th><th>Meaning</th></tr>
+<tr><td><code>PduR_&lt;Lo&gt;RxIndication(RxPduId, PduInfoPtr)</code></td><td>Frame received from bus</td></tr>
+<tr><td><code>PduR_&lt;Lo&gt;TxConfirmation(TxPduId, result)</code></td><td>Transmission done (success/fail)</td></tr>
+<tr><td><code>PduR_&lt;Lo&gt;TriggerTransmit(TxPduId, PduInfoPtr)</code></td><td>CanIf/FrIf requesting data for transmission</td></tr>
+</table>
+<h4>Lower TP layer → PduR (called by CanTp/FrTp)</h4>
+<table>
+<tr><th>API</th><th>Meaning</th><th>Key return values</th></tr>
+<tr><td><code>PduR_&lt;LoTp&gt;StartOfReception(PduId, PduInfo, TpSduLength, &BufSizePtr)</code></td><td>FF or SF received — allocate buffer</td><td>BUFREQ_OK, BUFREQ_E_NOT_OK, BUFREQ_E_OVFL</td></tr>
+<tr><td><code>PduR_&lt;LoTp&gt;CopyRxData(PduId, PduInfo, &BufSizePtr)</code></td><td>Copy each CF data chunk</td><td>BUFREQ_OK, BUFREQ_E_NOT_OK</td></tr>
+<tr><td><code>PduR_&lt;LoTp&gt;RxIndication(PduId, result)</code></td><td>Full I-PDU received or error</td><td>void — SWS_PduR_00429</td></tr>
+<tr><td><code>PduR_&lt;LoTp&gt;CopyTxData(PduId, PduInfo, Retry, &AvailDataPtr)</code></td><td>TP wants segment data</td><td>BUFREQ_OK, BUFREQ_E_BUSY, BUFREQ_E_NOT_OK</td></tr>
+<tr><td><code>PduR_&lt;LoTp&gt;TxConfirmation(PduId, result)</code></td><td>TP Tx done (last CF sent)</td><td>void</td></tr>
+</table>
+<h4>CopyTxData TpDataState values (critical for TP)</h4>
+<table>
+<tr><th>TpDataState</th><th>Meaning</th><th>PduR action</th></tr>
+<tr><td><code>TP_CONFPENDING</code></td><td>Normal — data not yet confirmed</td><td>Copy SduLength bytes, advance position</td></tr>
+<tr><td><code>TP_DATACONF</code></td><td>Previous data confirmed — may free</td><td>Copy next chunk, may release confirmed part</td></tr>
+<tr><td><code>TP_DATARETRY</code></td><td>Retransmit — rewind position by TpDataCnt</td><td>Rewind pointer, copy again. Return E_NOT_OK if can't rewind.</td></tr>
+</table>
+<div class="warn" style="margin-top:10px"><b>Multicast TP CopyTxData:</b> First dest gets TP_CONFPENDING. All subsequent dests get TP_DATARETRY (PduR forces rewind). If TP_DATARETRY arrives for multicast path → return E_NOT_OK (SWS_PduR_00871). Slowest dest dictates pace (lock-step).</div>
+</div>
+
+<script>
+function show(id,el){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('pane-'+id).classList.add('on');
+  el.classList.add('on');
+}
+</script>

@@ -1,0 +1,747 @@
+
+<h2 class="sr-only">AUTOSAR Firewall (Fw) Module — Complete Study Guide</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.tabs{display:flex;gap:3px;padding:1rem 0 0;flex-wrap:wrap;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+.tab{padding:7px 12px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;border:0.5px solid var(--color-border-tertiary);border-bottom:none;cursor:pointer;font-size:12px;font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary)}
+.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);border-bottom:1.5px solid var(--color-background-primary);margin-bottom:-0.5px}
+.tab:hover:not(.active){background:var(--color-background-primary)}
+.panel{display:none}.panel.active{display:block}
+.sec{margin-bottom:1.75rem}
+h3{font-size:15px;font-weight:500;margin-bottom:0.75rem;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+h4{font-size:13px;font-weight:500;margin:1rem 0 0.4rem}
+p,li{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+ul,ol{margin:0.4rem 0 0.6rem 1.25rem}
+li{margin-bottom:3px}
+code{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);padding:2px 5px;border-radius:4px;color:var(--color-text-primary)}
+.chip{display:inline-block;font-size:11px;font-weight:500;padding:2px 7px;border-radius:999px;margin:2px}
+.cb{background:#E6F1FB;color:#0C447C}
+.cr{background:#FCEBEB;color:#A32D2D}
+.cg{background:#EAF3DE;color:#3B6D11}
+.ca{background:#FAEEDA;color:#854F0B}
+.cgr{background:#F1EFE8;color:#5F5E5A}
+.ct{background:#E1F5EE;color:#0F6E56}
+.cp{background:#EEEDFE;color:#3C3489}
+.api{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:.75rem;overflow:hidden}
+.ah{padding:9px 13px;display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);cursor:pointer;user-select:none;flex-wrap:wrap}
+.ab{padding:11px 13px;font-size:12px;border-top:0.5px solid var(--color-border-tertiary);display:none}
+.ab.open{display:block}
+.fn{font-family:var(--font-mono);font-size:12px;font-weight:500}
+.mr{display:grid;grid-template-columns:130px 1fr;gap:5px;margin-bottom:5px;font-size:12px}
+.ml{color:var(--color-text-secondary);font-size:11px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin:.5rem 0}
+.tbl th{text-align:left;padding:5px 8px;background:var(--color-background-secondary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
+.tbl td{padding:5px 8px;border:0.5px solid var(--color-border-tertiary);vertical-align:top}
+.tip{background:var(--color-background-info);border-left:3px solid #185FA5;padding:9px 11px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:.5rem 0;font-size:12px;color:var(--color-text-secondary)}
+.warn{background:#FAEEDA;border-left:3px solid #854F0B;padding:9px 11px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:.5rem 0;font-size:12px;color:#633806}
+.danger{background:#FCEBEB;border-left:3px solid #A32D2D;padding:9px 11px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin:.5rem 0;font-size:12px;color:#501313}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:11px 13px}
+.sq{display:flex;gap:9px;margin-bottom:7px;font-size:12px}
+.sn{width:20px;height:20px;border-radius:50%;background:#E6F1FB;color:#0C447C;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:2px}
+.cfg{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;margin:.75rem 0}
+.cfgh{background:var(--color-background-secondary);padding:7px 11px;font-size:11px;font-weight:500;border-bottom:0.5px solid var(--color-border-tertiary)}
+.cfgr{display:grid;grid-template-columns:190px 70px 1fr;gap:7px;padding:5px 11px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:11px;align-items:start}
+.cfgr:last-child{border-bottom:none}
+.svgw{width:100%;max-width:640px;margin:0 auto;display:block}
+@media(max-width:520px){.g2,.g3{grid-template-columns:1fr}.mr{grid-template-columns:1fr}.cfgr{grid-template-columns:1fr}}
+</style>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="ov">Overview & Arch</div>
+  <div class="tab" data-tab="state">State & Flow</div>
+  <div class="tab" data-tab="inspect">Packet Inspection</div>
+  <div class="tab" data-tab="filter">Filtering & Rate</div>
+  <div class="tab" data-tab="sev">Security Events</div>
+  <div class="tab" data-tab="api">API Reference</div>
+  <div class="tab" data-tab="errors">Errors</div>
+  <div class="tab" data-tab="switch">Switch Deployment</div>
+  <div class="tab" data-tab="config">DaVinci Config</div>
+  <div class="tab" data-tab="debug">Debug & Test</div>
+</div>
+
+<div id="ov" class="panel active">
+  <div class="sec">
+    <h3>What is the AUTOSAR Firewall module?</h3>
+    <p>BSW module that inspects and filters ingress Ethernet traffic based on pre-defined FirewallRules. Key characteristics:</p>
+    <ul>
+      <li><strong>Ingress only</strong> — only incoming (RX) traffic filtered. Egress NOT filtered.</li>
+      <li>Sits between LSduR and the upper network stack</li>
+      <li>Supports stateless, stateful, and deep packet inspection</li>
+      <li>Integrates with IdsM (raises Security Events) and BswM (state control)</li>
+      <li>Supports deployment on smart switches (TCAM acceleration)</li>
+    </ul>
+
+    <svg class="svgw" viewBox="0 0 620 370" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="a" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#888780"/></marker></defs>
+      <rect x="240" y="10" width="140" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+      <text x="310" y="27" text-anchor="middle" font-size="11" font-weight="500" fill="#085041">Upper Layers</text>
+      <text x="310" y="43" text-anchor="middle" font-size="10" fill="#0F6E56">(SomeIp, DoIP…)</text>
+      <rect x="160" y="70" width="300" height="40" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+      <text x="310" y="88" text-anchor="middle" font-size="11" font-weight="500" fill="#0C447C">LSduR (L-SDU Router)</text>
+      <text x="310" y="104" text-anchor="middle" font-size="10" fill="#185FA5">routes PDUs → Firewall for inspection</text>
+      <rect x="200" y="130" width="220" height="50" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
+      <text x="310" y="152" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489">Firewall (Fw)</text>
+      <text x="310" y="170" text-anchor="middle" font-size="10" fill="#534AB7">inspect → allow/block → raise SEv</text>
+      <rect x="20" y="140" width="110" height="35" rx="6" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+      <text x="75" y="155" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">BswM</text>
+      <text x="75" y="168" text-anchor="middle" font-size="10" fill="#854F0B">SetFirewallState</text>
+      <rect x="490" y="140" width="110" height="35" rx="6" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+      <text x="545" y="155" text-anchor="middle" font-size="11" font-weight="500" fill="#791F1F">IdsM</text>
+      <text x="545" y="168" text-anchor="middle" font-size="10" fill="#A32D2D">Security Events</text>
+      <rect x="160" y="210" width="300" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+      <text x="310" y="228" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">EthIf (Ethernet Interface)</text>
+      <text x="310" y="244" text-anchor="middle" font-size="10" fill="#888780">switch driver comms (switch deployment)</text>
+      <rect x="160" y="270" width="140" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+      <text x="230" y="288" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">EthSwtDrv</text>
+      <text x="230" y="304" text-anchor="middle" font-size="10" fill="#888780">smart switch</text>
+      <rect x="320" y="270" width="140" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+      <text x="390" y="288" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">EthDrv</text>
+      <text x="390" y="304" text-anchor="middle" font-size="10" fill="#888780">normal ECU</text>
+      <line x1="310" y1="50" x2="310" y2="70" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+      <line x1="310" y1="110" x2="310" y2="130" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+      <line x1="200" y1="157" x2="130" y2="157" stroke="#854F0B" stroke-width="1" marker-end="url(#a)"/>
+      <line x1="420" y1="157" x2="490" y2="157" stroke="#A32D2D" stroke-width="1" marker-end="url(#a)"/>
+      <line x1="310" y1="180" x2="310" y2="210" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+      <line x1="250" y1="250" x2="250" y2="270" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+      <line x1="390" y1="250" x2="390" y2="270" stroke="#888780" stroke-width="1" marker-end="url(#a)"/>
+      <text x="140" y="148" font-size="9" fill="#854F0B">state change</text>
+      <text x="425" y="148" font-size="9" fill="#A32D2D">SEv report</text>
+    </svg>
+  </div>
+  <div class="sec">
+    <h3>Core concepts — memorize these</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>FirewallRule</h4>
+        <p>Pattern (expected header values) + Action (allow/block). Ordered list — first match wins. Firewall stops iterating on first match.</p>
+      </div>
+      <div class="card">
+        <h4>FirewallState</h4>
+        <p>Vehicle state context (driving, parking, diagnostic session). BswM calls Fw_SetFirewallState(). Only rules in active FirewallStateDependentRules are checked.</p>
+      </div>
+      <div class="card">
+        <h4>FirewallDefaultAction</h4>
+        <p>What happens when NO rule matches. Per-state setting. Set to block = allowlist mode. Set to allow = blocklist mode.</p>
+      </div>
+      <div class="card">
+        <h4>Pattern matching algorithm</h4>
+        <p>Ordered iteration. Check ALL fields in a rule (AND logic — all must match). First rule that fully matches → carry out its action → stop.</p>
+      </div>
+      <div class="card">
+        <h4>Rule match condition</h4>
+        <p>ALL of: DataLinkFilterConfig + NetworkLayerFilterConfig + TransportLayerFilterConfig + SOME/IP/DDS/DoIP/Payload configs must match for a rule to be a match.</p>
+      </div>
+      <div class="card">
+        <h4>Ingress-only limitation</h4>
+        <p>Critical exam fact: Firewall only filters incoming (RX) traffic. Egress traffic passes unfiltered. Known limitation, explicitly stated in spec.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="state" class="panel">
+  <div class="sec">
+    <h3>Firewall module state — simple, but important</h3>
+    <p>Unlike EA, Firewall has no complex state machine with BUSY/IDLE. States are:</p>
+    <svg class="svgw" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="b" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#888780"/></marker></defs>
+      <rect x="20" y="70" width="140" height="55" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1.5"/>
+      <text x="90" y="93" text-anchor="middle" font-size="12" font-weight="500" fill="#444441">UNINITIALIZED</text>
+      <text x="90" y="112" text-anchor="middle" font-size="10" fill="#888780">before Fw_Init()</text>
+      <rect x="340" y="70" width="140" height="55" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="1.5"/>
+      <text x="410" y="93" text-anchor="middle" font-size="12" font-weight="500" fill="#27500A">INITIALIZED</text>
+      <text x="410" y="112" text-anchor="middle" font-size="10" fill="#3B6D11">operational — all APIs usable</text>
+      <line x1="160" y1="97" x2="340" y2="97" stroke="#3B6D11" stroke-width="1.5" marker-end="url(#b)"/>
+      <text x="250" y="87" text-anchor="middle" font-size="10" fill="#3B6D11">Fw_Init(configPtr)</text>
+      <text x="250" y="120" text-anchor="middle" font-size="10" fill="#A32D2D">if called again → FW_E_ALREADY_INITIALIZED</text>
+      <rect x="150" y="150" width="200" height="35" rx="6" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+      <text x="250" y="166" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">FirewallState (vehicle state)</text>
+      <text x="250" y="180" text-anchor="middle" font-size="10" fill="#534AB7">set via Fw_SetFirewallState() by BswM</text>
+    </svg>
+    <div class="tip">Fw_Init and Fw_GetVersionInfo: only APIs usable before initialization. All others require initialized state.</div>
+  </div>
+
+  <div class="sec">
+    <h3>Packet flow through Firewall — complete sequence</h3>
+    <div class="sq"><span class="sn">1</span><span>Network packet arrives at Ethernet layer → EthDrv/EthIf receives it</span></div>
+    <div class="sq"><span class="sn">2</span><span>LSduR calls <code>Fw_RxIndication(RxPduId, PduInfoPtr)</code> to deliver packet to Firewall</span></div>
+    <div class="sq"><span class="sn">3</span><span>Firewall checks active FirewallState → loads only rules in active FirewallStateDependentRules</span></div>
+    <div class="sq"><span class="sn">4</span><span>Firewall iterates rules in configured order. For each rule: checks DataLink → Network → Transport → App layer fields (ALL must match)</span></div>
+    <div class="sq"><span class="sn">5a</span><span><strong>Rule match found + Action = ALLOW</strong>: Firewall calls <code>LsduR_FwRxIndication()</code> — packet continues up the stack</span></div>
+    <div class="sq"><span class="sn">5b</span><span><strong>Rule match found + Action = BLOCK</strong>: packet dropped. If KeepLocalBuffer=TRUE also calls LSduR_FwRxReleaseBuffer(). SEv raised (future release).</span></div>
+    <div class="sq"><span class="sn">5c</span><span><strong>No rule matches + DefaultAction = BLOCK</strong>: drop packet. Firewall identifies which OSI layer caused mismatch → raises protocol-specific SEv to IdsM</span></div>
+    <div class="sq"><span class="sn">5d</span><span><strong>No rule matches + DefaultAction = ALLOW</strong>: packet passes. No SEv raised.</span></div>
+    <div class="sq"><span class="sn">6</span><span>Rate limiting check: if leaky bucket counter &gt; FirewallBucketSize → block even if rule matched allow. Raises SEV_FW_PACKET_BLOCKED_RATELIMIT.</span></div>
+    <div class="warn">SEv raising currently only in no-match/default-block case. Match-based SEv raising planned for future release (R24-11 state).</div>
+  </div>
+
+  <div class="sec">
+    <h3>FirewallState switching flow</h3>
+    <div class="sq"><span class="sn">1</span><span>Vehicle state changes (e.g., enters diagnostic session)</span></div>
+    <div class="sq"><span class="sn">2</span><span>Application/mode manager informs BswM about new vehicle state</span></div>
+    <div class="sq"><span class="sn">3</span><span>BswM calls <code>Fw_SetFirewallState(FirewallState)</code></span></div>
+    <div class="sq"><span class="sn">4</span><span>Firewall activates FirewallStateDependentRules referenced by that FirewallState</span></div>
+    <div class="sq"><span class="sn">5</span><span>If switch deployment: Firewall calls EthIf_SetStreamState() to sync switch TCAM rules with new active state</span></div>
+    <div class="sq"><span class="sn">6</span><span>Waits for Fw_StreamStateIndication() callback from EthIf confirming switch rules updated</span></div>
+    <div class="sq"><span class="sn">7</span><span>If timeout (FirewallSwitchRuleMgmtTimeout) or wrong status → retry → if still fails → FW_E_SWITCHRULEMGMT_FAILED</span></div>
+    <div class="tip">Leaky bucket counters PRESERVED across state switches — man-in-middle attacks cannot reset rate limiters by forcing state changes.</div>
+  </div>
+</div>
+
+<div id="inspect" class="panel">
+  <div class="sec">
+    <h3>Three inspection types — know these cold</h3>
+    <div class="g3">
+      <div class="card">
+        <h4><span class="chip cb">Stateless</span></h4>
+        <p>Header field comparison against static configured values. OSI L2-L4. Supports exact values, ranges (min/max), subnets (address mask). Protocols: Ethernet, IPv4, IPv6, ICMP, TCP, UDP.</p>
+      </div>
+      <div class="card">
+        <h4><span class="chip ca">Stateful</span></h4>
+        <p>TCP-specific. Tracks connection state, timeouts, parallel session count. Checks against TCP state machine (RFC 793). Only TCP — UDP is always stateless.</p>
+      </div>
+      <div class="card">
+        <h4><span class="chip cp">Deep Packet (DPI)</span></h4>
+        <p>Application layer: SOME/IP, SOME/IP-SD, DDS-RTPS, DoIP, Generic byte-pattern. Allows access control to individual services (SOME/IP Service ID level).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>Stateless inspection — field matching rules</h3>
+    <table class="tbl">
+      <tr><th>Config element</th><th>What it checks</th><th>Match condition</th></tr>
+      <tr><td><code>FirewallDataLinkFilterConfig</code></td><td>Ethernet header: MAC src/dest, EtherType, VLAN</td><td>ALL configured fields match</td></tr>
+      <tr><td><code>FirewallNetworkLayerFilterConfig</code></td><td>IPv4/IPv6 header: src/dest IP, TTL, protocol, DSCP</td><td>ALL configured fields match</td></tr>
+      <tr><td><code>FirewallTransportLayerFilterConfig</code></td><td>TCP/UDP: src/dest port, TCP flags</td><td>ALL configured fields match</td></tr>
+    </table>
+    <h4>Range and subnet matching</h4>
+    <ul>
+      <li>MAC/IP addresses: subnet match via <code>FirewallFilterMACAddressMask / FirewallFilterIPAddressMask</code></li>
+      <li>IPv4 TTL: range via <code>FirewallIpv4TtlMin / FirewallIpv4TtlMax</code> (inclusive)</li>
+      <li>Port numbers: range via <code>FirewallFilterPortLowerValue / FirewallFilterPortUpperValue</code> (inclusive)</li>
+      <li>SOME/IP versions: range via Min/Max values</li>
+      <li>DoIP addresses: range via LowerValue/UpperValue</li>
+    </ul>
+    <h4>Checksum verification</h4>
+    <p>If <code>FirewallChecksumVerification = TRUE</code> for IPv4/ICMP/TCP: Firewall checks if checksum field is available and valid. Config is per rule per protocol.</p>
+    <h4>Not-modeled protocols — two mechanisms</h4>
+    <ul>
+      <li><strong>EtherType blocking</strong>: configure <code>FirewallFilterEtherType</code> to block by EtherType (e.g., 0x0806=ARP, 0x22F0=AVTP, 0x88F7=PTP)</li>
+      <li><strong>Generic byte pattern</strong>: <code>FirewallPayloadBytePatternFilterConfig</code> — expected bytes at specified offsets in packet</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h3>Stateful inspection — TCP-specific</h3>
+    <table class="tbl">
+      <tr><th>Parameter</th><th>What it does</th><th>SEv raised on violation</th></tr>
+      <tr><td><code>FirewallTimeoutCheck</code></td><td>Time between consecutive packets from same peer. Block if exceeds configured timeout.</td><td>SEV_FW_PACKET_BLOCKED_TCP_TIMEOUT (ID 62)</td></tr>
+      <tr><td><code>FirewallNumberOfParallelTcpSessions</code></td><td>Max simultaneous TCP connections. Block new SYN if limit reached.</td><td>SEV_FW_PACKET_BLOCKED_TCP_MAXCONNECTIONS (ID 61)</td></tr>
+      <tr><td><code>FirewallStateManagementBasedOnTcpFlags</code></td><td>Validates TCP state transitions per RFC 793. Block invalid transitions.</td><td>SEV_FW_PACKET_BLOCKED_TCP_STATETRANSITION (ID 63)</td></tr>
+    </table>
+    <div class="tip">Firewall maintains per-peer TCP state. Important for integration: enough memory must be allocated for all concurrent TCP sessions.</div>
+  </div>
+
+  <div class="sec">
+    <h3>Deep Packet Inspection — per protocol</h3>
+    <div class="sec">
+      <h4>SOME/IP inspection</h4>
+      <ul>
+        <li>Inspects SOME/IP header fields: Service ID, Method ID, Length, Client ID, Session ID, Protocol Version, Interface Version, Message Type, Return Code</li>
+        <li>Multiple SOME/IP messages can be in one TCP/UDP frame → Firewall must find valid rule for EACH SOME/IP message</li>
+        <li>FirewallRule aggregates at most ONE SOME/IP message config</li>
+        <li>If any SOME/IP message has no matching rule → entire packet blocked (can't block individual SOME/IP messages within a packet)</li>
+        <li>Length verification: <code>FirewallSomeipLengthVerification = TRUE</code> → checks TCP/UDP payload = sum of all SOME/IP message lengths</li>
+      </ul>
+      <h4>SOME/IP-SD inspection</h4>
+      <ul>
+        <li>Same multi-message logic as SOME/IP</li>
+        <li>Validates SOME/IP-SD header fields against PRS_SOMEIPServiceDiscoveryProtocol default values</li>
+        <li>Supports version ranges (minor/major version min/max)</li>
+      </ul>
+      <h4>DDS inspection</h4>
+      <ul>
+        <li>Based on DDS-RTPS wire protocol</li>
+        <li>RTPS header + submessages. Multiple RTPS messages per TCP/UDP packet possible</li>
+        <li>Each FirewallRule: at most one RTPS header + submessage config</li>
+        <li>Same block-all-or-allow-all constraint as SOME/IP</li>
+      </ul>
+      <h4>DoIP inspection</h4>
+      <ul>
+        <li>Inspects DoIP header + source/dest address + UDS service codes</li>
+        <li>Does NOT inspect individual UDS DIDs/RIDs (use generic byte-pattern for that)</li>
+        <li>Supports address ranges (LowerValue/UpperValue)</li>
+      </ul>
+      <h4>Generic byte-pattern inspection</h4>
+      <ul>
+        <li>One FirewallRule can aggregate MULTIPLE <code>FirewallPayloadBytePatternFilterConfig</code></li>
+        <li>Each specifies: offset into packet + expected byte value</li>
+        <li>All must match → rule is a match</li>
+        <li>Use for: unsupported protocols, payload inspection, UDS DID-level checks</li>
+      </ul>
+    </div>
+    <div class="danger">Key exam fact: Firewall can only ALLOW or BLOCK entire network packets. If multiple SOME/IP messages in one packet and only one is bad → entire packet blocked.</div>
+  </div>
+</div>
+
+<div id="filter" class="panel">
+  <div class="sec">
+    <h3>Allowlist vs Blocklist — fundamental modes</h3>
+    <div class="g2">
+      <div class="card">
+        <h4><span class="chip cg">Allowlist mode</span></h4>
+        <p>FirewallDefaultAction = <strong>BLOCK</strong>. All patterns defined = what is ALLOWED. Anything without matching rule → blocked. Most secure — whitelist approach.</p>
+        <p style="margin-top:6px">Industry standard for safety-critical ECUs: define exactly what traffic is expected, block everything else.</p>
+      </div>
+      <div class="card">
+        <h4><span class="chip cr">Blocklist mode</span></h4>
+        <p>FirewallDefaultAction = <strong>ALLOW</strong>. All patterns defined = what is BLOCKED. Anything without matching rule → allowed through.</p>
+        <p style="margin-top:6px">Used when only specific known-bad patterns must be blocked. Less restrictive.</p>
+      </div>
+    </div>
+    <div class="tip">Mixed mode: combine allow and block rules in same ruleset. Useful for IDS: define both allowed and explicitly-blocked patterns to get specific SEv mapping per pattern.</div>
+
+    <h4>Actions on match and no-match</h4>
+    <table class="tbl">
+      <tr><th>Case</th><th>Action</th><th>Call made</th></tr>
+      <tr><td>Rule match + FirewallAction = allow</td><td>Pass packet</td><td><code>LsduR_FwRxIndication()</code></td></tr>
+      <tr><td>Rule match + FirewallAction = block</td><td>Drop packet</td><td>None (+ LSduR_FwRxReleaseBuffer if KeepLocalBuffer=TRUE)</td></tr>
+      <tr><td>No match + FirewallDefaultAction = allow</td><td>Pass packet</td><td><code>LsduR_FwRxIndication()</code></td></tr>
+      <tr><td>No match + FirewallDefaultAction = block</td><td>Drop packet + SEv</td><td>IdsM_SetSecurityEvent() with protocol-specific SEv</td></tr>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3>Rate limiting — leaky bucket algorithm</h3>
+    <p>Detects cyclic messages sent at wrong frequency (man-in-middle, faulty ECU). Implemented as leaky bucket:</p>
+    <ul>
+      <li><strong>Counter</strong>: incremented by 1 on every rule pattern match</li>
+      <li><strong>FirewallBucketSize</strong>: maximum counter value before blocking</li>
+      <li><strong>FirewallRefillAmount</strong>: decrement rate (how fast counter drains, controlled by Fw_MainFunction / time)</li>
+      <li>If counter &gt; FirewallBucketSize on match → block packet → raise SEV_FW_PACKET_BLOCKED_RATELIMIT</li>
+      <li>Counter persists across FirewallState switches — cannot be reset by state change</li>
+    </ul>
+    <div class="tip">Both FirewallBucketSize AND FirewallRefillAmount must be configured for rate limiting to activate on a rule. If only one is set, rate limiting does not apply.</div>
+    <div class="warn">Rate limit SEv context data: FirewallRuleId (uint16) + MAC_Address (uint8[6]) — includes MAC so IdsM can identify attacker.</div>
+  </div>
+
+  <div class="sec">
+    <h3>State-dependent filtering</h3>
+    <ul>
+      <li>FirewallRules grouped into <code>FirewallStateDependentRules</code></li>
+      <li>Only ONE FirewallStateDependentRules active at a time</li>
+      <li>Only rules in active group are evaluated — other rules completely ignored</li>
+      <li>Each FirewallStateDependentRules has its own <code>FirewallDefaultAction</code></li>
+      <li>Initial state: set by <code>FirewallInitialStateRef</code> — active before first Fw_SetFirewallState() call</li>
+      <li>BswM switches state by calling <code>Fw_SetFirewallState(uint16)</code></li>
+    </ul>
+    <div class="tip">Exam: "Which rules are active if Fw_SetFirewallState not yet called?" → Rules in FirewallStateDependentRules where referenced FirewallState = FirewallInitialStateRef.</div>
+  </div>
+</div>
+
+<div id="sev" class="panel">
+  <div class="sec">
+    <h3>Security Events (SEv) — complete table</h3>
+    <table class="tbl">
+      <tr><th>SEv Name</th><th>ID</th><th>Trigger</th><th>Context Data</th></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_DATALINKLAYER_MISMATCH</code></td><td>77</td><td>No rule match, mismatch at Ethernet layer</td><td>FirewallRuleId (u16) + CompleteEthernetHeader (u8[30])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_IPV4_MISMATCH</code></td><td>51</td><td>No rule match, mismatch at IPv4 layer</td><td>FirewallRuleId (u16) + CompleteIPv4Header (u8[24])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_IPV6_MISMATCH</code></td><td>52</td><td>No rule match, mismatch at IPv6 layer</td><td>FirewallRuleId (u16) + CompleteIPv4Header (u8[40])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_ICMP_MISMATCH</code></td><td>53</td><td>No rule match, mismatch at ICMP</td><td>FirewallRuleId (u16) + CompleteICMPHeader (u8[8])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_TCP_MISMATCH</code></td><td>54</td><td>No rule match, mismatch at TCP layer</td><td>FirewallRuleId (u16) + CompleteTCPHeader (u8[24])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_UDP_MISMATCH</code></td><td>55</td><td>No rule match, mismatch at UDP layer</td><td>FirewallRuleId (u16) + CompleteUDPHeader (u8[8])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_SOMEIP_MISMATCH</code></td><td>56</td><td>No rule match, mismatch at SOME/IP</td><td>FirewallRuleId (u16) + CompleteSOMEIPHeader (u8[16])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_SOMEIPSD_MISMATCH</code></td><td>57</td><td>No rule match, mismatch at SOME/IP-SD</td><td>FirewallRuleId (u16) + CompleteSOMEIPSDHeader (u8[20])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_DDS_MISMATCH</code></td><td>58</td><td>No rule match, mismatch at DDS-RTPS</td><td>FirewallRuleId (u16) + CompleteDDSHeader (u8[48])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_DOIP_MISMATCH</code></td><td>59</td><td>No rule match, mismatch at DoIP</td><td>FirewallRuleId (u16) + CompleteDOIPHeader (u8[4])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_GENERIC_MISMATCH</code></td><td>60</td><td>No match, generic/payload mismatch</td><td>FirewallRuleId (u16) only</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_TCP_MAXCONNECTIONS</code></td><td>61</td><td>Max TCP sessions reached</td><td>FirewallRuleId (u16) + CompleteTCPHeader (u8[24])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_TCP_TIMEOUT</code></td><td>62</td><td>TCP timeout exceeded</td><td>FirewallRuleId (u16) + CompleteTCPHeader (u8[24])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_TCP_STATETRANSITION</code></td><td>63</td><td>Invalid TCP state transition</td><td>FirewallRuleId (u16) only</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_RATELIMIT</code></td><td>64</td><td>Leaky bucket overflow</td><td>FirewallRuleId (u16) + MAC_Address (u8[6])</td></tr>
+      <tr><td><code>SEV_FW_PACKET_BLOCKED_BY_PERSTREAMFILTERING</code></td><td>83</td><td>Switch core counter increased</td><td>BucketId (u8) + CountValue (u32)</td></tr>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3>SEv protocol identification algorithm (exam critical)</h3>
+    <p>When no rule matches and default action = block, Firewall must identify WHICH protocol layer caused the mismatch to choose the right SEv:</p>
+    <div class="sq"><span class="sn">1</span><span>Iterate all FirewallRules, count how many consecutive OSI layers (starting from L2) match the packet</span></div>
+    <div class="sq"><span class="sn">2</span><span>Find rule(s) with most consecutive matching layers from lowest layer upward</span></div>
+    <div class="sq"><span class="sn">3</span><span>The FIRST layer that causes a non-match in those best-fitting rules = the protocol for the SEv</span></div>
+    <div class="tip">Example: Rules 1&2 match L2+L3+L4 but fail at SOME/IP → raise SEV_FW_PACKET_BLOCKED_SOMEIP_MISMATCH. Rule 3 matches only L3 → worse fit, ignored. This algorithm finds the "deepest" violation point.</div>
+    <p>If mismatch only in payload (generic byte-pattern) → SEV_FW_PACKET_BLOCKED_GENERIC_MISMATCH (no protocol header to blame).</p>
+    <div class="warn">SEv reporting requires <code>FirwallEnableSecurityEventReporting = true</code> in config AND IdsM integration. If not enabled → no SEv raised even if packet blocked.</div>
+  </div>
+</div>
+
+<div id="api" class="panel">
+  <p style="margin-bottom:1rem">All functions available via <code>Fw.h</code> (callbacks also via <code>Fw_Cbk.h</code>). All are DRAFT status in R24-11.</p>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x00</span><span class="chip cg">SYNC</span><span class="chip cgr">NON-REENTRANT</span>
+      <span class="fn">Fw_Init(const Fw_ConfigType* configPtr)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Return</span><span>void</span></div>
+      <div class="mr"><span class="ml">Called by</span><span>EcuM during startup</span></div>
+      <div class="mr"><span class="ml">Effect</span><span>Initializes all variables, sets module to initialized state. Sets initial FirewallState from FirewallInitialStateRef.</span></div>
+      <div class="mr"><span class="ml">DET check</span><span>If already initialized → FW_E_ALREADY_INITIALIZED (0x01)</span></div>
+      <div class="tip" style="margin:6px 0">Only Fw_Init and Fw_GetVersionInfo may be called before initialization.</div>
+    </div>
+  </div>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x01</span><span class="chip cg">SYNC</span><span class="chip ct">REENTRANT</span>
+      <span class="fn">Fw_GetVersionInfo(const Std_VersionInfoType* versionInfo)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Return</span><span>void</span></div>
+      <div class="mr"><span class="ml">Output</span><span>versionInfo pointer — must NOT be NULL</span></div>
+      <div class="mr"><span class="ml">Enabled by</span><span>FirewallVersionInfoApi = TRUE in config</span></div>
+      <div class="mr"><span class="ml">Unique</span><span>REENTRANT — only API that is reentrant besides SetFirewallState</span></div>
+    </div>
+  </div>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x04</span><span class="chip cg">SYNC</span><span class="chip ct">REENTRANT</span>
+      <span class="fn">Fw_SetFirewallState(uint16 FirewallState)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Return</span><span>void</span></div>
+      <div class="mr"><span class="ml">Called by</span><span>BswM — to indicate vehicle state changes</span></div>
+      <div class="mr"><span class="ml">Effect</span><span>Activates FirewallStateDependentRules referenced by FirewallState. Triggers switch rule sync if switch deployment enabled.</span></div>
+      <div class="mr"><span class="ml">Reentrant</span><span>Yes — BswM may call from different contexts</span></div>
+      <div class="tip" style="margin:6px 0">Leaky bucket counters NOT reset on state change — rate limiting persists across vehicle state transitions.</div>
+    </div>
+  </div>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x02</span><span class="chip cgr">SCHEDULED</span>
+      <span class="fn">Fw_MainFunction(void)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Return</span><span>void — no params, no return (BSW scheduler convention)</span></div>
+      <div class="mr"><span class="ml">Called by</span><span>BSW Scheduler cyclically</span></div>
+      <div class="mr"><span class="ml">Period</span><span>FirewallMainFunctionPeriod (default 0.05s = 50ms)</span></div>
+      <div class="mr"><span class="ml">Purpose</span><span>Async function calls to switch driver (EthIf_GetStreamStatistics polling, rule management retries, leaky bucket decrement)</span></div>
+    </div>
+  </div>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x42</span><span class="chip cg">SYNC</span><span class="chip cb">REENTRANT for diff PduIds</span>
+      <span class="fn">Fw_RxIndication(PduIdType RxPduId, const PduInfoType* PduInfoPtr)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Return</span><span>void</span></div>
+      <div class="mr"><span class="ml">Called by</span><span>LSduR — delivers received PDU to Firewall for inspection</span></div>
+      <div class="mr"><span class="ml">PduInfoPtr</span><span>Contains SduLength, SduDataPtr (packet data), and MetaData (incl. FIREWALL_RULE_ID_16 for switch deployment)</span></div>
+      <div class="mr"><span class="ml">Reentrancy</span><span>Reentrant for different PduIds. NON-reentrant for same PduId.</span></div>
+      <div class="mr"><span class="ml">DET check</span><span>If module not initialized → FW_E_PARAM_UNINIT (0x00)</span></div>
+      <div class="tip" style="margin:6px 0">This is the main entry point for all packet inspection. Everything in Section 7.3 and 7.4 executes within this call context.</div>
+    </div>
+  </div>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x05</span><span class="chip cg">SYNC</span><span class="chip ct">REENTRANT</span>
+      <span class="fn">Fw_StreamStatisticsIndication(uint8 SwitchIdx, uint8 NumberOfBuckets, const Eth_StreamStatisticCounterType* ListOfBucketsPtr)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Called by</span><span>EthIf — delivers switch bucket counter statistics to Firewall</span></div>
+      <div class="mr"><span class="ml">Available via</span><span>Fw_Cbk.h (not Fw.h)</span></div>
+      <div class="mr"><span class="ml">Effect</span><span>Firewall caches counter values, compares with previous, raises SEV_FW_PACKET_BLOCKED_BY_PERSTREAMFILTERING if any counter increased</span></div>
+      <div class="mr"><span class="ml">First call</span><span>Assumes previous counters = 0 (no cached values yet)</span></div>
+    </div>
+  </div>
+
+  <div class="api">
+    <div class="ah" onclick="toggle(this)">
+      <span class="chip cgr">0x06</span><span class="chip cg">SYNC</span><span class="chip ct">REENTRANT</span>
+      <span class="fn">Fw_StreamStateIndication(uint8 SwitchIdx, uint8 StreamHandleIdxPtr, boolean StreamActivityStatus)</span>
+    </div>
+    <div class="ab">
+      <div class="mr"><span class="ml">Called by</span><span>EthIf — confirms switch rule (de)activation status to Firewall</span></div>
+      <div class="mr"><span class="ml">Available via</span><span>Fw_Cbk.h</span></div>
+      <div class="mr"><span class="ml">Effect</span><span>Firewall verifies StreamActivityStatus matches expected. If not → retry per CP_SWS_Fw_50008.</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>Expected interfaces (what Firewall calls)</h3>
+    <table class="tbl">
+      <tr><th>Function</th><th>Type</th><th>When called</th></tr>
+      <tr><td><code>LsduR_FwRxIndication()</code></td><td>Mandatory</td><td>Packet allowed — passes to upper stack</td></tr>
+      <tr><td><code>LSduR_FwRxReleaseBuffer()</code></td><td>Mandatory</td><td>Packet blocked + KeepLocalBuffer=TRUE</td></tr>
+      <tr><td><code>Det_ReportError()</code></td><td>Optional</td><td>Development errors (if DevErrorDetect=TRUE)</td></tr>
+      <tr><td><code>EthIf_GetStreamStatistics()</code></td><td>Optional</td><td>Poll switch bucket counters (switch deployment)</td></tr>
+      <tr><td><code>EthIf_SetStreamState()</code></td><td>Optional</td><td>Sync switch rules on state change</td></tr>
+      <tr><td><code>IdsM_SetSecurityEvent()</code></td><td>Optional (obsolete)</td><td>Report SEv — now use BSWGeneral interface</td></tr>
+    </table>
+  </div>
+</div>
+
+<div id="errors" class="panel">
+  <div class="sec">
+    <h3>Development errors</h3>
+    <table class="tbl">
+      <tr><th>Error code</th><th>Value</th><th>Trigger</th></tr>
+      <tr><td><code>FW_E_PARAM_UNINIT</code></td><td>0x00</td><td>Any API called before Fw_Init() completed (except Fw_Init and Fw_GetVersionInfo)</td></tr>
+      <tr><td><code>FW_E_ALREADY_INITIALIZED</code></td><td>0x01</td><td>Fw_Init() called when module already initialized</td></tr>
+      <tr><td><code>FW_E_SWITCHRULEMGMT_FAILED</code></td><td>0x02</td><td>Switch core rule (de)activation failed — timeout or wrong status after retry</td></tr>
+    </table>
+    <div class="warn">Only 3 development errors. No runtime errors. No production errors. No extended production errors. Remember this — exam question likely.</div>
+  </div>
+  <div class="sec">
+    <h3>Error handling conditions</h3>
+    <ul>
+      <li>DET reporting enabled by <code>FirewallDevErrorDetect = TRUE</code></li>
+      <li>Errors reported via <code>Det_ReportError()</code></li>
+      <li>FW_E_PARAM_UNINIT: all APIs must check init state first (except Fw_Init, Fw_GetVersionInfo)</li>
+      <li>FW_E_ALREADY_INITIALIZED: prevents double-init corruption</li>
+      <li>FW_E_SWITCHRULEMGMT_FAILED: raised only in switch deployment scenario when EthIf_SetStreamState fails or times out</li>
+    </ul>
+    <div class="tip">Config variant: Supports VARIANT-PRE-COMPILE, VARIANT-LINK-TIME, and VARIANT-POST-BUILD — more flexible than EA which only supports VARIANT-PRE-COMPILE.</div>
+  </div>
+</div>
+
+<div id="switch" class="panel">
+  <div class="sec">
+    <h3>Smart switch deployment — why it exists</h3>
+    <p>AUTOSAR stack deployed on a smart switch (CPU-equipped switch). Switch core has TCAM hardware — can do stateless filtering at wire speed. But TCAM can't do stateful or DPI. Firewall module on switch CPU handles the parts TCAM can't.</p>
+    <div class="g2">
+      <div class="card">
+        <h4>Switch core (TCAM) handles</h4>
+        <ul>
+          <li>Stateless L2-L4 filtering at hardware speed</li>
+          <li>Pre-filtering — reduces load on switch CPU</li>
+          <li>Rule identified by EthSwtStreamIdentification</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Firewall (switch CPU) handles</h4>
+        <ul>
+          <li>Stateful TCP inspection (connection tracking)</li>
+          <li>Deep packet inspection (SOME/IP, DDS, DoIP)</li>
+          <li>Security event generation</li>
+          <li>Rate limiting (leaky bucket)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>Three switch deployment scenarios</h3>
+    <h4>Scenario 1: Packet passes switch core, needs FW inspection</h4>
+    <div class="sq"><span class="sn">1</span><span>Packet arrives → switch core partially inspects → passes (doesn't block)</span></div>
+    <div class="sq"><span class="sn">2</span><span>Switch core inserts FIREWALL_RULE_ID_16 into PDU metadata (identifies which TCAM rule passed it)</span></div>
+    <div class="sq"><span class="sn">3</span><span>Packet forwarded to switch CPU → LSduR → Fw_RxIndication with FIREWALL_RULE_ID_16 in metadata</span></div>
+    <div class="sq"><span class="sn">4</span><span>Firewall only checks rules COMPATIBLE with that FIREWALL_RULE_ID_16 → reduced rule set → faster</span></div>
+    <div class="sq"><span class="sn">5</span><span>Firewall performs stateful/DPI inspection on reduced rule set → allow/block → SEv if needed</span></div>
+
+    <h4>Scenario 2: Packet blocked by switch core → SEv needed</h4>
+    <div class="sq"><span class="sn">1</span><span>Packet blocked by switch core default rule → FIREWALL_RULE_ID_16 = default rule ID</span></div>
+    <div class="sq"><span class="sn">2</span><span>Packet forwarded to switch CPU for SEv identification</span></div>
+    <div class="sq"><span class="sn">3</span><span>Fw_RxIndication called → Firewall inspects to find which protocol caused mismatch → raises appropriate SEv</span></div>
+    <div class="sq"><span class="sn">4</span><span>Firewall blocks packet (already decided by switch core) → calls LSduR_FwRxReleaseBuffer</span></div>
+
+    <h4>Scenario 3: Switch counter statistics polling</h4>
+    <div class="sq"><span class="sn">1</span><span>Fw_MainFunction runs every FwSwitchBucketCounterPollingInterval seconds</span></div>
+    <div class="sq"><span class="sn">2</span><span>Calls EthIf_GetStreamStatistics() for all configured SwitchIdxs</span></div>
+    <div class="sq"><span class="sn">3</span><span>EthIf → EthSwtDrv retrieves bucket counters → calls Fw_StreamStatisticsIndication()</span></div>
+    <div class="sq"><span class="sn">4</span><span>Firewall compares new vs cached counters. Any increase → raises SEV_FW_PACKET_BLOCKED_BY_PERSTREAMFILTERING</span></div>
+    <div class="sq"><span class="sn">5</span><span>One SEv per increased bucket counter (not per individual packet)</span></div>
+
+    <h4>Scenario 4: FirewallState change → sync switch rules</h4>
+    <div class="sq"><span class="sn">1</span><span>BswM calls Fw_SetFirewallState()</span></div>
+    <div class="sq"><span class="sn">2</span><span>Firewall calls EthIf_SetStreamState() for each affected StreamHandleIdx to enable/disable TCAM rules</span></div>
+    <div class="sq"><span class="sn">3</span><span>EthIf confirms via Fw_StreamStateIndication(). Firewall checks StreamActivityStatus matches expected.</span></div>
+    <div class="sq"><span class="sn">4</span><span>If timeout (FirewallSwitchRuleMgmtTimeout) or mismatch → retry. Persistent failure → FW_E_SWITCHRULEMGMT_FAILED</span></div>
+  </div>
+</div>
+
+<div id="config" class="panel">
+  <div class="sec">
+    <h3>Vector DaVinci Configurator — Firewall step by step</h3>
+    <h4>Step 1: Add Firewall module, set config variants</h4>
+    <p>Firewall supports VARIANT-PRE-COMPILE, VARIANT-LINK-TIME, VARIANT-POST-BUILD. Choose based on project needs. Post-build allows rule updates without recompile.</p>
+
+    <h4>Step 2: Configure FirewallGeneral container</h4>
+    <div class="cfg">
+      <div class="cfgh">FirewallGeneral parameters</div>
+      <div class="cfgr"><code>FirewallDevErrorDetect</code><span class="chip ca">bool</span><span>TRUE during integration/test. FALSE production. Enables FW_E_PARAM_UNINIT, FW_E_ALREADY_INITIALIZED, FW_E_SWITCHRULEMGMT_FAILED reporting to DET.</span></div>
+      <div class="cfgr"><code>FirewallVersionInfoApi</code><span class="chip ca">bool</span><span>TRUE to enable Fw_GetVersionInfo(). Usually FALSE in production.</span></div>
+      <div class="cfgr"><code>FirewallMainFunctionPeriod</code><span class="chip cb">float</span><span>Seconds. Default 0.05 (50ms). Match to OS task period. Controls rate limit decrement cadence and switch polling interval.</span></div>
+      <div class="cfgr"><code>FirwallEnableSecurityEventReporting</code><span class="chip ca">bool</span><span>TRUE to enable SEv reporting to IdsM. MUST be TRUE for IDS integration. Typo in spec: "Firwall" not "Firewall" — watch for this in DaVinci.</span></div>
+      <div class="cfgr"><code>FirewallSwitchRuleMgmtTimeout</code><span class="chip cb">float</span><span>Seconds. Only needed for switch deployment. Timeout for EthIf_SetStreamState confirmation. 0..INF, optional (0..1 multiplicity).</span></div>
+    </div>
+
+    <h4>Step 3: Define FirewallState objects</h4>
+    <p>Create one FirewallState for each vehicle state your project needs (e.g., DRIVING, PARKING, DIAGNOSTIC). Each gets a uint16 ID. Set one as FirewallInitialStateRef.</p>
+
+    <h4>Step 4: Define FirewallStateDependentRules (one per state)</h4>
+    <p>Each FirewallStateDependentRules: references a FirewallState, has its own FirewallDefaultAction (block or allow), and aggregates the FirewallRules active in that state.</p>
+
+    <h4>Step 5: Configure FirewallRules (most work)</h4>
+    <div class="cfg">
+      <div class="cfgh">FirewallRule components</div>
+      <div class="cfgr"><code>FirewallActionForMatchingRules</code><span class="chip cg">ref</span><span>References FirewallActionForMatchingRules container. Set FirewallAction = allow or block. One per rule.</span></div>
+      <div class="cfgr"><code>FirewallDataLinkFilterConfig</code><span class="chip cgr">opt</span><span>L2: MAC src/dest (with optional mask), EtherType, VLAN tag. Leave unconfigured fields = don't care (wildcard).</span></div>
+      <div class="cfgr"><code>FirewallNetworkLayerFilterConfig</code><span class="chip cgr">opt</span><span>IPv4 or IPv6: src/dest IP (with mask), TTL range, protocol number, DSCP, checksum verification flag.</span></div>
+      <div class="cfgr"><code>FirewallTransportLayerFilterConfig</code><span class="chip cgr">opt</span><span>TCP or UDP: src/dest port ranges. TCP additionally: flags, stateful params (timeout, max connections, TCP state machine check).</span></div>
+      <div class="cfgr"><code>FirewallSomeipProtocolFilterConfig</code><span class="chip cgr">opt</span><span>SOME/IP: ServiceId, MethodId, MessageType, ReturnCode, ProtocolVersion, InterfaceVersion, length verification flag.</span></div>
+      <div class="cfgr"><code>FirewallSomeipSdFilterConfig</code><span class="chip cgr">opt</span><span>SOME/IP-SD: entry type, service ID, instance ID, major/minor version ranges.</span></div>
+      <div class="cfgr"><code>FirewallDdsFilterConfig</code><span class="chip cgr">opt</span><span>DDS-RTPS: GUID prefix, submessage kind, domain ID.</span></div>
+      <div class="cfgr"><code>FirewallDoipFilterConfig</code><span class="chip cgr">opt</span><span>DoIP: payload type, source/dest address ranges, UDS service IDs.</span></div>
+      <div class="cfgr"><code>FirewallPayloadBytePatternFilterConfig</code><span class="chip cgr">opt</span><span>Generic: list of (offset, expected_byte_value) pairs. Multiple per rule, ALL must match. For custom protocols or UDS DIDs.</span></div>
+      <div class="cfgr"><code>FirewallBucketSize / FirewallRefillAmount</code><span class="chip cb">uint</span><span>Rate limiting. Both must be configured for rate limiting to activate. BucketSize = max matches before block. RefillAmount = decrement per MainFunction cycle.</span></div>
+    </div>
+
+    <h4>Step 6: Configure PDU routing (FirewallPduRouting)</h4>
+    <p>Maps LSduR PDUs to Firewall inspection paths. Each FirewallPduRoutingItem maps an incoming RxPduId to which FirewallRules apply. Pdu.KeepLocalBuffer: if TRUE, Firewall calls LSduR_FwRxReleaseBuffer on block.</p>
+
+    <h4>Step 7: Configure BswM connection</h4>
+    <p>In BswM config: add mode request for Firewall state. BswM action = call Fw_SetFirewallState(). Define mode conditions for each vehicle state that triggers a Firewall state change.</p>
+
+    <h4>Step 8: Configure IdsM connection (if SEv enabled)</h4>
+    <p>FirewallSecurityEventRefs container: reference each SEv defined in IdsM config. Map Firewall SEv IDs (51-64, 77, 83) to IdsM security event definitions. FirwallEnableSecurityEventReporting must be TRUE.</p>
+
+    <h4>Step 9: Switch deployment (optional)</h4>
+    <div class="cfg">
+      <div class="cfgh">FirewallSwitchBucketCounterStatistics parameters</div>
+      <div class="cfgr"><code>FwSwitchBucketCounterPollingInterval</code><span class="chip cb">float</span><span>How often Fw_MainFunction calls EthIf_GetStreamStatistics. In seconds.</span></div>
+      <div class="cfgr"><code>FirewallSwitchIdx</code><span class="chip cb">uint</span><span>Which switch to poll (EthSwt driver index)</span></div>
+      <div class="cfgr"><code>FirewallWithPerStreamFiltering</code><span class="chip ca">bool</span><span>Enable FIREWALL_RULE_ID_16 metadata usage for reduced rule set inspection.</span></div>
+    </div>
+
+    <h4>Step 10: OS/Scheduler setup</h4>
+    <ul>
+      <li>Add Fw_MainFunction to a periodic BSW task</li>
+      <li>Period must match FirewallMainFunctionPeriod</li>
+      <li>Task must run frequently enough for rate limiting accuracy</li>
+      <li>Fw_RxIndication is synchronous — called in LSduR task context</li>
+    </ul>
+
+    <div class="danger">Common DaVinci mistakes: FirwallEnableSecurityEventReporting (note the typo — "Firwall") not enabled so no SEv raised. FirewallDefaultAction wrong (allow instead of block = blocklist instead of allowlist). Missing FirewallInitialStateRef. Rate limiting only configured BucketSize but not RefillAmount. FirewallMainFunctionPeriod not matching OS task.</div>
+  </div>
+</div>
+
+<div id="debug" class="panel">
+  <div class="sec">
+    <h3>Integration testing checklist</h3>
+    <div class="g2">
+      <div class="card">
+        <h4>Init & state verification</h4>
+        <ul>
+          <li>Call Fw_RxIndication before Fw_Init → FW_E_PARAM_UNINIT in DET</li>
+          <li>Call Fw_Init twice → FW_E_ALREADY_INITIALIZED</li>
+          <li>Verify Fw_SetFirewallState(X) activates correct rule set</li>
+          <li>Verify packets allowed by state A are blocked in state B</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Stateless inspection tests</h4>
+        <ul>
+          <li>Send exact-match packet → verify allowed (LsduR_FwRxIndication called)</li>
+          <li>Send packet with wrong src IP → verify blocked</li>
+          <li>Send packet in IP subnet range → verify match</li>
+          <li>Send packet with port outside configured range → blocked</li>
+          <li>Invalid checksum with FirewallChecksumVerification=TRUE → blocked</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Stateful TCP tests</h4>
+        <ul>
+          <li>Open max TCP sessions → try new SYN → blocked + SEV_TCP_MAXCONNECTIONS</li>
+          <li>Send TCP packet after timeout → SEV_TCP_TIMEOUT</li>
+          <li>Send invalid TCP flag sequence → SEV_TCP_STATETRANSITION</li>
+          <li>Verify TCP state tracked per peer (not global)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Rate limiting tests</h4>
+        <ul>
+          <li>Send packets at configured rate → all pass</li>
+          <li>Burst packets exceeding BucketSize → overflow blocked + SEV_RATELIMIT</li>
+          <li>Wait for bucket refill (FirewallRefillAmount) → packets pass again</li>
+          <li>Change FirewallState → verify counter NOT reset</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>SOME/IP DPI tests</h4>
+        <ul>
+          <li>Send SOME/IP packet with allowed ServiceId → pass</li>
+          <li>Send SOME/IP packet with unlisted ServiceId → blocked + SEV_SOMEIP_MISMATCH</li>
+          <li>Send packet with 2 SOME/IP messages, one valid one invalid → entire packet blocked</li>
+          <li>FirewallSomeipLengthVerification=TRUE: send with wrong length → blocked</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>SEv verification tests</h4>
+        <ul>
+          <li>Send packet that fails at IPv4 layer → verify SEV_IPV4_MISMATCH raised with correct FirewallRuleId</li>
+          <li>Verify context data matches actual packet headers (byte-by-byte check)</li>
+          <li>Disable FirwallEnableSecurityEventReporting → verify no SEv raised</li>
+          <li>Verify SEv ID numbers match spec (51-64, 77, 83)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3>Common debugging scenarios</h3>
+    <table class="tbl">
+      <tr><th>Symptom</th><th>Root cause</th><th>Fix</th></tr>
+      <tr><td>All packets blocked including expected ones</td><td>FirewallDefaultAction = block but matching rules missing or wrong</td><td>Check FirewallRule config, verify rule order, enable DevErrorDetect, add logging in LsduR</td></tr>
+      <tr><td>No SEv raised for blocked packets</td><td>FirwallEnableSecurityEventReporting = false OR IdsM not connected</td><td>Enable security event reporting. Check FirewallSecurityEventRefs. Verify IdsM running.</td></tr>
+      <tr><td>Wrong SEv raised (e.g., TCP instead of SOMEIP)</td><td>SEv protocol algorithm identifies wrong layer — rule config incomplete</td><td>Add more specific rules at lower layers. Check that L2+L3+L4 fields match before SOME/IP fields differ.</td></tr>
+      <tr><td>Fw_SetFirewallState has no effect</td><td>FirewallStateDependentRules not correctly referencing FirewallState, or BswM not calling correct state ID</td><td>Cross-check BswM action config against FirewallState uint16 values</td></tr>
+      <tr><td>Rate limiting too aggressive (false positives)</td><td>FirewallBucketSize too small or FirewallRefillAmount too slow</td><td>Measure actual message frequency; tune BucketSize and RefillAmount accordingly</td></tr>
+      <tr><td>FW_E_SWITCHRULEMGMT_FAILED in DET</td><td>EthIf_SetStreamState not confirmed in time or switch driver issue</td><td>Increase FirewallSwitchRuleMgmtTimeout. Check EthSwtDrv configuration and hardware.</td></tr>
+      <tr><td>Packet with multiple SOME/IP blocked when one message valid</td><td>Expected behavior — Firewall cannot partially block. Entire packet blocked if any SOME/IP message has no matching rule.</td><td>Add rules for ALL SOME/IP messages that can appear in one frame. Check aggregation logic.</td></tr>
+      <tr><td>Fw_MainFunction not running → rate limiting and switch polling broken</td><td>OS task not configured or wrong period</td><td>Check SchM configuration, verify task runs at FirewallMainFunctionPeriod</td></tr>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3>Exam traps — memorize these</h3>
+    <ul>
+      <li><strong>INGRESS ONLY — egress traffic NOT filtered</strong></li>
+      <li><strong>First match wins — rules evaluated in ORDER, stop at first match</strong></li>
+      <li><strong>A rule is a match ONLY if ALL configured layer filters match</strong></li>
+      <li><strong>Whole packet blocked or allowed — can't block one SOME/IP message within a frame</strong></li>
+      <li><strong>SEv raised only on no-match+default-block case (not on explicit block rules yet)</strong></li>
+      <li><strong>Leaky bucket counter NOT reset on FirewallState change</strong></li>
+      <li><strong>FirewallInitialStateRef: rules active before first Fw_SetFirewallState call</strong></li>
+      <li><strong>FirwallEnableSecurityEventReporting — note typo "Firwall" (in spec!)</strong></li>
+      <li><strong>Only 3 DET errors. Zero runtime errors. Zero production errors.</strong></li>
+      <li><strong>Fw_Init and Fw_GetVersionInfo: only APIs callable before init</strong></li>
+      <li><strong>Fw_SetFirewallState is REENTRANT — called by BswM</strong></li>
+      <li><strong>Fw_RxIndication: reentrant for different PduIds, non-reentrant for same PduId</strong></li>
+      <li><strong>Config variant supports POST-BUILD (unlike EA which is PRE-COMPILE only)</strong></li>
+      <li><strong>SEv for switch counter: context data = BucketId + CountValue (NOT header data)</strong></li>
+      <li><strong>FW_E_SWITCHRULEMGMT_FAILED only raised in switch deployment, not standard ECU</strong></li>
+      <li><strong>Rate limiting: BOTH FirewallBucketSize AND FirewallRefillAmount needed — one alone does nothing</strong></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function toggle(h){h.nextElementSibling.classList.toggle('open')}
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active')});
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  });
+});
+</script>

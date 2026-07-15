@@ -1,0 +1,585 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.tab-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:8px}
+.tab{padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s}
+.tab.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-secondary)}
+.tab:hover:not(.active){background:var(--color-background-secondary)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:12px}
+.tag{display:inline-block;padding:2px 8px;border-radius:var(--border-radius-md);font-size:11px;font-weight:500}
+.tag-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.tag-green{background:var(--color-background-success);color:var(--color-text-success)}
+.tag-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.tag-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.tag-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+h2{font-size:16px;font-weight:500;margin-bottom:8px;color:var(--color-text-primary)}
+h3{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--color-text-primary)}
+p,li{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+li{margin-left:1.2rem;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:2px 5px;border-radius:4px;color:var(--color-text-primary)}
+.error-row{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;font-size:12px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:start}
+.error-row:last-child{border-bottom:none}
+.err-hdr{font-weight:500;font-size:11px;color:var(--color-text-secondary);padding:4px 0;text-transform:uppercase;letter-spacing:.04em}
+.api-row{display:grid;grid-template-columns:1.4fr .7fr .7fr 1.2fr;gap:8px;font-size:12px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:start}
+.api-row:last-child{border-bottom:none}
+.q-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:8px;cursor:pointer;border:0.5px solid transparent;transition:border-color .15s}
+.q-box:hover{border-color:var(--color-border-secondary)}
+.q-box.revealed .ans{display:block}
+.ans{display:none;margin-top:8px;padding-top:8px;border-top:0.5px solid var(--color-border-tertiary)}
+.ans p{color:var(--color-text-primary)}
+.reveal-hint{font-size:11px;color:var(--color-text-tertiary);float:right}
+.flow-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+.step-num{min-width:24px;height:24px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.state-box{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 12px;text-align:center;font-size:12px;font-weight:500}
+.state-arrow{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-secondary)}
+.arrow-line{flex:1;height:0.5px;background:var(--color-border-secondary)}
+.sm-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.debug-item{background:var(--color-background-secondary);border-left:2px solid var(--color-border-info);padding:8px 12px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;margin-bottom:6px;font-size:13px}
+.debug-item.warn{border-left-color:#EF9F27}
+.debug-item.err{border-left-color:#E24B4A}
+.check-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;font-size:13px}
+.check-icon{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.ci-ok{background:var(--color-background-success);color:var(--color-text-success)}
+.ci-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.ci-err{background:var(--color-background-danger);color:var(--color-text-danger)}
+@media(max-width:520px){.grid2,.grid3{grid-template-columns:1fr}.api-row,.error-row{grid-template-columns:1fr}}
+</style>
+
+<div style="padding:1rem 0">
+<div style="margin-bottom:1rem">
+  <p style="font-size:13px;color:var(--color-text-secondary)">AUTOSAR Classic Platform — SPI Handler/Driver (SWS, R24-11) · Complete exam study guide</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showTab('basics')">1. Fundamentals</button>
+  <button class="tab" onclick="showTab('arch')">2. Architecture</button>
+  <button class="tab" onclick="showTab('levels')">3. Levels & Modes</button>
+  <button class="tab" onclick="showTab('states')">4. State Machines</button>
+  <button class="tab" onclick="showTab('api')">5. API Reference</button>
+  <button class="tab" onclick="showTab('errors')">6. Errors & DET/DEM</button>
+  <button class="tab" onclick="showTab('flow')">7. Code Flows</button>
+  <button class="tab" onclick="showTab('debug')">8. Debug & Test</button>
+  <button class="tab" onclick="showTab('quiz')">9. Exam Q&A</button>
+</div>
+
+<!-- PANEL 1: FUNDAMENTALS -->
+<div id="panel-basics" class="panel active">
+  <div class="card">
+    <h2>What is the SPI Handler/Driver?</h2>
+    <p>A monolithic AUTOSAR Basic Software (BSW) module that sits in the <strong>MCAL layer</strong> (Microcontroller Abstraction Layer) and the <strong>ECU Abstraction layer</strong>. It provides a unified interface for all SPI bus communication within an ECU — to devices like EEPROMs, Watchdog ICs, and I/O ASICs.</p>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="tag tag-blue">Master mode only</span>
+      <span class="tag tag-blue">Full-duplex only</span>
+      <span class="tag tag-gray">1 to N SPI buses</span>
+      <span class="tag tag-gray">Static pre-compile config</span>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>SPI Physical Signals</h3>
+      <ul>
+        <li><code>MOSI</code> — Master Out Slave In (data from MCU)</li>
+        <li><code>MISO</code> — Master In Slave Out (data to MCU)</li>
+        <li><code>CS</code> — Chip Select (active per Job)</li>
+        <li><code>CLK</code> — Clock (MCU drives it)</li>
+      </ul>
+      <p style="margin-top:8px">Clock config, PLL, prescalers are done by <strong>MCU Driver</strong>, not SPI driver.</p>
+    </div>
+    <div class="card">
+      <h3>Key Constraint</h3>
+      <ul>
+        <li>SWS_Spi_00040: Master mode only</li>
+        <li>SWS_Spi_00050: Full-duplex only</li>
+        <li>SWS_Spi_00244: MCU Driver manages clock/PLL</li>
+        <li>SWS_Spi_00342: Port pins shared with SPI may need Port Driver</li>
+        <li>CS can be HW peripheral-managed or software DIO-managed</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Core Abstraction Model: Channel → Job → Sequence</h2>
+    <p style="margin-bottom:10px">This 3-tier hierarchy is the <em>entire</em> foundation of AUTOSAR SPI. Everything is built on top of it.</p>
+    <div class="grid3">
+      <div style="border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span class="tag tag-blue">Channel</span></div>
+        <p>A logical data pipe with same config params. Identified by <code>Spi_ChannelType</code> (uint8). Contains N data elements. Can be reused across multiple Jobs.</p>
+        <p style="margin-top:6px;font-size:12px;color:var(--color-text-tertiary)">SpiDataWidth: 1–64 bits. Access casting: uint8/16/32.</p>
+      </div>
+      <div style="border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span class="tag tag-amber">Job</span></div>
+        <p>One or more Channels on the <em>same Chip Select</em> (= one slave device). Identified by <code>Spi_JobType</code> (uint16). Has a priority (0–3). Atomic — cannot be interrupted.</p>
+        <p style="margin-top:6px;font-size:12px;color:var(--color-text-tertiary)">CS asserted at start, deasserted at end of Job.</p>
+      </div>
+      <div style="border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span class="tag tag-green">Sequence</span></div>
+        <p>Ordered list of Jobs. Identified by <code>Spi_SequenceType</code> (uint8). Can be Interruptible or Non-Interruptible. Jobs sorted highest→lowest priority.</p>
+        <p style="margin-top:6px;font-size:12px;color:var(--color-text-tertiary)">First Job = highest (or equal) priority in Sequence.</p>
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Buffer Types</h3>
+      <p><strong>IB (Internal Buffer)</strong> — driver owns the buffer. Fixed size (1 entry deep per channel). Use: small transfers (&lt;10 bytes), daisy-chain. Access via <code>Spi_WriteIB</code> / <code>Spi_ReadIB</code>.</p>
+      <p style="margin-top:8px"><strong>EB (External Buffer)</strong> — application owns the buffer. Size variable (up to config max). Use: large streams, EEPROM, complex ASICs. Set via <code>Spi_SetupEB</code> before transmit.</p>
+      <p style="margin-top:8px"><code>SpiChannelBuffersAllowed</code>: 0=IB only, 1=EB only, 2=Both</p>
+    </div>
+    <div class="card">
+      <h3>Data Width Handling</h3>
+      <p><code>SpiDataWidth</code>: 1–64 bits. Software access type (casting):</p>
+      <ul style="margin-top:6px">
+        <li><code>uint8</code> when SpiDataWidth &lt; 9</li>
+        <li><code>uint16</code> when 9 ≤ SpiDataWidth &lt; 17</li>
+        <li><code>uint32</code> when 17 ≤ SpiDataWidth</li>
+      </ul>
+      <p style="margin-top:8px">If data width &lt; access type (e.g. 12-bit width, 16-bit access): lower bits sent, upper bits ignored on TX. On RX, lower bits received, upper bits zero-extended.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 2: ARCHITECTURE -->
+<div id="panel-arch" class="panel">
+  <div class="card">
+    <h2>AUTOSAR Layered Architecture Placement</h2>
+    <div style="display:flex;flex-direction:column;gap:4px;margin:10px 0">
+      <div style="background:var(--color-background-secondary);padding:8px 12px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500">Application / RTE</div>
+      <div style="background:var(--color-background-secondary);padding:8px 12px;border-radius:var(--border-radius-md);font-size:13px">Services Layer (DET, DEM, SchM)</div>
+      <div style="background:var(--color-background-info);padding:8px 12px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;color:var(--color-text-info)">ECU Abstraction Layer — SPI Handler (multi-access handling)</div>
+      <div style="background:var(--color-background-info);padding:8px 12px;border-radius:var(--border-radius-md);font-size:13px;color:var(--color-text-info)">MCAL — SPI Driver (HW register access) ← YOU ARE HERE</div>
+      <div style="background:var(--color-background-secondary);padding:8px 12px;border-radius:var(--border-radius-md);font-size:13px">MCU Driver, Port Driver, DIO Driver</div>
+      <div style="background:var(--color-background-secondary);padding:8px 12px;border-radius:var(--border-radius-md);font-size:13px">Microcontroller Hardware (SPI Peripheral, GPIO)</div>
+    </div>
+    <p>The SPI spec is <em>monolithic</em>: handler + driver combined in one module. Handler = multi-access arbitration (upper part). Driver = HW register access (lower part).</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Dependencies (Expected Interfaces)</h3>
+      <p><strong>Mandatory:</strong></p>
+      <ul>
+        <li><code>Det_ReportRuntimeError</code> — runtime error reporting</li>
+      </ul>
+      <p style="margin-top:8px"><strong>Optional:</strong></p>
+      <ul>
+        <li><code>Det_ReportError</code> — development errors</li>
+        <li><code>Dem_SetEventStatus</code> — hardware production errors</li>
+      </ul>
+      <p style="margin-top:8px"><strong>Not SPI's job:</strong> clock, PLL, port pin direction config</p>
+    </div>
+    <div class="card">
+      <h3>CS (Chip Select) Handling</h3>
+      <ul>
+        <li>CS is tied to the <strong>Job</strong> definition, not Channel or Sequence</li>
+        <li>CS activated at Job start, deactivated at Job end</li>
+        <li><code>SpiCsSelection</code>: <code>CS_VIA_PERIPHERAL_ENGINE</code> or <code>CS_VIA_GPIO</code></li>
+        <li><code>SpiCsBehavior</code>: <code>CS_KEEP_ASSERTED</code> (all channels) or release per frame</li>
+        <li>If CS_VIA_GPIO: SPI driver drives CS line as DIO explicitly</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Header File</h3>
+    <p>All public types and API functions are in <code>Spi.h</code>. Callback notification definitions are in <code>Spi_Externals.h</code>. Scheduled function (<code>Spi_MainFunction_Handling</code>) is in <code>SchM_Spi.h</code>.</p>
+  </div>
+</div>
+
+<!-- PANEL 3: LEVELS & MODES -->
+<div id="panel-levels" class="panel">
+  <div class="card">
+    <h2>3 Scalability Levels — Configured at Pre-compile Time</h2>
+    <p>Parameter: <code>SpiLevelDelivered</code> (0, 1, or 2). Cannot be changed at runtime.</p>
+  </div>
+  <div class="grid3">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="tag tag-gray">Level 0</span><span style="font-size:13px;font-weight:500">Simple Sync</span></div>
+      <ul>
+        <li>Synchronous only (<code>Spi_SyncTransmit</code>)</li>
+        <li>Caller is <em>blocked</em> during TX</li>
+        <li>No priorities needed</li>
+        <li>No notifications called</li>
+        <li>Concurrent sync TX allowed only if <code>SpiSupportConcurrentSyncTransmit=TRUE</code></li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px">Use case: Simple ECU, high-speed slaves</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="tag tag-blue">Level 1</span><span style="font-size:13px;font-weight:500">Basic Async</span></div>
+      <ul>
+        <li>Asynchronous only (<code>Spi_AsyncTransmit</code>)</li>
+        <li>Caller NOT blocked</li>
+        <li>Job priority scheduling (0–3)</li>
+        <li>End notifications (Job + Seq)</li>
+        <li>Polling OR interrupt mode (switchable at runtime)</li>
+        <li>Interruptible Sequences supported</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px">Use case: Multi-priority SPI access, low-speed slaves</p>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span class="tag tag-green">Level 2</span><span style="font-size:13px;font-weight:500">Enhanced</span></div>
+      <ul>
+        <li>Both Sync AND Async</li>
+        <li>All Level 0 rules apply to sync</li>
+        <li>All Level 1 rules apply to async</li>
+        <li>Default async mode: <code>SPI_POLLING_MODE</code></li>
+        <li><code>Spi_SetAsyncMode</code> switches polling/interrupt</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px">Use case: Complex ECU with mixed-speed slaves</p>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Async Mode (Level 1 & 2)</h3>
+      <p><code>Spi_AsyncModeType</code>:</p>
+      <ul>
+        <li><code>SPI_POLLING_MODE</code> — interrupts disabled; <code>Spi_MainFunction_Handling</code> drives state machine (called by BSW Scheduler)</li>
+        <li><code>SPI_INTERRUPT_MODE</code> — interrupts enabled; ISR drives state machine</li>
+      </ul>
+      <p style="margin-top:8px">Cannot switch mode if async TX in progress (returns E_NOT_OK). CAN switch during sync TX.</p>
+    </div>
+    <div class="card">
+      <h3>Interruptible Sequences (Level 1 & 2)</h3>
+      <p><code>SpiInterruptibleSeqAllowed</code>: ON or OFF</p>
+      <ul style="margin-top:6px">
+        <li><strong>OFF (Non-Interruptible)</strong>: Once a Sequence starts, it runs to completion. No preemption between Jobs.</li>
+        <li><strong>ON (Mixed)</strong>: Each Sequence marked <code>SpiInterruptibleSequence=TRUE</code> can be preempted between Jobs by a higher-priority Job from another Sequence. Rescheduling happens at each Job boundary.</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px;color:var(--color-text-danger)">Warning: Interruptible sequences sharing channels can overwrite each other's data!</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Job Priority Rules</h3>
+    <ul>
+      <li>Priority values: 0 (lowest) to 3 (highest)</li>
+      <li>Jobs in a Sequence must have <em>same or decreasing</em> priority (first Job = highest)</li>
+      <li>Higher value = higher priority (SWS_Spi_00093)</li>
+      <li>Scheduler always sends highest-priority pending Job first</li>
+      <li>In Level 1/2: if new Sequence is requested, SPI evaluates lead Job priority to accept or reject</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PANEL 4: STATE MACHINES -->
+<div id="panel-states" class="panel">
+  <div class="card">
+    <h2>Driver State Machine (Spi_StatusType)</h2>
+    <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">
+      <div class="sm-row">
+        <div class="state-box" style="background:var(--color-background-secondary);min-width:100px">SPI_UNINIT<br><span style="font-size:11px;font-weight:400;color:var(--color-text-secondary)">0x00</span></div>
+        <div class="state-arrow"><div class="arrow-line"></div>→</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)"><code>Spi_Init()</code> succeeds</div>
+      </div>
+      <div class="sm-row">
+        <div class="state-box" style="background:var(--color-background-info);color:var(--color-text-info);min-width:100px">SPI_IDLE<br><span style="font-size:11px;font-weight:400">0x01</span></div>
+        <div class="state-arrow"><div class="arrow-line"></div>⇄</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">
+          → SPI_BUSY: <code>Spi_AsyncTransmit()</code> or <code>Spi_SyncTransmit()</code> accepted<br>
+          ← SPI_BUSY: Sequence finished or failed
+        </div>
+      </div>
+      <div class="sm-row">
+        <div class="state-box" style="background:var(--color-background-warning);color:var(--color-text-warning);min-width:100px">SPI_BUSY<br><span style="font-size:11px;font-weight:400">0x02</span></div>
+        <div class="state-arrow"><div class="arrow-line"></div>→</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)"><code>Spi_DeInit()</code> succeeds (only if IDLE!) → SPI_UNINIT</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-danger)">DeInit is rejected if state is SPI_BUSY. Returns E_NOT_OK.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Job Result State (Spi_JobResultType)</h3>
+      <ul>
+        <li><code>SPI_JOB_OK</code> (0x00) — default after init; last TX succeeded</li>
+        <li><code>SPI_JOB_PENDING</code> (0x01) — TX in progress</li>
+        <li><code>SPI_JOB_FAILED</code> (0x02) — TX failed (e.g. HW error)</li>
+        <li><code>SPI_JOB_QUEUED</code> (0x03) — accepted but not yet started (Async only)</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px">Flow: QUEUED → PENDING → OK or FAILED. Job end notification called regardless of OK/FAILED (to avoid deadlocks).</p>
+    </div>
+    <div class="card">
+      <h3>Sequence Result State (Spi_SeqResultType)</h3>
+      <ul>
+        <li><code>SPI_SEQ_OK</code> (0x00) — default; last TX succeeded</li>
+        <li><code>SPI_SEQ_PENDING</code> (0x01) — TX in progress</li>
+        <li><code>SPI_SEQ_FAILED</code> (0x02) — TX failed</li>
+        <li><code>SPI_SEQ_CANCELED</code> (0x03) — canceled by <code>Spi_Cancel()</code></li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px">Seq end notification called for FAILED, OK, and CANCELED (to avoid deadlocks).</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Hardware Unit State (Spi_GetHWUnitStatus)</h3>
+    <p>Returns <code>Spi_StatusType</code>: <code>SPI_IDLE</code> or <code>SPI_BUSY</code>. Controlled by <code>SpiHwStatusApi</code> config. Used to check if a specific SPI peripheral (HW unit) is free — important when Jobs on different buses could run concurrently.</p>
+  </div>
+
+  <div class="card">
+    <h3>Complete Async Transmission State Flow</h3>
+    <div style="font-size:13px;line-height:2">
+      <code>Spi_Init()</code> → Driver: <span class="tag tag-blue">IDLE</span>, Jobs: <span class="tag tag-green">OK</span>, Seqs: <span class="tag tag-green">OK</span><br>
+      <code>Spi_WriteIB()</code> / <code>Spi_SetupEB()</code> → No state change<br>
+      <code>Spi_AsyncTransmit(Seq0)</code> → Driver: <span class="tag tag-amber">BUSY</span>, Seq0: <span class="tag tag-amber">PENDING</span>, Jobs: <span class="tag tag-gray">QUEUED</span><br>
+      Job starts executing → Jobs: <span class="tag tag-amber">PENDING</span><br>
+      Job done OK → Jobs: <span class="tag tag-green">OK</span> → <code>JobEndNotification()</code> called<br>
+      All Jobs done → Seq0: <span class="tag tag-green">OK</span> → <code>SeqEndNotification()</code> called → Driver: <span class="tag tag-blue">IDLE</span><br>
+      HW error → Jobs: <span class="tag tag-red">FAILED</span>, Seq: <span class="tag tag-red">FAILED</span> → DEM reported → notifications called
+    </div>
+  </div>
+</div>
+
+<!-- PANEL 5: API -->
+<div id="panel-api" class="panel">
+  <div class="card">
+    <h2>Complete API Reference</h2>
+    <div class="api-row" style="font-weight:500;font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em">
+      <div>Function</div><div>Sync/Async</div><div>Reentrant</div><div>Level / Notes</div>
+    </div>
+    <div class="api-row"><div><code>Spi_Init(ConfigPtr)</code></div><div>Sync</div><div><span class="tag tag-red">No</span></div><div>All levels. Sets IDLE, jobs=OK, seqs=OK. Call DeInit first to re-init.</div></div>
+    <div class="api-row"><div><code>Spi_DeInit()</code></div><div>Sync</div><div><span class="tag tag-red">No</span></div><div>All levels. Rejected if SPI_BUSY. Returns E_OK/E_NOT_OK.</div></div>
+    <div class="api-row"><div><code>Spi_WriteIB(Ch, DataPtr)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>IB channels only. NULL ptr = use default TX value. Does not trigger TX.</div></div>
+    <div class="api-row"><div><code>Spi_ReadIB(Ch, DataPtr)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>IB channels only. Call AFTER transmit to get received data.</div></div>
+    <div class="api-row"><div><code>Spi_SetupEB(Ch, Src, Dst, Len)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>EB channels only. Must call before AsyncTransmit. NULL Src = default TX. NULL Dst = ignore RX.</div></div>
+    <div class="api-row"><div><code>Spi_AsyncTransmit(Seq)</code></div><div>Async</div><div><span class="tag tag-green">Yes</span></div><div>Level 1&2 only. Non-blocking. Sets BUSY + SEQ_PENDING + jobs QUEUED. Rejected if Seq already PENDING.</div></div>
+    <div class="api-row"><div><code>Spi_SyncTransmit(Seq)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>Level 0&2 only. Blocks until done. Rejected if bus busy (SEQ_IN_PROCESS).</div></div>
+    <div class="api-row"><div><code>Spi_GetStatus()</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>Returns Spi_StatusType: UNINIT/IDLE/BUSY.</div></div>
+    <div class="api-row"><div><code>Spi_GetJobResult(Job)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>Returns Spi_JobResultType. Undefined if called before Init.</div></div>
+    <div class="api-row"><div><code>Spi_GetSequenceResult(Seq)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>Returns Spi_SeqResultType. Undefined if called before Init.</div></div>
+    <div class="api-row"><div><code>Spi_GetHWUnitStatus(HWUnit)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>Enabled by SpiHwStatusApi. Returns IDLE/BUSY for specific peripheral.</div></div>
+    <div class="api-row"><div><code>Spi_Cancel(Seq)</code></div><div>Async</div><div><span class="tag tag-green">Yes</span></div><div>Enabled by SpiCancelApi. Stops between Jobs, not mid-Job. Sets SEQ_CANCELED. Notification still called.</div></div>
+    <div class="api-row"><div><code>Spi_SetAsyncMode(Mode)</code></div><div>Sync</div><div><span class="tag tag-red">No</span></div><div>Level 1&2. Rejected if async TX in progress (E_NOT_OK). Allowed during sync TX.</div></div>
+    <div class="api-row"><div><code>Spi_GetVersionInfo(info)</code></div><div>Sync</div><div><span class="tag tag-green">Yes</span></div><div>All levels. Null check on pointer if DET enabled.</div></div>
+    <div class="api-row"><div><code>Spi_MainFunction_Handling()</code></div><div>Sync</div><div>—</div><div>Called by BSW Scheduler in polling mode. Polls SPI interrupts to advance state machine.</div></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <h3>Callbacks Allowed Inside Notifications</h3>
+    <p>Only these APIs may be called from <code>Spi_JobEndNotification</code> / <code>Spi_SeqEndNotification</code>:</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+      <code>Spi_ReadIB</code><code>Spi_WriteIB</code><code>Spi_SetupEB</code><code>Spi_GetJobResult</code><code>Spi_GetSequenceResult</code><code>Spi_GetHWUnitStatus</code><code>Spi_Cancel</code>
+    </div>
+    <p style="margin-top:8px;color:var(--color-text-danger);font-size:12px">All other APIs (including AsyncTransmit, SyncTransmit, Init, DeInit, SetAsyncMode) are NOT allowed in callbacks.</p>
+  </div>
+</div>
+
+<!-- PANEL 6: ERRORS -->
+<div id="panel-errors" class="panel">
+  <div class="card">
+    <h2>Development Errors (DET) — Caught During Development</h2>
+    <div class="error-row err-hdr"><div>Error Code</div><div>Value</div><div>Trigger</div></div>
+    <div class="error-row"><div><code>SPI_E_PARAM_CHANNEL</code></div><div>0x0A</div><div>Wrong channel ID or wrong buffer type (IB/EB mismatch)</div></div>
+    <div class="error-row"><div><code>SPI_E_PARAM_JOB</code></div><div>0x0B</div><div>Invalid Job ID passed to API</div></div>
+    <div class="error-row"><div><code>SPI_E_PARAM_SEQ</code></div><div>0x0C</div><div>Invalid Sequence ID passed to API</div></div>
+    <div class="error-row"><div><code>SPI_E_PARAM_LENGTH</code></div><div>0x0D</div><div>EB buffer length exceeds configured maximum</div></div>
+    <div class="error-row"><div><code>SPI_E_PARAM_UNIT</code></div><div>0x0E</div><div>Invalid HW Unit ID</div></div>
+    <div class="error-row"><div><code>SPI_E_PARAM_POINTER</code></div><div>0x10</div><div>NULL pointer where non-null expected (e.g. GetVersionInfo)</div></div>
+    <div class="error-row"><div><code>SPI_E_UNINIT</code></div><div>0x1A</div><div>API called before Spi_Init()</div></div>
+    <div class="error-row"><div><code>SPI_E_ALREADY_INITIALIZED</code></div><div>0x4A</div><div>Spi_Init() called when already initialized</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h2>Runtime Errors (DET)</h2>
+      <div class="error-row err-hdr"><div>Error Code</div><div>Value</div></div>
+      <div class="error-row"><div><code>SPI_E_SEQ_PENDING</code></div><div>0x2A</div></div>
+      <div class="error-row"><div><code>SPI_E_SEQ_IN_PROCESS</code></div><div>0x3A</div></div>
+      <p style="margin-top:8px;font-size:12px"><code>SEQ_PENDING</code>: AsyncTransmit called for Seq that's already PENDING, or shares Jobs with a PENDING Seq.</p>
+      <p style="margin-top:6px;font-size:12px"><code>SEQ_IN_PROCESS</code>: SyncTransmit called when another sync TX on same bus is active (and concurrent mode disabled).</p>
+    </div>
+    <div class="card">
+      <h2>Extended Production Error (DEM)</h2>
+      <p><code>SPI_E_HARDWARE_ERROR</code> — reported when any error bit in the SPI HW TX status register is set.</p>
+      <ul style="margin-top:8px">
+        <li><strong>FAIL</strong>: <code>Dem_SetEventStatus(SPI_E_HARDWARE_ERROR, DEM_EVENT_STATUS_FAILED)</code></li>
+        <li><strong>PASS</strong>: <code>Dem_SetEventStatus(SPI_E_HARDWARE_ERROR, DEM_EVENT_STATUS_PASSED)</code></li>
+      </ul>
+      <p style="margin-top:8px">Effect: Stop current Sequence, set Job → FAILED, Seq → FAILED. Monitored continuously.</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Error Reporting Path Summary</h3>
+    <div class="flow-step"><div class="step-num">D</div><div><strong>Development Error</strong> → <code>Det_ReportError(SPI, 0x00, SPI_E_xxx)</code> — only in debug builds when DET is enabled</div></div>
+    <div class="flow-step"><div class="step-num">R</div><div><strong>Runtime Error</strong> → <code>Det_ReportRuntimeError(SPI, 0x00, SPI_E_xxx)</code> — also in release builds</div></div>
+    <div class="flow-step"><div class="step-num">P</div><div><strong>Production Error</strong> → <code>Dem_SetEventStatus(SPI_E_HARDWARE_ERROR, FAILED/PASSED)</code> — for field diagnostics</div></div>
+  </div>
+</div>
+
+<!-- PANEL 7: CODE FLOWS -->
+<div id="panel-flow" class="panel">
+  <div class="grid2">
+    <div class="card">
+      <h3>IB Channel Flow (AsyncTransmit)</h3>
+      <div class="flow-step"><div class="step-num">1</div><div><code>Spi_Init(ConfigPtr)</code> — initialize all channels, jobs, sequences</div></div>
+      <div class="flow-step"><div class="step-num">2</div><div><code>Spi_WriteIB(ChannelID, &TxBuf)</code> — copy TX data into internal buffer</div></div>
+      <div class="flow-step"><div class="step-num">3</div><div><code>Spi_AsyncTransmit(SequenceID)</code> — enqueue sequence, set BUSY+PENDING</div></div>
+      <div class="flow-step"><div class="step-num">4</div><div>Driver processes Jobs (highest priority first), asserts CS, clocks data</div></div>
+      <div class="flow-step"><div class="step-num">5</div><div><code>Spi_JobEndNotification()</code> called for each Job (if configured)</div></div>
+      <div class="flow-step"><div class="step-num">6</div><div><code>Spi_SeqEndNotification()</code> called when Sequence complete</div></div>
+      <div class="flow-step"><div class="step-num">7</div><div><code>Spi_ReadIB(ChannelID, &RxBuf)</code> — read received data from internal buffer</div></div>
+    </div>
+    <div class="card">
+      <h3>EB Channel Flow (AsyncTransmit)</h3>
+      <div class="flow-step"><div class="step-num">1</div><div><code>Spi_Init(ConfigPtr)</code></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div><code>Spi_SetupEB(ChID, SrcPtr, DstPtr, Len)</code> — register application TX/RX buffers. Call once per channel before each transmit (variable data) or just first time (constant data).</div></div>
+      <div class="flow-step"><div class="step-num">3</div><div><code>Spi_AsyncTransmit(SequenceID)</code></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div>Driver uses pointers from SetupEB to directly DMA/transfer from app buffers</div></div>
+      <div class="flow-step"><div class="step-num">5</div><div>Notifications called → data in DstPtr is valid</div></div>
+      <p style="font-size:12px;color:var(--color-text-danger);margin-top:8px">Application must keep buffers valid during entire transmission!</p>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Initialization / De-initialization Sequence</h3>
+    <div class="flow-step"><div class="step-num">1</div><div>System: MCU_Init() — sets up clock, PLL, prescalers</div></div>
+    <div class="flow-step"><div class="step-num">2</div><div>System: Port_Init() — configures SPI pin directions (MOSI/MISO/CLK/CS as alt function)</div></div>
+    <div class="flow-step"><div class="step-num">3</div><div><code>Spi_Init(ConfigPtr)</code> — configures SPI peripheral registers, sets all to IDLE/OK</div></div>
+    <div class="flow-step"><div class="step-num">4</div><div>... (normal operation) ...</div></div>
+    <div class="flow-step"><div class="step-num">5</div><div>Poll <code>Spi_GetStatus()</code> until <code>SPI_IDLE</code> (never DeInit while BUSY!)</div></div>
+    <div class="flow-step"><div class="step-num">6</div><div><code>Spi_DeInit()</code> — resets SPI HW to Power-On-Reset state, sets UNINIT</div></div>
+    <div class="flow-step"><div class="step-num">7</div><div><code>Spi_Init(ConfigPtr)</code> — re-init with new config if needed</div></div>
+  </div>
+  <div class="card">
+    <h3>Sequence Cancellation Flow</h3>
+    <div class="flow-step"><div class="step-num">1</div><div><code>Spi_AsyncTransmit(Seq0)</code> — sequence running (PENDING)</div></div>
+    <div class="flow-step"><div class="step-num">2</div><div>Current Job executes to completion (Jobs are ATOMIC — cannot abort mid-Job)</div></div>
+    <div class="flow-step"><div class="step-num">3</div><div><code>Spi_Cancel(Seq0)</code> — sets cancel flag between Jobs</div></div>
+    <div class="flow-step"><div class="step-num">4</div><div>At Job boundary: Seq0 set to <code>SPI_SEQ_CANCELED</code>, next Job NOT started</div></div>
+    <div class="flow-step"><div class="step-num">5</div><div><code>Spi_SeqEndNotification()</code> called (required even on cancel)</div></div>
+    <p style="font-size:12px;color:var(--color-text-warning);margin-top:8px">External devices may be in undefined state after cancellation. Application responsibility!</p>
+  </div>
+  <div class="card">
+    <h3>Rescheduling (Interruptible Sequence)</h3>
+    <div class="flow-step"><div class="step-num">1</div><div>Seq0 (interruptible) running — Job1 (priority 2) executing</div></div>
+    <div class="flow-step"><div class="step-num">2</div><div>User calls <code>Spi_AsyncTransmit(Seq1)</code> — Seq1 has Job0 with priority 3 (higher)</div></div>
+    <div class="flow-step"><div class="step-num">3</div><div>Seq1 accepted, queued. Seq0/Job1 completes (Job is atomic!)</div></div>
+    <div class="flow-step"><div class="step-num">4</div><div>At Job boundary: rescheduling occurs → elect next Job (Job0 from Seq1, priority 3 wins)</div></div>
+    <div class="flow-step"><div class="step-num">5</div><div>Order: Scheduling first, THEN Job1 end notification (SWS_Spi_00270)</div></div>
+    <div class="flow-step"><div class="step-num">6</div><div>Seq1.Job0 executes → Seq1.SeqEndNotification</div></div>
+    <div class="flow-step"><div class="step-num">7</div><div>Seq0.Job2 (priority 1) resumes → Seq0.SeqEndNotification</div></div>
+  </div>
+</div>
+
+<!-- PANEL 8: DEBUG & TEST -->
+<div id="panel-debug" class="panel">
+  <div class="card">
+    <h2>Automotive Testing & Debug Checklist</h2>
+    <h3 style="margin-top:8px;margin-bottom:10px">Initialization Issues</h3>
+    <div class="check-item"><div class="check-icon ci-warn">!</div><div>Call <code>Spi_GetStatus()</code> immediately after init — must return <code>SPI_IDLE</code>, never <code>SPI_UNINIT</code></div></div>
+    <div class="check-item"><div class="check-icon ci-warn">!</div><div>Check that MCU, Port drivers are initialized BEFORE SPI_Init — clock/pin config must come first</div></div>
+    <div class="check-item"><div class="check-icon ci-err">✗</div><div>Calling Spi_Init twice without DeInit → <code>SPI_E_ALREADY_INITIALIZED</code> DET error</div></div>
+    <div class="check-item"><div class="check-icon ci-err">✗</div><div>Calling any API before Init → <code>SPI_E_UNINIT</code> DET error; return value undefined</div></div>
+  </div>
+  <div class="card">
+    <h3>Transmission Issues</h3>
+    <div class="debug-item warn">AsyncTransmit returns E_NOT_OK → Check if Seq is already PENDING (<code>SPI_E_SEQ_PENDING</code>), or if Seq shares Jobs with a PENDING Seq</div>
+    <div class="debug-item warn">SyncTransmit returns E_NOT_OK → Check if same bus is busy and <code>SpiSupportConcurrentSyncTransmit=FALSE</code> (<code>SPI_E_SEQ_IN_PROCESS</code>)</div>
+    <div class="debug-item err">Data corruption in IB mode → Ensure WriteIB is NOT called during active transmission on that channel (no consistency guarantee)</div>
+    <div class="debug-item err">EB mode NULL data → NULL SrcPtr = default TX value is transmitted. NULL DstPtr = received data discarded</div>
+    <div class="debug-item">HW error (DEM event) → Check DEM for <code>SPI_E_HARDWARE_ERROR</code>. Read SPI status register error flags. Check clock, voltage, slave response.</div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Notification Not Called?</h3>
+      <ul>
+        <li>Level 0: Job/Seq notifications are NOT called (by spec)</li>
+        <li>Check <code>SpiJobEndNotification</code> / <code>SpiSeqEndNotification</code> configured (not NULL) in SpiJob/SpiSequence config</li>
+        <li>In polling mode: ensure <code>Spi_MainFunction_Handling()</code> is called periodically by BSW scheduler</li>
+        <li>Notification called from interrupt context (Level 1/2 interrupt mode) — check stack size</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Async Mode Switching Issues</h3>
+      <ul>
+        <li><code>Spi_SetAsyncMode(SPI_INTERRUPT_MODE)</code> during async TX → returns E_NOT_OK, mode not changed</li>
+        <li>Mode switch during sync TX → allowed, returns E_OK</li>
+        <li>After mode switch to POLLING: must call <code>Spi_MainFunction_Handling</code> regularly or TX will never complete</li>
+        <li>After mode switch to INTERRUPT: ensure ISR priority is correct</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Priority / Scheduling Debug</h3>
+    <div class="debug-item">Jobs within a Sequence must be highest→lowest priority. If Job2 has higher priority than Job1 in same Seq → configuration error</div>
+    <div class="debug-item warn">In interruptible mode: if Seq0 and Seq1 share Channels, whichever Job runs last wins the channel data. Avoid shared channels across interruptible sequences.</div>
+    <div class="debug-item">Use <code>Spi_GetJobResult(JobID)</code> to poll whether a specific Job completed OK or FAILED during debugging</div>
+    <div class="debug-item">Use <code>Spi_GetHWUnitStatus(UnitID)</code> to check individual bus availability — useful when Jobs on different buses belong to same Sequence</div>
+  </div>
+  <div class="card">
+    <h3>Configuration Validation Checklist</h3>
+    <div class="check-item"><div class="check-icon ci-ok">✓</div><div><code>SpiLevelDelivered</code>: 0, 1, or 2</div></div>
+    <div class="check-item"><div class="check-icon ci-ok">✓</div><div><code>SpiChannelBuffersAllowed</code>: 0 (IB), 1 (EB), or 2 (both)</div></div>
+    <div class="check-item"><div class="check-icon ci-ok">✓</div><div>Each Job has at least 1 Channel; each Sequence has at least 1 Job</div></div>
+    <div class="check-item"><div class="check-icon ci-ok">✓</div><div>Job priorities in a Sequence are non-increasing (first ≥ second ≥ ...)</div></div>
+    <div class="check-item"><div class="check-icon ci-ok">✓</div><div>EB channel maximum size configured in <code>SpiEbMaxLength</code></div></div>
+    <div class="check-item"><div class="check-icon ci-ok">✓</div><div>If interruptible sequences allowed: each Sequence has <code>SpiInterruptibleSequence</code> flag set</div></div>
+    <div class="check-item"><div class="check-icon ci-warn">!</div><div>SpiDataWidth > 32 bits requires uint64 — check compiler support</div></div>
+    <div class="check-item"><div class="check-icon ci-warn">!</div><div>CS via GPIO: Port driver must configure CS pin direction before SPI_Init</div></div>
+  </div>
+</div>
+
+<!-- PANEL 9: QUIZ -->
+<div id="panel-quiz" class="panel">
+  <p style="margin-bottom:12px;color:var(--color-text-secondary);font-size:13px">Click any question to reveal the answer.</p>
+
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q1.</strong> What is the difference between a Channel, a Job, and a Sequence?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p><strong>Channel</strong>: Logical data pipe with uniform config (data width, buffer type). Can be reused across Jobs.<br><strong>Job</strong>: One or more Channels sharing the same Chip Select (one slave device). Atomic — cannot be interrupted mid-Job. Has a priority (0–3).<br><strong>Sequence</strong>: Ordered list of Jobs. Can be interruptible (preempted at Job boundaries by higher-priority Jobs) or non-interruptible. First Job must have highest priority in the Sequence.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q2.</strong> What happens when Spi_DeInit() is called while SPI is BUSY?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>DeInit is <strong>rejected</strong>. The function returns <code>E_NOT_OK</code> and no action is taken. The driver remains in SPI_BUSY state. Application must poll <code>Spi_GetStatus()</code> until <code>SPI_IDLE</code> before calling DeInit.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q3.</strong> Can Spi_Cancel() stop a Job that is currently being transmitted?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p><strong>No.</strong> Jobs are atomic. <code>Spi_Cancel()</code> sets a cancel flag that is checked at Job boundaries. The currently transmitting Job runs to completion. The Sequence is then set to <code>SPI_SEQ_CANCELED</code> and the next Job is not started. The Seq end notification IS called even on cancellation.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q4.</strong> Which error is reported to DEM and which to DET? Why?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p><strong>DET</strong>: Development Errors (wrong params, uninit, already-init) and Runtime Errors (SEQ_PENDING, SEQ_IN_PROCESS) — these are software usage errors caught in development or handled at runtime.<br><strong>DEM</strong>: <code>SPI_E_HARDWARE_ERROR</code> — this is a production/field error (HW failure during actual operation) that needs to be stored for field diagnostics and OBD/diagnostic services. DEM persists fault info in NVM, DET just logs/traps.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q5.</strong> What is the order of operations in polling mode async TX? Why does Spi_MainFunction_Handling matter?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>In <code>SPI_POLLING_MODE</code>, SPI interrupts are disabled. The state machine advances only when <code>Spi_MainFunction_Handling()</code> is called — it polls the HW status register. If the BSW scheduler does not call this function periodically, the TX will never complete and notifications will never fire. In <code>SPI_INTERRUPT_MODE</code>, the ISR does this automatically when the HW fires an interrupt.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q6.</strong> What is the rule for Job priorities within a Sequence?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>Jobs within a Sequence must have <strong>same or decreasing</strong> priority. The first Job must have the highest (or equal) priority. Values: 0=lowest, 3=highest. Scheduler sends highest priority Job first across all sequences. If an interruptible Sequence's current Job finishes and a higher-priority Job from another Sequence is pending, rescheduling occurs.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q7.</strong> What are the three driver-level statuses, and how do they transition?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p><code>SPI_UNINIT</code> (default after reset) → <code>SPI_IDLE</code> (after successful Init) → <code>SPI_BUSY</code> (transmission started) → <code>SPI_IDLE</code> (transmission complete/failed). DeInit: IDLE→UNINIT. Cannot DeInit from BUSY.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q8.</strong> What is the data type casting rule for SpiDataWidth?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>uint8 when SpiDataWidth &lt; 9 bits. uint16 when 9 ≤ SpiDataWidth &lt; 17 bits. uint32 when SpiDataWidth ≥ 17 bits. If width < access type (e.g. 12-bit width with 16-bit access): lower 12 bits transmitted on TX; on RX, lower 12 bits received and upper bits zero-extended.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q9.</strong> When does Spi_SetAsyncMode return E_NOT_OK?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>When an <strong>asynchronous</strong> TX is in progress (driver is SPI_BUSY due to async). If a <strong>synchronous</strong> TX is in progress, SetAsyncMode is still accepted (returns E_OK) because the sync path doesn't use the async mechanism.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q10.</strong> Which APIs are allowed to be called from inside a Job or Sequence end notification callback?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>Only: <code>Spi_ReadIB</code>, <code>Spi_WriteIB</code>, <code>Spi_SetupEB</code>, <code>Spi_GetJobResult</code>, <code>Spi_GetSequenceResult</code>, <code>Spi_GetHWUnitStatus</code>, <code>Spi_Cancel</code>. All other APIs (AsyncTransmit, SyncTransmit, Init, DeInit, SetAsyncMode) are NOT permitted — they could cause re-entrancy issues or deadlocks.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q11.</strong> What is the difference between IB and EB channels?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p><strong>IB (Internal Buffer)</strong>: Buffer allocated inside the SPI driver. Fixed size (1 entry deep per channel). Written with WriteIB, read with ReadIB. Driver cannot prevent overwrite during TX. Best for small transfers (&lt;10 bytes), daisy-chain.<br><strong>EB (External Buffer)</strong>: Buffer in application memory. Variable size (up to SpiEbMaxLength). Set up with SetupEB (providing src/dst pointers + length). Application owns consistency. Best for large streams, EEPROM, complex ASICs.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q12.</strong> What is SPI_JOB_QUEUED and when does it appear?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p><code>SPI_JOB_QUEUED</code> appears only in async Level 1/2. When <code>Spi_AsyncTransmit(Seq)</code> is called, all Jobs in that Sequence are immediately set to QUEUED (accepted but not yet executing). When actual transmission starts for a Job, it transitions to PENDING. This allows monitoring which Jobs are in the queue vs. actively running.</p></div>
+  </div>
+  <div class="q-box" onclick="this.classList.toggle('revealed')">
+    <div><strong>Q13.</strong> In interruptible sequences, what is the order of rescheduling and notifications?<span class="reveal-hint">tap to reveal</span></div>
+    <div class="ans"><p>Per SWS_Spi_00270: <strong>Rescheduling first, then notification</strong>. At the end of a Job: (1) the scheduler elects the next Job to run, (2) then the Job end notification is called. This ensures the HW is not idle while the notification callback executes.</p></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+</script>

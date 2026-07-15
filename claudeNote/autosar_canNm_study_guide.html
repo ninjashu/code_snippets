@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSAR CanNm — Complete Study Guide R24-11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f4f0;line-height:1.6}
+.header{background:#0f2942;color:#fff;padding:20px 32px}
+.header h1{font-size:22px;font-weight:500}
+.header p{font-size:13px;color:#8db3d4;margin-top:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:12px 32px 0;background:#fff;border-bottom:1px solid #e0ddd5}
+.tab{padding:8px 14px;font-size:12px;border:1px solid #ddd;border-radius:6px 6px 0 0;cursor:pointer;background:#f5f4f0;color:#666;transition:all .15s;border-bottom:none}
+.tab.active{background:#fff;color:#1a1a1a;font-weight:600;border-bottom:1px solid #fff;margin-bottom:-1px}
+.content{padding:24px 32px;max-width:1100px;margin:0 auto}
+.section{display:none}.section.active{display:block}
+h2{font-size:17px;font-weight:600;margin:20px 0 8px;color:#0f2942}
+h3{font-size:13px;font-weight:700;margin:12px 0 6px;color:#333;text-transform:uppercase;letter-spacing:.4px}
+p{margin-bottom:8px;font-size:13px;line-height:1.65}
+.card{background:#fff;border:1px solid #e0ddd5;border-radius:10px;padding:14px 16px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px}
+th{text-align:left;padding:7px 10px;background:#f5f4f0;border-bottom:1px solid #e0ddd5;font-weight:700;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.4px}
+td{padding:7px 10px;border-bottom:1px solid #f0ede5;vertical-align:top}
+tr:last-child td{border-bottom:none}
+code{font-family:'Courier New',monospace;font-size:11px;background:#f0ede5;padding:1px 5px;border-radius:4px;color:#c7254e}
+.tip{background:#e6f3ff;border-left:3px solid #185FA5;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.warn{background:#fff8e6;border-left:3px solid #cc8800;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.danger{background:#ffeeee;border-left:3px solid #cc3333;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.good{background:#edfaee;border-left:3px solid #2a8c3e;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.mini{background:#f5f4f0;border-radius:8px;padding:12px;font-size:12px;line-height:1.7}
+.mini strong{display:block;font-size:10px;font-weight:700;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.fnode{padding:6px 14px;border:1px solid #ccc;border-radius:6px;font-size:12px;background:#fff;text-align:center;min-width:80px}
+.farrow{color:#888;font-size:16px;flex-shrink:0}
+details{margin:8px 0;border:1px solid #e0ddd5;border-radius:8px;overflow:hidden}
+summary{cursor:pointer;font-size:13px;font-weight:700;color:#0f2942;padding:10px 14px;background:#f8f7f3;list-style:none;display:flex;align-items:center;gap:8px}
+summary::before{content:"▶";font-size:10px;color:#888;transition:transform .2s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+.inner{padding:14px;background:#fff}
+.step{padding:8px 14px;border-left:2px solid #e0ddd5;margin:4px 0 4px 12px;font-size:12px;line-height:1.6}
+.step.hi{border-left-color:#185FA5;background:#e6f3ff;border-radius:0 6px 6px 0}
+.state-btn{display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;margin:3px;cursor:pointer;transition:opacity .15s;border:1.5px solid transparent}
+.state-btn:hover{opacity:.8}
+#sm-detail{min-height:80px;border:1px solid #e0ddd5;border-radius:8px;padding:12px;background:#fafaf8;margin-bottom:12px}
+.sws{font-size:10px;color:#999;font-family:'Courier New',monospace}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+.b-opt{background:#fff8e6;color:#7a5a00}
+.b-mand{background:#edfaee;color:#1a6b2a}
+.b-new{background:#e6f3ff;color:#0c447c}
+/* CBV diagram */
+.cbv-table{border-collapse:collapse;width:100%;font-size:11px;margin:10px 0}
+.cbv-table th,.cbv-table td{border:1px solid #ddd;padding:5px 8px;text-align:center}
+.cbv-table th{background:#0f2942;color:#fff}
+.cbv-table .bit-on{background:#e6f3ff;font-weight:700;color:#0c447c}
+.cbv-table .bit-off{background:#f5f4f0;color:#666}
+/* PDU layout */
+.pdu-byte{display:inline-block;min-width:60px;text-align:center;padding:6px 8px;font-size:11px;border:1px solid #ccc;border-radius:4px;margin:2px}
+.pdu-snm{background:#faeeda;border-color:#cc8800}
+.pdu-cbv{background:#e6f3ff;border-color:#185FA5}
+.pdu-usr{background:#edfaee;border-color:#2a8c3e}
+.pdu-pnc{background:#ffeeee;border-color:#cc3333}
+/* Timer viz */
+.timer-bar{height:24px;border-radius:4px;display:flex;align-items:center;padding:0 8px;font-size:11px;font-weight:700;margin:3px 0;color:#fff}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>AUTOSAR CAN Network Management (CanNm) — Complete Study Guide</h1>
+  <p>Based on AUTOSAR CP R24-11 | Document ID 13 | All SWS IDs | Industry + Exam Grade</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="T('overview')">Overview</div>
+  <div class="tab" onclick="T('statediag')">State Machine</div>
+  <div class="tab" onclick="T('pdu')">PDU Structure</div>
+  <div class="tab" onclick="T('timing')">Timing</div>
+  <div class="tab" onclick="T('api')">API Reference</div>
+  <div class="tab" onclick="T('sequences')">Sequences</div>
+  <div class="tab" onclick="T('pn')">Partial Networking</div>
+  <div class="tab" onclick="T('errors')">Errors &amp; Debug</div>
+  <div class="tab" onclick="T('davinci')">DaVinci Config</div>
+  <div class="tab" onclick="T('testing')">Integration Testing</div>
+</div>
+
+<div class="content">
+
+<!-- ===== OVERVIEW ===== -->
+<div class="section active" id="s-overview">
+<h2>What is CanNm? — "The sleep coordinator of the CAN bus"</h2>
+<p>CanNm = decentralized, direct NM strategy. Each node self-sufficient — watches only NM PDUs on bus. No master required. Goal: coordinate ALL nodes entering bus-sleep at same time when no one needs the bus.</p>
+
+<div class="tip"><strong>Mental model:</strong> Last person leaving office turns off lights. Each ECU sends periodic heartbeats ("I'm awake"). When ECU wants to sleep, stops sending. If no heartbeats received for NM-Timeout → everyone sleeps. Any heartbeat = bus stays alive.</div>
+
+<h2>Stack Position</h2>
+<div class="flow">
+  <div class="fnode" style="background:#edfaee">NM Interface (Nm)</div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#faeeda;border:2px solid #cc8800"><strong>CanNm</strong><br><small>This module</small></div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#e6f3ff">LSduR</div>
+  <div class="farrow">↕</div>
+  <div class="fnode" style="background:#f5f4f0">CanIf → CAN HW</div>
+</div>
+<p style="font-size:12px;color:#666">R24-11 change: PduR replaced by LSduR (Linklayer SDU Router) for lower-layer interfacing.</p>
+
+<h2>Three Operational Modes</h2>
+<div class="grid3">
+  <div class="mini"><strong>Network Mode</strong>Bus active. 3 sub-states inside: Repeat Message, Normal Operation, Ready Sleep. NM-Timeout Timer running. NM PDUs transmitted.</div>
+  <div class="mini"><strong>Prepare Bus-Sleep Mode</strong>All nodes stopped TX. Bus calming down (TX buffers draining). Wait CanNmWaitBusSleepTime. Then → Bus-Sleep.</div>
+  <div class="mini"><strong>Bus-Sleep Mode</strong>No bus activity. CAN controller in sleep. Minimum power. Wakeup source active. Any RxIndication → Nm_NetworkStartIndication() to upper layer.</div>
+</div>
+
+<h2>Key Protocol Concepts</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Network State (orthogonal to mode)</h3>
+    <p>Parallel state machine — exists inside any mode:</p>
+    <table>
+      <tr><th>State</th><th>Meaning</th><th>API call</th></tr>
+      <tr><td><strong>Requested</strong></td><td>ECU needs bus communication</td><td><code>CanNm_NetworkRequest()</code></td></tr>
+      <tr><td><strong>Released</strong></td><td>ECU can go to sleep</td><td><code>CanNm_NetworkRelease()</code></td></tr>
+    </table>
+    <p style="font-size:12px">Network state drives transitions: Requested→Normal Op, Released→Ready Sleep.</p>
+  </div>
+  <div class="card">
+    <h3>Decentralized Algorithm</h3>
+    <p>Node transmits NM PDU periodically → resets all other nodes' NM-Timeout Timers. No RxIndication for CanNmTimeoutTime → bus released by all → Prepare Bus-Sleep. No central controller, no token ring. Pure broadcast heartbeat.</p>
+    <div class="tip" style="margin-top:8px">CanNmTimeoutTime MUST be identical on all cluster nodes. Same for CanNmWaitBusSleepTime. Mismatch = unsynchronized sleep = some nodes stuck awake.</div>
+  </div>
+</div>
+
+<h2>Limitations (Exam: always asked)</h2>
+<div class="card">
+<p>1. One CanNm channel ↔ one NM cluster ↔ one network. No sharing.</p>
+<p>2. One CanNm channel per network per ECU.</p>
+<p>3. CAN only (CAN 2.0, CAN FD, TT-CAN). Not LIN, FlexRay.</p>
+<p>4. Passive mode: ECU only listens, never transmits NM PDUs. Must be same for ALL networks in ECU.</p>
+</div>
+
+<h2>R24-11 Changes</h2>
+<div class="tip"><strong>R24-11:</strong> LSduR_CanNmTransmit replaces old PduR interface for NM PDU transmission. SWS items changed: 00064, 00253, 00312, 00325, 00328, 00335, 00512, 00514, 00517, 00519. No items added/deleted.</div>
+</div>
+
+<!-- ===== STATE MACHINE ===== -->
+<div class="section" id="s-statediag">
+<h2>CanNm State Machine — Full Detail</h2>
+<p>Click state to see transitions, timers, callbacks, SWS IDs.</p>
+
+<div id="sm-detail"><p style="color:#888;font-size:12px">Click state below to see details.</p></div>
+
+<div style="margin-bottom:16px">
+  <div class="state-btn" style="background:#f5f4f0;color:#444;border-color:#aaa" onclick="SM('init')">Bus-Sleep Mode (INIT)</div>
+  <div class="state-btn" style="background:#fff8e6;color:#7a5a00;border-color:#cc8800" onclick="SM('pbs')">Prepare Bus-Sleep Mode</div>
+  <div class="state-btn" style="background:#e6f3ff;color:#0c447c;border-color:#185FA5" onclick="SM('rms')">Repeat Message State</div>
+  <div class="state-btn" style="background:#edfaee;color:#1a6b2a;border-color:#2a8c3e" onclick="SM('nos')">Normal Operation State</div>
+  <div class="state-btn" style="background:#faeeda;color:#7a5a00;border-color:#cc8800" onclick="SM('rss')">Ready Sleep State</div>
+</div>
+
+<h2>State Transition Map — Full Lifecycle</h2>
+<div class="card">
+<h3>Startup sequence (active wakeup)</h3>
+<div class="flow">
+  <div class="fnode" style="background:#f5f4f0">Bus-Sleep</div><div class="farrow">→ NetworkRequest() →</div>
+  <div class="fnode" style="background:#e6f3ff">Repeat Msg State</div><div class="farrow">→ RepeatMsgTime expires, requested →</div>
+  <div class="fnode" style="background:#edfaee">Normal Operation</div>
+</div>
+
+<h3>Shutdown sequence (release)</h3>
+<div class="flow">
+  <div class="fnode" style="background:#edfaee">Normal Op</div><div class="farrow">→ NetworkRelease() →</div>
+  <div class="fnode" style="background:#faeeda">Ready Sleep</div><div class="farrow">→ NM-Timeout expires →</div>
+  <div class="fnode" style="background:#fff8e6">Prepare Bus-Sleep</div><div class="farrow">→ WaitBusSleepTime →</div>
+  <div class="fnode" style="background:#f5f4f0">Bus-Sleep</div>
+</div>
+
+<h3>Passive wakeup (NM PDU received while sleeping)</h3>
+<div class="flow">
+  <div class="fnode" style="background:#f5f4f0">Bus-Sleep</div>
+  <div class="farrow">→ RxIndication() → Nm_NetworkStartIndication() →</div>
+  <div class="farrow">[Upper layer decides — CanNm does NOT auto-transition]</div>
+</div>
+<div class="warn">CRITICAL: CanNm does NOT auto-transition Bus-Sleep→Network on RxIndication. Only calls Nm_NetworkStartIndication(). Upper layer (EcuM/ComM) makes wakeup decision. [SWS_CanNm_00127]</div>
+
+<h3>PassiveStartUp (no network request)</h3>
+<div class="flow">
+  <div class="fnode" style="background:#f5f4f0">Bus-Sleep or PBS</div>
+  <div class="farrow">→ CanNm_PassiveStartUp() →</div>
+  <div class="fnode" style="background:#e6f3ff">Repeat Msg State</div>
+  <div class="farrow">[no NM PDU TX if passive mode]</div>
+</div>
+</div>
+
+<h2>All Callbacks CanNm calls to Nm (upper layer notifications)</h2>
+<div class="card">
+<table>
+  <tr><th>Callback</th><th>When called</th><th>SWS</th></tr>
+  <tr><td><code>Nm_NetworkMode()</code></td><td>Network Mode entered</td><td class="sws">SWS_CanNm_00097</td></tr>
+  <tr><td><code>Nm_PrepareBusSleepMode()</code></td><td>Prepare Bus-Sleep Mode entered</td><td class="sws">SWS_CanNm_00114</td></tr>
+  <tr><td><code>Nm_BusSleepMode()</code></td><td>Bus-Sleep Mode entered (NOT at init)</td><td class="sws">SWS_CanNm_00126</td></tr>
+  <tr><td><code>Nm_NetworkStartIndication()</code></td><td>NM PDU received while in Bus-Sleep Mode</td><td class="sws">SWS_CanNm_00127</td></tr>
+  <tr><td><code>Nm_RemoteSleepIndication()</code></td><td>No NM PDU received for CanNmRemoteSleepIndTime in Normal Op</td><td class="sws">SWS_CanNm_00150</td></tr>
+  <tr><td><code>Nm_RemoteSleepCancellation()</code></td><td>NM PDU received after RemoteSleepInd was called</td><td class="sws">SWS_CanNm_00151</td></tr>
+  <tr><td><code>Nm_StateChangeNotification()</code></td><td>Any state change (if CanNmStateChangeIndEnabled=TRUE)</td><td class="sws">SWS_CanNm_00166</td></tr>
+  <tr><td><code>Nm_PduRxIndication()</code></td><td>NM PDU received (if CanNmPduRxIndicationEnabled=TRUE)</td><td class="sws">SWS_CanNm_00037</td></tr>
+  <tr><td><code>Nm_TxTimeoutException()</code></td><td>TX confirmation failed / TX timeout timer expired</td><td class="sws">SWS_CanNm_00066</td></tr>
+  <tr><td><code>CanSM_TxTimeoutException()</code></td><td>TX timeout timer expired (PN enabled) → CanSM restarts CAN driver</td><td class="sws">SWS_CanNm_00446</td></tr>
+  <tr><td><code>Nm_RepeatMessageIndication()</code></td><td>RepeatMessageRequest bit received (NodeDetection enabled)</td><td class="sws">SWS_CanNm_00014</td></tr>
+  <tr><td><code>Nm_CarWakeUpIndication()</code></td><td>Car Wakeup bit set in received NM PDU</td><td class="sws">SWS_CanNm_00406</td></tr>
+  <tr><td><code>Nm_CoordReadyToSleepIndication()</code></td><td>CoordinatorSleepReady bit=1 received</td><td class="sws">SWS_CanNm_00341</td></tr>
+  <tr><td><code>Nm_CoordReadyToSleepCancellation()</code></td><td>CoordinatorSleepReady bit=0 received after Indication was called</td><td class="sws">SWS_CanNm_00348</td></tr>
+</table>
+</div>
+
+<h2>Node Detection Feature</h2>
+<div class="card">
+<p>When <code>CanNmNodeDetectionEnabled=TRUE</code>: RepeatMessageRequest bit in CBV triggers transition to Repeat Message State in NORMAL OP or READY SLEEP states. Purpose: discover which nodes are alive. [SWS_CanNm_00119, 00111]</p>
+<p>Clearing: RepeatMsg Bit cleared when LEAVING Repeat Message State. [SWS_CanNm_00107]</p>
+<table>
+  <tr><th>Trigger</th><th>From state</th><th>Result</th><th>SWS</th></tr>
+  <tr><td>RepeatMsg bit received</td><td>Normal Op</td><td>→ Repeat Msg State</td><td class="sws">00119</td></tr>
+  <tr><td>RepeatMsg bit received</td><td>Ready Sleep</td><td>→ Repeat Msg State</td><td class="sws">00111</td></tr>
+  <tr><td>CanNm_RepeatMessageRequest() called</td><td>Normal Op</td><td>→ Repeat Msg State + set bit</td><td class="sws">00120, 00121</td></tr>
+  <tr><td>CanNm_RepeatMessageRequest() called</td><td>Ready Sleep</td><td>→ Repeat Msg State + set bit</td><td class="sws">00112, 00113</td></tr>
+  <tr><td>CanNm_RepeatMessageRequest() called</td><td>Repeat Msg / PBS / Bus-Sleep</td><td>E_NOT_OK returned, no action</td><td class="sws">00137</td></tr>
+</table>
+</div>
+
+<h2>Remote Sleep Indication</h2>
+<div class="card">
+<p>ECU in Normal Op detects ALL other nodes ready to sleep (no NM PDU received for CanNmRemoteSleepIndTime). Calls Nm_RemoteSleepIndication(). ECU itself can then safely release bus. Only for gateway nodes (needs CanNmRemoteSleepIndEnabled=TRUE).</p>
+<div class="warn">CheckRemoteSleepIndication() returns E_NOT_OK in Bus-Sleep, PBS, Repeat Msg State — only valid in Normal Op and Ready Sleep. [SWS_CanNm_00154]</div>
+</div>
+</div>
+
+<!-- ===== PDU STRUCTURE ===== -->
+<div class="section" id="s-pdu">
+<h2>NM PDU Structure</h2>
+<p>8-byte CAN frame. Layout configurable. Two fixed system bytes (SNI + CBV) at Byte 0 or 1.</p>
+
+<h3>Example layout (SNI=Byte0, CBV=Byte1, PN enabled, 4-byte PNC vector)</h3>
+<div style="display:flex;gap:4px;flex-wrap:wrap;margin:12px 0">
+  <div class="pdu-byte pdu-snm"><strong>Byte 0</strong><br>SNI<br>(Source Node ID)</div>
+  <div class="pdu-byte pdu-cbv"><strong>Byte 1</strong><br>CBV<br>(Control Bit Vector)</div>
+  <div class="pdu-byte pdu-usr"><strong>Byte 2</strong><br>User Data</div>
+  <div class="pdu-byte pdu-usr"><strong>Byte 3</strong><br>User Data</div>
+  <div class="pdu-byte pdu-pnc"><strong>Byte 4</strong><br>PNC bits<br>0–7</div>
+  <div class="pdu-byte pdu-pnc"><strong>Byte 5</strong><br>PNC bits<br>8–15</div>
+  <div class="pdu-byte pdu-pnc"><strong>Byte 6</strong><br>PNC bits<br>16–23</div>
+  <div class="pdu-byte pdu-pnc"><strong>Byte 7</strong><br>PNC bits<br>24–31</div>
+</div>
+
+<div class="card">
+<h3>SNI (Source Node Identifier) — Byte position configurable</h3>
+<p><code>CanNmPduNidPosition</code>: CANNM_PDU_BYTE_0 | CANNM_PDU_BYTE_1 | CANNM_PDU_OFF</p>
+<p>OFF = no byte reserved for SNI → more space for user data. [SWS_CanNm_00074]</p>
+<p>SNI value set by <code>CanNmNodeId</code> parameter. [SWS_CanNm_00013]</p>
+<div class="warn">If CanNmNodeIdEnabled=TRUE → NidPosition CANNOT be OFF. [ECUC_CanNm_00025 dependency]</div>
+</div>
+
+<div class="card">
+<h3>CBV (Control Bit Vector) — Byte position configurable</h3>
+<p><code>CanNmPduCbvPosition</code>: CANNM_PDU_BYTE_0 | CANNM_PDU_BYTE_1 | CANNM_PDU_OFF</p>
+<p>Initialized to 0x00 at startup. [SWS_CanNm_00085]</p>
+<table class="cbv-table">
+  <tr>
+    <th>Bit 7</th><th>Bit 6</th><th>Bit 5</th><th>Bit 4</th><th>Bit 3</th><th>Bit 2</th><th>Bit 1</th><th>Bit 0</th>
+  </tr>
+  <tr>
+    <td class="bit-off">Reserved</td>
+    <td class="bit-on">PNI<br>PN Info Bit</td>
+    <td class="bit-on">PNL<br>PN Learning Bit</td>
+    <td class="bit-on">Active Wakeup Bit</td>
+    <td class="bit-on">NM Coord Sleep Ready Bit</td>
+    <td class="bit-off">Reserved<br>(was coord ID)</td>
+    <td class="bit-on">PNSR<br>PN Shutdown Request</td>
+    <td class="bit-on">Repeat Msg Request Bit</td>
+  </tr>
+</table>
+<table style="margin-top:8px">
+  <tr><th>Bit name</th><th>Set when</th><th>SWS</th></tr>
+  <tr><td><strong>Repeat Message Request (bit 0)</strong></td><td>CanNm_RepeatMessageRequest() called OR entering Repeat Msg State for node detection</td><td class="sws">00107, 00121</td></tr>
+  <tr><td><strong>PN Shutdown Request (bit 1)</strong></td><td>CanNm_ActivateTxPnShutdownMsg() called (synchronized PNC shutdown)</td><td class="sws">00521</td></tr>
+  <tr><td><strong>NM Coord Sleep Ready (bit 3)</strong></td><td>CanNm_SetSleepReadyBit() called (coordinator ready to sleep)</td><td class="sws">00342</td></tr>
+  <tr><td><strong>Active Wakeup (bit 4)</strong></td><td>NetworkRequest() from Bus-Sleep/PBS (active wakeup), if CanNmActiveWakeupBitEnabled=TRUE</td><td class="sws">00401</td></tr>
+  <tr><td><strong>PN Learning (bit 5)</strong></td><td>CanNm_PnLearningRequest() called (dynamic PNC-to-channel mapping)</td><td class="sws">00380</td></tr>
+  <tr><td><strong>PNI — Partial Network Info (bit 6)</strong></td><td>Set to 1 if CanNmPnEnabled=TRUE (always in TX). Set to 0 if FALSE.</td><td class="sws">00413, 00414</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>User Data</h3>
+<p>Remaining bytes after system bytes and PNC bit vector. Two access methods:</p>
+<div class="grid2">
+  <div class="mini"><strong>Method A: CanNm API (CanNmUserDataEnabled=TRUE)</strong>Set: CanNm_SetUserData(). Get: CanNm_GetUserData(). CanNm_SetUserData NOT available if CanNmComUserDataSupport=TRUE.</div>
+  <div class="mini"><strong>Method B: COM user data (CanNmComUserDataSupport=TRUE)</strong>CanNm calls PduR_CanNmTriggerTransmit() to fetch data from COM I-PDU each TX. CanNm_SetUserData() not available in this mode.</div>
+</div>
+<p style="font-size:12px;margin-top:8px">Init: All user data bytes set to 0xFF. [SWS_CanNm_00025]</p>
+<div class="warn">User data sent in Repeat Msg State always. In Normal Op: only if bus load reduction disabled (= node is transmitting). In Ready Sleep: NOT sent (TX stopped).</div>
+</div>
+
+<div class="card">
+<h3>PNC Bit Vector (Partial Networking)</h3>
+<p>Position: <code>NmPncBitVectorOffset</code> (byte start) + <code>NmPncBitVectorLength</code> (byte count). Configured in Nm channel, not CanNm directly.</p>
+<p>TX: CanNm fetches PNC vector via <code>Nm_PncBitVectorTxIndication()</code> each TX. RX: CanNm passes received PNC vector to <code>Nm_PncBitVectorRxIndication()</code>.</p>
+<p>PNC byte vector initialized to 0x00. [SWS_CanNm_00500]</p>
+</div>
+</div>
+
+<!-- ===== TIMING ===== -->
+<div class="section" id="s-timing">
+<h2>CanNm Timing Parameters — Complete Guide</h2>
+
+<h3>All timing parameters visual</h3>
+<div class="card">
+<div style="font-size:12px;margin-bottom:8px">Timeline from wakeup to sleep (typical cluster):</div>
+<div class="timer-bar" style="background:#185FA5;width:100%">← NM-Timeout Timer (CanNmTimeoutTime) — runs whenever NM PDU TX or RX in Network Mode →</div>
+<div class="timer-bar" style="background:#2a8c3e;width:60%">← Repeat Message Timer (CanNmRepeatMessageTime) — only in Repeat Msg State →</div>
+<div class="timer-bar" style="background:#cc8800;width:40%">← Remote Sleep Ind Timer (CanNmRemoteSleepIndTime) — in Normal Op, no RX →</div>
+<div class="timer-bar" style="background:#8b4513;width:25%">← Wait Bus-Sleep Timer (CanNmWaitBusSleepTime) — in Prepare Bus-Sleep Mode →</div>
+<div class="timer-bar" style="background:#cc3333;width:15%">← Msg TX Timeout (CanNmMsgTimeoutTime) — per TX attempt (PN only) →</div>
+</div>
+
+<div class="card">
+<h3>Timing Parameter Reference Table</h3>
+<table>
+  <tr><th>Parameter</th><th>Container</th><th>Role</th><th>Constraint</th><th>Typical</th></tr>
+  <tr><td><code>CanNmTimeoutTime</code></td><td>ChannelConfig</td><td>NM-Timeout Timer duration. In Ready Sleep: triggers→PBS. In Repeat/Normal: reports NETWORK_TIMEOUT if expires.</td><td>MUST be same on all cluster nodes. MUST > CanNmMsgCycleTime.</td><td>300–500ms</td></tr>
+  <tr><td><code>CanNmRepeatMessageTime</code></td><td>ChannelConfig</td><td>Duration of Repeat Message State. =n×MsgCycleTime recommended. Value 0 = transient state (immediate exit).</td><td>≥ ImmediateNmTransmissions × ImmediateNmCycleTime</td><td>1000ms</td></tr>
+  <tr><td><code>CanNmWaitBusSleepTime</code></td><td>ChannelConfig</td><td>Bus calm-down in Prepare Bus-Sleep. Bus drains TX queues.</td><td>MUST be same on all cluster nodes. Long enough for TX buffers to empty.</td><td>100–200ms</td></tr>
+  <tr><td><code>CanNmMsgCycleTime</code></td><td>ChannelConfig</td><td>Period of NM PDU transmission in Repeat Msg + Normal Op states.</td><td>MUST be same on all cluster nodes.</td><td>20ms</td></tr>
+  <tr><td><code>CanNmMsgCycleOffset</code></td><td>ChannelConfig</td><td>Start delay per-node for NM TX (spreads bus load). Node-specific.</td><td>&lt; MsgCycleTime. Not applied for active wakeup immediate TX.</td><td>0–19ms</td></tr>
+  <tr><td><code>CanNmMsgReducedTime</code></td><td>ChannelConfig</td><td>Bus load reduction: reload timer with this on RX instead of MsgCycleTime.</td><td>0.5×MsgCycleTime ≤ ReducedTime &lt; MsgCycleTime</td><td>12ms</td></tr>
+  <tr><td><code>CanNmRemoteSleepIndTime</code></td><td>ChannelConfig</td><td>Timeout for Remote Sleep Indication detection in Normal Op.</td><td>≥ CanNmMsgCycleTime. Optional.</td><td>1000ms</td></tr>
+  <tr><td><code>CanNmMsgTimeoutTime</code></td><td>ChannelConfig</td><td>TX confirmation watchdog per NM PDU (PN only). Expiry → Nm_TxTimeoutException() + CanSM_TxTimeoutException().</td><td>&lt; MsgCycleTime. Optional (PN only).</td><td>10ms</td></tr>
+  <tr><td><code>CanNmImmediateNmCycleTime</code></td><td>ChannelConfig</td><td>Cycle time for burst of NM PDUs on active wakeup.</td><td>Required if ImmediateNmTransmissions &gt; 0.</td><td>2ms</td></tr>
+  <tr><td><code>CanNmImmediateNmTransmissions</code></td><td>ChannelConfig</td><td>Count of immediate NM PDUs to transmit on active wakeup.</td><td>Must be &gt;0 if PnHandleMultipleNetworkRequests=TRUE.</td><td>3</td></tr>
+  <tr><td><code>CanNmMainFunctionPeriod</code></td><td>GlobalConfig</td><td>Cycle time of CanNm_MainFunction(). All timers measured in main function calls.</td><td>Must match SchM task period exactly.</td><td>5ms</td></tr>
+</table>
+</div>
+
+<h2>Communication Scheduling Detail</h2>
+<div class="card">
+<h3>Transmission modes</h3>
+<div class="grid2">
+  <div class="mini"><strong>Periodic TX (Repeat Msg + Normal Op without bus load reduction)</strong>TX every MsgCycleTime. On entering RMS from Bus-Sleep/PBS via NetworkRequest: first TX uses ImmediateNmCycleTime if ImmediateNmTransmissions &gt; 0, else delayed by MsgCycleOffset. [SWS_CanNm_00005, 00334]</div>
+  <div class="mini"><strong>Bus Load Reduction TX (Normal Op only)</strong>On RxIndication: reload Msg Cycle Timer with MsgReducedTime (shorter). On TxConfirmation: reload with MsgCycleTime. Result: only 2 nodes (smallest ReducedTime) transmit alternately. Max 2 NM PDUs per MsgCycleTime. [SWS_CanNm_00069]</div>
+</div>
+<p style="font-size:12px;margin-top:8px">Bus load reduction deactivated when entering Repeat Msg State [SWS_CanNm_00156], activated when entering Normal Op from RMS or Ready Sleep [SWS_CanNm_00157].</p>
+</div>
+
+<h2>NM-Timeout Timer Rules (exam favourite)</h2>
+<div class="card">
+<table>
+  <tr><th>Event</th><th>Action on NM-Timeout Timer</th><th>SWS</th></tr>
+  <tr><td>Network Mode entered</td><td>START</td><td class="sws">00096</td></tr>
+  <tr><td>RxIndication in Network Mode (if TX ability enabled)</td><td>RESTART</td><td class="sws">00098</td></tr>
+  <tr><td>TxConfirmation(E_OK) in Network Mode</td><td>RESTART</td><td class="sws">00099</td></tr>
+  <tr><td>Expires in Repeat Msg State</td><td>RESTART + report CANNM_E_NETWORK_TIMEOUT</td><td class="sws">00101, 00193</td></tr>
+  <tr><td>Expires in Normal Op State</td><td>RESTART + report CANNM_E_NETWORK_TIMEOUT</td><td class="sws">00117, 00194</td></tr>
+  <tr><td>Expires in Ready Sleep State</td><td>→ Prepare Bus-Sleep Mode</td><td class="sws">00109</td></tr>
+  <tr><td>DisableCommunication() called</td><td>STOP</td><td class="sws">00174</td></tr>
+  <tr><td>EnableCommunication() called</td><td>RESTART</td><td class="sws">00179</td></tr>
+  <tr><td>GlobalPnSupport=TRUE + Init</td><td>STOP</td><td class="sws">00061</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== API REFERENCE ===== -->
+<div class="section" id="s-api">
+<h2>Complete API Reference</h2>
+
+<h3>Service APIs (upper layer → CanNm)</h3>
+<div class="card">
+<table>
+  <tr><th>Function</th><th>ID</th><th>Sync/Async</th><th>Reentrant</th><th>Availability</th><th>Key behavior</th></tr>
+  <tr><td><code>CanNm_Init(cannmConfigPtr)</code></td><td>0x00</td><td>Sync</td><td>No</td><td>Always</td><td>→ Bus-Sleep, released, user data=0xFF, CBV=0x00. Call AFTER LSduR+CanIf init. [SWS_CanNm_00208]</td></tr>
+  <tr><td><code>CanNm_DeInit()</code></td><td>0x10</td><td>Sync</td><td>No</td><td>Always</td><td>All networks must be in Bus-Sleep first. Raises CANNM_E_NOT_IN_BUS_SLEEP if not. [SWS_CanNm_91002]</td></tr>
+  <tr><td><code>CanNm_PassiveStartUp(ch)</code></td><td>0x01</td><td>Async</td><td>Yes (diff ch)</td><td>Always</td><td>Bus-Sleep or PBS → Network Mode (Repeat Msg State). No NM PDU TX. Fails (E_NOT_OK) if called in Network Mode. [SWS_CanNm_00211]</td></tr>
+  <tr><td><code>CanNm_NetworkRequest(ch)</code></td><td>0x02</td><td>Async</td><td>Yes (diff ch)</td><td>NOT if PassiveModeEnabled</td><td>Sets network state=requested. Triggers startup. [SWS_CanNm_00213]</td></tr>
+  <tr><td><code>CanNm_NetworkRelease(ch)</code></td><td>0x03</td><td>Async</td><td>Yes (diff ch)</td><td>NOT if PassiveModeEnabled</td><td>Sets network state=released. Normal Op→Ready Sleep. [SWS_CanNm_00214]</td></tr>
+  <tr><td><code>CanNm_DisableCommunication(ch)</code></td><td>0x0c</td><td>Async</td><td>Yes (diff ch)</td><td>CanNmComControlEnabled=TRUE</td><td>Stops NM PDU TX, stops Msg Cycle Timer, stops NM-Timeout Timer, stops Remote Sleep detection. Must be in Network Mode. [SWS_CanNm_00215]</td></tr>
+  <tr><td><code>CanNm_EnableCommunication(ch)</code></td><td>0x0d</td><td>Async</td><td>Yes (diff ch)</td><td>CanNmComControlEnabled=TRUE</td><td>Re-enables TX. Starts TX next main function. Restarts NM-Timeout Timer. Must be in Network Mode. E_NOT_OK if already enabled. [SWS_CanNm_00216]</td></tr>
+  <tr><td><code>CanNm_SetUserData(ch, ptr)</code></td><td>0x04</td><td>Sync</td><td>Yes (diff ch)</td><td>UserDataEnabled=TRUE + NOT PassiveMode + NOT ComUserDataSupport</td><td>Sets user data for next TX. [SWS_CanNm_00217]</td></tr>
+  <tr><td><code>CanNm_GetUserData(ch, ptr)</code></td><td>0x05</td><td>Sync</td><td>Yes</td><td>UserDataEnabled=TRUE</td><td>Gets user data from last received NM PDU. [SWS_CanNm_00218]</td></tr>
+  <tr><td><code>CanNm_GetNodeIdentifier(ch, ptr)</code></td><td>0x06</td><td>Sync</td><td>Yes</td><td>NodeIdEnabled=TRUE</td><td>Gets SNI from last received NM PDU. [SWS_CanNm_00219]</td></tr>
+  <tr><td><code>CanNm_GetLocalNodeIdentifier(ch, ptr)</code></td><td>0x07</td><td>Sync</td><td>Yes</td><td>NodeIdEnabled=TRUE</td><td>Gets this node's configured CanNmNodeId. [SWS_CanNm_00220]</td></tr>
+  <tr><td><code>CanNm_RepeatMessageRequest(ch)</code></td><td>0x08</td><td>Async</td><td>Yes (diff ch)</td><td>NodeDetectionEnabled=TRUE</td><td>Sets RepeatMsg bit + enters Repeat Msg State. E_NOT_OK in RMS/PBS/Bus-Sleep. [SWS_CanNm_00221]</td></tr>
+  <tr><td><code>CanNm_GetPduData(ch, ptr)</code></td><td>0x0a</td><td>Sync</td><td>Yes</td><td>NodeDetection OR UserData OR NodeId enabled</td><td>Gets full PDU (SNI+CBV+UserData) of last received NM PDU. [SWS_CanNm_00222]</td></tr>
+  <tr><td><code>CanNm_GetState(ch, statePtr, modePtr)</code></td><td>0x0b</td><td>Sync</td><td>Yes</td><td>Always</td><td>Returns Nm_StateType + Nm_ModeType. [SWS_CanNm_00223]</td></tr>
+  <tr><td><code>CanNm_GetVersionInfo(ptr)</code></td><td>0xf1</td><td>Sync</td><td>Yes</td><td>VersionInfoApi=TRUE</td><td>Returns module ID, vendor ID, version numbers. [SWS_CanNm_00224]</td></tr>
+  <tr><td><code>CanNm_RequestBusSynchronization(ch)</code></td><td>0xc0</td><td>Sync</td><td>No</td><td>BusSynchronizationEnabled=TRUE, NOT PassiveMode</td><td>Triggers single NM PDU TX. E_NOT_OK in PBS/Bus-Sleep. E_NOT_OK if TX disabled. [SWS_CanNm_00226]</td></tr>
+  <tr><td><code>CanNm_CheckRemoteSleepIndication(ch, ptr)</code></td><td>0xd0</td><td>Sync</td><td>Yes</td><td>RemoteSleepIndEnabled=TRUE</td><td>Returns current remote sleep indication status. E_NOT_OK in PBS/Bus-Sleep/RMS. [SWS_CanNm_00227]</td></tr>
+  <tr><td><code>CanNm_SetSleepReadyBit(ch, bit)</code></td><td>0x17</td><td>Sync</td><td>Yes (diff ch)</td><td>CoordinatorSyncSupport=TRUE</td><td>Sets/clears "NM Coordinator Sleep Ready" bit in CBV. Triggers single NM PDU TX. [SWS_CanNm_00338]</td></tr>
+  <tr><td><code>CanNm_PnLearningRequest(ch)</code></td><td>0xf2</td><td>Async</td><td>Yes (diff ch)</td><td>DynamicPncToChannelMappingSupport=TRUE</td><td>Sets RepeatMsg + PN Learning bits, enters/restarts RMS. E_NOT_OK in PBS/Bus-Sleep. [SWS_CanNm_91004]</td></tr>
+  <tr><td><code>CanNm_ActivateTxPnShutdownMsg(ch)</code></td><td>0xf4</td><td>Sync</td><td>Yes (diff ch)</td><td>SynchronizedPncShutdownEnabled=TRUE</td><td>Sets PNSR bit=1, activates PN shutdown message TX. [SWS_CanNm_91005]</td></tr>
+  <tr><td><code>CanNm_DeactivateTxPnShutdownMsg(ch)</code></td><td>0xf5</td><td>Sync</td><td>Yes (diff ch)</td><td>SynchronizedPncShutdownEnabled=TRUE</td><td>Sets PNSR bit=0, deactivates PN shutdown message TX. [SWS_CanNm_91006]</td></tr>
+  <tr><td><code>CanNm_MainFunction()</code></td><td>0x13</td><td>Scheduled</td><td>No</td><td>Always</td><td>Called by SchM. ALL timer processing + state transitions happen here. Returns immediately if not initialized. [SWS_CanNm_00234]</td></tr>
+</table>
+</div>
+
+<h3>Callback APIs (CanIf/LSduR → CanNm)</h3>
+<div class="card">
+<table>
+  <tr><th>Callback</th><th>ID</th><th>Called by</th><th>Key behavior</th></tr>
+  <tr><td><code>CanNm_TxConfirmation(PduId, result)</code></td><td>0x40</td><td>LSduR/CanIf</td><td>E_OK → restart NM-Timeout Timer. E_NOT_OK → Nm_TxTimeoutException(). Also stops Msg TX Timeout Timer. Can be from interrupt or task. [SWS_CanNm_00228]</td></tr>
+  <tr><td><code>CanNm_RxIndication(RxPduId, PduInfoPtr)</code></td><td>0x42</td><td>LSduR/CanIf</td><td>Copies PDU to internal buffer. Restarts NM-Timeout Timer (if TX enabled). Bus load reduction: restarts Msg Cycle Timer with MsgReducedTime. [SWS_CanNm_00231]</td></tr>
+  <tr><td><code>CanNm_ConfirmPnAvailability(ch)</code></td><td>0x16</td><td>CanSM</td><td>Enables PN filter on this channel. After this call, NM PDUs without relevant PNC bits are dropped. [SWS_CanNm_00344]</td></tr>
+  <tr><td><code>CanNm_TriggerTransmit(PduId, PduInfoPtr)</code></td><td>0x41</td><td>LSduR/CanIf</td><td>CanIf calls this when it needs data (triggered TX mode). CanNm copies current PDU data to PduInfoPtr. If ComUserDataSupport=TRUE, fetches from PduR. May be called from interrupt. [SWS_CanNm_91001]</td></tr>
+</table>
+</div>
+
+<h3>API Error Handling</h3>
+<div class="card">
+<p>CanNm never returns dev error codes in API return values (returns E_NOT_OK). Reports to DET if CanNmDevErrorDetect=TRUE.</p>
+<table>
+  <tr><th>Error</th><th>Value</th><th>Trigger</th></tr>
+  <tr><td><code>CANNM_E_UNINIT</code></td><td>0x01</td><td>API called before CanNm_Init()</td></tr>
+  <tr><td><code>CANNM_E_INVALID_CHANNEL</code></td><td>0x02</td><td>Invalid network handle passed</td></tr>
+  <tr><td><code>CANNM_E_INVALID_PDUID</code></td><td>0x03</td><td>Invalid PDU ID (RxIndication/TxConfirmation)</td></tr>
+  <tr><td><code>CANNM_E_INIT_FAILED</code></td><td>0x05</td><td>Init failed (config set doesn't exist)</td></tr>
+  <tr><td><code>CANNM_E_PARAM_POINTER</code></td><td>0x12</td><td>NULL pointer passed as parameter</td></tr>
+  <tr><td><code>CANNM_E_NOT_IN_BUS_SLEEP</code></td><td>0x13</td><td>CanNm_DeInit() called while any network not in Bus-Sleep</td></tr>
+</table>
+<table style="margin-top:8px">
+  <tr><th>Runtime Error</th><th>Value</th><th>Trigger</th></tr>
+  <tr><td><code>CANNM_E_NET_START_IND</code></td><td>0x04</td><td>NM PDU received while in Bus-Sleep Mode</td></tr>
+  <tr><td><code>CANNM_E_NETWORK_TIMEOUT</code></td><td>0x11</td><td>NM-Timeout Timer expires in Repeat Msg or Normal Op State</td></tr>
+  <tr><td><code>CANNM_E_INVALID_PN_SYNC_SHUTDOWN_REQUEST</code></td><td>0x20</td><td>PN shutdown message received on actively coordinated channel</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== SEQUENCES ===== -->
+<div class="section" id="s-sequences">
+<h2>Sequence Diagrams</h2>
+
+<details open>
+<summary>Sequence 1: NM PDU Transmission (periodic)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>CanNm internal Msg Cycle Timer expires</strong></div>
+  <div style="padding-left:20px">CanNm → <code>LSduR_CanNmTransmit(TxPduId, PduInfoPtr)</code> [contains SNI+CBV+UserData+PNCbits]</div>
+  <div style="padding-left:20px">CanNm → START Msg TX Timeout Timer (CanNmMsgTimeoutTime) [if PN enabled]</div>
+  <div style="padding-left:20px">LSduR → <code>CanIf_Transmit()</code> → CAN HW</div>
+  <div style="padding-left:20px">CanNm → RESTART Msg Cycle Timer with CanNmMsgCycleTime</div>
+  <div><strong>CAN HW confirms TX → CanIf → LSduR → </strong><code>CanNm_TxConfirmation(PduId, E_OK)</code></div>
+  <div style="padding-left:20px">CanNm → STOP Msg TX Timeout Timer</div>
+  <div style="padding-left:20px">CanNm → RESTART NM-Timeout Timer</div>
+  <div style="padding-left:20px">If CanNmComUserDataSupport=TRUE → <code>PduR_CanNmTxConfirmation()</code></div>
+  <div style="padding-left:20px">If GlobalPnSupport=TRUE → <code>Nm_PncBitVectorTxConfirmation(ch, pncBits, E_OK)</code></div>
+</div>
+<div class="tip" style="margin-top:8px">If TX fails: TxConfirmation(E_NOT_OK) → Nm_TxTimeoutException(). If TX Timeout Timer expires (PN): Nm_TxTimeoutException() + CanSM_TxTimeoutException() (CanSM restarts CAN driver).</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 2: NM PDU Reception</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>CAN HW receives frame → CanIf → LSduR → </strong><code>CanNm_RxIndication(RxPduId, PduInfoPtr)</code></div>
+  <div style="padding-left:20px">CanNm copies PDU to internal RX buffer [SWS_CanNm_00035]</div>
+  <div style="padding-left:20px">If Network Mode + TX ability enabled: RESTART NM-Timeout Timer [SWS_CanNm_00098]</div>
+  <div style="padding-left:20px">If BusLoadReduction enabled: RESTART Msg Cycle Timer with CanNmMsgReducedTime [SWS_CanNm_00069]</div>
+  <div style="padding-left:20px">If Bus-Sleep Mode: call <code>Nm_NetworkStartIndication()</code> [SWS_CanNm_00127] + report CANNM_E_NET_START_IND to DET [SWS_CanNm_00336]</div>
+  <div style="padding-left:20px">If PduRxIndicationEnabled=TRUE: call <code>Nm_PduRxIndication()</code></div>
+  <div style="padding-left:20px">If PN enabled + PNI=1 + PNSR=0: call <code>Nm_PncBitVectorRxIndication(ch, pncVec, &relevantFlag)</code></div>
+  <div style="padding-left:20px">If PN enabled + PNI=1 + PNSR=1 (synchronized shutdown): call <code>Nm_ForwardSynchronizedPncShutdown()</code></div>
+  <div style="padding-left:20px">If NodeDetection enabled + RepeatMsgReq bit=1: call <code>Nm_RepeatMessageIndication()</code></div>
+  <div style="padding-left:20px">If CarWakeUp enabled + CWU bit=1: call <code>Nm_CarWakeUpIndication()</code></div>
+  <div style="padding-left:20px">If CoordSyncSupport + NMCoordSleepReady=1: call <code>Nm_CoordReadyToSleepIndication()</code></div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 3: Active Wakeup (Network Request from Bus-Sleep)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>Upper layer (ComM) → </strong><code>CanNm_NetworkRequest(channel)</code></div>
+  <div style="padding-left:20px">CanNm sets network state = REQUESTED</div>
+  <div style="padding-left:20px">CanNm transitions Bus-Sleep → Network Mode (Repeat Message State)</div>
+  <div style="padding-left:20px">START NM-Timeout Timer</div>
+  <div style="padding-left:20px">START Repeat Message Timer</div>
+  <div style="padding-left:20px">Call <code>Nm_NetworkMode(channel)</code></div>
+  <div style="padding-left:20px">If ActiveWakeupBitEnabled=TRUE: SET ActiveWakeup bit in CBV</div>
+  <div style="padding-left:20px">If ImmediateNmTransmissions &gt; 0: TX burst at ImmediateNmCycleTime (no MsgCycleOffset)</div>
+  <div style="padding-left:20px">Else: wait MsgCycleOffset, then TX periodically at MsgCycleTime</div>
+  <div><strong>RepeatMessageTime expires:</strong></div>
+  <div style="padding-left:20px">Network REQUESTED → enter Normal Operation State</div>
+  <div style="padding-left:20px">If BusLoadReduction enabled: activate it</div>
+  <div><strong>OR RepeatMessageTime expires with network RELEASED:</strong></div>
+  <div style="padding-left:20px">Enter Ready Sleep State → stop TX</div>
+</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 4: Coordinated Shutdown (ComM → CanNm → Bus-Sleep)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>ComM releases network → </strong><code>CanNm_NetworkRelease(channel)</code> [all users done]</div>
+  <div style="padding-left:20px">Normal Op → Ready Sleep: stop NM PDU TX</div>
+  <div style="padding-left:20px">Remote Sleep Indication detection: other nodes also stop TX</div>
+  <div style="padding-left:20px">NM-Timeout Timer counts down (last TX/RX)</div>
+  <div><strong>NM-Timeout Timer expires (Ready Sleep):</strong></div>
+  <div style="padding-left:20px">→ Prepare Bus-Sleep Mode</div>
+  <div style="padding-left:20px">Call <code>Nm_PrepareBusSleepMode(channel)</code></div>
+  <div style="padding-left:20px">ComM → CanSM_RequestComMode(SILENT)</div>
+  <div><strong>Wait Bus-Sleep Timer expires (CanNmWaitBusSleepTime):</strong></div>
+  <div style="padding-left:20px">→ Bus-Sleep Mode</div>
+  <div style="padding-left:20px">Call <code>Nm_BusSleepMode(channel)</code></div>
+  <div style="padding-left:20px">ComM → CanSM_RequestComMode(NO_COM)</div>
+</div>
+<div class="tip" style="margin-top:8px">Exact timing all nodes sleep together: CanNmTimeoutTime + CanNmWaitBusSleepTime MUST be same on all nodes. Clock jitter = only difference in sleep time between nodes.</div>
+</div>
+</details>
+
+<details>
+<summary>Sequence 5: Immediate Restart (PBS → Network Mode)</summary>
+<div class="inner">
+<div style="font-size:12px;line-height:2.2">
+  <div><strong>ECU in Prepare Bus-Sleep Mode. New communication request arrives.</strong></div>
+  <div><code>CanNm_NetworkRequest(channel)</code> called (active wakeup)</div>
+  <div style="padding-left:20px">→ Network Mode (Repeat Msg State)</div>
+  <div style="padding-left:20px">START NM-Timeout Timer, START Repeat Message Timer</div>
+  <div style="padding-left:20px">Call Nm_NetworkMode()</div>
+  <div>If <code>CanNmImmediateRestartEnabled=TRUE</code>:</div>
+  <div style="padding-left:20px">TX one NM PDU immediately (before MsgCycleOffset would apply)</div>
+  <div style="padding-left:20px">Rationale: other nodes still in PBS, need fast signal to stay awake, avoid all going to sleep</div>
+</div>
+</div>
+</details>
+</div>
+
+<!-- ===== PARTIAL NETWORKING ===== -->
+<div class="section" id="s-pn">
+<h2>Partial Networking (PN) — Complete Guide</h2>
+
+<div class="tip"><strong>PN concept:</strong> Not all ECUs need to wake up for all requests. PNC bit vector = which Partial Network Clusters need to be awake. Each bit = one PNC. ECU only wakes if its PNC bits are set in received NM PDU. Enables selective wakeup of only needed subsystems.</div>
+
+<h2>Key Terms</h2>
+<div class="grid3">
+  <div class="mini"><strong>PNC (Partial Network Cluster)</strong>Logical group of ECUs that can independently wake/sleep. Each PNC has a bit in PNC bit vector.</div>
+  <div class="mini"><strong>ERA (External Request Array)</strong>PNC requests received from outside (other ECUs). Aggregated from received NM PDUs.</div>
+  <div class="mini"><strong>EIRA (External + Internal Request Array)</strong>ERA + internal PNC requests from ComM. Full picture of which PNCs need to be active.</div>
+  <div class="mini"><strong>PNI bit (Partial Network Information)</strong>CBV bit 6. Set=1 if PnEnabled=TRUE. Signals "this NM PDU contains PNC bit vector". [SWS_CanNm_00413]</div>
+  <div class="mini"><strong>PNSR bit (PN Shutdown Request)</strong>CBV bit 1. Set by coordinator to signal synchronized PNC shutdown across topology. [SWS_CanNm_00519]</div>
+  <div class="mini"><strong>PNL bit (PN Learning)</strong>CBV bit 5. Dynamic PNC-to-channel mapping learning phase trigger. [SWS_CanNm_00380]</div>
+</div>
+
+<h2>RX Handling — PN Filter Algorithm</h2>
+<div class="card">
+<table>
+  <tr><th>Condition</th><th>Action</th><th>SWS</th></tr>
+  <tr><td>CanNmPnEnabled=FALSE</td><td>No filtering. All NM PDUs pass through normally.</td><td class="sws">SWS_CanNm_00409</td></tr>
+  <tr><td>PnEnabled=TRUE + PNI=0 + AllNmMessagesKeepAwake=TRUE</td><td>PDU passes through (no PN extension processing). Keep bus alive for gateway.</td><td class="sws">SWS_CanNm_00410</td></tr>
+  <tr><td>PnEnabled=TRUE + PNI=0 + AllNmMessagesKeepAwake=FALSE</td><td>PDU IGNORED. [SWS_CanNm_00411]</td><td class="sws">SWS_CanNm_00411</td></tr>
+  <tr><td>PnEnabled=TRUE + PNI=1 + PNSR=0</td><td>Extract PNC bits → Nm_PncBitVectorRxIndication(). If no relevant PNC AND ConfirmPnAvailability called AND AllNmMessages=FALSE → PDU dropped. [SWS_CanNm_00502]</td><td class="sws">SWS_CanNm_00502, 00503</td></tr>
+  <tr><td>PnEnabled=TRUE + PNI=1 + PNSR=1</td><td>Synchronized shutdown request. Extract PNC bits → Nm_ForwardSynchronizedPncShutdown(). [SWS_CanNm_00504]</td><td class="sws">SWS_CanNm_00504</td></tr>
+  <tr><td>PNI=1 + PNSR=1 on ACTIVELY COORDINATED channel</td><td>Report CANNM_E_INVALID_PN_SYNC_SHUTDOWN_REQUEST to DET. IGNORE PNSR. Handle as normal NM PDU. [SWS_CanNm_00461]</td><td class="sws">SWS_CanNm_00461</td></tr>
+</table>
+</div>
+
+<h2>TX Handling — PN bit insertion</h2>
+<div class="card">
+<p>Every NM PDU TX: CanNm calls <code>Nm_PncBitVectorTxIndication(ch, &pncBuf)</code> → gets aggregated internal PNC requests. Copies to PNC bit vector bytes in NM PDU. [SWS_CanNm_00518]</p>
+<p>TxConfirmation(E_OK) → <code>Nm_PncBitVectorTxConfirmation(ch, pncVec, E_OK)</code></p>
+<p>TxConfirmation(E_NOT_OK) OR TX request rejected → <code>Nm_PncBitVectorTxConfirmation(ch, pncVec, E_NOT_OK)</code></p>
+</div>
+
+<h2>Synchronized PNC Shutdown</h2>
+<div class="card">
+<p>Used by top-level PNC coordinator (ECU with ComMPncGatewayType=ACTIVE) to trigger synchronized shutdown across entire PN topology.</p>
+<div class="flow">
+  <div class="fnode">Nm detects all PNC requestors released</div>
+  <div class="farrow">→</div>
+  <div class="fnode">CanNm_ActivateTxPnShutdownMsg(ch)</div>
+  <div class="farrow">→ PNSR=1 in CBV →</div>
+  <div class="fnode">Transmit PN shutdown message NM PDU</div>
+</div>
+<p style="font-size:12px;margin-top:8px">PN shutdown message transmission has HIGHER priority than cyclic NM PDUs — cyclic TX is postponed one main function cycle when PNSR shutdown is active. [SWS_CanNm_00513]</p>
+<div class="warn">If TX fails during PN shutdown: retransmit in next main function. [SWS_CanNm_00514] PN shutdown message must be assumed transmitted even if actual CanIf TX pending.</div>
+</div>
+
+<h2>TX Timeout Timer (PN-specific)</h2>
+<div class="card">
+<p>If <code>CanNmGlobalPnSupport=TRUE</code> and <code>CanNmMsgTimeoutTime</code> defined:</p>
+<div class="step">Each TX request → START Msg TX Timeout Timer (CanNmMsgTimeoutTime)</div>
+<div class="step">TxConfirmation received → STOP Msg TX Timeout Timer</div>
+<div class="step hi">Timer expires without TxConfirmation → Nm_TxTimeoutException() + CanSM_TxTimeoutException()</div>
+<p style="font-size:12px;margin-top:8px">CanSM_TxTimeoutException() → CanSM stops+restarts CAN controller → recovers from stuck TX (e.g., bus-off while PN transceiver used).</p>
+<div class="tip">CanNmGlobalPnSupport=TRUE → CanNm STOPS NM-Timeout Timer at init [SWS_CanNm_00061]. Timer only started after PN availability confirmed via CanNm_ConfirmPnAvailability().</div>
+</div>
+
+<h2>CanNm_ConfirmPnAvailability() — Critical flow</h2>
+<div class="card">
+<p>Called by CanSM when PN-capable transceiver confirmed ready. ENABLES the PN filter on this channel.</p>
+<p>Before ConfirmPnAvailability called: ALL NM PDUs considered relevant (safety — if PN HW malfunctions, ECU stays synchronized with network). [SWS_CanNm_00503 note]</p>
+<p>After ConfirmPnAvailability called: only NM PDUs with relevant PNC bits wake up this ECU.</p>
+</div>
+</div>
+
+<!-- ===== ERRORS & DEBUG ===== -->
+<div class="section" id="s-errors">
+<h2>Error Classification &amp; Debugging</h2>
+
+<div class="grid2">
+<div class="card">
+<h3>Development Errors (DET — visible only if DevErrorDetect=TRUE)</h3>
+<table>
+  <tr><th>Code</th><th>Value</th><th>Condition</th></tr>
+  <tr><td><code>CANNM_E_UNINIT</code></td><td>0x01</td><td>Any API before CanNm_Init()</td></tr>
+  <tr><td><code>CANNM_E_INVALID_CHANNEL</code></td><td>0x02</td><td>Invalid channel handle</td></tr>
+  <tr><td><code>CANNM_E_INVALID_PDUID</code></td><td>0x03</td><td>Invalid PDU ID in callback</td></tr>
+  <tr><td><code>CANNM_E_INIT_FAILED</code></td><td>0x05</td><td>Init with invalid config</td></tr>
+  <tr><td><code>CANNM_E_PARAM_POINTER</code></td><td>0x12</td><td>NULL pointer passed</td></tr>
+  <tr><td><code>CANNM_E_NOT_IN_BUS_SLEEP</code></td><td>0x13</td><td>DeInit called, not all in Bus-Sleep</td></tr>
+</table>
+</div>
+<div class="card">
+<h3>Runtime Errors (always reported)</h3>
+<table>
+  <tr><th>Code</th><th>Value</th><th>Condition</th></tr>
+  <tr><td><code>CANNM_E_NET_START_IND</code></td><td>0x04</td><td>RxIndication in Bus-Sleep</td></tr>
+  <tr><td><code>CANNM_E_NETWORK_TIMEOUT</code></td><td>0x11</td><td>NM-Timeout in Repeat Msg or Normal Op (race condition or bus-off)</td></tr>
+  <tr><td><code>CANNM_E_INVALID_PN_SYNC_SHUTDOWN_REQUEST</code></td><td>0x20</td><td>PNSR+PNI received on actively coordinated channel</td></tr>
+</table>
+<p style="font-size:11px;margin-top:6px">No DEM/production errors in CanNm. [SWS_CanNm_NA_00007]</p>
+</div>
+</div>
+
+<h2>Debugging Checklist</h2>
+
+<details open>
+<summary>ECU not going to Bus-Sleep (network stuck awake)</summary>
+<div class="inner">
+<div class="step">1. Check CanNmTimeoutTime IDENTICAL on ALL cluster nodes. Even 1ms difference = one node never times out.</div>
+<div class="step">2. Check NM PDU received from unexpected node (check SNI). Some node still active.</div>
+<div class="step">3. Check CanNm_NetworkRelease() actually called by ComM. Inspect network state variable.</div>
+<div class="step">4. Check DisableCommunication was called — if so, NM-Timeout Timer stopped → ECU never times out.</div>
+<div class="step">5. Check PN enabled: PN-capable transceiver may suppress NM PDUs from non-PN nodes. Use AllNmMessagesKeepAwake=TRUE on gateway.</div>
+<div class="step">6. CANoe: monitor NM PDU rate. If decreasing correctly → problem is WaitBusSleepTime or CanSM not transitioning.</div>
+</div>
+</details>
+
+<details>
+<summary>CANNM_E_NETWORK_TIMEOUT in DET — frequently</summary>
+<div class="inner">
+<div class="step">Timer expired in Repeat Msg or Normal Op = TX not happening + no RX from others.</div>
+<div class="step">1. Check bus-off condition: CanSM reports CANSM_E_BUS_OFF → bus-off prevents TX → timer expires.</div>
+<div class="step">2. Check CanNmMsgCycleTime &lt; CanNmTimeoutTime (required). If equal: single missed TX = timeout.</div>
+<div class="step">3. Check DisableCommunication called but NM-Timeout Timer not stopped properly (check SWS_CanNm_00174).</div>
+<div class="step">4. Check CanNmImmediateTxconfEnabled — if TRUE, CanNm doesn't wait for actual TxConfirmation → timer not restarted by TX conf.</div>
+<div class="step hi">CANNM_E_NETWORK_TIMEOUT is expected/harmless in Repeat Msg + Normal Op in some configurations — timer restart is spec'd, not a fatal error. Only concerning if repeated without reason.</div>
+</div>
+</details>
+
+<details>
+<summary>PN filtering drops all NM PDUs (ECU stays in Bus-Sleep)</summary>
+<div class="inner">
+<div class="step">1. Check CanNm_ConfirmPnAvailability() was called by CanSM. Before this, ALL PDUs treated as relevant.</div>
+<div class="step">2. Check PNI bit=1 in received NM PDUs. If PNI=0 and AllNmMessagesKeepAwake=FALSE → PDU dropped.</div>
+<div class="step">3. Check NmPncBitVectorOffset and NmPncBitVectorLength match between TX and RX nodes.</div>
+<div class="step">4. Check PNC bit vector filter: relevant PNC bit must be set in received PDU AND match ECU's configured PNC.</div>
+<div class="step">5. Gateway ECU: AllNmMessagesKeepAwake MUST be TRUE, otherwise gateway drops non-PN NM PDUs and loses cluster synchronization.</div>
+</div>
+</details>
+
+<details>
+<summary>CanSM_TxTimeoutException() called unexpectedly</summary>
+<div class="inner">
+<div class="step">CanNm TX timeout timer (CanNmMsgTimeoutTime) expired without TxConfirmation(E_OK).</div>
+<div class="step">1. CanNmMsgTimeoutTime must be &lt; CanNmMsgCycleTime. Check value.</div>
+<div class="step">2. Check CanIf TX queue full — LSduR_CanNmTransmit returned E_NOT_OK. CanNm retransmits next main function (SWS_CanNm_00514).</div>
+<div class="step">3. Bus-off during PN operation → TX fails → timeout → CanSM_TxTimeoutException() → CanSM restarts driver. This is INTENDED behavior for PN robustness.</div>
+<div class="step">4. Check CanNmImmediateTxconfEnabled — if TRUE, [SWS_CanNm_00073] disables TX error handling entirely. No timer, no exception.</div>
+</div>
+</details>
+
+<h2>Key Debug Variables</h2>
+<div class="card">
+<table>
+  <tr><th>Variable (typical naming)</th><th>What it shows</th></tr>
+  <tr><td><code>CanNm_NetworkModeState[ch]</code></td><td>Current NM state (Bus-Sleep, PBS, RMS, NOS, RSS)</td></tr>
+  <tr><td><code>CanNm_NetworkRequested[ch]</code></td><td>Network state: requested=TRUE, released=FALSE</td></tr>
+  <tr><td><code>CanNm_NmTimeoutTimer[ch]</code></td><td>NM-Timeout Timer countdown value</td></tr>
+  <tr><td><code>CanNm_RepeatMessageTimer[ch]</code></td><td>Repeat Message Timer countdown</td></tr>
+  <tr><td><code>CanNm_MsgCycleTimer[ch]</code></td><td>Message Cycle Timer (when 0 → TX next NM PDU)</td></tr>
+  <tr><td><code>CanNm_TxConfPending[ch]</code></td><td>Waiting for TxConfirmation (PN timeout monitoring)</td></tr>
+  <tr><td><code>CanNm_PnFilterEnabled[ch]</code></td><td>PN filter active (ConfirmPnAvailability called)</td></tr>
+  <tr><td><code>CanNm_RxBuffer[ch]</code></td><td>Last received NM PDU data (SNI+CBV+UserData+PNC)</td></tr>
+  <tr><td><code>CanNm_TxBuffer[ch]</code></td><td>NM PDU data for next TX</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== DAVINCI ===== -->
+<div class="section" id="s-davinci">
+<h2>Configuring CanNm in Vector DaVinci Developer / Configurator Pro</h2>
+
+<div class="tip"><strong>Config hierarchy:</strong> CanNm → CanNmGlobalConfig → CanNmChannelConfig (1 per channel) → CanNmRxPdu (1 per RX PDU) + CanNmTxPdu (0..1) + CanNmUserDataTxPdu (0..1)</div>
+
+<h3>Step 1: CanNmGlobalConfig — ECU-wide switches</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanNm → CanNmGlobalConfig</code></p>
+<table>
+  <tr><th>Parameter</th><th>Default</th><th>Set to</th><th>Impact</th></tr>
+  <tr><td><code>CanNmDevErrorDetect</code></td><td>false</td><td>TRUE (dev) / FALSE (prod)</td><td>Enables DET for UNINIT, PARAM, etc.</td></tr>
+  <tr><td><code>CanNmVersionInfoApi</code></td><td>false</td><td>FALSE usually</td><td>Adds CanNm_GetVersionInfo() API</td></tr>
+  <tr><td><code>CanNmMainFunctionPeriod</code></td><td>—</td><td>Match SchM task period (e.g. 0.005)</td><td>CRITICAL: all timers based on this</td></tr>
+  <tr><td><code>CanNmPassiveModeEnabled</code></td><td>—</td><td>FALSE (active node) / TRUE (listen-only)</td><td>TRUE → no TX ever, many features disabled</td></tr>
+  <tr><td><code>CanNmGlobalPnSupport</code></td><td>false</td><td>TRUE if PN transceivers used</td><td>Enables PN APIs, TX Timeout Timer, PNI bit</td></tr>
+  <tr><td><code>CanNmBusLoadReductionEnabled</code></td><td>—</td><td>TRUE for large clusters</td><td>Must be FALSE if PassiveMode=TRUE or GlobalPnSupport=TRUE</td></tr>
+  <tr><td><code>CanNmComControlEnabled</code></td><td>—</td><td>TRUE if UDS ComControl (0x28) needed</td><td>Enables DisableCommunication/EnableCommunication APIs</td></tr>
+  <tr><td><code>CanNmRemoteSleepIndEnabled</code></td><td>—</td><td>TRUE for gateway nodes</td><td>Enables remote sleep detection. FALSE if PassiveMode=TRUE</td></tr>
+  <tr><td><code>CanNmStateChangeIndEnabled</code></td><td>—</td><td>TRUE if Nm needs state change notifications</td><td>Enables Nm_StateChangeNotification() calls</td></tr>
+  <tr><td><code>CanNmPduRxIndicationEnabled</code></td><td>—</td><td>TRUE if upper layer needs each RX notification</td><td>Enables Nm_PduRxIndication() calls</td></tr>
+  <tr><td><code>CanNmImmediateRestartEnabled</code></td><td>—</td><td>TRUE if fast restart from PBS needed</td><td>Extra NM PDU TX on restart from PBS. Not if PassiveMode=TRUE. Not if ImmediateNmTransmissions&gt;0.</td></tr>
+  <tr><td><code>CanNmImmediateTxconfEnabled</code></td><td>—</td><td>FALSE usually (enable only for TDMA/scheduled systems)</td><td>TRUE = no actual TxConfirmation needed, disables TX error handling</td></tr>
+  <tr><td><code>CanNmComUserDataSupport</code></td><td>—</td><td>TRUE if COM signals used for NM user data</td><td>Disables CanNm_SetUserData(). Uses PduR_CanNmTriggerTransmit() instead.</td></tr>
+  <tr><td><code>CanNmCoordinatorSyncSupport</code></td><td>—</td><td>TRUE for NM coordinator ECUs</td><td>Enables SetSleepReadyBit() API and Coord Sleep Ready bit handling</td></tr>
+  <tr><td><code>CanNmUserDataEnabled</code></td><td>—</td><td>TRUE if user data needed</td><td>FALSE if no bytes available in PDU</td></tr>
+  <tr><td><code>CanNmDynamicPncToChannelMappingSupport</code></td><td>—</td><td>FALSE usually</td><td>TRUE only if GlobalPnSupport=TRUE and not PassiveMode</td></tr>
+</table>
+</div>
+
+<h3>Step 2: CanNmChannelConfig — Per-channel settings</h3>
+<div class="card">
+<p><strong>Path:</strong> <code>CanNmGlobalConfig → CanNmChannelConfig</code> (add one per CAN channel)</p>
+<table>
+  <tr><th>Parameter</th><th>What to set</th><th>Critical notes</th></tr>
+  <tr><td><code>CanNmComMNetworkHandleRef</code></td><td>Reference to ComMChannel</td><td>MUST match exactly. Links CanNm channel to ComM channel.</td></tr>
+  <tr><td><code>CanNmNodeId</code></td><td>Unique 0–255 per node</td><td>Must be unique in cluster. Used as SNI in NM PDU.</td></tr>
+  <tr><td><code>CanNmNodeIdEnabled</code></td><td>TRUE to include SNI in PDU</td><td>Must be TRUE for node detection. If TRUE, NidPosition ≠ OFF.</td></tr>
+  <tr><td><code>CanNmPduNidPosition</code></td><td>CANNM_PDU_BYTE_0 / BYTE_1 / OFF</td><td>Must match ALL other nodes in cluster!</td></tr>
+  <tr><td><code>CanNmPduCbvPosition</code></td><td>CANNM_PDU_BYTE_0 / BYTE_1 / OFF</td><td>Must match ALL other nodes! ≠ NidPosition if both used.</td></tr>
+  <tr><td><code>CanNmTimeoutTime</code></td><td>e.g. 0.300 (300ms)</td><td>SAME on all nodes. Must be &gt; MsgCycleTime.</td></tr>
+  <tr><td><code>CanNmRepeatMessageTime</code></td><td>e.g. 1.000 (1s)</td><td>= n × MsgCycleTime. 0 = transient (no startup stability).</td></tr>
+  <tr><td><code>CanNmWaitBusSleepTime</code></td><td>e.g. 0.100 (100ms)</td><td>SAME on all nodes. Long enough for TX buffers to drain.</td></tr>
+  <tr><td><code>CanNmMsgCycleTime</code></td><td>e.g. 0.020 (20ms)</td><td>SAME on all nodes.</td></tr>
+  <tr><td><code>CanNmMsgCycleOffset</code></td><td>e.g. 0.003 (3ms)</td><td>Node-specific. Spread startup TX. Must be &lt; MsgCycleTime.</td></tr>
+  <tr><td><code>CanNmImmediateNmTransmissions</code></td><td>e.g. 3</td><td>Burst count on active wakeup. 0 = no burst.</td></tr>
+  <tr><td><code>CanNmImmediateNmCycleTime</code></td><td>e.g. 0.002 (2ms)</td><td>Required if ImmediateNmTransmissions &gt; 0.</td></tr>
+  <tr><td><code>CanNmMsgReducedTime</code></td><td>e.g. 0.012 (12ms)</td><td>Bus load reduction. 0.5×Cycle ≤ Reduced &lt; Cycle. Node-specific.</td></tr>
+  <tr><td><code>CanNmBusLoadReductionActive</code></td><td>TRUE/FALSE per channel</td><td>Must be FALSE if GlobalBusLoadReduction=FALSE.</td></tr>
+  <tr><td><code>CanNmNodeDetectionEnabled</code></td><td>TRUE if node detection needed</td><td>Only if NodeIdEnabled=TRUE and not PassiveMode.</td></tr>
+  <tr><td><code>CanNmRepeatMsgIndEnabled</code></td><td>TRUE if Nm needs repeat msg indication</td><td>FALSE if PassiveMode or (NodeDetection=FALSE and DynMapping=FALSE).</td></tr>
+  <tr><td><code>CanNmRemoteSleepIndTime</code></td><td>e.g. 1.000 (1s)</td><td>Only if RemoteSleepIndEnabled=TRUE. ≥ MsgCycleTime.</td></tr>
+  <tr><td><code>CanNmStayInPbsEnabled</code></td><td>FALSE usually</td><td>TRUE = stay in PBS until power off or external restart. Never self-exit.</td></tr>
+  <tr><td><code>CanNmPnEnabled</code></td><td>TRUE if PN used on this channel</td><td>Only if GlobalPnSupport=TRUE.</td></tr>
+  <tr><td><code>CanNmMsgTimeoutTime</code></td><td>e.g. 0.010 (10ms)</td><td>PN only. &lt; MsgCycleTime.</td></tr>
+  <tr><td><code>CanNmAllNmMessagesKeepAwake</code></td><td>TRUE for gateway ECUs</td><td>Only if PnEnabled. Gateway must stay awake for all NM PDUs.</td></tr>
+  <tr><td><code>CanNmPnHandleMultipleNetworkRequests</code></td><td>FALSE usually</td><td>TRUE = each NetworkRequest() re-enters Repeat Msg State (PN PNC change notification). Requires ImmediateNmTransmissions &gt; 0.</td></tr>
+  <tr><td><code>CanNmSynchronizedPncShutdownEnabled</code></td><td>FALSE usually</td><td>TRUE only for top-level/intermediate PNC coordinators. Requires PnEnabled=TRUE and ERA calculation enabled.</td></tr>
+  <tr><td><code>CanNmActiveWakeupBitEnabled</code></td><td>FALSE usually</td><td>TRUE = set Active Wakeup bit in CBV on NetworkRequest() from sleep.</td></tr>
+  <tr><td><code>CanNmCarWakeUpRxEnabled</code></td><td>FALSE</td><td>TRUE to detect Car Wakeup bit in received NM PDUs.</td></tr>
+  <tr><td><code>CanNmDynamicPncToChannelMappingEnabled</code></td><td>FALSE</td><td>Per-channel switch. Only if DynamicPncToChannelMappingSupport=TRUE.</td></tr>
+</table>
+</div>
+
+<h3>Step 3: CanNmRxPdu + CanNmTxPdu</h3>
+<div class="card">
+<h3>CanNmRxPdu (1..* per channel)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanNmRxPduRef</code></td><td>Reference to global PDU in EcuC (the received NM PDU)</td></tr>
+  <tr><td><code>CanNmRxPduId</code></td><td>Auto-generated or manually set — ID CanNm uses to identify this RX PDU</td></tr>
+</table>
+
+<h3>CanNmTxPdu (0..1 per channel — needed if node transmits)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanNmTxPduRef</code></td><td>Reference to global PDU in EcuC (the transmitted NM PDU)</td></tr>
+  <tr><td><code>CanNmTxConfirmationPduId</code></td><td>Auto-generated — ID CanIf uses in TxConfirmation callback</td></tr>
+</table>
+
+<h3>CanNmUserDataTxPdu (0..1 — only if ComUserDataSupport=TRUE)</h3>
+<table>
+  <tr><th>Parameter</th><th>What to set</th></tr>
+  <tr><td><code>CanNmTxUserDataPduRef</code></td><td>Reference to COM I-PDU containing NM user data signals</td></tr>
+  <tr><td><code>CanNmTxUserDataPduId</code></td><td>Auto-generated — ID for PduR routing</td></tr>
+</table>
+</div>
+
+<h3>Step 4: DaVinci Consistency Check</h3>
+<div class="card">
+<div class="step">☐ CanNmComMNetworkHandleRef resolves to valid ComMChannel</div>
+<div class="step">☐ CanNmTxPduRef resolves to valid PDU in EcuC PDU collection</div>
+<div class="step">☐ CanNmRxPduRef resolves to valid PDU in EcuC PDU collection</div>
+<div class="step">☐ CanNmMainFunctionPeriod matches SchM/OS task period exactly</div>
+<div class="step">☐ CanNmTimeoutTime &gt; CanNmMsgCycleTime (required by spec)</div>
+<div class="step">☐ CanNmMsgCycleOffset &lt; CanNmMsgCycleTime</div>
+<div class="step">☐ If GlobalPnSupport=TRUE: CanNmBusLoadReductionEnabled MUST be FALSE</div>
+<div class="step">☐ If PassiveModeEnabled=TRUE: NodeDetection, BusLoadReduction, ComControl, CoordSyncSupport, ImmediateRestart all MUST be FALSE</div>
+<div class="step">☐ If NodeDetectionEnabled=TRUE: NodeIdEnabled MUST be TRUE + PduCbvPosition ≠ OFF</div>
+<div class="step">☐ If ComUserDataSupport=TRUE: UserDataEnabled MUST be FALSE</div>
+<div class="step">☐ If PnHandleMultipleNetworkRequests=TRUE: ImmediateNmTransmissions MUST be &gt; 0</div>
+<div class="step">☐ PduNidPosition ≠ PduCbvPosition (can't both occupy same byte)</div>
+<div class="step hi">☐ CanNmTimeoutTime, CanNmMsgCycleTime, CanNmWaitBusSleepTime must be SAME on ALL nodes in cluster — verify OEM network spec</div>
+</div>
+
+<h3>Typical Values — Passenger Car CAN NM</h3>
+<div class="card">
+<table>
+  <tr><th>Parameter</th><th>Typical value</th><th>Rationale</th></tr>
+  <tr><td>CanNmMainFunctionPeriod</td><td>5ms</td><td>Standard BSW task cycle</td></tr>
+  <tr><td>CanNmMsgCycleTime</td><td>20ms</td><td>AUTOSAR default. Some OEMs use 50ms.</td></tr>
+  <tr><td>CanNmMsgCycleOffset</td><td>0–19ms (node-specific)</td><td>Spread out TX to avoid collision burst</td></tr>
+  <tr><td>CanNmTimeoutTime</td><td>300ms</td><td>= 15 × MsgCycleTime → tolerates 14 missed NM PDUs</td></tr>
+  <tr><td>CanNmRepeatMessageTime</td><td>1000ms</td><td>= 50 × MsgCycleTime → good node detection window</td></tr>
+  <tr><td>CanNmWaitBusSleepTime</td><td>100ms</td><td>Long enough for COM messages to drain TX queues</td></tr>
+  <tr><td>CanNmRemoteSleepIndTime</td><td>1000ms</td><td>≥ TimeoutTime for reliable detection</td></tr>
+  <tr><td>CanNmMsgReducedTime</td><td>12ms</td><td>= 0.6 × MsgCycleTime (within spec range)</td></tr>
+  <tr><td>CanNmImmediateNmTransmissions</td><td>3</td><td>3 fast bursts on wakeup → robust startup</td></tr>
+  <tr><td>CanNmImmediateNmCycleTime</td><td>2ms</td><td>Fast burst cycle time</td></tr>
+  <tr><td>CanNmMsgTimeoutTime (PN)</td><td>10ms</td><td>&lt; MsgCycleTime. Half the cycle time.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- ===== TESTING ===== -->
+<div class="section" id="s-testing">
+<h2>Interface Testing &amp; Automotive Integration</h2>
+
+<h3>Test Group 1: Initialization &amp; State Machine Basics</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th><th>SWS</th></tr>
+  <tr><td>TC_INIT_001</td><td>Call CanNm_Init(validConfig)</td><td>State=Bus-Sleep, network=released, UserData=0xFF each byte, CBV=0x00, TX stopped, timers stopped.</td><td>00141, 00143, 00025, 00085</td></tr>
+  <tr><td>TC_INIT_002</td><td>Call any API before CanNm_Init()</td><td>E_NOT_OK returned, DET CANNM_E_UNINIT if DevErrorDetect=TRUE.</td><td>00316</td></tr>
+  <tr><td>TC_INIT_003</td><td>CanNm_DeInit() with any network not in Bus-Sleep</td><td>DET CANNM_E_NOT_IN_BUS_SLEEP.</td><td>00352</td></tr>
+  <tr><td>TC_INIT_004</td><td>Call CanNm_GetState() after init</td><td>Returns NM_STATE_BUS_SLEEP + NM_MODE_BUS_SLEEP.</td><td>00223, 00141</td></tr>
+</table>
+</div>
+
+<h3>Test Group 2: State Transitions</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th><th>SWS</th></tr>
+  <tr><td>TC_STATE_001</td><td>CanNm_NetworkRequest() in Bus-Sleep</td><td>→ Repeat Msg State. Nm_NetworkMode() called. NM-Timeout + RepeatMsg timers started. TX at ImmediateNmCycleTime (if ImmediateNmTransmissions&gt;0) then MsgCycleTime.</td><td>00129, 00097, 00334</td></tr>
+  <tr><td>TC_STATE_002</td><td>CanNm_PassiveStartUp() in Bus-Sleep</td><td>→ Repeat Msg State. No NM PDU TX. Nm_NetworkMode() called.</td><td>00128, 00211</td></tr>
+  <tr><td>TC_STATE_003</td><td>RepeatMessageTime expires, network requested</td><td>→ Normal Operation State. Bus load reduction activated if configured.</td><td>00103, 00157</td></tr>
+  <tr><td>TC_STATE_004</td><td>RepeatMessageTime expires, network released</td><td>→ Ready Sleep State. TX stopped.</td><td>00106, 00108</td></tr>
+  <tr><td>TC_STATE_005</td><td>CanNm_NetworkRelease() in Normal Op</td><td>→ Ready Sleep State. TX stopped. NM-Timeout Timer continues counting.</td><td>00118, 00105</td></tr>
+  <tr><td>TC_STATE_006</td><td>NM-Timeout Timer expires in Ready Sleep</td><td>→ Prepare Bus-Sleep Mode. Nm_PrepareBusSleepMode() called.</td><td>00109, 00114</td></tr>
+  <tr><td>TC_STATE_007</td><td>WaitBusSleepTime expires in PBS</td><td>→ Bus-Sleep Mode. Nm_BusSleepMode() called.</td><td>00126</td></tr>
+  <tr><td>TC_STATE_008</td><td>CanNm_PassiveStartUp() in Network Mode</td><td>E_NOT_OK. No state change.</td><td>00147</td></tr>
+  <tr><td>TC_STATE_009</td><td>RxIndication in Bus-Sleep Mode</td><td>Nm_NetworkStartIndication() called. DET CANNM_E_NET_START_IND. State stays Bus-Sleep.</td><td>00127, 00336</td></tr>
+  <tr><td>TC_STATE_010</td><td>RxIndication in PBS</td><td>→ Network Mode (Repeat Msg State). Nm_NetworkMode() called.</td><td>00124</td></tr>
+</table>
+</div>
+
+<h3>Test Group 3: NM PDU TX/RX Behavior</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th><th>SWS</th></tr>
+  <tr><td>TC_PDU_001</td><td>MsgCycleTimer expires in Repeat Msg or Normal Op</td><td>LSduR_CanNmTransmit() called with correct PDU (SNI+CBV+UserData+PNCbits). Timer reloaded with MsgCycleTime.</td><td>00512, 00040</td></tr>
+  <tr><td>TC_PDU_002</td><td>TxConfirmation(E_OK) in Network Mode</td><td>NM-Timeout Timer restarted. Msg TX Timeout Timer stopped (if PN).</td><td>00099, 00065</td></tr>
+  <tr><td>TC_PDU_003</td><td>TxConfirmation(E_NOT_OK)</td><td>Nm_TxTimeoutException() called.</td><td>00066</td></tr>
+  <tr><td>TC_PDU_004</td><td>RxIndication in Normal Op with TX enabled</td><td>NM-Timeout Timer restarted. If BusLoadReduction: Msg Cycle Timer restarted with MsgReducedTime.</td><td>00098, 00069</td></tr>
+  <tr><td>TC_PDU_005</td><td>CanNm_SetUserData() then next TX</td><td>NM PDU contains new user data bytes.</td><td>00159, 00217</td></tr>
+  <tr><td>TC_PDU_006</td><td>CanNm_GetUserData() after RxIndication</td><td>Returns user data bytes from last received NM PDU.</td><td>00160, 00218</td></tr>
+  <tr><td>TC_PDU_007</td><td>Active wakeup with ImmediateNmTransmissions=3</td><td>3 TX at ImmediateNmCycleTime (no MsgCycleOffset), then periodic at MsgCycleTime.</td><td>00334, 00335</td></tr>
+</table>
+</div>
+
+<h3>Test Group 4: Node Detection</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th></tr>
+  <tr><td>TC_ND_001</td><td>Receive NM PDU with RepeatMsg bit=1 in Normal Op</td><td>→ Repeat Msg State. Nm_RepeatMessageIndication() called (first time only). [SWS_CanNm_00119]</td></tr>
+  <tr><td>TC_ND_002</td><td>CanNm_RepeatMessageRequest() in Normal Op</td><td>→ Repeat Msg State. RepeatMsg bit SET in TX PDU. [SWS_CanNm_00120, 00121]</td></tr>
+  <tr><td>TC_ND_003</td><td>CanNm_RepeatMessageRequest() in Repeat Msg State</td><td>E_NOT_OK. No action. [SWS_CanNm_00137]</td></tr>
+  <tr><td>TC_ND_004</td><td>Leave Repeat Msg State</td><td>RepeatMsg bit CLEARED in CBV. [SWS_CanNm_00107]</td></tr>
+  <tr><td>TC_ND_005</td><td>CanNm_GetNodeIdentifier() after RxIndication</td><td>Returns SNI from last received NM PDU. [SWS_CanNm_00132]</td></tr>
+</table>
+</div>
+
+<h3>Test Group 5: Communication Control (UDS 0x28)</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Expected</th></tr>
+  <tr><td>DisableCommunication() in Network Mode</td><td>TX stopped. Msg Cycle Timer stopped. NM-Timeout Timer stopped. Remote Sleep detection stopped. [SWS_CanNm_00170, 00173, 00174, 00175]</td></tr>
+  <tr><td>EnableCommunication() after disable</td><td>TX re-enabled (next main function). NM-Timeout Timer restarted. Remote Sleep detection restarted. [SWS_CanNm_00178, 00179, 00180]</td></tr>
+  <tr><td>DisableCommunication() in PBS or Bus-Sleep</td><td>E_NOT_OK. [SWS_CanNm_00172]</td></tr>
+  <tr><td>EnableCommunication() when already enabled</td><td>E_NOT_OK. [SWS_CanNm_00177]</td></tr>
+  <tr><td>RequestBusSynchronization() with TX disabled</td><td>E_NOT_OK. [SWS_CanNm_00181]</td></tr>
+</table>
+</div>
+
+<h3>Test Group 6: Partial Networking</h3>
+<div class="card">
+<table>
+  <tr><th>TC</th><th>Stimulus</th><th>Expected</th></tr>
+  <tr><td>TC_PN_001</td><td>RxIndication with PNI=0 and AllNmMessagesKeepAwake=FALSE</td><td>PDU dropped. NM-Timeout Timer NOT restarted. [SWS_CanNm_00411]</td></tr>
+  <tr><td>TC_PN_002</td><td>RxIndication with PNI=1, relevant PNC bit set</td><td>Nm_PncBitVectorRxIndication() called. PDU processed normally. Timer restarted.</td></tr>
+  <tr><td>TC_PN_003</td><td>CanNm_ConfirmPnAvailability() called</td><td>PN filter enabled. Subsequent PDUs with no relevant PNC bits dropped.</td></tr>
+  <tr><td>TC_PN_004</td><td>Before ConfirmPnAvailability: receive NM PDU with PNI=1, no matching PNC</td><td>PDU still processed (safety: treat all as relevant before PN HW confirmed). Timer restarted.</td></tr>
+  <tr><td>TC_PN_005</td><td>CanNm_ActivateTxPnShutdownMsg() then next main function</td><td>NM PDU TX with PNSR=1. Cyclic TX postponed. [SWS_CanNm_00519, 00513]</td></tr>
+</table>
+</div>
+
+<h3>CANoe / Diagnostics Integration Tips</h3>
+<div class="grid2">
+<div class="card">
+<h3>CANoe CAPL Scripts</h3>
+<ul style="font-size:12px;padding-left:16px;line-height:2">
+  <li>Monitor NM PDU ID on CAN trace. Verify SNI byte matches expected NodeId.</li>
+  <li>Check CBV byte for Repeat Msg bit (bit 0) during startup burst.</li>
+  <li>Inject bus-off → verify Nm_TxTimeoutException + CanSM restart sequence.</li>
+  <li>Stop all NM PDUs from ECU under test → measure time until it enters PBS (= CanNmTimeoutTime). Compare to config.</li>
+  <li>PN test: send NM PDU without PNI bit → ECU with AllNmMessages=FALSE should not restart timer.</li>
+</ul>
+</div>
+<div class="card">
+<h3>TRACE32 Debug Tips</h3>
+<ul style="font-size:12px;padding-left:16px;line-height:2">
+  <li>Watch CanNm_NetworkModeState[] — transitions should match triggers.</li>
+  <li>Break on Nm_BusSleepMode() call — check timing from last NM PDU RX.</li>
+  <li>Break on Nm_TxTimeoutException() — check CanNmMsgTimeoutTime &lt; MsgCycleTime.</li>
+  <li>Watch CanNm_NmTimeoutTimer[] — decrement rate = MainFunctionPeriod.</li>
+  <li>Inspect CanNm_RxBuffer[] immediately after RxIndication — verify PDU copied correctly.</li>
+</ul>
+</div>
+</div>
+
+<h3>Common Integration Mistakes (Industry level)</h3>
+<div class="danger">
+<strong>1. CanNmTimeoutTime not identical across cluster</strong> → some nodes stay awake forever. Always verify OEM network spec has one master timing table.
+</div>
+<div class="danger">
+<strong>2. LSduR_CanNm.h not included (R24-11 change)</strong> → linker error or missing interface. Previously was PduR_CanNm.h. Check R24-11 migration notes.
+</div>
+<div class="danger">
+<strong>3. CanNm_ConfirmPnAvailability() never called</strong> → PN filter never enabled → all NM PDUs treated as relevant → ECU never goes to Bus-Sleep in PN network.
+</div>
+<div class="danger">
+<strong>4. CanNmMsgCycleOffset = 0 for all nodes</strong> → all nodes TX simultaneously at startup → CAN bus collision burst → arbitration chaos → some TX fails → network_timeout errors.
+</div>
+<div class="warn">
+<strong>5. NM PDU ID conflict with regular CAN frames</strong> → LSduR routing wrong → CanNm_RxIndication called for wrong frames. Check CanNmRxPduRef PDU ID matches CanIf RX PDU config.
+</div>
+<div class="warn">
+<strong>6. ImmediateNmTransmissions &gt; 0 but ImmediateRestartEnabled also TRUE</strong> → conflict. ImmediateNmTransmissions must be 0 if ImmediateRestartEnabled=TRUE. [ECUC dependency]
+</div>
+</div>
+
+</div><!-- content -->
+
+<script>
+function T(id){
+  var ids=['overview','statediag','pdu','timing','api','sequences','pn','errors','davinci','testing'];
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',ids[i]===id);});
+  document.querySelectorAll('.section').forEach(function(s){s.classList.toggle('active',s.id==='s-'+id);});
+}
+
+var smData={
+  init:{
+    title:'Bus-Sleep Mode',
+    bg:'#f5f4f0',
+    body:'Entry state at init [SWS_CanNm_00141]. NM PDU TX stopped. NM-Timeout Timer stopped. No activity. Wakeup sources active. If RxIndication received here: Nm_NetworkStartIndication() called + CANNM_E_NET_START_IND to DET — but NO auto-transition. Upper layer (EcuM) decides wakeup. [SWS_CanNm_00127]',
+    exits:'→ Repeat Msg State: NetworkRequest() [00129], PassiveStartUp() [00128], RxIndication received then upper layer decides [00127]',
+    timers:'None running.',
+    sws:'SWS_CanNm_00141, 00126, 00127, 00336'
+  },
+  pbs:{
+    title:'Prepare Bus-Sleep Mode',
+    bg:'#fff8e6',
+    body:'Bus calming phase. No NM PDU TX. Queued messages drain. Nm_PrepareBusSleepMode() called on entry. [SWS_CanNm_00114]. If CanNmStayInPbsEnabled=TRUE: stays here forever (no WaitBusSleepTime timeout). Only power-off or wakeup exits.',
+    exits:'→ Bus-Sleep: WaitBusSleepTime expires (if StayInPbs=FALSE) [SWS_CanNm_00088]. → Repeat Msg State: NetworkRequest() [00123] or RxIndication [00124] or PassiveStartUp() [00128].',
+    timers:'WaitBusSleepTime Timer running (if StayInPbs=FALSE).',
+    sws:'SWS_CanNm_00114, 00088, 00123, 00124'
+  },
+  rms:{
+    title:'Repeat Message State (inside Network Mode)',
+    bg:'#e6f3ff',
+    body:'Ensures joining node visible to all others. TX starts immediately (or after MsgCycleOffset). RepeatMessage Bit SET in CBV. Bus load reduction DEACTIVATED on entry. Stay for CanNmRepeatMessageTime. CANNM_E_NETWORK_TIMEOUT reported if NM-Timeout expires (but timer just restarts — expected in event-driven systems). [SWS_CanNm_00100, 00102, 00156, 00193]',
+    exits:'→ Normal Op: RepeatMsgTime expires + network requested [00103]. → Ready Sleep: RepeatMsgTime expires + network released [00106]. RepeatMsg bit CLEARED on exit [00107].',
+    timers:'NM-Timeout Timer running. Repeat Message Timer running. Msg Cycle Timer running.',
+    sws:'SWS_CanNm_00100, 00101, 00102, 00103, 00106, 00107, 00156, 00193'
+  },
+  nos:{
+    title:'Normal Operation State (inside Network Mode)',
+    bg:'#edfaee',
+    body:'Active communication, network requested. TX periodic. Bus load reduction ACTIVATED on entry if configured. [SWS_CanNm_00157]. Remote Sleep Indication detection active. CANNM_E_NETWORK_TIMEOUT reported if NM-Timeout expires but timer restarts. [SWS_CanNm_00117, 00194]',
+    exits:'→ Ready Sleep: NetworkRelease() called [00118]. → Repeat Msg State: RepeatMsg bit received (NodeDetection enabled) [00119] or RepeatMessageRequest() called [00120].',
+    timers:'NM-Timeout Timer running. Msg Cycle Timer running. Remote Sleep Ind Timer running (if enabled). TX Timeout Timer per TX (if PN).',
+    sws:'SWS_CanNm_00116, 00117, 00118, 00119, 00120, 00150, 00157, 00194'
+  },
+  rss:{
+    title:'Ready Sleep State (inside Network Mode)',
+    bg:'#faeeda',
+    body:'Network released. Waiting for others to stop. TX STOPPED [SWS_CanNm_00108]. NM-Timeout Timer still running. Remote Sleep Indication tracking continues. ECU waiting for all others to release before collective sleep.',
+    exits:'→ Prepare Bus-Sleep: NM-Timeout Timer expires [00109]. → Normal Op: NetworkRequest() called [00110]. → Repeat Msg State: RepeatMsg bit received (NodeDetection) [00111] or RepeatMessageRequest() called [00112, 00113].',
+    timers:'NM-Timeout Timer running. Msg Cycle Timer STOPPED. Remote Sleep Ind Timer running.',
+    sws:'SWS_CanNm_00108, 00109, 00110, 00111, 00112, 00113'
+  }
+};
+
+function SM(k){
+  var d=smData[k];
+  document.getElementById('sm-detail').innerHTML=
+    '<div style="padding:8px 12px;border-radius:6px;background:'+d.bg+';margin-bottom:8px;font-weight:700;font-size:14px;color:#0f2942">'+d.title+'</div>'+
+    '<p style="font-size:12px;line-height:1.7;margin-bottom:6px">'+d.body+'</p>'+
+    '<p style="font-size:12px;color:#185FA5;margin-bottom:4px"><strong>Transitions out:</strong> '+d.exits+'</p>'+
+    '<p style="font-size:12px;color:#cc8800;margin-bottom:4px"><strong>Timers active:</strong> '+d.timers+'</p>'+
+    '<p style="font-size:10px;color:#999;font-family:monospace">Ref: '+d.sws+'</p>';
+}
+</script>
+</body>
+</html>
